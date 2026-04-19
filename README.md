@@ -1,48 +1,143 @@
 # HumbleStudio
 
-Design system viewer for iOS apps under the HumblePlatform brand.
+Live design system viewer for iOS apps under the [HumblePlatform](https://github.com/humbleplatform) brand.
 
-Single-file, no dependencies, no build step — open `index.html` in a browser.
+**No dependencies. No build step. Open `index.html` in a browser.**
 
-## Usage
+Load a `.humble/design.json` from any HumblePlatform repo and instantly see the full design system — color tokens, typography, spacing, components with interactive mocks, phone mockups of every screen, and a clickable navigation map.
 
-1. Open `index.html` in any browser
-2. Load a `.humble/design.json` from your repository:
-   - **URL** — paste a raw GitHub URL
-   - **File** — upload from disk
-   - **Demo** — click "Load HumbleSudoku demo config"
+---
+
+## Quick start
+
+```
+open index.html
+```
+
+Then pick one of three ways to load a config:
+
+| Method | When to use |
+|--------|-------------|
+| **URL** | Paste a raw GitHub URL to `.humble/design.json` on any branch |
+| **File** | Upload a local `design.json` for offline work |
+| **Demo** | Click "Load HumbleSudoku demo config" to explore a real example |
+
+---
 
 ## Config format
 
-Each app repo should have `.humble/design.json` describing:
+Each app repo has `.humble/design.json`. Minimal structure:
+
+```json
+{
+  "meta": { "name": "MyApp", "version": "1.0", "platform": "ios" },
+  "tokens": {
+    "colors":     { "accent": { "dark": "#1DB8A0", "light": "#0D9B86", "group": "Accent" } },
+    "typography": [ { "role": "displayTitle", "swiftui": ".largeTitle .bold", "size": 28, "weight": 700 } ],
+    "spacing":    { "sp4": { "value": "16", "usage": "card padding" } },
+    "radius":     { "card": { "value": "16px", "usage": "card, sheet" } }
+  },
+  "components": [
+    {
+      "id": "primary-button", "name": "PrimaryButton", "group": "Buttons",
+      "renderer": "button", "swiftui": "PrimaryButton(title:style:)",
+      "mocks": [
+        { "id": "default", "label": "Default", "props": { "title": "Continue", "style": "primary" } }
+      ]
+    }
+  ],
+  "views": [
+    {
+      "id": "home", "name": "HomeView", "root": true,
+      "navbar": { "title": "MyApp", "back": false, "actions": ["⚙"] },
+      "components": ["primary-button"],
+      "navigatesTo": [ { "viewId": "detail", "trigger": "Continue button", "type": "push" } ]
+    }
+  ],
+  "navigation": { "root": "home", "type": "stack" }
+}
+```
+
+See [`design.template.json`](design.template.json) for a copy-paste starter.  
+See [`configs/humble-sudoku.json`](configs/humble-sudoku.json) for a full real-world example.
+
+---
+
+## What you get
+
+### Foundation
+- **Tokens** — color swatches with dark/light values, grouped by category
+- **Typography** — type scale table with live size/weight preview
+- **Spacing & Radius** — visual bar chart for spacing, box previews for radius
+
+### Components
+Each component renders as an HTML approximation of its SwiftUI counterpart. Switch between mocks via the dropdown to see all variants (disabled state, different styles, etc.).
+
+**Supported renderers:**
+
+| `renderer` value    | SwiftUI analog            |
+|---------------------|---------------------------|
+| `button`            | `HumbleButton(title:style:)` |
+| `badge`             | `HumbleBadge(label:style:)` |
+| `timer`             | `TimerBadge(value:accent:)` |
+| `difficulty-picker` | `DifficultyPicker(selected:)` |
+| `numpad`            | `NumberPad(selected:onTap:)` |
+| `list`              | `SettingsList(sections:)` |
+| `navbar`            | `GameNavigationBar(title:actions:)` |
+| `stat-chips`        | `StatChipsRow(difficulty:time:)` |
+| `cell-states`       | `GridCell(state:value:)` |
+| `action-card`       | `ActionCard(title:subtitle:buttons:)` |
+
+Unknown renderers fall back to a JSON dump of their props.
+
+### Views
+- Grid of phone mockups — one card per screen
+- Click any view to open a detail with a phone mockup, component list, and navigation targets
+- Click a component pill to jump to its component page
+- Click a navigation target to jump to that view
+
+### Navigation Map
+Interactive SVG diagram generated from `views[].navigatesTo`. Click any node to open the view detail.
+
+| Arrow style | Type |
+|-------------|------|
+| Teal solid  | `push` |
+| Blue dashed | `sheet` |
+| Yellow solid | `replace` |
+
+---
+
+## File structure
 
 ```
-tokens        → colors (dark/light), typography, spacing, radius
-components    → SwiftUI components with renderer type and mocks
-views         → app screens with component lists and navigation
-navigation    → root view and navigation type
+HumbleStudio/
+├── index.html              ← app shell (HTML only)
+├── studio.css              ← all styles, CSS variables, dark/light theme
+├── js/
+│   ├── app.js              ← state, routing, config loaders, sidebar, export
+│   ├── renderers.js        ← component + page renderers
+│   └── demo.js             ← DEMO_CONFIG (HumbleSudoku)
+├── configs/
+│   └── humble-sudoku.json  ← full HumbleSudoku design config
+└── design.template.json    ← minimal starter for new apps
 ```
 
-See `design.template.json` for a minimal starter config.
+---
 
-## Supported renderers
+## Adding HumbleStudio to your app repo
 
-| renderer          | SwiftUI analog            |
-|-------------------|---------------------------|
-| `button`          | `HumbleButton`            |
-| `badge`           | `HumbleBadge`             |
-| `timer`           | `TimerBadge`              |
-| `difficulty-picker` | `DifficultyPicker`      |
-| `numpad`          | `NumberPad`               |
-| `list`            | `SettingsList`            |
-| `navbar`          | `GameNavigationBar`       |
-| `stat-chips`      | `StatChipsRow`            |
-| `cell-states`     | `GridCell`                |
-| `action-card`     | `ActionCard`              |
+1. Create `.humble/design.json` (copy from `design.template.json`)
+2. Fill in your tokens, components, and views
+3. In HumbleStudio, load via raw GitHub URL:
+   ```
+   https://raw.githubusercontent.com/mrPoky/<repo>/develop/.humble/design.json
+   ```
 
-## Navigation map
+---
 
-Views with `navigatesTo[]` relations are rendered as an interactive SVG flow diagram. Navigation types:
-- `push` — teal arrow
-- `sheet` — blue dashed arrow
-- `replace` — yellow arrow
+## HumblePlatform
+
+HumbleStudio is part of the HumblePlatform toolchain alongside:
+- **HumbleSudoku** — the iOS app this viewer was built for
+- **HumbleInsights** — analytics dashboard for code quality reports
+- **HumbleFlow** — shared CI/CD policy and hooks
