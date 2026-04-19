@@ -20,13 +20,14 @@
   <div class="sb-scroll">
     <div class="sb-section">
       <div class="sb-section-title">Config</div>
-      <div class="sb-link" onclick="showPage('loader')"><span class="sb-link-icon">⬆</span>Load config</div>
+      <div class="sb-link" data-nav-key="page:loader" onclick="showPage('loader')"><span class="sb-link-icon">⬆</span>Load config</div>
     </div>
     <div class="sb-section" id="sbDesignSections" style="display:none">
       <div class="sb-section-title">Foundation</div>
-      <div class="sb-link" onclick="showPage('tokens')"><span class="sb-link-icon">◉</span>Tokens <span class="sb-count" id="cntTokens">0</span></div>
-      <div class="sb-link" onclick="showPage('typography')"><span class="sb-link-icon">T</span>Typography</div>
-      <div class="sb-link" onclick="showPage('spacing')"><span class="sb-link-icon">⬚</span>Spacing & Radius</div>
+      <div class="sb-link" data-nav-key="page:tokens" onclick="showPage('tokens')"><span class="sb-link-icon">◉</span>Tokens <span class="sb-count" id="cntTokens">0</span></div>
+      <div class="sb-link" data-nav-key="page:icons" onclick="showPage('icons')"><span class="sb-link-icon">⌘</span>Icons <span class="sb-count" id="cntIcons">0</span></div>
+      <div class="sb-link" data-nav-key="page:typography" onclick="showPage('typography')"><span class="sb-link-icon">T</span>Typography</div>
+      <div class="sb-link" data-nav-key="page:spacing" onclick="showPage('spacing')"><span class="sb-link-icon">⬚</span>Spacing & Radius</div>
     </div>
     <div class="sb-section" id="sbComponentSections" style="display:none">
       <div class="sb-section-title">Components</div>
@@ -35,7 +36,7 @@
     <div class="sb-section" id="sbViewSections" style="display:none">
       <div class="sb-section-title">Views</div>
       <div id="sbViewLinks"></div>
-      <div class="sb-link" onclick="showPage('navmap')"><span class="sb-link-icon">⬡</span>Navigation Map</div>
+      <div class="sb-link" data-nav-key="page:navmap" onclick="showPage('navmap')"><span class="sb-link-icon">⬡</span>Navigation Map</div>
     </div>
   </div>
   <div class="sb-footer">
@@ -55,6 +56,7 @@
     <button class="btn-sm" onclick="showPage('loader')">⬆ Load config</button>
     <button class="btn-sm btn-sm-accent" id="btnExport" onclick="exportConfig()" style="display:none">↓ Export</button>
   </div>
+  <div id="validationBanner" class="validation-banner" style="display:none"></div>
 
   <!-- Loader -->
   <div id="page-loader" class="page active content">
@@ -72,7 +74,15 @@
         </div>
         <div class="loader-or">— or —</div>
         <div class="loader-label">Upload file</div>
-        <input class="loader-input" type="file" id="fileInput" accept=".json" onchange="loadFromFile(event)" />
+        <label class="loader-upload" for="fileInput">
+          <input class="loader-file-input" type="file" id="fileInput" accept=".json" onchange="loadFromFile(event)" />
+          <span class="loader-upload-icon">↑</span>
+          <span class="loader-upload-copy">
+            <span class="loader-upload-title">Choose `design.json`</span>
+            <span class="loader-upload-sub" id="fileInputLabel">Select a local `.json` config file</span>
+          </span>
+          <span class="loader-upload-cta">Browse</span>
+        </label>
         <div class="loader-or">— or —</div>
         <div style="text-align:center">
           <span class="loader-demo" onclick="loadDemo()">Load HumbleSudoku demo config</span>
@@ -85,6 +95,19 @@
   <div id="page-tokens" class="page content">
     <div class="section-header"><div class="section-title">Tokens</div><div class="section-desc">Design tokens loaded from <code style="font-family:var(--mono);font-size:11px">.humble/design.json → tokens</code></div></div>
     <div id="tokensContent"></div>
+  </div>
+
+  <div id="page-icons" class="page content">
+    <div class="section-header"><div class="section-title">Icons</div><div class="section-desc">Symbol catalog used by the app.</div></div>
+    <div id="iconsContent"></div>
+  </div>
+
+  <div id="page-foundationdetail" class="page content">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+      <button class="btn-sm" id="foundationBackBtn" onclick="showPage('tokens')">‹ Back</button>
+      <div class="section-title" id="foundationDetailTitle"></div>
+    </div>
+    <div id="foundationDetailContent"></div>
   </div>
 
   <!-- Typography -->
@@ -122,10 +145,34 @@
 
   <!-- Nav map -->
   <div id="page-navmap" class="page content">
-    <div class="section-header"><div class="section-title">Navigation Map</div><div class="section-desc">Screen flow generated from <code style="font-family:var(--mono);font-size:11px">views[].navigatesTo</code></div></div>
+    <div class="section-header nav-map-header">
+      <div>
+        <div class="section-title">Navigation Map</div>
+        <div class="section-desc">Screen flow generated from <code style="font-family:var(--mono);font-size:11px">views[].navigatesTo</code></div>
+      </div>
+      <div class="nav-map-toolbar">
+        <button class="btn-sm" onclick="changeNavMapZoom(-0.15)">−</button>
+        <button class="btn-sm" onclick="resetNavMapZoom()">100%</button>
+        <button class="btn-sm" onclick="changeNavMapZoom(0.15)">+</button>
+        <span class="nav-map-zoom-label" id="navMapZoomLabel">100%</span>
+      </div>
+    </div>
     <div class="nav-map-container" id="navMapContainer"></div>
   </div>
 </main>
+
+<div id="snapshotLightbox" class="lightbox" style="display:none" onclick="closeSnapshotLightbox()">
+  <div class="lightbox-dialog" onclick="event.stopPropagation()">
+    <button class="lightbox-close" onclick="closeSnapshotLightbox()">✕</button>
+    <div class="lightbox-meta">
+      <div class="lightbox-title" id="lightboxTitle">Snapshot</div>
+      <div class="lightbox-sub" id="lightboxSubtitle"></div>
+    </div>
+    <div class="lightbox-stage">
+      <img id="lightboxImage" alt="Expanded snapshot">
+    </div>
+  </div>
+</div>
 
 <script src="js/demo.js"></script>
 <script src="js/renderers.js"></script>
