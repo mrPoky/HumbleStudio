@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "name": "MyApp",
+    "version": "1.0",
+    "platform": "ios",
+    "repo": "humbleplatform/MyApp"
+  },
+
+  "tokens": {
+    "colors": {
+      "accent": {
+        "dark": "#1DB8A0",
+        "light": "#0D9B86",
+        "group": "Accent"
+      },
+      "bgPrimary": {
+        "dark": "#0D1628",
+        "light": "#F0F4FA",
+        "group": "Backgrounds"
+      },
+      "surface": {
+        "dark": "#162035",
+        "light": "#FFFFFF",
+        "group": "Backgrounds"
+      }
+    },
+
+    "typography": [
+      {
+        "role": "displayTitle",
+        "swiftui": ".largeTitle .bold",
+        "size": 28,
+        "weight": 700,
+        "preview": "App Title"
+      },
+      {
+        "role": "body",
+        "swiftui": ".body",
+        "size": 15,
+        "weight": 400,
+        "preview": "Body text example",
+        "secondary": true
+      }
+    ],
+
+    "spacing": {
+      "sp4": { "value": "16", "usage": "card padding" },
+      "sp5": { "value": "20", "usage": "screen h-padding" }
+    },
+
+    "radius": {
+      "card": { "value": "16px", "usage": "card, sheet" },
+      "btn":  { "value": "14px", "usage": "button" },
+      "pill": { "value": "50px", "usage": "badge pill" }
+    }
+  },
+
+  "components": [
+    {
+      "id": "primary-button",
+      "name": "PrimaryButton",
+      "group": "Buttons",
+      "renderer": "button",
+      "swiftui": "PrimaryButton(title:style:)",
+      "description": "Main CTA button.",
+      "mocks": [
+        {
+          "id": "default",
+          "label": "Default",
+          "props": { "title": "Continue", "style": "primary" }
+        },
+        {
+          "id": "disabled",
+          "label": "Disabled",
+          "props": { "title": "Continue", "style": "primary", "disabled": true }
+        }
+      ]
+    }
+  ],
+
+  "views": [
+    {
+      "id": "home",
+      "name": "HomeView",
+      "root": true,
+      "description": "App entry point.",
+      "navbar": {
+        "title": "MyApp",
+        "back": false,
+        "actions": ["⚙"]
+      },
+      "components": ["primary-button"],
+      "navigatesTo": [
+        {
+          "viewId": "detail",
+          "trigger": "Continue button",
+          "type": "push"
+        }
+      ]
+    },
+    {
+      "id": "detail",
+      "name": "DetailView",
+      "description": "Detail screen.",
+      "navbar": {
+        "title": "Detail",
+        "back": true,
+        "actions": []
+      },
+      "components": [],
+      "navigatesTo": []
+    }
+  ],
+
+  "navigation": {
+    "root": "home",
+    "type": "stack"
+  }
+}

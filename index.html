@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HumbleStudio</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+:root{
+  --bg:       #0D1628;
+  --surface:  #162035;
+  --surface2: #1E2A40;
+  --surface3: #263348;
+  --accent:   #1DB8A0;
+  --accent2:  #2DD4BF;
+  --blue:     #3B82F6;
+  --dest-bg:  #3D0F1F;
+  --dest:     #F87171;
+  --success:  #34D399;
+  --warn:     #FBBF24;
+  --t1: #FFFFFF;
+  --t2: #8A9BB0;
+  --t3: #4A5E78;
+  --border:   rgba(60,90,130,0.40);
+  --border2:  rgba(60,90,130,0.20);
+  --r-sm:8px;--r-md:12px;--r-btn:14px;--r-card:16px;--r-pill:50px;
+  --font:-apple-system,"SF Pro Text","Helvetica Neue",sans-serif;
+  --mono:"SF Mono","Fira Code",monospace;
+  --sidebar:220px;
+}
+[data-theme=light]{
+  --bg:#F0F4FA;--surface:#FFFFFF;--surface2:#E8EEF8;--surface3:#D8E2F0;
+  --accent:#0D9B86;--accent2:#1DB8A0;--blue:#2563EB;
+  --dest-bg:#FEE2E2;--dest:#DC2626;--success:#059669;--warn:#D97706;
+  --t1:#0D1628;--t2:#4A5E78;--t3:#8A9BB0;
+  --border:rgba(0,0,0,0.10);--border2:rgba(0,0,0,0.05);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;min-height:100vh;font-size:14px;line-height:1.5;transition:background .2s,color .2s}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border2);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;overflow:hidden}
+.sb-brand{padding:16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px}
+.sb-logo{width:32px;height:32px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0}
+.sb-name{font-size:15px;font-weight:700;letter-spacing:-0.3px}
+.sb-ver{font-size:10px;color:var(--t3);margin-top:1px}
+.sb-scroll{flex:1;overflow-y:auto;padding:8px 8px}
+.sb-section{margin-bottom:4px}
+.sb-section-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding:10px 8px 4px}
+.sb-link{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r-sm);font-size:12px;color:var(--t2);cursor:pointer;transition:background .12s,color .12s;user-select:none}
+.sb-link:hover{background:var(--surface2);color:var(--t1)}
+.sb-link.active{background:var(--accent);color:#fff;font-weight:600}
+.sb-link-icon{width:14px;text-align:center;font-size:12px;opacity:.7}
+.sb-link.active .sb-link-icon{opacity:1}
+.sb-count{margin-left:auto;background:var(--surface3);border-radius:10px;padding:1px 6px;font-size:10px;color:var(--t2)}
+.sb-link.active .sb-count{background:rgba(255,255,255,.2);color:#fff}
+.sb-footer{padding:12px;border-top:1px solid var(--border2)}
+.sb-config-status{font-size:10px;color:var(--t3);margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0}
+.status-dot.err{background:var(--dest)}
+.status-dot.loading{background:var(--warn);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.theme-toggle{display:flex;background:var(--surface2);border-radius:8px;padding:2px;border:1px solid var(--border)}
+.theme-btn{flex:1;padding:4px;border-radius:6px;border:none;cursor:pointer;font-size:11px;font-weight:600;background:transparent;color:var(--t2);font-family:var(--font);transition:all .15s}
+.theme-btn.active{background:var(--accent);color:#fff}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border2);padding:10px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:15px;font-weight:700;flex:1}
+.topbar-breadcrumb{font-size:12px;color:var(--t2)}
+.btn-sm{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--t1);cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:5px;transition:background .12s}
+.btn-sm:hover{background:var(--surface3)}
+.btn-sm-accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-sm-accent:hover{opacity:.85}
+
+/* ── CONTENT AREA ── */
+.content{padding:24px}
+.page{display:none}
+.page.active{display:block}
+
+/* ── SECTION ── */
+.section-header{margin-bottom:20px}
+.section-title{font-size:20px;font-weight:700;letter-spacing:-.4px}
+.section-desc{font-size:12px;color:var(--t2);margin-top:4px}
+.subsection{margin-top:24px;margin-bottom:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3)}
+
+/* ── LOADER SCREEN ── */
+.loader-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:20px;text-align:center}
+.loader-logo{width:72px;height:72px;background:var(--accent);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;margin:0 auto 8px}
+.loader-title{font-size:24px;font-weight:700}
+.loader-sub{font-size:13px;color:var(--t2);max-width:400px}
+.loader-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px;width:100%;max-width:480px;text-align:left}
+.loader-label{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.loader-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:13px;color:var(--t1);font-family:var(--font);outline:none;transition:border .15s}
+.loader-input:focus{border-color:var(--accent)}
+.loader-or{text-align:center;font-size:11px;color:var(--t3);margin:10px 0}
+.loader-actions{display:flex;gap:8px;margin-top:10px}
+.btn-full{flex:1;background:var(--accent);border:none;border-radius:var(--r-sm);padding:9px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--font)}
+.btn-full-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--t1)}
+.loader-demo{font-size:11px;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+
+/* ── TOKEN GRID ── */
+.token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.swatch{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden}
+.swatch-block{height:48px}
+.swatch-info{padding:10px}
+.swatch-name{font-size:11px;font-weight:700;color:var(--t1)}
+.swatch-token{font-size:9px;font-family:var(--mono);color:var(--accent);margin-top:1px}
+.swatch-hex{font-size:9px;font-family:var(--mono);color:var(--t3)}
+
+/* ── COMPONENT CARD ── */
+.component-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.component-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.cc-header{padding:12px 14px 10px;border-bottom:1px solid var(--border2)}
+.cc-name{font-size:13px;font-weight:700}
+.cc-swift{font-size:10px;font-family:var(--mono);color:var(--accent);margin-top:2px}
+.cc-desc{font-size:11px;color:var(--t2);margin-top:3px}
+.cc-preview{padding:20px;min-height:80px;display:flex;align-items:center;justify-content:center;background:var(--bg);border-bottom:1px solid var(--border2)}
+.cc-footer{padding:8px 12px;display:flex;align-items:center;gap:8px}
+.mock-label{font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.mock-select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--t1);font-family:var(--font);cursor:pointer;flex:1}
+
+/* ── VIEW CARDS ── */
+.view-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.view-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .15s}
+.view-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.vc-screen{background:var(--bg);height:200px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.vc-mockup{width:90px;background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.vc-info{padding:10px 12px;border-top:1px solid var(--border2)}
+.vc-name{font-size:12px;font-weight:700}
+.vc-comps{font-size:10px;color:var(--t3);margin-top:2px}
+.vc-nav-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.vc-nav-tag{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:9px;color:var(--t2);font-family:var(--mono)}
+
+/* ── VIEW DETAIL ── */
+.view-detail{display:none}
+.view-detail.active{display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start}
+.vd-screen{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.vd-phone{width:260px;margin:24px auto;background:var(--bg);border-radius:36px;border:2px solid var(--border);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.vd-notch{height:40px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--t3);border-bottom:1px solid var(--border2)}
+.vd-body{padding:0 0 20px}
+.vd-sidebar{display:flex;flex-direction:column;gap:10px}
+.vd-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px}
+.vd-panel-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:10px}
+.vd-comp-pill{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--t1);display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;cursor:pointer;transition:border-color .1s}
+.vd-comp-pill:hover{border-color:var(--accent)}
+.nav-arrow{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);font-size:11px;margin-bottom:4px;cursor:pointer;transition:border-color .1s}
+.nav-arrow:hover{border-color:var(--accent)}
+.nav-trigger{font-size:9px;color:var(--t3);margin-top:1px}
+.nav-badge{font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700}
+.nav-push{background:rgba(29,184,160,.15);color:var(--accent)}
+.nav-sheet{background:rgba(59,130,246,.15);color:var(--blue)}
+.nav-replace{background:rgba(251,191,36,.15);color:var(--warn)}
+
+/* ── NAV MAP ── */
+.nav-map-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:auto;padding:0}
+#navMapSvg{display:block}
+
+/* ── RENDERED COMPONENTS ── */
+.r-btn-primary{background:var(--accent);border:none;color:#fff;padding:13px 20px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);display:inline-block}
+.r-btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--t1);padding:13px 20px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);display:inline-block}
+.r-btn-destructive{background:var(--dest-bg);border:1px solid var(--border);color:var(--dest);padding:13px 20px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);display:inline-block}
+.r-btn-blue{background:var(--blue);border:none;color:#fff;padding:13px 20px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);display:inline-block}
+.r-btn-ghost{background:transparent;border:1px solid var(--border);color:var(--t2);padding:13px 20px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);display:inline-block}
+.r-badge-teal{background:var(--accent);color:#fff;padding:4px 12px;border-radius:50px;font-size:12px;font-weight:600;display:inline-block}
+.r-badge-surface{background:var(--surface2);color:var(--t1);border:1px solid var(--border);padding:4px 12px;border-radius:50px;font-size:12px;font-weight:600;display:inline-block}
+.r-badge-blue{background:rgba(59,130,246,.18);color:var(--blue);border:1px solid rgba(59,130,246,.3);padding:4px 12px;border-radius:50px;font-size:12px;font-weight:600;display:inline-block}
+.r-timer{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:4px 10px;font-size:13px;font-weight:700;font-family:var(--mono);color:var(--t1);display:inline-block}
+.r-diff-picker{display:flex;gap:5px;background:var(--surface);border-radius:14px;padding:8px;border:1px solid var(--border);width:100%}
+.r-diff-chip{flex:1;padding:7px 3px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);color:var(--t1);font-size:11px;font-weight:600;text-align:center;cursor:pointer}
+.r-diff-chip.r-sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.r-numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:220px}
+.r-num-btn{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:13px;font-size:20px;font-weight:700;color:var(--t1);text-align:center;cursor:pointer}
+.r-num-btn.r-sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.r-list-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;width:100%}
+.r-list-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border2);font-size:13px}
+.r-list-row:last-child{border-bottom:none}
+.r-list-val{color:var(--t2);display:flex;align-items:center;gap:4px}
+.r-navbar{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;width:100%}
+.r-circle{width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer}
+.r-stat-row{display:flex;gap:8px;width:100%}
+.r-stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:9px 12px;flex:1}
+.r-stat-label{font-size:10px;color:var(--t2)}
+.r-stat-val{font-size:17px;font-weight:700;margin-top:1px}
+.r-cell-row{display:flex;gap:6px}
+.r-cell{width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700}
+
+/* ── PHONE MOCKUP (view detail) ── */
+.phone-navbar{background:var(--surface);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border2)}
+.phone-btn{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px}
+.phone-title{font-size:13px;font-weight:700}
+.phone-content{padding:10px}
+.phone-section-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:6px}
+.phone-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:8px}
+.phone-card-title{font-size:13px;font-weight:700}
+.phone-card-sub{font-size:10px;color:var(--t2);margin-top:2px}
+
+/* ── EMPTY STATE ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;color:var(--t2)}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:.4}
+.empty-title{font-size:14px;font-weight:600;color:var(--t1)}
+.empty-sub{font-size:12px;margin-top:4px}
+
+/* ── CODE ── */
+.code{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;font-family:var(--mono);font-size:11px;color:var(--t2);overflow-x:auto;line-height:1.7;white-space:pre}
+
+/* ── MISC ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.tag{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:10px;font-family:var(--mono);color:var(--t2)}
+.sep{height:1px;background:var(--border2);margin:16px 0}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══════════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">HS</div>
+    <div>
+      <div class="sb-name">HumbleStudio</div>
+      <div class="sb-ver" id="sbAppName">No config loaded</div>
+    </div>
+  </div>
+  <div class="sb-scroll">
+    <div class="sb-section">
+      <div class="sb-section-title">Config</div>
+      <div class="sb-link" onclick="showPage('loader')"><span class="sb-link-icon">⬆</span>Load config</div>
+    </div>
+    <div class="sb-section" id="sbDesignSections" style="display:none">
+      <div class="sb-section-title">Foundation</div>
+      <div class="sb-link" onclick="showPage('tokens')"><span class="sb-link-icon">◉</span>Tokens <span class="sb-count" id="cntTokens">0</span></div>
+      <div class="sb-link" onclick="showPage('typography')"><span class="sb-link-icon">T</span>Typography</div>
+      <div class="sb-link" onclick="showPage('spacing')"><span class="sb-link-icon">⬚</span>Spacing & Radius</div>
+    </div>
+    <div class="sb-section" id="sbComponentSections" style="display:none">
+      <div class="sb-section-title">Components</div>
+      <div id="sbComponentLinks"></div>
+    </div>
+    <div class="sb-section" id="sbViewSections" style="display:none">
+      <div class="sb-section-title">Views</div>
+      <div id="sbViewLinks"></div>
+      <div class="sb-link" onclick="showPage('navmap')"><span class="sb-link-icon">⬡</span>Navigation Map</div>
+    </div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-config-status"><span class="status-dot err" id="statusDot"></span><span id="statusText">No config</span></div>
+    <div class="theme-toggle">
+      <button class="theme-btn active" id="btnDark" onclick="setTheme('dark')">Dark</button>
+      <button class="theme-btn" id="btnLight" onclick="setTheme('light')">Light</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ══════════════════════════════════════════════ -->
+<main class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title" id="topTitle">HumbleStudio</div>
+    <span class="topbar-breadcrumb" id="topBreadcrumb"></span>
+    <button class="btn-sm" onclick="showPage('loader')">⬆ Load config</button>
+    <button class="btn-sm btn-sm-accent" id="btnExport" onclick="exportConfig()" style="display:none">↓ Export</button>
+  </div>
+
+  <!-- ═ PAGE: LOADER ═ -->
+  <div id="page-loader" class="page active content">
+    <div class="loader-screen">
+      <div>
+        <div class="loader-logo">HS</div>
+        <div class="loader-title">HumbleStudio</div>
+        <div class="loader-sub">Load a <code style="font-family:var(--mono);font-size:12px">.humble/design.json</code> from your repository to get started.</div>
+      </div>
+      <div class="loader-box">
+        <div class="loader-label">Load from URL (raw GitHub / CDN)</div>
+        <input class="loader-input" id="urlInput" type="url" placeholder="https://raw.githubusercontent.com/user/repo/main/.humble/design.json" />
+        <div class="loader-actions">
+          <button class="btn-full" onclick="loadFromUrl()">Load URL</button>
+        </div>
+        <div class="loader-or">— or —</div>
+        <div class="loader-label">Upload file</div>
+        <input class="loader-input" type="file" id="fileInput" accept=".json" onchange="loadFromFile(event)" />
+        <div class="loader-or">— or —</div>
+        <div style="text-align:center">
+          <span class="loader-demo" onclick="loadDemo()">Load HumbleSudoku demo config</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═ PAGE: TOKENS ═ -->
+  <div id="page-tokens" class="page content">
+    <div class="section-header">
+      <div class="section-title">Tokens</div>
+      <div class="section-desc">Design tokens loaded from <code style="font-family:var(--mono);font-size:11px">.humble/design.json → tokens</code></div>
+    </div>
+    <div id="tokensContent"></div>
+  </div>
+
+  <!-- ═ PAGE: TYPOGRAPHY ═ -->
+  <div id="page-typography" class="page content">
+    <div class="section-header">
+      <div class="section-title">Typography</div>
+      <div class="section-desc">Type scale from config</div>
+    </div>
+    <div id="typographyContent"></div>
+  </div>
+
+  <!-- ═ PAGE: SPACING ═ -->
+  <div id="page-spacing" class="page content">
+    <div class="section-header">
+      <div class="section-title">Spacing & Radius</div>
+      <div class="section-desc">Spatial tokens from config</div>
+    </div>
+    <div id="spacingContent"></div>
+  </div>
+
+  <!-- ═ PAGE: COMPONENTS ═ -->
+  <div id="page-components" class="page content">
+    <div class="section-header">
+      <div class="section-title" id="compPageTitle">Components</div>
+      <div class="section-desc" id="compPageDesc"></div>
+    </div>
+    <div id="componentsContent"></div>
+  </div>
+
+  <!-- ═ PAGE: VIEWS ═ -->
+  <div id="page-views" class="page content">
+    <div class="section-header">
+      <div class="section-title">Views</div>
+      <div class="section-desc">All app screens. Click to preview.</div>
+    </div>
+    <div id="viewsContent"></div>
+  </div>
+
+  <!-- ═ PAGE: VIEW DETAIL ═ -->
+  <div id="page-viewdetail" class="page content">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+      <button class="btn-sm" onclick="showPage('views')">‹ Views</button>
+      <div class="section-title" id="vdTitle"></div>
+    </div>
+    <div id="viewDetailContent"></div>
+  </div>
+
+  <!-- ═ PAGE: NAV MAP ═ -->
+  <div id="page-navmap" class="page content">
+    <div class="section-header">
+      <div class="section-title">Navigation Map</div>
+      <div class="section-desc">Screen flow generated from <code style="font-family:var(--mono);font-size:11px">views[].navigatesTo</code></div>
+    </div>
+    <div class="nav-map-container" id="navMapContainer"></div>
+  </div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let config = null;
+let currentPage = 'loader';
+
+// ═══════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t==='light'?'light':'');
+  document.getElementById('btnDark').classList.toggle('active', t==='dark');
+  document.getElementById('btnLight').classList.toggle('active', t==='light');
+}
+
+// ═══════════════════════════════════════════
+// PAGE ROUTING
+// ═══════════════════════════════════════════
+function showPage(id, extra) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+  const page = document.getElementById('page-'+id);
+  if (page) page.classList.add('active');
+  const link = document.querySelector(`.sb-link[onclick*="'${id}'"]`);
+  if (link) link.classList.add('active');
+  currentPage = id;
+
+  const titles = {
+    loader:'HumbleStudio', tokens:'Tokens', typography:'Typography',
+    spacing:'Spacing & Radius', components:'Components', views:'Views',
+    navmap:'Navigation Map', viewdetail: extra||'View'
+  };
+  document.getElementById('topTitle').textContent = titles[id]||id;
+  document.getElementById('topBreadcrumb').textContent = config ? config.meta?.name||'' : '';
+
+  if (id === 'viewdetail' && extra) renderViewDetail(extra);
+  if (id === 'navmap') renderNavMap();
+}
+
+// ═══════════════════════════════════════════
+// LOADERS
+// ═══════════════════════════════════════════
+async function loadFromUrl() {
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) return;
+  setStatus('loading','Loading...');
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    const data = await r.json();
+    applyConfig(data);
+  } catch(e) {
+    setStatus('err','Load failed: '+e.message);
+  }
+}
+
+function loadFromFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  setStatus('loading','Reading file...');
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      applyConfig(data);
+    } catch(err) {
+      setStatus('err','Invalid JSON: '+err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function loadDemo() {
+  applyConfig(DEMO_CONFIG);
+}
+
+function applyConfig(data) {
+  config = data;
+  buildSidebar();
+  renderTokens();
+  renderTypography();
+  renderSpacing();
+  renderComponents();
+  renderViews();
+  setStatus('ok', data.meta?.name || 'Loaded');
+  document.getElementById('sbAppName').textContent = (data.meta?.name||'App') + ' v'+(data.meta?.version||'?');
+  document.getElementById('btnExport').style.display = '';
+  showPage('tokens');
+}
+
+function setStatus(type, msg) {
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot';
+  if (type==='loading') dot.classList.add('loading');
+  if (type==='err') dot.classList.add('err');
+  document.getElementById('statusText').textContent = msg;
+}
+
+// ═══════════════════════════════════════════
+// SIDEBAR BUILDER
+// ═══════════════════════════════════════════
+function buildSidebar() {
+  if (!config) return;
+  document.getElementById('sbDesignSections').style.display='';
+  document.getElementById('sbComponentSections').style.display='';
+  document.getElementById('sbViewSections').style.display='';
+
+  const tokenCount = Object.keys(config.tokens?.colors||{}).length;
+  document.getElementById('cntTokens').textContent = tokenCount;
+
+  // Components grouped
+  const compLinks = document.getElementById('sbComponentLinks');
+  compLinks.innerHTML = '';
+  const groups = {};
+  (config.components||[]).forEach(c => {
+    const g = c.group||'General';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(c);
+  });
+  Object.entries(groups).forEach(([grp, comps]) => {
+    if (Object.keys(groups).length > 1) {
+      const lbl = document.createElement('div');
+      lbl.style.cssText='font-size:9px;color:var(--t3);padding:8px 10px 2px;font-weight:600;text-transform:uppercase;letter-spacing:.5px';
+      lbl.textContent = grp;
+      compLinks.appendChild(lbl);
+    }
+    comps.forEach(c => {
+      const el = document.createElement('div');
+      el.className = 'sb-link';
+      el.innerHTML = `<span class="sb-link-icon">⬡</span>${c.name}<span class="sb-count">${(c.mocks||[]).length}</span>`;
+      el.onclick = () => { showComponentPage(c.id); };
+      compLinks.appendChild(el);
+    });
+  });
+
+  // Views
+  const viewLinks = document.getElementById('sbViewLinks');
+  viewLinks.innerHTML = '';
+  (config.views||[]).forEach(v => {
+    const el = document.createElement('div');
+    el.className = 'sb-link';
+    el.innerHTML = `<span class="sb-link-icon">▭</span>${v.name}`;
+    el.onclick = () => showPage('viewdetail', v.id);
+    viewLinks.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════
+// TOKENS RENDERER
+// ═══════════════════════════════════════════
+function renderTokens() {
+  if (!config) return;
+  const el = document.getElementById('tokensContent');
+  const colors = config.tokens?.colors || {};
+  let html = '';
+  const groups = {};
+  Object.entries(colors).forEach(([k,v]) => {
+    const g = v.group||'Colors';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push([k,v]);
+  });
+  Object.entries(groups).forEach(([grp,entries]) => {
+    html += `<div class="subsection">${grp}</div><div class="token-grid">`;
+    entries.forEach(([k,v]) => {
+      const darkVal = v.dark||v.value||v;
+      const lightVal = v.light||v.value||v;
+      html += `<div class="swatch">
+        <div class="swatch-block" style="background:${darkVal}"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">${k}</div>
+          <div class="swatch-token">tokens.colors.${k}</div>
+          <div class="swatch-hex">${darkVal} / ${lightVal}</div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html || '<div class="empty"><div class="empty-icon">◉</div><div class="empty-title">No color tokens</div><div class="empty-sub">Add tokens.colors to your design.json</div></div>';
+}
+
+// ═══════════════════════════════════════════
+// TYPOGRAPHY RENDERER
+// ═══════════════════════════════════════════
+function renderTypography() {
+  if (!config) return;
+  const el = document.getElementById('typographyContent');
+  const scale = config.tokens?.typography || [];
+  if (!scale.length) { el.innerHTML='<div class="empty"><div class="empty-icon">T</div><div class="empty-title">No type scale</div><div class="empty-sub">Add tokens.typography[] to your design.json</div></div>'; return; }
+  let html = '<table style="width:100%;border-collapse:collapse">';
+  html += '<thead><tr>';
+  ['Role','SwiftUI','Size / Weight','Preview'].forEach(h => {
+    html += `<th style="text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding:6px 10px;border-bottom:1px solid var(--border)">${h}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+  scale.forEach(t => {
+    html += `<tr>
+      <td style="padding:10px;border-bottom:1px solid var(--border2)"><span class="tag">${t.role}</span></td>
+      <td style="padding:10px;border-bottom:1px solid var(--border2)"><span class="tag">${t.swiftui||'-'}</span></td>
+      <td style="padding:10px;border-bottom:1px solid var(--border2);font-family:var(--mono);font-size:10px;color:var(--t2)">${t.size}pt / ${t.weight}</td>
+      <td style="padding:10px;border-bottom:1px solid var(--border2)"><span style="font-size:${Math.min(t.size,28)}px;font-weight:${t.weight};${t.mono?'font-family:var(--mono)':''};${t.caps?'text-transform:uppercase;letter-spacing:1px':''};color:${t.secondary?'var(--t2)':'var(--t1)'}">${t.preview||t.role}</span></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+// SPACING RENDERER
+// ═══════════════════════════════════════════
+function renderSpacing() {
+  if (!config) return;
+  const el = document.getElementById('spacingContent');
+  const spacing = config.tokens?.spacing || {};
+  const radius = config.tokens?.radius || {};
+  let html = '';
+
+  if (Object.keys(spacing).length) {
+    html += '<div class="subsection">Spacing</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    Object.entries(spacing).forEach(([k,v]) => {
+      const px = parseInt(v.value||v);
+      html += `<div style="display:flex;align-items:center;gap:12px">
+        <div style="width:${Math.min(px*2,120)}px;height:18px;background:var(--accent);border-radius:3px;opacity:.7;min-width:4px"></div>
+        <span style="font-size:11px;font-family:var(--mono);color:var(--t2);min-width:150px">${k} · ${px}px · ${v.usage||''}</span>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (Object.keys(radius).length) {
+    html += '<div class="subsection" style="margin-top:24px">Corner Radius</div>';
+    html += '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">';
+    Object.entries(radius).forEach(([k,v]) => {
+      const px = v.value||v;
+      const isCircle = px==='50%';
+      html += `<div style="text-align:center">
+        <div style="width:52px;height:52px;background:var(--surface2);border:1px solid var(--border);border-radius:${px};margin:0 auto 6px"></div>
+        <div style="font-size:9px;font-family:var(--mono);color:var(--t3)">${px}</div>
+        <div style="font-size:10px;font-weight:700;color:var(--t1);margin-top:1px">${k}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html || '<div class="empty"><div class="empty-icon">⬚</div><div class="empty-title">No spacing tokens</div></div>';
+}
+
+// ═══════════════════════════════════════════
+// COMPONENT RENDERER
+// ═══════════════════════════════════════════
+function renderComponents() {
+  if (!config) return;
+  const el = document.getElementById('componentsContent');
+  const comps = config.components||[];
+  if (!comps.length) { el.innerHTML='<div class="empty"><div class="empty-icon">⬡</div><div class="empty-title">No components</div></div>'; return; }
+  let html = '<div class="component-grid">';
+  comps.forEach(c => {
+    html += buildComponentCard(c);
+  });
+  html += '</div>';
+  el.innerHTML = html;
+  comps.forEach(c => {
+    if ((c.mocks||[]).length) {
+      const sel = document.getElementById('mock-sel-'+c.id);
+      if (sel) sel.onchange = () => updateMockPreview(c.id, sel.value);
+    }
+  });
+}
+
+function showComponentPage(compId) {
+  const comp = (config?.components||[]).find(c => c.id===compId);
+  if (!comp) return;
+  document.getElementById('compPageTitle').textContent = comp.name;
+  document.getElementById('compPageDesc').textContent = comp.description||'';
+  const el = document.getElementById('componentsContent');
+  el.innerHTML = `<div class="component-grid">${buildComponentCard(comp)}</div>`;
+  const sel = document.getElementById('mock-sel-'+comp.id);
+  if (sel) sel.onchange = () => updateMockPreview(comp.id, sel.value);
+  showPage('components');
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+}
+
+function buildComponentCard(c) {
+  const mocks = c.mocks||[];
+  const defaultMock = mocks[0];
+  const preview = renderComponentPreview(c, defaultMock?.props||{});
+  const mockOpts = mocks.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
+  return `<div class="component-card">
+    <div class="cc-header">
+      <div class="cc-name">${c.name}</div>
+      ${c.swiftui?`<div class="cc-swift">${c.swiftui}</div>`:''}
+      ${c.description?`<div class="cc-desc">${c.description}</div>`:''}
+    </div>
+    <div class="cc-preview" id="preview-${c.id}">${preview}</div>
+    <div class="cc-footer">
+      <span class="mock-label">Mock</span>
+      <select class="mock-select" id="mock-sel-${c.id}">
+        ${mockOpts||'<option>—</option>'}
+      </select>
+    </div>
+  </div>`;
+}
+
+function updateMockPreview(compId, mockId) {
+  const comp = (config?.components||[]).find(c => c.id===compId);
+  if (!comp) return;
+  const mock = (comp.mocks||[]).find(m => m.id===mockId);
+  const el = document.getElementById('preview-'+compId);
+  if (el) el.innerHTML = renderComponentPreview(comp, mock?.props||{});
+}
+
+function renderComponentPreview(comp, props) {
+  const type = comp.renderer || comp.type || inferType(comp.id);
+  const disabled = props.disabled ? 'opacity:.4;pointer-events:none' : '';
+  switch(type) {
+    case 'button': {
+      const cls = {primary:'r-btn-primary',secondary:'r-btn-secondary',destructive:'r-btn-destructive',blue:'r-btn-blue',ghost:'r-btn-ghost'}[props.style||'primary']||'r-btn-primary';
+      return `<div class="${cls}" style="${disabled}">${props.title||'Button'}</div>`;
+    }
+    case 'badge': {
+      const cls = {teal:'r-badge-teal',surface:'r-badge-surface',blue:'r-badge-blue'}[props.style||'teal']||'r-badge-teal';
+      return `<span class="${cls}">${props.label||'Badge'}</span>`;
+    }
+    case 'timer': return `<div class="r-timer" style="color:${props.accent?'var(--accent)':'var(--t1)'}">${props.value||'00:00'}</div>`;
+    case 'difficulty-picker': {
+      const options = props.options||['Extra lehké','Lehké','Střední','Těžké','Extra těžké'];
+      const sel = props.selected||2;
+      return `<div class="r-diff-picker">${options.map((o,i)=>`<div class="r-diff-chip${i===sel?' r-sel':''}">${o}</div>`).join('')}</div>`;
+    }
+    case 'numpad': {
+      const nums = [1,2,3,4,5,6,7,8,9];
+      const selNum = props.selected||5;
+      return `<div class="r-numpad">${nums.map(n=>`<div class="r-num-btn${n===selNum?' r-sel':''}">${n}</div>`).join('')}</div>`;
+    }
+    case 'list': {
+      const rows = props.rows||[{label:'Item',value:'Value'}];
+      return `<div class="r-list-card">${rows.map(r=>`<div class="r-list-row"><span style="font-weight:500">${r.label}</span><span class="r-list-val">${r.value||''}<span style="font-size:11px;color:var(--t3)">›</span></span></div>`).join('')}</div>`;
+    }
+    case 'navbar': {
+      const actions = props.actions||['🔖','⊞','⚙'];
+      return `<div class="r-navbar">
+        <div style="display:flex;align-items:center;gap:8px"><div class="r-circle">‹</div><span style="font-size:14px;font-weight:700">${props.title||'Screen'}</span></div>
+        <div style="display:flex;gap:6px">${actions.map(a=>`<div class="r-circle" style="width:30px;height:30px;font-size:12px">${a}</div>`).join('')}</div>
+      </div>`;
+    }
+    case 'stat-chips': {
+      const chips = props.chips||[{label:'Obtížnost',value:'Střední'},{label:'Čas',value:'00:06',accent:true}];
+      return `<div class="r-stat-row">${chips.map(c=>`<div class="r-stat-chip"><div class="r-stat-label">${c.label}</div><div class="r-stat-val" style="${c.accent?'color:var(--accent);font-family:var(--mono)':''}">${c.value}</div></div>`).join('')}</div>`;
+    }
+    case 'cell-states': {
+      const cells = [
+        {bg:'var(--surface2)',color:'var(--t2)',val:'2',label:'given'},
+        {bg:'var(--surface2)',color:'var(--t1)',val:'7',label:'filled'},
+        {bg:'var(--accent)',color:'#fff',val:'5',label:'selected'},
+        {bg:'rgba(29,184,160,.18)',color:'var(--accent)',val:'5',label:'highlight',border:'1.5px solid var(--accent)'},
+        {bg:'rgba(248,113,113,.18)',color:'var(--dest)',val:'3',label:'error',border:'1.5px solid var(--dest)'},
+        {bg:'var(--surface2)',color:'transparent',val:'',label:'empty'},
+      ];
+      return `<div style="text-align:center"><div class="r-cell-row">${cells.map(c=>`<div style="text-align:center"><div class="r-cell" style="background:${c.bg};color:${c.color};${c.border?'border:'+c.border:''}">${c.val}</div><div style="font-size:9px;color:var(--t3);margin-top:3px">${c.label}</div></div>`).join('')}</div></div>`;
+    }
+    case 'action-card': {
+      const btns = props.buttons||[{icon:'⊟',label:'Scan'},{icon:'🖼',label:'Gallery'}];
+      return `<div style="background:var(--surface);border:1px solid var(--accent);border-radius:13px;padding:12px;max-width:240px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:3px">${props.title||'Action'}</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:10px">${props.subtitle||''}</div>
+        <div style="display:flex;gap:8px">${btns.map(b=>`<div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer"><span style="font-size:20px">${b.icon}</span><span style="font-size:10px;font-weight:600;color:var(--t2)">${b.label}</span></div>`).join('')}</div>
+      </div>`;
+    }
+    default:
+      return `<div style="color:var(--t3);font-size:12px;font-family:var(--mono)">renderer: "${type}"<br>props: ${JSON.stringify(props,null,1)}</div>`;
+  }
+}
+
+function inferType(id) {
+  if (id.includes('button')||id.includes('btn')) return 'button';
+  if (id.includes('badge')) return 'badge';
+  if (id.includes('timer')) return 'timer';
+  if (id.includes('difficulty')||id.includes('picker')) return 'difficulty-picker';
+  if (id.includes('numpad')) return 'numpad';
+  if (id.includes('list')) return 'list';
+  if (id.includes('navbar')||id.includes('nav-bar')) return 'navbar';
+  if (id.includes('stat')) return 'stat-chips';
+  if (id.includes('cell')) return 'cell-states';
+  return 'button';
+}
+
+// ═══════════════════════════════════════════
+// VIEWS RENDERER
+// ═══════════════════════════════════════════
+function renderViews() {
+  if (!config) return;
+  const el = document.getElementById('viewsContent');
+  const views = config.views||[];
+  if (!views.length) { el.innerHTML='<div class="empty"><div class="empty-icon">▭</div><div class="empty-title">No views</div></div>'; return; }
+  let html = '<div class="view-grid">';
+  views.forEach(v => {
+    const compNames = (v.components||[]).join(', ');
+    const navTags = (v.navigatesTo||[]).map(n => `<span class="vc-nav-tag">→ ${n.viewId}</span>`).join('');
+    const miniScreen = buildMiniScreen(v);
+    html += `<div class="view-card" onclick="showPage('viewdetail','${v.id}')">
+      <div class="vc-screen">${miniScreen}</div>
+      <div class="vc-info">
+        <div class="vc-name">${v.name}</div>
+        <div class="vc-comps">${(v.components||[]).length} component${(v.components||[]).length!==1?'s':''}</div>
+        <div class="vc-nav-tags">${navTags}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function buildMiniScreen(view) {
+  const style = view.presentation==='sheet'
+    ? 'width:75px;max-height:170px;background:var(--surface);border-radius:10px 10px 6px 6px;border:1px solid var(--border);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3)'
+    : 'width:75px;height:140px;background:var(--surface);border-radius:10px;border:1px solid var(--border);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3)';
+  let inner = `<div style="height:22px;background:var(--bg);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border2)"><span style="font-size:7px;font-weight:700;color:var(--t1)">${view.name}</span></div>`;
+  (view.components||[]).slice(0,3).forEach(cid => {
+    inner += `<div style="margin:4px 4px 0;height:14px;background:var(--surface2);border-radius:3px;opacity:.7"></div>`;
+  });
+  if ((view.navigatesTo||[]).length) {
+    inner += `<div style="margin:6px 4px 4px;height:18px;background:var(--accent);border-radius:5px;opacity:.8;display:flex;align-items:center;justify-content:center"><span style="font-size:7px;font-weight:700;color:#fff">CTA</span></div>`;
+  }
+  return `<div style="${style}">${inner}</div>`;
+}
+
+// ═══════════════════════════════════════════
+// VIEW DETAIL RENDERER
+// ═══════════════════════════════════════════
+function renderViewDetail(viewId) {
+  const view = (config?.views||[]).find(v => v.id===viewId);
+  if (!view) return;
+  document.getElementById('vdTitle').textContent = view.name;
+  const el = document.getElementById('viewDetailContent');
+
+  // Phone content
+  let phoneContent = '';
+  if (view.navbar) {
+    const nb = view.navbar;
+    phoneContent += `<div class="phone-navbar">
+      ${nb.back?`<div class="phone-btn">‹</div>`:'<div style="width:28px"></div>'}
+      <div class="phone-title">${nb.title||view.name}</div>
+      <div style="display:flex;gap:4px">${(nb.actions||[]).map(a=>`<div class="phone-btn" style="font-size:10px">${a}</div>`).join('')}</div>
+    </div>`;
+  }
+
+  phoneContent += `<div class="phone-content">`;
+  (view.components||[]).forEach(cid => {
+    const comp = (config?.components||[]).find(c => c.id===cid);
+    if (!comp) {
+      phoneContent += `<div style="height:24px;background:var(--surface2);border-radius:5px;margin-bottom:6px;opacity:.5"></div>`;
+      return;
+    }
+    const defaultMock = (comp.mocks||[])[0];
+    const preview = renderComponentPreview(comp, defaultMock?.props||{});
+    phoneContent += `<div style="margin-bottom:8px">${preview}</div>`;
+  });
+  phoneContent += `</div>`;
+
+  // Right panel
+  let compPills = (view.components||[]).map(cid => {
+    const comp = (config?.components||[]).find(c => c.id===cid);
+    const name = comp ? comp.name : cid;
+    return `<div class="vd-comp-pill" onclick="showComponentPage('${cid}')">${name}<span style="font-size:10px;color:var(--t3)">›</span></div>`;
+  }).join('');
+
+  let navArrows = (view.navigatesTo||[]).map(n => {
+    const target = (config?.views||[]).find(v => v.id===n.viewId);
+    const tName = target ? target.name : n.viewId;
+    const badgeCls = {push:'nav-push',sheet:'nav-sheet',replace:'nav-replace'}[n.type]||'nav-push';
+    return `<div class="nav-arrow" onclick="showPage('viewdetail','${n.viewId}')">
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600">${tName}</div>
+        <div class="nav-trigger">${n.trigger||''}</div>
+      </div>
+      <span class="nav-badge ${badgeCls}">${n.type||'push'}</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="view-detail active">
+    <div class="vd-screen">
+      <div class="vd-phone">
+        <div class="vd-notch">9:41 AM</div>
+        <div class="vd-body">${phoneContent}</div>
+      </div>
+    </div>
+    <div class="vd-sidebar">
+      ${compPills ? `<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>` : ''}
+      ${navArrows ? `<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>` : ''}
+      ${view.description ? `<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${view.description}</div></div>` : ''}
+      <div class="vd-panel">
+        <div class="vd-panel-title">Config</div>
+        <div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${view.id}</span></div>
+        ${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${view.presentation}</span></div>`:''}
+        ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION MAP
+// ═══════════════════════════════════════════
+function renderNavMap() {
+  if (!config) return;
+  const views = config.views||[];
+  if (!views.length) { document.getElementById('navMapContainer').innerHTML='<div class="empty" style="padding:60px"><div class="empty-icon">⬡</div><div class="empty-title">No views defined</div></div>'; return; }
+
+  const W=900, H=500, nodeW=130, nodeH=48, cols=3;
+  const positions = {};
+  views.forEach((v,i) => {
+    const col = i % cols, row = Math.floor(i/cols);
+    positions[v.id] = {x: 60 + col*(nodeW+80), y: 60 + row*(nodeH+80)};
+  });
+
+  const totalH = Math.max(H, 60 + Math.ceil(views.length/cols)*(nodeH+80)+60);
+
+  let edges = '';
+  views.forEach(v => {
+    (v.navigatesTo||[]).forEach(n => {
+      const from = positions[v.id], to = positions[n.viewId];
+      if (!from||!to) return;
+      const x1=from.x+nodeW/2, y1=from.y+nodeH;
+      const x2=to.x+nodeW/2,   y2=to.y;
+      const color={push:'#1DB8A0',sheet:'#3B82F6',replace:'#FBBF24'}[n.type]||'#1DB8A0';
+      const mx=(x1+x2)/2;
+      edges += `<path d="M${x1},${y1} C${x1},${y1+40} ${x2},${y2-40} ${x2},${y2}" fill="none" stroke="${color}" stroke-width="1.5" stroke-dasharray="${n.type==='sheet'?'6,3':'none'}" opacity=".7" marker-end="url(#arr-${n.type||'push'})"/>`;
+      if (n.trigger) {
+        edges += `<text x="${mx}" y="${(y1+y2)/2}" text-anchor="middle" font-size="9" fill="${color}" opacity=".8" font-family="-apple-system,sans-serif">${n.trigger.length>18?n.trigger.slice(0,15)+'…':n.trigger}</text>`;
+      }
+    });
+  });
+
+  let nodes = '';
+  views.forEach(v => {
+    const p = positions[v.id];
+    const isRoot = v.root || config.navigation?.root===v.id;
+    const fill = isRoot ? '#1DB8A0' : '#162035';
+    const stroke = isRoot ? '#2DD4BF' : 'rgba(60,90,130,0.5)';
+    const textCol = isRoot ? '#fff' : '#FFFFFF';
+    nodes += `<g onclick="showPage('viewdetail','${v.id}')" style="cursor:pointer">
+      <rect x="${p.x}" y="${p.y}" width="${nodeW}" height="${nodeH}" rx="10" fill="${fill}" stroke="${stroke}" stroke-width="${isRoot?2:1}"/>
+      <text x="${p.x+nodeW/2}" y="${p.y+nodeH/2-4}" text-anchor="middle" font-size="11" font-weight="700" fill="${textCol}" font-family="-apple-system,sans-serif">${v.name}</text>
+      <text x="${p.x+nodeW/2}" y="${p.y+nodeH/2+10}" text-anchor="middle" font-size="8" fill="${isRoot?'rgba(255,255,255,.7)':'#8A9BB0'}" font-family="-apple-system,sans-serif">${(v.components||[]).length} comp · ${(v.navigatesTo||[]).length} nav</text>
+    </g>`;
+  });
+
+  // Legend
+  const legend = `
+    <g transform="translate(${W-140},20)">
+      <line x1="0" y1="8" x2="24" y2="8" stroke="#1DB8A0" stroke-width="1.5" marker-end="url(#arr-push)"/>
+      <text x="30" y="12" font-size="9" fill="#8A9BB0" font-family="-apple-system,sans-serif">push</text>
+      <line x1="0" y1="26" x2="24" y2="26" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arr-sheet)"/>
+      <text x="30" y="30" font-size="9" fill="#8A9BB0" font-family="-apple-system,sans-serif">sheet</text>
+      <line x1="0" y1="44" x2="24" y2="44" stroke="#FBBF24" stroke-width="1.5" marker-end="url(#arr-replace)"/>
+      <text x="30" y="48" font-size="9" fill="#8A9BB0" font-family="-apple-system,sans-serif">replace</text>
+    </g>`;
+
+  const svg = `<svg id="navMapSvg" viewBox="0 0 ${W} ${totalH}" width="${W}" height="${totalH}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr-push" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#1DB8A0"/>
+      </marker>
+      <marker id="arr-sheet" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#3B82F6"/>
+      </marker>
+      <marker id="arr-replace" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#FBBF24"/>
+      </marker>
+    </defs>
+    <rect width="${W}" height="${totalH}" fill="#0D1628"/>
+    ${edges}${nodes}${legend}
+  </svg>`;
+
+  document.getElementById('navMapContainer').innerHTML = svg;
+}
+
+// ═══════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════
+function exportConfig() {
+  if (!config) return;
+  const blob = new Blob([JSON.stringify(config,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'design.json';
+  a.click();
+}
+
+// ═══════════════════════════════════════════
+// DEMO CONFIG
+// ═══════════════════════════════════════════
+const DEMO_CONFIG = {
+  meta: { name:"HumbleSudoku", version:"1.0", platform:"ios", repo:"humbleplatform/HumbleSudoku" },
+  tokens: {
+    colors: {
+      accent:         { dark:"#1DB8A0", light:"#0D9B86", group:"Accent" },
+      accentLight:    { dark:"#2DD4BF", light:"#1DB8A0", group:"Accent" },
+      accentBlue:     { dark:"#3B82F6", light:"#2563EB", group:"Accent" },
+      bookmark:       { dark:"#5B8DEF", light:"#3B6FD4", group:"Accent" },
+      bgPrimary:      { dark:"#0D1628", light:"#F0F4FA", group:"Backgrounds" },
+      surface:        { dark:"#162035", light:"#FFFFFF",  group:"Backgrounds" },
+      surface2:       { dark:"#1E2A40", light:"#E8EEF8",  group:"Backgrounds" },
+      surface3:       { dark:"#263348", light:"#D8E2F0",  group:"Backgrounds" },
+      destructiveBg:  { dark:"#3D0F1F", light:"#FEE2E2",  group:"Semantic" },
+      destructive:    { dark:"#F87171", light:"#DC2626",   group:"Semantic" },
+      success:        { dark:"#34D399", light:"#059669",   group:"Semantic" },
+      warning:        { dark:"#FBBF24", light:"#D97706",   group:"Semantic" },
+      textPrimary:    { dark:"#FFFFFF", light:"#0D1628",   group:"Text" },
+      textSecondary:  { dark:"#8A9BB0", light:"#4A5E78",   group:"Text" },
+      textTertiary:   { dark:"#4A5E78", light:"#8A9BB0",   group:"Text" },
+    },
+    typography: [
+      { role:"displayTitle",  swiftui:".largeTitle .bold",    size:28, weight:700, preview:"HumbleSudoku" },
+      { role:"navTitle",      swiftui:".title2 .semibold",    size:20, weight:600, preview:"Uložená sudoku" },
+      { role:"headline",      swiftui:".headline",            size:17, weight:600, preview:"Detail rébusu" },
+      { role:"bodySemibold",  swiftui:".body .medium",        size:15, weight:500, preview:"Zobrazení chyb" },
+      { role:"body",          swiftui:".body",                size:15, weight:400, preview:"Klidný design. Ostrá výzva.", secondary:true },
+      { role:"subheadline",   swiftui:".subheadline",         size:13, weight:400, preview:"V systémovém nastavení iOS", secondary:true },
+      { role:"caption",       swiftui:".caption",             size:12, weight:400, preview:"18. 4. 2026 16:08", secondary:true },
+      { role:"sectionHeader", swiftui:".caption2 .semibold",  size:11, weight:700, preview:"Historie pokusů", caps:true, secondary:true },
+      { role:"numpad",        swiftui:".title2 .bold",        size:22, weight:700, preview:"1  2  3" },
+      { role:"timer",         swiftui:".title3 .mono",        size:20, weight:700, preview:"00:06", mono:true },
+    ],
+    spacing: {
+      sp1: { value:"4",  usage:"micro gap" },
+      sp2: { value:"8",  usage:"component gap" },
+      sp3: { value:"12", usage:"inner padding" },
+      sp4: { value:"16", usage:"card padding" },
+      sp5: { value:"20", usage:"screen h-padding" },
+      sp6: { value:"24", usage:"section gap" },
+      sp8: { value:"32", usage:"large gap" },
+    },
+    radius: {
+      sm:   { value:"8px",  usage:"badge, tag" },
+      md:   { value:"12px", usage:"tool button" },
+      btn:  { value:"14px", usage:"button, numpad" },
+      card: { value:"16px", usage:"card, sheet" },
+      pill: { value:"50px", usage:"badge pill" },
+      circle:{ value:"50%", usage:"circle button" },
+    }
+  },
+  components: [
+    {
+      id:"primary-button", name:"HumbleButton", group:"Buttons",
+      renderer:"button", swiftui:"HumbleButton(title:style:)",
+      description:"Primary CTA. Full-width on most screens.",
+      mocks:[
+        { id:"primary",     label:"Primary",     props:{ title:"Spustit klidnou hru", style:"primary" } },
+        { id:"blue",        label:"Blue CTA",    props:{ title:"Pokračovat ve hře",   style:"blue" } },
+        { id:"secondary",   label:"Secondary",   props:{ title:"Sekundární",           style:"secondary" } },
+        { id:"destructive", label:"Destructive", props:{ title:"Resetovat hru",        style:"destructive" } },
+        { id:"ghost",       label:"Ghost",       props:{ title:"Zrušit",               style:"ghost" } },
+        { id:"disabled",    label:"Disabled",    props:{ title:"Spustit hru",          style:"primary", disabled:true } },
+      ]
+    },
+    {
+      id:"badge", name:"HumbleBadge", group:"Labels",
+      renderer:"badge", swiftui:"HumbleBadge(label:style:)",
+      description:"Status pill. border-radius: 50px.",
+      mocks:[
+        { id:"teal",    label:"Teal (difficulty)", props:{ label:"Střední",     style:"teal" } },
+        { id:"surface", label:"Surface",           props:{ label:"Extra lehké", style:"surface" } },
+        { id:"blue",    label:"Blue (info)",       props:{ label:"Nápověda",    style:"blue" } },
+      ]
+    },
+    {
+      id:"timer-badge", name:"TimerBadge", group:"Labels",
+      renderer:"timer", swiftui:"TimerBadge(value:accent:)",
+      description:"Monospaced time display. Accent color when game running.",
+      mocks:[
+        { id:"normal", label:"Normal",  props:{ value:"14:12", accent:false } },
+        { id:"accent", label:"Accent",  props:{ value:"00:06", accent:true } },
+      ]
+    },
+    {
+      id:"difficulty-picker", name:"DifficultyPicker", group:"Game",
+      renderer:"difficulty-picker", swiftui:"DifficultyPicker(selected:)",
+      description:"Segmented difficulty selector.",
+      mocks:[
+        { id:"stredni", label:"Střední sel.",    props:{ options:["Extra lehké","Lehké","Střední","Těžké","Extra těžké"], selected:2 } },
+        { id:"lehke",   label:"Lehké sel.",      props:{ options:["Extra lehké","Lehké","Střední","Těžké","Extra těžké"], selected:1 } },
+      ]
+    },
+    {
+      id:"numpad", name:"NumberPad", group:"Game",
+      renderer:"numpad", swiftui:"NumberPad(selected:onTap:)",
+      description:"3×3 digit grid. Selected digit highlighted in accent.",
+      mocks:[
+        { id:"sel5", label:"5 selected", props:{ selected:5 } },
+        { id:"sel1", label:"1 selected", props:{ selected:1 } },
+        { id:"none", label:"None",       props:{ selected:-1 } },
+      ]
+    },
+    {
+      id:"cell-states", name:"GridCell", group:"Game",
+      renderer:"cell-states", swiftui:"GridCell(state:value:)",
+      description:"All cell rendering states.",
+      mocks:[{ id:"all", label:"All states", props:{} }]
+    },
+    {
+      id:"stat-chips", name:"StatChips", group:"Game",
+      renderer:"stat-chips", swiftui:"StatChipsRow(difficulty:time:)",
+      description:"In-game difficulty + timer row.",
+      mocks:[
+        { id:"running", label:"Running", props:{ chips:[{label:"Obtížnost",value:"Střední"},{label:"Čas",value:"04:32",accent:true}] } },
+        { id:"paused",  label:"Paused",  props:{ chips:[{label:"Obtížnost",value:"Těžké"},{label:"Čas",value:"12:07",accent:false}] } },
+      ]
+    },
+    {
+      id:"navbar-game", name:"GameNavBar", group:"Navigation",
+      renderer:"navbar", swiftui:"GameNavigationBar(title:actions:)",
+      description:"Custom nav bar with circle buttons.",
+      mocks:[
+        { id:"game",     label:"Game screen",   props:{ title:"HumbleSudoku", actions:["🔖","⊞","⚙"] } },
+        { id:"saved",    label:"Saved list",     props:{ title:"Uložená sudoku", actions:["☰"] } },
+        { id:"settings", label:"Settings",       props:{ title:"Nastavení", actions:[] } },
+      ]
+    },
+    {
+      id:"settings-list", name:"SettingsList", group:"Lists",
+      renderer:"list", swiftui:"SettingsList(sections:)",
+      description:"Grouped list rows with chevrons.",
+      mocks:[
+        { id:"appearance", label:"Appearance", props:{ rows:[{label:"Motiv",value:"Tmavý"},{label:"Jazyk",value:"CS"}] } },
+        { id:"game",       label:"Game",       props:{ rows:[{label:"Zobrazení chyb",value:"Ihned"},{label:"Jak hrát",value:""}] } },
+      ]
+    },
+    {
+      id:"action-card", name:"ActionCard", group:"Cards",
+      renderer:"action-card", swiftui:"ActionCard(title:subtitle:buttons:)",
+      description:"Highlighted card with icon action buttons. Used for QR scanner.",
+      mocks:[
+        { id:"qr", label:"QR Scanner", props:{ title:"Spustit sudoku z kódu", subtitle:"Nasměrujte kameru na QR kód sudoku", buttons:[{icon:"⊟",label:"Skenovat"},{icon:"🖼",label:"Z galerie"}] } },
+      ]
+    },
+  ],
+  views: [
+    {
+      id:"home", name:"HomeView", root:true,
+      description:"App entry point. Difficulty selection and game start.",
+      navbar:{ title:"HumbleSudoku", back:false, actions:["⚙"] },
+      components:["primary-button","difficulty-picker"],
+      navigatesTo:[
+        { viewId:"game",     trigger:"Spustit klidnou hru", type:"push" },
+        { viewId:"settings", trigger:"Settings button",     type:"push" },
+      ]
+    },
+    {
+      id:"game", name:"GameView",
+      description:"Main game screen with sudoku grid, timer, and numpad.",
+      navbar:{ title:"HumbleSudoku", back:true, actions:["🔖","⊞","⚙"] },
+      components:["stat-chips","numpad","cell-states"],
+      navigatesTo:[
+        { viewId:"settings", trigger:"Settings button", type:"push" },
+        { viewId:"home",     trigger:"Back",            type:"pop" },
+      ]
+    },
+    {
+      id:"saved", name:"SavedView",
+      description:"List of bookmarked puzzles. QR import.",
+      navbar:{ title:"Uložená sudoku", back:true, actions:["☰"] },
+      components:["action-card","settings-list"],
+      navigatesTo:[
+        { viewId:"detail", trigger:"Row tap", type:"push" },
+      ]
+    },
+    {
+      id:"detail", name:"DetailView",
+      description:"Puzzle detail with attempt history.",
+      presentation:"sheet",
+      navbar:{ title:"Detail rébusu", back:false, actions:[] },
+      components:["badge","timer-badge","primary-button"],
+      navigatesTo:[
+        { viewId:"game", trigger:"Pokračovat ve hře", type:"replace" },
+      ]
+    },
+    {
+      id:"settings", name:"SettingsView",
+      description:"App preferences – theme, error display, saved puzzles.",
+      navbar:{ title:"Nastavení", back:true, actions:[] },
+      components:["settings-list"],
+      navigatesTo:[]
+    },
+  ],
+  navigation: {
+    root:"home",
+    type:"stack"
+  }
+};
+</script>
+</body>
+</html>
