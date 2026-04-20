@@ -52,7 +52,10 @@
 <main class="main">
   <div class="topbar">
     <div class="topbar-title" id="topTitle">HumbleStudio</div>
-    <span class="topbar-breadcrumb" id="topBreadcrumb"></span>
+    <div class="topbar-meta">
+      <span class="topbar-breadcrumb" id="topBreadcrumb"></span>
+      <span class="topbar-source" id="topSource" style="display:none"></span>
+    </div>
     <div class="topbar-search" id="topbarSearch" style="display:none">
       <input class="topbar-search-input" id="globalSearchInput" type="search" placeholder="Search tokens, icons, components, views…" oninput="handleGlobalSearch(this.value)" />
       <button class="btn-sm topbar-search-clear" id="globalSearchClear" onclick="clearGlobalSearch()" style="display:none">Clear</button>

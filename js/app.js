@@ -9,6 +9,7 @@ let currentViewDetailId = null;
 let navMapZoom = 1;
 let globalSearchQuery = '';
 let pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
+let currentLoadSource = null;
 window.__humbleAssetMap = new Map();
 
 const NAVIGATION_TYPES = new Set(['push', 'sheet', 'replace', 'pop']);
@@ -38,6 +39,7 @@ function showPage(id, extra) {
   const titles = { loader:'HumbleStudio', tokens:'Tokens', icons:'Icons', foundationdetail: 'Foundation Detail', typography:'Typography', spacing:'Spacing & Radius', components:'Components', views:'Views', navmap:'Navigation Map', viewdetail: extra || 'View' };
   document.getElementById('topTitle').textContent = titles[id] || id;
   document.getElementById('topBreadcrumb').textContent = config ? (config.meta?.name || '') : '';
+  renderTopbarSource();
   renderPageFilters();
 
   if (id === 'viewdetail' && extra) renderViewDetail(extra);
@@ -50,6 +52,7 @@ async function loadFromUrl() {
   const url = document.getElementById('urlInput').value.trim();
   if (!url) return;
   rememberLastSource({ type: 'url', value: url });
+  setCurrentLoadSource({ type: 'url', value: url });
   updateLoaderSourceUi();
   await loadConfigFromUrl(url);
 }
@@ -83,6 +86,7 @@ async function loadConfigFromFile(file) {
   const label = document.getElementById('fileInputLabel');
   if (label) label.textContent = file.name;
   rememberLastSource({ type: 'file', value: file.name });
+  setCurrentLoadSource({ type: 'file', value: file.name });
   updateLoaderSourceUi();
   setStatus('loading', 'Reading file...');
   try {
@@ -101,6 +105,7 @@ async function loadConfigFromFile(file) {
 function loadDemo() {
   clearBundleAssets();
   rememberLastSource({ type: 'demo', value: 'HumbleSudoku demo config' });
+  setCurrentLoadSource({ type: 'demo', value: 'HumbleSudoku demo config' });
   updateLoaderSourceUi();
   applyConfig(DEMO_CONFIG);
 }
@@ -359,6 +364,7 @@ function applyConfig(data) {
   document.getElementById('btnExport').style.display = '';
   document.getElementById('topbarSearch').style.display = '';
   updateLoaderSourceUi();
+  renderTopbarSource();
   showPage('tokens');
 }
 
@@ -478,6 +484,14 @@ function rerenderCurrentPage() {
   }
 }
 
+function resetDiscoveryPage(page) {
+  globalSearchQuery = '';
+  if (page && pageFilterState[page] !== undefined) pageFilterState[page] = 'all';
+  syncSearchUi();
+  renderPageFilters();
+  rerenderCurrentPage();
+}
+
 function handleGlobalSearch(value) {
   globalSearchQuery = String(value || '').trim();
   syncSearchUi();
@@ -550,6 +564,10 @@ function rememberLastSource(source) {
   } catch {}
 }
 
+function setCurrentLoadSource(source) {
+  currentLoadSource = source || null;
+}
+
 function getRememberedSource() {
   try {
     const raw = localStorage.getItem(LAST_SOURCE_STORAGE_KEY);
@@ -559,10 +577,47 @@ function getRememberedSource() {
   }
 }
 
+function getSourceLabel(source) {
+  if (!source?.value) return '';
+  if (source.type === 'url') return 'URL source';
+  if (source.type === 'file') return 'Local file';
+  if (source.type === 'demo') return 'Demo source';
+  return 'Source';
+}
+
+function getSourceValueLabel(source) {
+  if (!source?.value) return '';
+  if (source.type === 'url') {
+    try {
+      const parsed = new URL(source.value);
+      return `${parsed.host}${parsed.pathname}`;
+    } catch {
+      return source.value;
+    }
+  }
+  return source.value;
+}
+
+function renderTopbarSource() {
+  const el = document.getElementById('topSource');
+  if (!el) return;
+  if (!currentLoadSource?.value) {
+    el.style.display = 'none';
+    el.textContent = '';
+    return;
+  }
+  el.style.display = '';
+  el.textContent = `${getSourceLabel(currentLoadSource)} · ${getSourceValueLabel(currentLoadSource)}`;
+}
+
 function clearRememberedSource() {
   try {
     localStorage.removeItem(LAST_SOURCE_STORAGE_KEY);
   } catch {}
+  if (currentLoadSource && currentLoadSource.type !== 'file') {
+    currentLoadSource = null;
+    renderTopbarSource();
+  }
   updateLoaderSourceUi();
 }
 
@@ -588,6 +643,10 @@ function updateLoaderSourceUi() {
   const source = getRememberedSource();
   if (source?.type === 'url' && urlInput && !urlInput.value) {
     urlInput.value = source.value || '';
+  }
+  if (!currentLoadSource && source?.value) {
+    setCurrentLoadSource(source);
+    renderTopbarSource();
   }
   if (!actions || !reloadBtn) return;
   if (!source?.value) {
@@ -650,6 +709,7 @@ async function bootstrapLoaderExperience() {
   if (sourceUrl) {
     document.getElementById('urlInput').value = sourceUrl;
     rememberLastSource({ type: 'url', value: sourceUrl });
+    setCurrentLoadSource({ type: 'url', value: sourceUrl });
     updateLoaderSourceUi();
     await loadConfigFromUrl(sourceUrl);
   }
