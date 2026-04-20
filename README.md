@@ -144,5 +144,5 @@ HumbleStudio/
 
 HumbleStudio is part of the HumblePlatform toolchain alongside:
 - **HumbleSudoku** — the iOS app this viewer was built for
-- **HumbleInsights** — analytics dashboard for code quality reports
+- **HumbleControl Web** — integrated analytics dashboard for code quality reports
 - **HumbleFlow** — shared CI/CD policy and hooks
