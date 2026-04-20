@@ -706,6 +706,21 @@ function buildGuidedControlField(component, control, currentProps) {
     `;
   }
 
+  if (control.kind === 'preset') {
+    return `
+      <label class="guided-field">
+        <span class="guided-field-label">${escapeHtml(label)}</span>
+        <select class="guided-select" onchange="handleGuidedPropChange(${escapeJsString(component.id)}, ${escapeJsString(control.path)}, this.value, 'preset')">
+          ${options.map(option => {
+            const valueKey = JSON.stringify(option.value);
+            return `<option value="${escapeHtml(valueKey)}"${JSON.stringify(currentValue) === valueKey ? ' selected' : ''}>${escapeHtml(option.label || control.label || control.path)}</option>`;
+          }).join('')}
+        </select>
+        <span class="guided-field-hint">Structured preset from declared component states</span>
+      </label>
+    `;
+  }
+
   if (optionValues.length > 1 && optionValues.length <= 8) {
     return `
       <label class="guided-field">
