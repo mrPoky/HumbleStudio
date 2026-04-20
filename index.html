@@ -53,9 +53,14 @@
   <div class="topbar">
     <div class="topbar-title" id="topTitle">HumbleStudio</div>
     <span class="topbar-breadcrumb" id="topBreadcrumb"></span>
+    <div class="topbar-search" id="topbarSearch" style="display:none">
+      <input class="topbar-search-input" id="globalSearchInput" type="search" placeholder="Search tokens, icons, components, views…" oninput="handleGlobalSearch(this.value)" />
+      <button class="btn-sm topbar-search-clear" id="globalSearchClear" onclick="clearGlobalSearch()" style="display:none">Clear</button>
+    </div>
     <button class="btn-sm" onclick="showPage('loader')">⬆ Load config</button>
     <button class="btn-sm btn-sm-accent" id="btnExport" onclick="exportConfig()" style="display:none">↓ Export</button>
   </div>
+  <div class="page-filters" id="pageFilters" style="display:none"></div>
   <div id="validationBanner" class="validation-banner" style="display:none"></div>
 
   <!-- Loader -->
