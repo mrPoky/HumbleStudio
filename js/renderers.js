@@ -300,6 +300,13 @@ function renderUsageMeta(token, noun = 'usage') {
   return 'No declared usage';
 }
 
+function buildEmptyState(icon, title, subtitle = '', action = null) {
+  const actionMarkup = action?.label && action?.onclick
+    ? `<button class="empty-action" onclick="${action.onclick}">${escapeHtml(action.label)}</button>`
+    : '';
+  return `<div class="empty"><div class="empty-icon">${escapeHtml(icon)}</div><div class="empty-title">${escapeHtml(title)}</div>${subtitle ? `<div class="empty-sub">${escapeHtml(subtitle)}</div>` : ''}${actionMarkup}</div>`;
+}
+
 function normalizeComparableValue(value) {
   return String(value ?? '').trim().toLowerCase();
 }
@@ -558,13 +565,13 @@ function renderTokens() {
     });
     html += '</div>';
   });
-  document.getElementById('tokensContent').innerHTML = html || '<div class="empty"><div class="empty-icon">◉</div><div class="empty-title">No matching tokens</div><div class="empty-sub">Try clearing search or switching the token filter.</div></div>';
+  document.getElementById('tokensContent').innerHTML = html || buildEmptyState('◉', 'No matching tokens', 'Try clearing search or switching the token filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('tokens')" });
 }
 
 function renderTypography() {
   if (!config) return;
   const scale = config.tokens?.typography || [];
-  if (!scale.length) { document.getElementById('typographyContent').innerHTML='<div class="empty"><div class="empty-icon">T</div><div class="empty-title">No type scale</div></div>'; return; }
+  if (!scale.length) { document.getElementById('typographyContent').innerHTML = buildEmptyState('T', 'No type scale', 'Load a config with `tokens.typography` to inspect text styles.'); return; }
   let html = '<table style="width:100%;border-collapse:collapse"><thead><tr>';
   ['Role','SwiftUI','Size / Weight','Preview'].forEach(h=>{ html+=`<th style="text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding:6px 10px;border-bottom:1px solid var(--border)">${h}</th>`; });
   html += '</tr></thead><tbody>';
@@ -583,7 +590,7 @@ function renderIcons() {
     return matchesGlobalSearch(...iconSearchText(icon));
   });
   if (!icons.length) {
-    document.getElementById('iconsContent').innerHTML = '<div class="empty"><div class="empty-icon">⌘</div><div class="empty-title">No matching icons</div><div class="empty-sub">Try clearing search or switching the icon filter.</div></div>';
+    document.getElementById('iconsContent').innerHTML = buildEmptyState('⌘', 'No matching icons', 'Try clearing search or switching the icon filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('icons')" });
     return;
   }
   document.getElementById('iconsContent').innerHTML = `
@@ -634,7 +641,7 @@ function renderFoundationDetail(kind, id) {
   titleEl.textContent = title;
 
   if (!item) {
-    contentEl.innerHTML = '<div class="empty"><div class="empty-icon">◌</div><div class="empty-title">Detail not found</div></div>';
+    contentEl.innerHTML = buildEmptyState('◌', 'Detail not found', 'The selected foundation item is missing from the current config.');
     return;
   }
 
@@ -824,7 +831,7 @@ function renderSpacing() {
     });
     html += '</div>';
   }
-  document.getElementById('spacingContent').innerHTML = html || '<div class="empty"><div class="empty-icon">⬚</div><div class="empty-title">No spacing tokens</div></div>';
+  document.getElementById('spacingContent').innerHTML = html || buildEmptyState('⬚', 'No spacing tokens', 'Load a config with `tokens.spacing` or `tokens.radius` to inspect layout primitives.');
 }
 
 function buildComponentCard(c, options = {}) {
@@ -926,7 +933,7 @@ function renderComponents() {
     if (filter === 'snapshot' && !component.snapshot?.path) return false;
     return matchesGlobalSearch(...componentSearchText(component));
   });
-  if (!comps.length) { document.getElementById('componentsContent').innerHTML='<div class="empty"><div class="empty-icon">⬡</div><div class="empty-title">No matching components</div><div class="empty-sub">Try clearing search or switching the component filter.</div></div>'; return; }
+  if (!comps.length) { document.getElementById('componentsContent').innerHTML = buildEmptyState('⬡', 'No matching components', 'Try clearing search or switching the component filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('components')" }); return; }
   document.getElementById('componentsContent').innerHTML = `<div class="component-grid">${comps.map(c=>buildComponentCard(c)).join('')}</div>`;
 }
 
@@ -960,7 +967,7 @@ function renderViews() {
     if (filter === 'navigating' && !(view.navigatesTo || []).length) return false;
     return matchesGlobalSearch(...viewSearchText(view));
   });
-  if (!views.length) { document.getElementById('viewsContent').innerHTML='<div class="empty"><div class="empty-icon">▭</div><div class="empty-title">No matching views</div><div class="empty-sub">Try clearing search or switching the view filter.</div></div>'; return; }
+  if (!views.length) { document.getElementById('viewsContent').innerHTML = buildEmptyState('▭', 'No matching views', 'Try clearing search or switching the view filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('views')" }); return; }
   let html = '<div class="view-grid">';
   views.forEach(v => {
     const navTags=(v.navigatesTo||[]).map(n=>`<span class="vc-nav-tag">${n.type === 'pop' ? '←' : '→'} ${escapeHtml(n.viewId)}</span>`).join('');
@@ -1019,7 +1026,7 @@ function renderViewDetail(viewId) {
 function renderNavMap() {
   if (!config) return;
   const views = config.views || [];
-  if (!views.length) { document.getElementById('navMapContainer').innerHTML='<div class="empty" style="padding:60px"><div class="empty-icon">⬡</div><div class="empty-title">No views defined</div></div>'; return; }
+  if (!views.length) { document.getElementById('navMapContainer').innerHTML = buildEmptyState('⬡', 'No views defined', 'Load a config with `views[]` to generate the navigation map.'); return; }
   const nodeW = 208;
   const nodeH = 82;
   const marginX = 68;
