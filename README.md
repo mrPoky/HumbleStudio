@@ -22,6 +22,11 @@ Then pick one of three ways to load a config:
 | **File** | Upload a local `.humblebundle`, `.zip`, or `design.json` for offline work |
 | **Demo** | Click "Load HumbleSudoku demo config" to explore a real example |
 
+Hosted niceties included:
+- drag & drop onto the upload card
+- remembers the last URL or demo source in `localStorage`
+- supports URL bootstrap via `?bundle=https://...` or `?config=https://...`
+
 ---
 
 ## Config format

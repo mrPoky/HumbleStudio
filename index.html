@@ -77,14 +77,18 @@
         <div class="loader-actions">
           <button class="btn-full" onclick="loadFromUrl()">Load URL</button>
         </div>
+        <div class="loader-inline-actions" id="loaderUrlActions" style="display:none">
+          <button class="btn-sm" id="reloadLastSourceBtn" onclick="reloadLastSource()"></button>
+          <button class="btn-sm" onclick="clearRememberedSource()">Forget last source</button>
+        </div>
         <div class="loader-or">— or —</div>
         <div class="loader-label">Upload file</div>
-        <label class="loader-upload" for="fileInput">
+        <label class="loader-upload" id="loaderDropzone" for="fileInput">
           <input class="loader-file-input" type="file" id="fileInput" accept=".humblebundle,.zip,.json" onchange="loadFromFile(event)" />
           <span class="loader-upload-icon">↑</span>
           <span class="loader-upload-copy">
             <span class="loader-upload-title">Choose bundle or `design.json`</span>
-            <span class="loader-upload-sub" id="fileInputLabel">Select a local `.humblebundle`, `.zip`, or `.json` file</span>
+            <span class="loader-upload-sub" id="fileInputLabel">Select or drop a local `.humblebundle`, `.zip`, or `.json` file</span>
           </span>
           <span class="loader-upload-cta">Browse</span>
         </label>
