@@ -438,7 +438,7 @@ function renderComponentPreview(comp, props) {
       const buttonClass = componentName.includes('settingsactionbutton')
         ? `${cls} r-btn-wide r-btn-settings`
         : componentName.includes('startbutton')
-          ? `${cls} r-btn-start`
+          ? `${cls} r-btn-start${normalizedStyle === 'blue' ? ' r-btn-start-warm' : ''}`
           : cls;
       return `<div class="${buttonClass}" style="${disabled}">${icon}<span>${escapeHtml(props.title || 'Button')}</span></div>`;
     }
@@ -527,13 +527,13 @@ function renderComponentPreview(comp, props) {
             ${tiles.map(b => `
               <div class="r-action-tile">
                 <span class="r-action-icon">${escapeHtml(b.icon)}</span>
-                <span class="r-action-label">${escapeHtml(b.label)}</span>
+                <span class="r-action-label">${escapeHtml(b.label === 'Camera' ? 'Scan with camera' : b.label === 'Gallery' ? 'Pick from Photos' : b.label)}</span>
               </div>
             `).join('')}
           </div>
           ${error ? `<div class="r-action-banner r-action-banner-error">${escapeHtml(error)}</div>` : ''}
           ${success ? `<div class="r-action-success"><div class="r-action-success-title">${escapeHtml(success.title)}</div><div class="r-action-success-sub">${escapeHtml(success.subtitle || '')}</div></div>` : ''}
-          ${actions.length ? `<div class="r-action-footer">${actions.map(b => `<div class="r-action-pill${b.style === 'primary' ? ' primary' : ''}${b.style === 'destructive' ? ' destructive' : ''}">${escapeHtml(b.label)}</div>`).join('')}</div>` : ''}
+          ${actions.length ? `<div class="r-action-footer">${actions.map(b => `<div class="r-action-cta${b.style === 'primary' ? ' primary' : ''}${b.style === 'destructive' ? ' destructive' : ''}">${escapeHtml(b.label)}</div>`).join('')}</div>` : ''}
         </div>
       `;
     }
