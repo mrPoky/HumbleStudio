@@ -130,11 +130,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;m
 .loader-upload{position:relative;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;border:1px dashed color-mix(in srgb, var(--accent) 30%, var(--border));background:linear-gradient(180deg, color-mix(in srgb, var(--surface2) 80%, var(--accent) 20%), var(--surface2));cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s}
 .loader-upload:hover{border-color:color-mix(in srgb, var(--accent) 55%, var(--border));transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.12)}
 .loader-upload:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
+.loader-upload.drag-active{border-color:var(--accent);transform:translateY(-1px) scale(1.01);box-shadow:0 16px 36px rgba(29,184,160,.16)}
 .loader-upload-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, white 12%), var(--accent));color:#fff;font-size:18px;font-weight:800;flex-shrink:0}
 .loader-upload-copy{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
 .loader-upload-title{font-size:13px;font-weight:700;color:var(--t1)}
 .loader-upload-sub{font-size:11px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .loader-upload-cta{padding:7px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--t1);flex-shrink:0}
+.loader-inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .loader-or{text-align:center;font-size:11px;color:var(--t3);margin:10px 0}
 .loader-actions{display:flex;gap:8px;margin-top:10px}
 .btn-full{flex:1;background:var(--accent);border:none;border-radius:var(--r-sm);padding:9px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--font)}

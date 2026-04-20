@@ -13,6 +13,7 @@ window.__humbleAssetMap = new Map();
 
 const NAVIGATION_TYPES = new Set(['push', 'sheet', 'replace', 'pop']);
 const BUNDLE_EXTENSIONS = ['.humblebundle', '.zip'];
+const LAST_SOURCE_STORAGE_KEY = 'humbleStudio:lastSource';
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -48,6 +49,12 @@ function showPage(id, extra) {
 async function loadFromUrl() {
   const url = document.getElementById('urlInput').value.trim();
   if (!url) return;
+  rememberLastSource({ type: 'url', value: url });
+  updateLoaderSourceUi();
+  await loadConfigFromUrl(url);
+}
+
+async function loadConfigFromUrl(url) {
   setStatus('loading', 'Loading...');
   try {
     const r = await fetch(url);
@@ -69,8 +76,14 @@ async function loadFromUrl() {
 async function loadFromFile(e) {
   const file = e.target.files[0];
   if (!file) return;
+  await loadConfigFromFile(file);
+}
+
+async function loadConfigFromFile(file) {
   const label = document.getElementById('fileInputLabel');
   if (label) label.textContent = file.name;
+  rememberLastSource({ type: 'file', value: file.name });
+  updateLoaderSourceUi();
   setStatus('loading', 'Reading file...');
   try {
     const buffer = await file.arrayBuffer();
@@ -87,6 +100,8 @@ async function loadFromFile(e) {
 
 function loadDemo() {
   clearBundleAssets();
+  rememberLastSource({ type: 'demo', value: 'HumbleSudoku demo config' });
+  updateLoaderSourceUi();
   applyConfig(DEMO_CONFIG);
 }
 
@@ -343,6 +358,7 @@ function applyConfig(data) {
   document.getElementById('sbAppName').textContent = (config.meta?.name || 'App') + ' v' + (config.meta?.version || '?');
   document.getElementById('btnExport').style.display = '';
   document.getElementById('topbarSearch').style.display = '';
+  updateLoaderSourceUi();
   showPage('tokens');
 }
 
@@ -528,6 +544,117 @@ function renderPageFilters() {
   el.innerHTML = html;
 }
 
+function rememberLastSource(source) {
+  try {
+    localStorage.setItem(LAST_SOURCE_STORAGE_KEY, JSON.stringify(source));
+  } catch {}
+}
+
+function getRememberedSource() {
+  try {
+    const raw = localStorage.getItem(LAST_SOURCE_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearRememberedSource() {
+  try {
+    localStorage.removeItem(LAST_SOURCE_STORAGE_KEY);
+  } catch {}
+  updateLoaderSourceUi();
+}
+
+async function reloadLastSource() {
+  const source = getRememberedSource();
+  if (!source) return;
+  if (source.type === 'url' && source.value) {
+    document.getElementById('urlInput').value = source.value;
+    await loadConfigFromUrl(source.value);
+    return;
+  }
+  if (source.type === 'demo') {
+    loadDemo();
+    return;
+  }
+  setStatus('warn', 'Local files cannot be restored automatically. Please drop or choose the file again.');
+}
+
+function updateLoaderSourceUi() {
+  const actions = document.getElementById('loaderUrlActions');
+  const reloadBtn = document.getElementById('reloadLastSourceBtn');
+  const urlInput = document.getElementById('urlInput');
+  const source = getRememberedSource();
+  if (source?.type === 'url' && urlInput && !urlInput.value) {
+    urlInput.value = source.value || '';
+  }
+  if (!actions || !reloadBtn) return;
+  if (!source?.value) {
+    actions.style.display = 'none';
+    reloadBtn.textContent = '';
+    return;
+  }
+  actions.style.display = 'flex';
+  if (source.type === 'url') {
+    reloadBtn.textContent = `Reload ${source.value}`;
+  } else if (source.type === 'demo') {
+    reloadBtn.textContent = 'Reload HumbleSudoku demo';
+  } else {
+    reloadBtn.textContent = `Last local file: ${source.value}`;
+  }
+}
+
+function setDropzoneState(active) {
+  const dropzone = document.getElementById('loaderDropzone');
+  if (!dropzone) return;
+  dropzone.classList.toggle('drag-active', Boolean(active));
+}
+
+function handleGlobalDropState(event) {
+  if (!event.dataTransfer?.types?.includes('Files')) return;
+  event.preventDefault();
+  setDropzoneState(event.type === 'dragenter' || event.type === 'dragover');
+}
+
+async function handleDroppedFiles(event) {
+  if (!event.dataTransfer?.files?.length) return;
+  event.preventDefault();
+  setDropzoneState(false);
+  await loadConfigFromFile(event.dataTransfer.files[0]);
+}
+
+async function bootstrapLoaderExperience() {
+  updateLoaderSourceUi();
+  syncNavMapZoomLabel();
+
+  const dropzone = document.getElementById('loaderDropzone');
+  if (dropzone) {
+    dropzone.addEventListener('dragenter', handleGlobalDropState);
+    dropzone.addEventListener('dragover', handleGlobalDropState);
+    dropzone.addEventListener('dragleave', () => setDropzoneState(false));
+    dropzone.addEventListener('drop', handleDroppedFiles);
+  }
+
+  window.addEventListener('dragenter', handleGlobalDropState);
+  window.addEventListener('dragover', handleGlobalDropState);
+  window.addEventListener('drop', handleDroppedFiles);
+  window.addEventListener('dragleave', event => {
+    if (event.target === document.documentElement || event.target === document.body) {
+      setDropzoneState(false);
+    }
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const sourceUrl = params.get('bundle') || params.get('config');
+  if (sourceUrl) {
+    document.getElementById('urlInput').value = sourceUrl;
+    rememberLastSource({ type: 'url', value: sourceUrl });
+    updateLoaderSourceUi();
+    await loadConfigFromUrl(sourceUrl);
+  }
+}
+
 function showComponentPage(compId) {
   const comp = (config?.components || []).find(c => c.id === compId);
   if (!comp) return;
@@ -649,3 +776,7 @@ function resetNavMapZoom() {
   syncNavMapZoomLabel();
   if (currentPage === 'navmap') renderNavMap();
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  bootstrapLoaderExperience();
+});
