@@ -274,6 +274,7 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .nav-sheet{background:rgba(59,130,246,.15);color:var(--blue)}
 .nav-replace{background:rgba(251,191,36,.15);color:var(--warn)}
 .nav-pop{background:rgba(148,163,184,.18);color:#94A3B8}
+.nav-incoming{background:rgba(45,212,191,.14);color:var(--accent2)}
 
 /* ── NAV MAP ── */
 .nav-map-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
