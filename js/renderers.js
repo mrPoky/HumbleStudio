@@ -687,6 +687,65 @@ function renderComponentInteractivePreview(comp) {
   return renderComponentPreview(comp, parsedProps);
 }
 
+function buildGuidedControlField(component, control, currentProps) {
+  const currentValue = getValueAtPath(currentProps, control.path);
+  const options = control.options || [];
+  const optionValues = options.map(value => ({ key: JSON.stringify(value), value }));
+  const label = control.label || control.path;
+  const sharedOnChange = `handleGuidedPropChange(${escapeJsString(component.id)}, ${escapeJsString(control.path)}, this.type === 'checkbox' ? String(this.checked) : this.value, ${escapeJsString(control.kind)})`;
+
+  if (control.kind === 'boolean') {
+    return `
+      <label class="guided-field guided-field-toggle">
+        <span class="guided-field-copy">
+          <span class="guided-field-label">${escapeHtml(label)}</span>
+          <span class="guided-field-hint">Declared boolean state</span>
+        </span>
+        <input type="checkbox" class="guided-toggle" ${currentValue ? 'checked' : ''} onchange="${sharedOnChange}">
+      </label>
+    `;
+  }
+
+  if (optionValues.length > 1 && optionValues.length <= 8) {
+    return `
+      <label class="guided-field">
+        <span class="guided-field-label">${escapeHtml(label)}</span>
+        <select class="guided-select" onchange="${sharedOnChange}">
+          ${optionValues.map(option => `<option value="${escapeHtml(String(option.value))}"${JSON.stringify(currentValue) === option.key ? ' selected' : ''}>${escapeHtml(String(option.value))}</option>`).join('')}
+        </select>
+      </label>
+    `;
+  }
+
+  return `
+    <label class="guided-field">
+      <span class="guided-field-label">${escapeHtml(label)}</span>
+      <input
+        class="guided-input"
+        type="${control.kind === 'number' ? 'number' : 'text'}"
+        value="${escapeHtml(currentValue ?? '')}"
+        onchange="${sharedOnChange}">
+    </label>
+  `;
+}
+
+function buildGuidedEditor(component) {
+  const controls = getStructuredPropControls(component);
+  if (!controls.length || isCatalogOnlyComponent(component)) return '';
+  const currentProps = getDraftProps(component);
+  return `
+    <div class="cc-guided-panel">
+      <div class="cc-editor-head">
+        <span class="mock-label">Guided Controls</span>
+        <span class="cc-guided-copy">Only declared values from the component catalog are offered here.</span>
+      </div>
+      <div class="guided-grid">
+        ${controls.map(control => buildGuidedControlField(component, control, currentProps)).join('')}
+      </div>
+    </div>
+  `;
+}
+
 // ─── Page renderers ───────────────────────────────────────────────────────────
 
 function renderTokens() {
@@ -1098,6 +1157,7 @@ function buildComponentCard(c, options = {}) {
       </div>
     </div>
   `;
+  const guidedEditor = !detailed ? '' : buildGuidedEditor(c);
   const editor = !detailed ? '' : catalogOnly ? `
     <div class="cc-editor cc-editor-locked">
       <div class="cc-editor-head">
@@ -1118,7 +1178,7 @@ function buildComponentCard(c, options = {}) {
       ${state?.error ? `<div class="mock-error">${escapeHtml(state.error)}</div>` : ''}
     </div>
   `;
-  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${editor}</div>`;
+  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${guidedEditor}${editor}</div>`;
 }
 
 function renderComponents() {
