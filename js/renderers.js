@@ -171,11 +171,79 @@ function getComponentUsageViews(component) {
 }
 
 function getIncomingViewTransitions(viewId) {
-  return uniqueById(
-    (config?.views || [])
-      .filter(view => (view.navigatesTo || []).some(transition => transition?.viewId === viewId))
-      .map(view => ({ id: view.id, name: view.name }))
+  return (config?.views || []).flatMap(view =>
+    (view.navigatesTo || [])
+      .filter(transition => transition?.viewId === viewId)
+      .map((transition, index) => ({
+        id: `${view.id}-${index}-${transition.type || 'push'}`,
+        sourceView: view,
+        transition,
+      }))
   );
+}
+
+function getNavigationTypeLabel(type) {
+  return {
+    push: 'Push',
+    sheet: 'Sheet',
+    replace: 'Replace',
+    pop: 'Back',
+  }[type] || 'Push';
+}
+
+function getNavigationActionCopy(type, direction = 'outgoing') {
+  const outgoing = {
+    push: 'Opens next screen',
+    sheet: 'Opens as modal sheet',
+    replace: 'Replaces current screen',
+    pop: 'Returns to previous screen',
+  };
+  const incoming = {
+    push: 'Reached by opening this screen',
+    sheet: 'Reached as a modal sheet',
+    replace: 'Reached by replacing the previous screen',
+    pop: 'Reached by returning back',
+  };
+  return (direction === 'incoming' ? incoming : outgoing)[type] || (direction === 'incoming' ? incoming.push : outgoing.push);
+}
+
+function getNavigationTriggerCopy(trigger, type, direction = 'outgoing') {
+  if (trigger) return trigger;
+  if (direction === 'incoming') {
+    return {
+      push: 'user moved here',
+      sheet: 'user presented this sheet',
+      replace: 'flow replaced the previous screen',
+      pop: 'user went back',
+    }[type] || 'user moved here';
+  }
+  return {
+    push: 'opens the next step',
+    sheet: 'opens a modal flow',
+    replace: 'swaps the current screen',
+    pop: 'goes back',
+  }[type] || 'opens the next step';
+}
+
+function buildNavigationCard(targetName, type, trigger, direction = 'outgoing') {
+  const badgeClass = {
+    push: 'nav-push',
+    sheet: 'nav-sheet',
+    replace: 'nav-replace',
+    pop: 'nav-pop',
+  }[type] || 'nav-push';
+  const eyebrow = direction === 'incoming' ? 'How users get here' : 'What happens next';
+  return `
+    <div class="nav-arrow-copy">
+      <div class="nav-eyebrow">${escapeHtml(eyebrow)}</div>
+      <div class="nav-headline">${escapeHtml(getNavigationActionCopy(type, direction))}</div>
+      <div class="nav-trigger">${escapeHtml(getNavigationTriggerCopy(trigger, type, direction))}</div>
+    </div>
+    <div class="nav-arrow-target">
+      <div class="nav-target-name">${escapeHtml(targetName)}</div>
+      <span class="nav-badge ${badgeClass}">${escapeHtml(getNavigationTypeLabel(type))}</span>
+    </div>
+  `;
 }
 
 function getSiblingComponents(component) {
@@ -1128,9 +1196,16 @@ function renderViewDetail(viewId) {
   });
   phoneContent += '</div>';
   const compPills=(view.components||[]).map(cid=>{ const comp=(config?.components||[]).find(c=>c.id===cid); return `<div class="vd-comp-pill" onclick="showComponentPage('${cid}')">${escapeHtml(comp?comp.name:cid)}<span style="font-size:10px;color:var(--t3)">›</span></div>`; }).join('');
-  const navArrows=(view.navigatesTo||[]).map(n=>{ const t=(config?.views||[]).find(v=>v.id===n.viewId); const bc={push:'nav-push',sheet:'nav-sheet',replace:'nav-replace',pop:'nav-pop'}[n.type]||'nav-push'; return `<div class="nav-arrow" onclick="showPage('viewdetail','${n.viewId}')"><div style="flex:1"><div style="font-size:12px;font-weight:600">${escapeHtml(t?t.name:n.viewId)}</div><div class="nav-trigger">${escapeHtml(n.trigger||'')}</div></div><span class="nav-badge ${bc}">${escapeHtml(n.type||'push')}</span></div>`; }).join('');
+  const navArrows=(view.navigatesTo||[]).map(n=>{
+    const targetView = getViewById(n.viewId);
+    return `<div class="nav-arrow" onclick="showPage('viewdetail','${n.viewId}')">${buildNavigationCard(targetView ? targetView.name : n.viewId, n.type || 'push', n.trigger, 'outgoing')}</div>`;
+  }).join('');
   const incomingViews = getIncomingViewTransitions(view.id);
-  const incomingArrows = incomingViews.map(sourceView => `<div class="nav-arrow" onclick="showPage('viewdetail','${sourceView.id}')"><div style="flex:1"><div style="font-size:12px;font-weight:600">${escapeHtml(sourceView.name)}</div><div class="nav-trigger">reaches this view</div></div><span class="nav-badge nav-incoming">incoming</span></div>`).join('');
+  const incomingArrows = incomingViews.map(entry => {
+    const sourceView = entry.sourceView;
+    const transition = entry.transition || {};
+    return `<div class="nav-arrow" onclick="showPage('viewdetail','${sourceView.id}')">${buildNavigationCard(sourceView.name, transition.type || 'push', transition.trigger, 'incoming')}</div>`;
+  }).join('');
   const navigationPath = getNavigationPath(view.id).map(id => getViewById(id)?.name || id);
   const routeSummary = navigationPath.length
     ? `<div class="vd-route">${navigationPath.map(step => `<span class="vd-route-step">${escapeHtml(step)}</span>`).join('<span class="vd-route-sep">›</span>')}</div>`
@@ -1147,8 +1222,8 @@ function renderViewDetail(viewId) {
         <div class="usage-pill-list">
           ${view.root ? '<div class="usage-pill usage-pill-static">Root</div>' : ''}
           ${view.presentation ? `<div class="usage-pill usage-pill-static">${escapeHtml(view.presentation)}</div>` : '<div class="usage-pill usage-pill-static">push</div>'}
-          <div class="usage-pill usage-pill-static">${escapeHtml((view.navigatesTo || []).length)} outgoing</div>
-          <div class="usage-pill usage-pill-static">${escapeHtml(incomingViews.length)} incoming</div>
+          <div class="usage-pill usage-pill-static">${escapeHtml((view.navigatesTo || []).length)} next steps</div>
+          <div class="usage-pill usage-pill-static">${escapeHtml(incomingViews.length)} ways in</div>
         </div>
       </div>
     </div>
@@ -1176,7 +1251,7 @@ function renderViewDetail(viewId) {
     ...designSystemList(view, 'textTones'),
     ...linkedComponents.flatMap(component => designSystemList(component, 'textTones')),
   ].map(value => ({ id: value }))).map(item => item.id);
-  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${flowMeta}${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">Reached From</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
+  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${flowMeta}${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">How Users Get Here</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">What Users Can Do Next</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
 }
 
 function renderNavMap() {
