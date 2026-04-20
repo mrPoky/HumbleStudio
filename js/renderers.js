@@ -467,15 +467,13 @@ function renderComponentPreview(comp, props) {
       return `<div class="r-numpad">${[1,2,3,4,5,6,7,8,9].map(n=>{
         const count = Number(counts[n] ?? 0);
         const exhausted = count >= 9;
-        return `<div class="r-num-btn${n===selNum?' r-sel':''}${exhausted?' r-disabled':''}"><span class="r-num-value">${n}</span>${count ? `<span class="r-num-count">${escapeHtml(count)}</span>` : ''}</div>`;
+        return `<div class="r-num-btn${n===selNum?' r-sel':''}${exhausted?' r-disabled':''}${count > 0 && !exhausted ? ' r-used' : ''}"><span class="r-num-value">${n}</span>${count ? `<span class="r-num-count">${escapeHtml(count)}</span>` : ''}</div>`;
       }).join('')}</div>`;
     }
     case 'list': {
       const rows = props.rows || [{ label: 'Item', value: 'Value' }];
-      const title = props.title || 'Settings';
       return `
         <div class="r-panel-card r-list-shell">
-          <div class="r-panel-title">${escapeHtml(title)}</div>
           <div class="r-list-card">
             ${rows.map(r => `
               <div class="r-list-row">
@@ -487,7 +485,7 @@ function renderComponentPreview(comp, props) {
                 <span class="r-list-val">
                   ${r.badge ? `<span class="r-list-badge">${escapeHtml(r.badge)}</span>` : ''}
                   ${r.value ? `<span>${escapeHtml(r.value)}</span>` : ''}
-                  ${r.rightType === 'checkmark' ? `<span class="r-list-check">✓</span>` : r.rightType === 'empty' ? '' : `<span class="r-list-chevron">›</span>`}
+                  ${r.rightType === 'checkmark' ? `<span class="r-list-check">✓</span>` : r.rightType === 'empty' ? '' : r.value && String(r.value).trim() !== '' ? `<span class="r-list-chevron">›</span>` : `<span class="r-list-chevron">›</span>`}
                 </span>
               </div>
             `).join('')}
@@ -542,7 +540,7 @@ function renderComponentPreview(comp, props) {
     case 'history-row': {
       return `
         <div class="r-history-row">
-          <div class="r-history-status">${escapeHtml(symbolToGlyph(props.statusIcon))}</div>
+          <div class="r-history-status r-history-status-${escapeHtml(String(props.statusIcon || '').toLowerCase())}">${escapeHtml(symbolToGlyph(props.statusIcon))}</div>
           <div class="r-history-copy">
             <div class="r-history-title">${escapeHtml(props.title || 'Puzzle')}</div>
             <div class="r-history-subtitle">${escapeHtml(props.subtitle || '')}</div>
