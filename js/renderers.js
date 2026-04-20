@@ -113,6 +113,44 @@ function designSystemList(entity, ...fieldNames) {
   return values;
 }
 
+function symbolToGlyph(value) {
+  const map = {
+    qrcodeViewfinder: '⌁',
+    photoOnRectangle: '▣',
+    exclamationmarkTriangleFill: '⚠',
+    checkmarkCircleFill: '✓',
+    bookmarkFill: '🔖',
+    bookmark: '🔖',
+    starFill: '★',
+    circleDotted: '◌',
+    chevronRight: '›',
+  };
+  return map[value] || value || '•';
+}
+
+function getNavigationRootId() {
+  return config?.navigation?.root || (config?.views || []).find(view => view.root)?.id || config?.views?.[0]?.id || null;
+}
+
+function getNavigationPath(viewId) {
+  const rootId = getNavigationRootId();
+  if (!rootId || !viewId) return [];
+  const queue = [[rootId]];
+  const visited = new Set([rootId]);
+  while (queue.length) {
+    const path = queue.shift();
+    const currentId = path[path.length - 1];
+    if (currentId === viewId) return path;
+    const currentView = getViewById(currentId);
+    (currentView?.navigatesTo || []).forEach(edge => {
+      if (!edge?.viewId || visited.has(edge.viewId)) return;
+      visited.add(edge.viewId);
+      queue.push([...path, edge.viewId]);
+    });
+  }
+  return [];
+}
+
 function objectContainsToken(value, tokens) {
   if (!tokens?.size || value == null) return false;
   if (typeof value === 'string') return tokens.has(value);
@@ -498,6 +536,67 @@ function renderComponentPreview(comp, props) {
           ${error ? `<div class="r-action-banner r-action-banner-error">${escapeHtml(error)}</div>` : ''}
           ${success ? `<div class="r-action-success"><div class="r-action-success-title">${escapeHtml(success.title)}</div><div class="r-action-success-sub">${escapeHtml(success.subtitle || '')}</div></div>` : ''}
           ${actions.length ? `<div class="r-action-footer">${actions.map(b => `<div class="r-action-pill${b.style === 'primary' ? ' primary' : ''}${b.style === 'destructive' ? ' destructive' : ''}">${escapeHtml(b.label)}</div>`).join('')}</div>` : ''}
+        </div>
+      `;
+    }
+    case 'history-row': {
+      return `
+        <div class="r-history-row">
+          <div class="r-history-status">${escapeHtml(symbolToGlyph(props.statusIcon))}</div>
+          <div class="r-history-copy">
+            <div class="r-history-title">${escapeHtml(props.title || 'Puzzle')}</div>
+            <div class="r-history-subtitle">${escapeHtml(props.subtitle || '')}</div>
+          </div>
+          <div class="r-history-trailing">
+            ${props.badge ? `<span class="r-history-badge">${escapeHtml(props.badge)}</span>` : ''}
+            ${props.trailingIcon ? `<span class="r-history-chevron">${escapeHtml(symbolToGlyph(props.trailingIcon))}</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
+    case 'inline-banner': {
+      return `
+        <div class="r-inline-banner">
+          <div class="r-inline-banner-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
+          <div class="r-inline-banner-copy">${escapeHtml(props.message || 'Message')}</div>
+        </div>
+      `;
+    }
+    case 'labeled-value': {
+      return `
+        <div class="r-labeled-value-card">
+          <div class="r-labeled-value-title">${escapeHtml(props.title || 'Label')}</div>
+          <div class="r-labeled-value-value">${escapeHtml(props.value || 'Value')}</div>
+        </div>
+      `;
+    }
+    case 'empty-state': {
+      return `
+        <div class="r-empty-state-card">
+          <div class="r-empty-state-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
+          <div class="r-empty-state-title">${escapeHtml(props.title || 'Empty state')}</div>
+          <div class="r-empty-state-subtitle">${escapeHtml(props.subtitle || '')}</div>
+        </div>
+      `;
+    }
+    case 'success-card': {
+      return `
+        <div class="r-success-card">
+          <div class="r-success-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
+          <div class="r-success-copy">
+            <div class="r-success-title">${escapeHtml(props.title || 'Success')}</div>
+            <div class="r-success-subtitle">${escapeHtml(props.subtitle || '')}</div>
+          </div>
+        </div>
+      `;
+    }
+    case 'tile-button':
+    case 'tile-label': {
+      const styleClass = props.style === 'outline' ? ' r-scan-tile-outline' : '';
+      return `
+        <div class="r-scan-tile${styleClass}">
+          <div class="r-scan-tile-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
+          <div class="r-scan-tile-title">${escapeHtml(props.title || 'Action')}</div>
         </div>
       `;
     }
@@ -954,7 +1053,7 @@ function buildMiniScreen(view) {
     : 'width:75px;height:140px;background:var(--surface);border-radius:10px;border:1px solid var(--border);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3)';
   let inner = `<div style="height:22px;background:var(--bg);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border2)"><span style="font-size:7px;font-weight:700;color:var(--t1)">${escapeHtml(view.name)}</span></div>`;
   (view.components||[]).slice(0,3).forEach(()=>{ inner+=`<div style="margin:4px 4px 0;height:14px;background:var(--surface2);border-radius:3px;opacity:.7"></div>`; });
-  if ((view.navigatesTo||[]).length) inner+=`<div style="margin:6px 4px 4px;height:18px;background:var(--accent);border-radius:5px;opacity:.8;display:flex;align-items:center;justify-content:center"><span style="font-size:7px;font-weight:700;color:#fff">CTA</span></div>`;
+  if ((view.navigatesTo||[]).length) inner+=`<div style="margin:6px 4px 4px;height:18px;background:var(--accent);border-radius:5px;opacity:.8;display:flex;align-items:center;justify-content:center"><span style="font-size:7px;font-weight:700;color:#fff">${escapeHtml((view.navigatesTo || []).length)} link${(view.navigatesTo || []).length === 1 ? '' : 's'}</span></div>`;
   return `<div style="${style}">${inner}</div>`;
 }
 
@@ -970,8 +1069,13 @@ function renderViews() {
   if (!views.length) { document.getElementById('viewsContent').innerHTML = buildEmptyState('▭', 'No matching views', 'Try clearing search or switching the view filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('views')" }); return; }
   let html = '<div class="view-grid">';
   views.forEach(v => {
-    const navTags=(v.navigatesTo||[]).map(n=>`<span class="vc-nav-tag">${n.type === 'pop' ? '←' : '→'} ${escapeHtml(n.viewId)}</span>`).join('');
-    html+=`<div class="view-card" onclick="showPage('viewdetail','${v.id}')"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-comps">${(v.components||[]).length} component${(v.components||[]).length!==1?'s':''}</div><div class="vc-nav-tags">${navTags}</div></div></div>`;
+    const navTags=(v.navigatesTo||[]).slice(0,3).map(n=>{
+      const target = getViewById(n.viewId);
+      const arrow = n.type === 'pop' ? '←' : '→';
+      return `<span class="vc-nav-tag">${arrow} ${escapeHtml(target?.name || n.viewId)}</span>`;
+    }).join('');
+    const hiddenCount = Math.max(0, (v.navigatesTo || []).length - 3);
+    html+=`<div class="view-card" onclick="showPage('viewdetail','${v.id}')"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-comps">${(v.components||[]).length} component${(v.components||[]).length!==1?'s':''}</div><div class="vc-nav-tags">${navTags}${hiddenCount ? `<span class="vc-nav-tag">+${hiddenCount} more</span>` : ''}</div></div></div>`;
   });
   document.getElementById('viewsContent').innerHTML = html + '</div>';
 }
@@ -997,6 +1101,28 @@ function renderViewDetail(viewId) {
   const navArrows=(view.navigatesTo||[]).map(n=>{ const t=(config?.views||[]).find(v=>v.id===n.viewId); const bc={push:'nav-push',sheet:'nav-sheet',replace:'nav-replace',pop:'nav-pop'}[n.type]||'nav-push'; return `<div class="nav-arrow" onclick="showPage('viewdetail','${n.viewId}')"><div style="flex:1"><div style="font-size:12px;font-weight:600">${escapeHtml(t?t.name:n.viewId)}</div><div class="nav-trigger">${escapeHtml(n.trigger||'')}</div></div><span class="nav-badge ${bc}">${escapeHtml(n.type||'push')}</span></div>`; }).join('');
   const incomingViews = getIncomingViewTransitions(view.id);
   const incomingArrows = incomingViews.map(sourceView => `<div class="nav-arrow" onclick="showPage('viewdetail','${sourceView.id}')"><div style="flex:1"><div style="font-size:12px;font-weight:600">${escapeHtml(sourceView.name)}</div><div class="nav-trigger">reaches this view</div></div><span class="nav-badge nav-incoming">incoming</span></div>`).join('');
+  const navigationPath = getNavigationPath(view.id).map(id => getViewById(id)?.name || id);
+  const routeSummary = navigationPath.length
+    ? `<div class="vd-route">${navigationPath.map(step => `<span class="vd-route-step">${escapeHtml(step)}</span>`).join('<span class="vd-route-sep">›</span>')}</div>`
+    : '<div class="foundation-empty-note">No route from root was derived for this view.</div>';
+  const flowMeta = `
+    <div class="vd-panel">
+      <div class="vd-panel-title">Navigation Context</div>
+      <div class="vd-graph-section">
+        <div class="vd-graph-label">Route Path</div>
+        ${routeSummary}
+      </div>
+      <div class="vd-graph-section">
+        <div class="vd-graph-label">Role</div>
+        <div class="usage-pill-list">
+          ${view.root ? '<div class="usage-pill usage-pill-static">Root</div>' : ''}
+          ${view.presentation ? `<div class="usage-pill usage-pill-static">${escapeHtml(view.presentation)}</div>` : '<div class="usage-pill usage-pill-static">push</div>'}
+          <div class="usage-pill usage-pill-static">${escapeHtml((view.navigatesTo || []).length)} outgoing</div>
+          <div class="usage-pill usage-pill-static">${escapeHtml(incomingViews.length)} incoming</div>
+        </div>
+      </div>
+    </div>
+  `;
   const linkedComponents = (view.components || []).map(getComponentById).filter(Boolean);
   const linkedIcons = uniqueById(
     (config?.tokens?.icons || []).filter(icon => {
@@ -1020,7 +1146,7 @@ function renderViewDetail(viewId) {
     ...designSystemList(view, 'textTones'),
     ...linkedComponents.flatMap(component => designSystemList(component, 'textTones')),
   ].map(value => ({ id: value }))).map(item => item.id);
-  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">Reached From</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
+  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${flowMeta}${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">Reached From</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
 }
 
 function renderNavMap() {
