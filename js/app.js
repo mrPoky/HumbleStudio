@@ -192,15 +192,23 @@ function getStructuredPropControls(component) {
   const states = getComponentStates(component);
   if (!states.length) return [];
   const valuesByPath = new Map();
+  const complexValuesByPath = new Map();
 
   states.forEach(state => {
-    flattenEditableProps(state.props || {}).forEach(([path, value]) => {
+    const props = state.props || {};
+    flattenEditableProps(props).forEach(([path, value]) => {
       if (!valuesByPath.has(path)) valuesByPath.set(path, []);
       valuesByPath.get(path).push(value);
     });
+    Object.entries(props).forEach(([key, value]) => {
+      if (Array.isArray(value) || isPlainObject(value)) {
+        if (!complexValuesByPath.has(key)) complexValuesByPath.set(key, []);
+        complexValuesByPath.get(key).push({ value, stateId: state.id, stateLabel: state.label });
+      }
+    });
   });
 
-  return [...valuesByPath.entries()]
+  const primitiveControls = [...valuesByPath.entries()]
     .map(([path, values]) => {
       const uniqueValues = [...new Map(values.map(value => [JSON.stringify(value), value])).values()];
       const sample = uniqueValues.find(value => value != null) ?? uniqueValues[0];
@@ -218,6 +226,25 @@ function getStructuredPropControls(component) {
     })
     .filter(control => control.path && (control.options.length > 1 || control.kind === 'boolean'))
     .sort((left, right) => left.path.localeCompare(right.path));
+
+  const complexControls = [...complexValuesByPath.entries()]
+    .map(([path, entries]) => {
+      const uniqueEntries = [...new Map(entries.map(entry => [JSON.stringify(entry.value), entry])).values()];
+      if (uniqueEntries.length <= 1) return null;
+      return {
+        path,
+        label: path,
+        kind: 'preset',
+        options: uniqueEntries.map(entry => ({
+          value: entry.value,
+          label: entry.stateLabel || entry.stateId || path,
+        })),
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) => left.path.localeCompare(right.path));
+
+  return [...primitiveControls, ...complexControls];
 }
 
 function isBundleFileName(name = '') {
@@ -849,6 +876,7 @@ function handleGuidedPropChange(compId, path, rawValue, kind) {
   let nextValue = rawValue;
   if (kind === 'boolean') nextValue = rawValue === 'true';
   else if (kind === 'number') nextValue = Number(rawValue);
+  else if (kind === 'preset') nextValue = JSON.parse(rawValue);
 
   const nextProps = setValueAtPath(getDraftProps(comp), path, nextValue);
   state.draft = JSON.stringify(nextProps, null, 2);
