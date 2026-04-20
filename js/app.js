@@ -5,8 +5,10 @@ let validationReport = { errors: [], warnings: [] };
 let componentEditorState = {};
 let currentFoundationDetail = null;
 let navMapZoom = 1;
+window.__humbleAssetMap = new Map();
 
 const NAVIGATION_TYPES = new Set(['push', 'sheet', 'replace', 'pop']);
+const BUNDLE_EXTENSIONS = ['.humblebundle', '.zip'];
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -45,27 +47,43 @@ async function loadFromUrl() {
   try {
     const r = await fetch(url);
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    applyConfig(await r.json());
+    const buffer = await r.arrayBuffer();
+    if (isBundlePayload(buffer, url) || isBundleResponse(r)) {
+      loadBundleFromArrayBuffer(buffer, url);
+      return;
+    }
+
+    clearBundleAssets();
+    const raw = new TextDecoder().decode(buffer);
+    applyConfig(JSON.parse(raw));
   } catch (e) {
     setStatus('err', 'Load failed: ' + e.message);
   }
 }
 
-function loadFromFile(e) {
+async function loadFromFile(e) {
   const file = e.target.files[0];
   if (!file) return;
   const label = document.getElementById('fileInputLabel');
   if (label) label.textContent = file.name;
   setStatus('loading', 'Reading file...');
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try { applyConfig(JSON.parse(ev.target.result)); }
-    catch (err) { setStatus('err', 'Invalid JSON: ' + err.message); }
-  };
-  reader.readAsText(file);
+  try {
+    const buffer = await file.arrayBuffer();
+    if (isBundlePayload(buffer, file.name)) {
+      loadBundleFromArrayBuffer(buffer, file.name);
+      return;
+    }
+    clearBundleAssets();
+    applyConfig(JSON.parse(new TextDecoder().decode(buffer)));
+  } catch (err) {
+    setStatus('err', 'Invalid file: ' + err.message);
+  }
 }
 
-function loadDemo() { applyConfig(DEMO_CONFIG); }
+function loadDemo() {
+  clearBundleAssets();
+  applyConfig(DEMO_CONFIG);
+}
 
 function getComponentStates(component) {
   return component?.states || component?.mocks || [];
@@ -91,6 +109,94 @@ function getComponentEditorState(component) {
     };
   }
   return componentEditorState[component.id];
+}
+
+function isBundleFileName(name = '') {
+  const normalized = String(name || '').toLowerCase();
+  return BUNDLE_EXTENSIONS.some(ext => normalized.endsWith(ext));
+}
+
+function isBundlePayload(buffer, name = '') {
+  if (isBundleFileName(name)) return true;
+  if (!(buffer instanceof ArrayBuffer) || buffer.byteLength < 4) return false;
+  const bytes = new Uint8Array(buffer.slice(0, 4));
+  return bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
+}
+
+function isBundleResponse(response) {
+  const contentType = response.headers.get('content-type') || '';
+  return contentType.includes('zip');
+}
+
+function inferBundleMimeType(name) {
+  const normalized = name.toLowerCase();
+  if (normalized.endsWith('.png')) return 'image/png';
+  if (normalized.endsWith('.jpg') || normalized.endsWith('.jpeg')) return 'image/jpeg';
+  if (normalized.endsWith('.webp')) return 'image/webp';
+  if (normalized.endsWith('.gif')) return 'image/gif';
+  if (normalized.endsWith('.svg')) return 'image/svg+xml';
+  if (normalized.endsWith('.json')) return 'application/json';
+  return 'application/octet-stream';
+}
+
+function clearBundleAssets() {
+  const currentAssets = window.__humbleAssetMap;
+  if (!(currentAssets instanceof Map)) {
+    window.__humbleAssetMap = new Map();
+    return;
+  }
+  currentAssets.forEach(url => URL.revokeObjectURL(url));
+  currentAssets.clear();
+}
+
+function normalizeBundleAssetKey(name) {
+  return String(name || '').replace(/^\.?\//, '').replace(/^\/+/, '');
+}
+
+function registerBundleAssets(entries) {
+  clearBundleAssets();
+  const assetMap = new Map();
+  Object.entries(entries).forEach(([name, bytes]) => {
+    const normalizedName = normalizeBundleAssetKey(name);
+    if (!normalizedName || normalizedName.endsWith('/') || normalizedName.endsWith('design.json')) return;
+
+    const blob = new Blob([bytes], { type: inferBundleMimeType(normalizedName) });
+    const blobUrl = URL.createObjectURL(blob);
+    const baseName = normalizedName.split('/').pop();
+    assetMap.set(normalizedName, blobUrl);
+    if (baseName && !assetMap.has(baseName)) assetMap.set(baseName, blobUrl);
+  });
+  window.__humbleAssetMap = assetMap;
+}
+
+function findBundleDesignEntry(entries) {
+  const names = Object.keys(entries);
+  return names.find(name => normalizeBundleAssetKey(name) === 'design.json')
+    || names.find(name => normalizeBundleAssetKey(name).endsWith('/design.json'))
+    || null;
+}
+
+function loadBundleFromArrayBuffer(buffer, sourceName = 'bundle') {
+  if (!window.fflate?.unzipSync) {
+    setStatus('err', 'Bundle support is not available because the unzip library failed to load.');
+    return;
+  }
+
+  try {
+    setStatus('loading', 'Unpacking bundle...');
+    const archive = window.fflate.unzipSync(new Uint8Array(buffer));
+    const designEntry = findBundleDesignEntry(archive);
+    if (!designEntry) throw new Error('Bundle does not contain `design.json`.');
+
+    registerBundleAssets(archive);
+
+    const rawConfig = new TextDecoder().decode(archive[designEntry]);
+    applyConfig(JSON.parse(rawConfig));
+    setStatus('ok', `Loaded bundle: ${sourceName}`);
+  } catch (error) {
+    clearBundleAssets();
+    setStatus('err', `Bundle load failed: ${error.message}`);
+  }
 }
 
 function validateConfig(data) {
@@ -204,6 +310,9 @@ function validateConfig(data) {
 }
 
 function applyConfig(data) {
+  if (!(window.__humbleAssetMap instanceof Map)) {
+    window.__humbleAssetMap = new Map();
+  }
   const report = validateConfig(data);
   config = report.normalized;
   validationReport = { errors: report.errors, warnings: report.warnings };
