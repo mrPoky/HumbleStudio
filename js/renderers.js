@@ -966,6 +966,37 @@ function buildComponentCard(c, options = {}) {
       ${buildUsagePills(usageViews, 'view')}
     </div>
   `;
+  const capabilityPanel = !detailed ? '' : `
+    <div class="cc-capability-panel">
+      <div class="cc-usage-title">Capabilities</div>
+      <div class="cc-capability-grid">
+        <div class="cc-capability-card">
+          <div class="cc-capability-label">Renderer</div>
+          <div class="cc-capability-value">${escapeHtml(c.renderer || c.type || inferType(c.id))}</div>
+        </div>
+        <div class="cc-capability-card">
+          <div class="cc-capability-label">Interaction</div>
+          <div class="cc-capability-value">${escapeHtml(c.interactionMode || 'editable')}</div>
+        </div>
+        <div class="cc-capability-card">
+          <div class="cc-capability-label">Preview Modes</div>
+          <div class="cc-capability-value">${escapeHtml(c.snapshot ? (catalogOnly ? 'snapshot + catalog' : 'snapshot + mock') : (catalogOnly ? 'catalog only' : 'mock only'))}</div>
+        </div>
+        <div class="cc-capability-card">
+          <div class="cc-capability-label">Declared States</div>
+          <div class="cc-capability-value">${escapeHtml(String(mocks.length))}</div>
+        </div>
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">State IDs</div>
+        ${buildTagList(mocks.map(mock => mock.id))}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Supported Props</div>
+        ${buildTagList([...new Set(mocks.flatMap(mock => Object.keys(mock.props || {})))])}
+      </div>
+    </div>
+  `;
   const relatedPanel = !detailed ? '' : `
     <div class="cc-related-panel">
       <div class="cc-usage-title">Related</div>
@@ -1019,7 +1050,7 @@ function buildComponentCard(c, options = {}) {
       ${state?.error ? `<div class="mock-error">${escapeHtml(state.error)}</div>` : ''}
     </div>
   `;
-  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${relatedPanel}${editor}</div>`;
+  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${editor}</div>`;
 }
 
 function renderComponents() {
