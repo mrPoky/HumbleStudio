@@ -11,6 +11,10 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
+function escapeJsString(value) {
+  return JSON.stringify(String(value ?? ''));
+}
+
 function resolveAssetPath(path, basePathKey = 'snapshotBasePath') {
   if (!path) return '';
   if (/^(https?:|data:|blob:|file:)/.test(path)) return path;
@@ -80,6 +84,122 @@ function getDeclaredUsageEntries(token) {
 function getDeclaredUsageCount(token) {
   if (typeof token?.usageCount === 'number') return token.usageCount;
   return getDeclaredUsageEntries(token).length;
+}
+
+function getComponentById(componentId) {
+  return (config?.components || []).find(component => component.id === componentId) || null;
+}
+
+function getViewById(viewId) {
+  return (config?.views || []).find(view => view.id === viewId) || null;
+}
+
+function uniqueById(items) {
+  const seen = new Set();
+  return items.filter(item => {
+    if (!item?.id || seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+}
+
+function designSystemList(entity, ...fieldNames) {
+  const designSystem = entity?.designSystem;
+  if (!designSystem || typeof designSystem !== 'object') return [];
+  const values = [];
+  fieldNames.forEach(fieldName => {
+    if (Array.isArray(designSystem[fieldName])) values.push(...designSystem[fieldName]);
+  });
+  return values;
+}
+
+function objectContainsToken(value, tokens) {
+  if (!tokens?.size || value == null) return false;
+  if (typeof value === 'string') return tokens.has(value);
+  if (Array.isArray(value)) return value.some(entry => objectContainsToken(entry, tokens));
+  if (typeof value === 'object') return Object.values(value).some(entry => objectContainsToken(entry, tokens));
+  return false;
+}
+
+function getComponentUsageViews(component) {
+  if (!component) return [];
+  const explicitIds = Array.isArray(component.usedInViews) ? component.usedInViews : [];
+  const candidateIds = explicitIds.length
+    ? explicitIds
+    : (config?.views || [])
+      .filter(view => (view.components || []).includes(component.id))
+      .map(view => view.id);
+  return uniqueById(candidateIds.map(getViewById).filter(Boolean));
+}
+
+function getGradientUsageEntities(gradientId, gradient) {
+  const explicitComponentIds = Array.isArray(gradient?.usedInComponents) ? gradient.usedInComponents : [];
+  const explicitViewIds = Array.isArray(gradient?.usedInViews) ? gradient.usedInViews : [];
+
+  const components = explicitComponentIds.length
+    ? explicitComponentIds.map(getComponentById).filter(Boolean)
+    : (config?.components || []).filter(component => designSystemList(component, 'gradients').includes(gradientId));
+
+  const views = explicitViewIds.length
+    ? explicitViewIds.map(getViewById).filter(Boolean)
+    : (config?.views || []).filter(view => designSystemList(view, 'gradients').includes(gradientId));
+
+  return {
+    components: uniqueById(components),
+    views: uniqueById(views),
+  };
+}
+
+function getColorGradientUsages(colorId, color) {
+  const explicit = Array.isArray(color?.usedInGradients) ? color.usedInGradients : [];
+  if (explicit.length) return explicit;
+  return Object.entries(config?.tokens?.gradients || {})
+    .filter(([, gradient]) => Array.isArray(gradient?.colorTokens) && gradient.colorTokens.includes(colorId))
+    .map(([gradientId]) => gradientId);
+}
+
+function getIconUsageEntities(iconId, icon) {
+  const explicitComponentIds = Array.isArray(icon?.usedInComponents) ? icon.usedInComponents : [];
+  const explicitViewIds = Array.isArray(icon?.usedInViews) ? icon.usedInViews : [];
+  const tokens = new Set([iconId, icon?.symbol].filter(Boolean));
+
+  const components = explicitComponentIds.length
+    ? explicitComponentIds.map(getComponentById).filter(Boolean)
+    : (config?.components || []).filter(component => {
+      if (designSystemList(component, 'icons', 'preferredIcons').some(value => tokens.has(value))) return true;
+      return [...(component.states || []), ...(component.mocks || [])].some(entry => objectContainsToken(entry?.props, tokens));
+    });
+
+  const views = explicitViewIds.length
+    ? explicitViewIds.map(getViewById).filter(Boolean)
+    : (config?.views || []).filter(view => designSystemList(view, 'icons', 'preferredIcons').some(value => tokens.has(value)));
+
+  return {
+    components: uniqueById(components),
+    views: uniqueById(views),
+  };
+}
+
+function buildUsagePills(items, kind) {
+  if (!items.length) return '<div class="foundation-empty-note">No linked items found.</div>';
+  const pills = items.map(item => {
+    if (kind === 'component') {
+      return `<button class="usage-pill" onclick="showComponentPage(${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name)}<span>Component</span></button>`;
+    }
+    if (kind === 'view') {
+      return `<button class="usage-pill" onclick="showPage('viewdetail', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name)}<span>View</span></button>`;
+    }
+    return `<button class="usage-pill" onclick="showFoundationDetail('gradient', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.id)}<span>Gradient</span></button>`;
+  }).join('');
+  return `<div class="usage-pill-list">${pills}</div>`;
+}
+
+function buildCodeReferenceList(entries) {
+  if (!entries.length) return '';
+  return `<div class="foundation-meta-card foundation-meta-card-wide">
+    <div class="foundation-meta-label">Code References</div>
+    <div class="foundation-usage-list">${entries.map(entry => `<div class="foundation-usage-item">${escapeHtml(entry)}</div>`).join('')}</div>
+  </div>`;
 }
 
 function renderUsageMeta(token, noun = 'usage') {
@@ -360,12 +480,10 @@ function renderFoundationDetail(kind, id) {
   }
 
   const usages = getDeclaredUsageEntries(item);
-  const usageCount = getDeclaredUsageCount(item);
-  const usageList = usages.length
-    ? `<div class="foundation-usage-list">${usages.map(entry => `<div class="foundation-usage-item">${escapeHtml(entry)}</div>`).join('')}</div>`
-    : '<div class="foundation-empty-note">No explicit `usedIn` metadata was declared for this item.</div>';
 
   if (kind === 'icon') {
+    const linked = getIconUsageEntities(id, item);
+    const usageCount = linked.components.length + linked.views.length;
     contentEl.innerHTML = `
       <div class="foundation-detail-layout">
         <div class="foundation-detail-stage">
@@ -386,13 +504,18 @@ function renderFoundationDetail(kind, id) {
           </div>
           <div class="foundation-meta-card">
             <div class="foundation-meta-label">Usage</div>
-            <div class="foundation-meta-value">${usageCount || 0} declared uses</div>
+            <div class="foundation-meta-value">${usageCount} linked items</div>
           </div>
           ${item.description ? `<div class="foundation-meta-card foundation-meta-card-wide"><div class="foundation-meta-label">Notes</div><div class="foundation-meta-copy">${escapeHtml(item.description)}</div></div>` : ''}
           <div class="foundation-meta-card foundation-meta-card-wide">
-            <div class="foundation-meta-label">Used In</div>
-            ${usageList}
+            <div class="foundation-meta-label">Components</div>
+            ${buildUsagePills(linked.components, 'component')}
           </div>
+          <div class="foundation-meta-card foundation-meta-card-wide">
+            <div class="foundation-meta-label">Views</div>
+            ${buildUsagePills(linked.views, 'view')}
+          </div>
+          ${buildCodeReferenceList(usages)}
         </div>
       </div>
     `;
@@ -403,6 +526,11 @@ function renderFoundationDetail(kind, id) {
     const dark = item.dark || item.value || item;
     const light = item.light || item.value || item;
     const sameColor = normalizeComparableValue(dark) === normalizeComparableValue(light);
+    const gradientIds = getColorGradientUsages(id, item);
+    const gradients = gradientIds.map(gradientId => ({ id: gradientId })).filter(Boolean);
+    const indirectComponents = uniqueById(gradientIds.flatMap(gradientId => getGradientUsageEntities(gradientId, config.tokens?.gradients?.[gradientId]).components));
+    const indirectViews = uniqueById(gradientIds.flatMap(gradientId => getGradientUsageEntities(gradientId, config.tokens?.gradients?.[gradientId]).views));
+    const usageCount = gradients.length + indirectComponents.length + indirectViews.length;
     contentEl.innerHTML = `
       <div class="foundation-detail-layout">
         <div class="foundation-detail-stage">
@@ -432,11 +560,19 @@ function renderFoundationDetail(kind, id) {
           </div>
           <div class="foundation-meta-card">
             <div class="foundation-meta-label">Usage</div>
-            <div class="foundation-meta-value">${usageCount || 0} declared uses</div>
+            <div class="foundation-meta-value">${usageCount} linked items</div>
           </div>
           <div class="foundation-meta-card foundation-meta-card-wide">
-            <div class="foundation-meta-label">Used In</div>
-            ${usageList}
+            <div class="foundation-meta-label">Referenced By Gradients</div>
+            ${buildUsagePills(gradients, 'gradient')}
+          </div>
+          <div class="foundation-meta-card foundation-meta-card-wide">
+            <div class="foundation-meta-label">Components Using Those Gradients</div>
+            ${buildUsagePills(indirectComponents, 'component')}
+          </div>
+          <div class="foundation-meta-card foundation-meta-card-wide">
+            <div class="foundation-meta-label">Views Using Those Gradients</div>
+            ${buildUsagePills(indirectViews, 'view')}
           </div>
         </div>
       </div>
@@ -452,6 +588,8 @@ function renderFoundationDetail(kind, id) {
   const darkGradientCss = darkStops.length ? `linear-gradient(135deg, ${darkStops.join(', ')})` : gradientCss;
   const sameGradient = arraysEqualNormalized(darkStops, lightStops) || normalizeComparableValue(darkGradientCss) === normalizeComparableValue(lightGradientCss);
   const direction = [item.startPoint, item.endPoint].filter(Boolean).join(' -> ') || 'custom';
+  const linked = getGradientUsageEntities(id, item);
+  const usageCount = linked.components.length + linked.views.length;
   contentEl.innerHTML = `
     <div class="foundation-detail-layout">
       <div class="foundation-detail-stage">
@@ -481,15 +619,19 @@ function renderFoundationDetail(kind, id) {
         </div>
         <div class="foundation-meta-card">
           <div class="foundation-meta-label">Usage</div>
-          <div class="foundation-meta-value">${usageCount || 0} declared uses</div>
+          <div class="foundation-meta-value">${usageCount} linked items</div>
         </div>
         <div class="foundation-meta-card foundation-meta-card-wide">
           <div class="foundation-meta-label">Gradient Stops</div>
           <div class="foundation-stop-list">${previewStops.map(stop => `<div class="foundation-stop">${escapeHtml(stop)}</div>`).join('')}</div>
         </div>
         <div class="foundation-meta-card foundation-meta-card-wide">
-          <div class="foundation-meta-label">Used In</div>
-          ${usageList}
+          <div class="foundation-meta-label">Components</div>
+          ${buildUsagePills(linked.components, 'component')}
+        </div>
+        <div class="foundation-meta-card foundation-meta-card-wide">
+          <div class="foundation-meta-label">Views</div>
+          ${buildUsagePills(linked.views, 'view')}
         </div>
       </div>
     </div>
@@ -541,6 +683,16 @@ function buildComponentCard(c, options = {}) {
       ${catalogOnly ? `<div class="cc-state-badge">Catalog only</div>` : ''}
     </div>
   ` : '';
+  const usageViews = getComponentUsageViews(c);
+  const usageSummary = usageViews.length
+    ? `<div class="cc-usage-summary">${usageViews.length} view${usageViews.length === 1 ? '' : 's'}</div>`
+    : '';
+  const usagePanel = !detailed ? '' : `
+    <div class="cc-usage-panel">
+      <div class="cc-usage-title">Used In Views</div>
+      ${buildUsagePills(usageViews, 'view')}
+    </div>
+  `;
   const editor = !detailed ? '' : catalogOnly ? `
     <div class="cc-editor cc-editor-locked">
       <div class="cc-editor-head">
@@ -561,7 +713,7 @@ function buildComponentCard(c, options = {}) {
       ${state?.error ? `<div class="mock-error">${escapeHtml(state.error)}</div>` : ''}
     </div>
   `;
-  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-name">${escapeHtml(c.name)}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${editor}</div>`;
+  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${editor}</div>`;
 }
 
 function renderComponents() {
