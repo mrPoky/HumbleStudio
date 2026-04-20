@@ -132,6 +132,37 @@ function getComponentUsageViews(component) {
   return uniqueById(candidateIds.map(getViewById).filter(Boolean));
 }
 
+function getIncomingViewTransitions(viewId) {
+  return uniqueById(
+    (config?.views || [])
+      .filter(view => (view.navigatesTo || []).some(transition => transition?.viewId === viewId))
+      .map(view => ({ id: view.id, name: view.name }))
+  );
+}
+
+function getSiblingComponents(component) {
+  const usageViews = getComponentUsageViews(component);
+  const siblingIds = new Set();
+  usageViews.forEach(view => {
+    (view.components || []).forEach(componentId => {
+      if (componentId && componentId !== component.id) siblingIds.add(componentId);
+    });
+  });
+  return uniqueById([...siblingIds].map(getComponentById).filter(Boolean));
+}
+
+function getColorImpactEntities(colorId, color) {
+  const gradientIds = getColorGradientUsages(colorId, color);
+  const gradients = uniqueById(gradientIds.map(gradientId => ({ id: gradientId, ...(config?.tokens?.gradients?.[gradientId] || {}) })));
+  const components = uniqueById(
+    gradientIds.flatMap(gradientId => getGradientUsageEntities(gradientId, config?.tokens?.gradients?.[gradientId]).components)
+  );
+  const views = uniqueById(
+    gradientIds.flatMap(gradientId => getGradientUsageEntities(gradientId, config?.tokens?.gradients?.[gradientId]).views)
+  );
+  return { gradients, components, views };
+}
+
 function getGradientUsageEntities(gradientId, gradient) {
   const explicitComponentIds = Array.isArray(gradient?.usedInComponents) ? gradient.usedInComponents : [];
   const explicitViewIds = Array.isArray(gradient?.usedInViews) ? gradient.usedInViews : [];
@@ -654,11 +685,8 @@ function renderFoundationDetail(kind, id) {
     const dark = item.dark || item.value || item;
     const light = item.light || item.value || item;
     const sameColor = normalizeComparableValue(dark) === normalizeComparableValue(light);
-    const gradientIds = getColorGradientUsages(id, item);
-    const gradients = gradientIds.map(gradientId => ({ id: gradientId })).filter(Boolean);
-    const indirectComponents = uniqueById(gradientIds.flatMap(gradientId => getGradientUsageEntities(gradientId, config.tokens?.gradients?.[gradientId]).components));
-    const indirectViews = uniqueById(gradientIds.flatMap(gradientId => getGradientUsageEntities(gradientId, config.tokens?.gradients?.[gradientId]).views));
-    const usageCount = gradients.length + indirectComponents.length + indirectViews.length;
+    const impact = getColorImpactEntities(id, item);
+    const usageCount = impact.gradients.length + impact.components.length + impact.views.length;
     contentEl.innerHTML = `
       <div class="foundation-detail-layout">
         <div class="foundation-detail-stage">
@@ -691,16 +719,16 @@ function renderFoundationDetail(kind, id) {
             <div class="foundation-meta-value">${usageCount} linked items</div>
           </div>
           <div class="foundation-meta-card foundation-meta-card-wide">
-            <div class="foundation-meta-label">Referenced By Gradients</div>
-            ${buildFoundationPills(gradients, 'gradient')}
+            <div class="foundation-meta-label">Indirectly Affects Gradients</div>
+            ${buildFoundationPills(impact.gradients, 'gradient')}
           </div>
           <div class="foundation-meta-card foundation-meta-card-wide">
-            <div class="foundation-meta-label">Components Using Those Gradients</div>
-            ${buildUsagePills(indirectComponents, 'component')}
+            <div class="foundation-meta-label">Indirectly Affects Components</div>
+            ${buildUsagePills(impact.components, 'component')}
           </div>
           <div class="foundation-meta-card foundation-meta-card-wide">
-            <div class="foundation-meta-label">Views Using Those Gradients</div>
-            ${buildUsagePills(indirectViews, 'view')}
+            <div class="foundation-meta-label">Indirectly Affects Views</div>
+            ${buildUsagePills(impact.views, 'view')}
           </div>
         </div>
       </div>
@@ -718,6 +746,11 @@ function renderFoundationDetail(kind, id) {
   const direction = [item.startPoint, item.endPoint].filter(Boolean).join(' -> ') || 'custom';
   const linked = getGradientUsageEntities(id, item);
   const linkedColors = getGradientColorTokens(id, item);
+  const incomingColors = uniqueById(
+    Object.entries(config?.tokens?.colors || {})
+      .filter(([colorId, color]) => getColorGradientUsages(colorId, color).includes(id))
+      .map(([colorId, color]) => ({ id: colorId, ...color }))
+  );
   const usageCount = linked.components.length + linked.views.length;
   contentEl.innerHTML = `
     <div class="foundation-detail-layout">
@@ -751,8 +784,8 @@ function renderFoundationDetail(kind, id) {
           <div class="foundation-meta-value">${usageCount} linked items</div>
         </div>
         <div class="foundation-meta-card foundation-meta-card-wide">
-          <div class="foundation-meta-label">Color Tokens</div>
-          ${buildFoundationPills(linkedColors, 'color')}
+          <div class="foundation-meta-label">Reached From Colors</div>
+          ${buildFoundationPills(incomingColors.length ? incomingColors : linkedColors, 'color')}
         </div>
         <div class="foundation-meta-card foundation-meta-card-wide">
           <div class="foundation-meta-label">Gradient Stops</div>
@@ -817,6 +850,7 @@ function buildComponentCard(c, options = {}) {
     </div>
   ` : '';
   const usageViews = getComponentUsageViews(c);
+  const siblingComponents = getSiblingComponents(c);
   const foundationGraph = getComponentFoundationGraph(c);
   const usageSummary = usageViews.length
     ? `<div class="cc-usage-summary">${usageViews.length} view${usageViews.length === 1 ? '' : 's'}</div>`
@@ -830,6 +864,10 @@ function buildComponentCard(c, options = {}) {
   const relatedPanel = !detailed ? '' : `
     <div class="cc-related-panel">
       <div class="cc-usage-title">Related</div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Used With Components</div>
+        ${buildUsagePills(siblingComponents, 'component')}
+      </div>
       <div class="cc-related-section">
         <div class="cc-related-label">Colors</div>
         ${buildFoundationPills(foundationGraph.colors, 'color')}
@@ -950,6 +988,8 @@ function renderViewDetail(viewId) {
   phoneContent += '</div>';
   const compPills=(view.components||[]).map(cid=>{ const comp=(config?.components||[]).find(c=>c.id===cid); return `<div class="vd-comp-pill" onclick="showComponentPage('${cid}')">${escapeHtml(comp?comp.name:cid)}<span style="font-size:10px;color:var(--t3)">›</span></div>`; }).join('');
   const navArrows=(view.navigatesTo||[]).map(n=>{ const t=(config?.views||[]).find(v=>v.id===n.viewId); const bc={push:'nav-push',sheet:'nav-sheet',replace:'nav-replace',pop:'nav-pop'}[n.type]||'nav-push'; return `<div class="nav-arrow" onclick="showPage('viewdetail','${n.viewId}')"><div style="flex:1"><div style="font-size:12px;font-weight:600">${escapeHtml(t?t.name:n.viewId)}</div><div class="nav-trigger">${escapeHtml(n.trigger||'')}</div></div><span class="nav-badge ${bc}">${escapeHtml(n.type||'push')}</span></div>`; }).join('');
+  const incomingViews = getIncomingViewTransitions(view.id);
+  const incomingArrows = incomingViews.map(sourceView => `<div class="nav-arrow" onclick="showPage('viewdetail','${sourceView.id}')"><div style="flex:1"><div style="font-size:12px;font-weight:600">${escapeHtml(sourceView.name)}</div><div class="nav-trigger">reaches this view</div></div><span class="nav-badge nav-incoming">incoming</span></div>`).join('');
   const linkedComponents = (view.components || []).map(getComponentById).filter(Boolean);
   const linkedIcons = uniqueById(
     (config?.tokens?.icons || []).filter(icon => {
@@ -973,7 +1013,7 @@ function renderViewDetail(viewId) {
     ...designSystemList(view, 'textTones'),
     ...linkedComponents.flatMap(component => designSystemList(component, 'textTones')),
   ].map(value => ({ id: value }))).map(item => item.id);
-  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
+  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">Reached From</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
 }
 
 function renderNavMap() {
