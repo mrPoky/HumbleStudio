@@ -230,6 +230,9 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .cc-state-badge{padding:5px 9px;border-radius:999px;background:rgba(29,184,160,.12);border:1px solid rgba(29,184,160,.18);font-size:10px;font-weight:700;color:#bdf7ec;white-space:nowrap}
 .cc-usage-panel{padding:0 12px 12px;display:flex;flex-direction:column;gap:10px}
 .cc-usage-title{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.7px}
+.cc-related-panel{padding:0 12px 12px;display:flex;flex-direction:column;gap:10px}
+.cc-related-section{display:flex;flex-direction:column;gap:8px}
+.cc-related-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px}
 .mock-label{font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 .mock-select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--t1);font-family:var(--font);cursor:pointer;flex:1}
 .mock-editor{width:100%;min-height:220px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--t1);font-size:12px;line-height:1.5;font-family:var(--mono);resize:vertical}

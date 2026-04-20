@@ -158,6 +158,48 @@ function getColorGradientUsages(colorId, color) {
     .map(([gradientId]) => gradientId);
 }
 
+function getGradientColorTokens(gradientId, gradient) {
+  const explicitIds = Array.isArray(gradient?.colorTokens) ? gradient.colorTokens : [];
+  const tokenIds = explicitIds.length
+    ? explicitIds
+    : Object.entries(config?.tokens?.colors || {})
+      .filter(([colorId, color]) => getColorGradientUsages(colorId, color).includes(gradientId))
+      .map(([colorId]) => colorId);
+  return uniqueById(tokenIds.map(colorId => ({ id: colorId, ...(config?.tokens?.colors?.[colorId] || {}) })));
+}
+
+function getComponentFoundationGraph(component) {
+  const icons = uniqueById(
+    (config?.tokens?.icons || []).filter(icon => {
+      const explicit = (icon.usedInComponents || []).includes(component.id);
+      const declared = designSystemList(component, 'icons', 'preferredIcons').some(value => [icon.id, icon.symbol].includes(value));
+      return explicit || declared;
+    })
+  );
+
+  const gradients = uniqueById(
+    Object.entries(config?.tokens?.gradients || {})
+      .filter(([gradientId, gradient]) => {
+        if ((gradient.usedInComponents || []).includes(component.id)) return true;
+        return designSystemList(component, 'gradients').includes(gradientId);
+      })
+      .map(([gradientId, gradient]) => ({ id: gradientId, ...gradient }))
+  );
+
+  const colors = uniqueById(
+    gradients.flatMap(gradient => getGradientColorTokens(gradient.id, gradient))
+  );
+
+  return {
+    colors,
+    gradients,
+    icons,
+    primitives: uniqueById(designSystemList(component, 'primitives').map(value => ({ id: value }))).map(item => item.id),
+    surfaces: uniqueById(designSystemList(component, 'surfaces').map(value => ({ id: value }))).map(item => item.id),
+    textTones: uniqueById(designSystemList(component, 'textTones').map(value => ({ id: value }))).map(item => item.id),
+  };
+}
+
 function getIconUsageEntities(iconId, icon) {
   const explicitComponentIds = Array.isArray(icon?.usedInComponents) ? icon.usedInComponents : [];
   const explicitViewIds = Array.isArray(icon?.usedInViews) ? icon.usedInViews : [];
@@ -205,6 +247,9 @@ function buildCodeReferenceList(entries) {
 function buildFoundationPills(items, kind) {
   if (!items.length) return '<div class="foundation-empty-note">No linked foundation items found.</div>';
   const pills = items.map(item => {
+    if (kind === 'color') {
+      return `<button class="usage-pill" onclick="showFoundationDetail('color', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.id)}<span>Color</span></button>`;
+    }
     if (kind === 'icon') {
       return `<button class="usage-pill" onclick="showFoundationDetail('icon', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name || item.id)}<span>Icon</span></button>`;
     }
@@ -647,7 +692,7 @@ function renderFoundationDetail(kind, id) {
           </div>
           <div class="foundation-meta-card foundation-meta-card-wide">
             <div class="foundation-meta-label">Referenced By Gradients</div>
-            ${buildUsagePills(gradients, 'gradient')}
+            ${buildFoundationPills(gradients, 'gradient')}
           </div>
           <div class="foundation-meta-card foundation-meta-card-wide">
             <div class="foundation-meta-label">Components Using Those Gradients</div>
@@ -672,6 +717,7 @@ function renderFoundationDetail(kind, id) {
   const sameGradient = arraysEqualNormalized(darkStops, lightStops) || normalizeComparableValue(darkGradientCss) === normalizeComparableValue(lightGradientCss);
   const direction = [item.startPoint, item.endPoint].filter(Boolean).join(' -> ') || 'custom';
   const linked = getGradientUsageEntities(id, item);
+  const linkedColors = getGradientColorTokens(id, item);
   const usageCount = linked.components.length + linked.views.length;
   contentEl.innerHTML = `
     <div class="foundation-detail-layout">
@@ -703,6 +749,10 @@ function renderFoundationDetail(kind, id) {
         <div class="foundation-meta-card">
           <div class="foundation-meta-label">Usage</div>
           <div class="foundation-meta-value">${usageCount} linked items</div>
+        </div>
+        <div class="foundation-meta-card foundation-meta-card-wide">
+          <div class="foundation-meta-label">Color Tokens</div>
+          ${buildFoundationPills(linkedColors, 'color')}
         </div>
         <div class="foundation-meta-card foundation-meta-card-wide">
           <div class="foundation-meta-label">Gradient Stops</div>
@@ -767,6 +817,7 @@ function buildComponentCard(c, options = {}) {
     </div>
   ` : '';
   const usageViews = getComponentUsageViews(c);
+  const foundationGraph = getComponentFoundationGraph(c);
   const usageSummary = usageViews.length
     ? `<div class="cc-usage-summary">${usageViews.length} view${usageViews.length === 1 ? '' : 's'}</div>`
     : '';
@@ -774,6 +825,35 @@ function buildComponentCard(c, options = {}) {
     <div class="cc-usage-panel">
       <div class="cc-usage-title">Used In Views</div>
       ${buildUsagePills(usageViews, 'view')}
+    </div>
+  `;
+  const relatedPanel = !detailed ? '' : `
+    <div class="cc-related-panel">
+      <div class="cc-usage-title">Related</div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Colors</div>
+        ${buildFoundationPills(foundationGraph.colors, 'color')}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Gradients</div>
+        ${buildFoundationPills(foundationGraph.gradients, 'gradient')}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Icons</div>
+        ${buildFoundationPills(foundationGraph.icons, 'icon')}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Primitives</div>
+        ${buildTagList(foundationGraph.primitives)}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Surfaces</div>
+        ${buildTagList(foundationGraph.surfaces)}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Text Tones</div>
+        ${buildTagList(foundationGraph.textTones)}
+      </div>
     </div>
   `;
   const editor = !detailed ? '' : catalogOnly ? `
@@ -796,7 +876,7 @@ function buildComponentCard(c, options = {}) {
       ${state?.error ? `<div class="mock-error">${escapeHtml(state.error)}</div>` : ''}
     </div>
   `;
-  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${editor}</div>`;
+  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${relatedPanel}${editor}</div>`;
 }
 
 function renderComponents() {
@@ -883,6 +963,7 @@ function renderViewDetail(viewId) {
       .filter(([, gradient]) => (gradient.usedInViews || []).includes(view.id) || linkedComponents.some(component => (gradient.usedInComponents || []).includes(component.id)))
       .map(([gradientId, gradient]) => ({ id: gradientId, ...gradient }))
   );
+  const linkedColors = uniqueById(linkedGradients.flatMap(gradient => getGradientColorTokens(gradient.id, gradient)));
   const primitiveTags = uniqueById(linkedComponents.flatMap(component => designSystemList(component, 'primitives')).map(value => ({ id: value }))).map(item => item.id);
   const surfaceTags = uniqueById([
     ...designSystemList(view, 'surfaces'),
@@ -892,7 +973,7 @@ function renderViewDetail(viewId) {
     ...designSystemList(view, 'textTones'),
     ...linkedComponents.flatMap(component => designSystemList(component, 'textTones')),
   ].map(value => ({ id: value }))).map(item => item.id);
-  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
+  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
 }
 
 function renderNavMap() {
