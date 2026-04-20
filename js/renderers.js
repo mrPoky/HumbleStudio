@@ -556,7 +556,10 @@ function renderComponentPreview(comp, props) {
       return `
         <div class="r-inline-banner">
           <div class="r-inline-banner-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
-          <div class="r-inline-banner-copy">${escapeHtml(props.message || 'Message')}</div>
+          <div class="r-inline-banner-copy">
+            <div class="r-inline-banner-title">Heads up</div>
+            <div class="r-inline-banner-message">${escapeHtml(props.message || 'Message')}</div>
+          </div>
         </div>
       `;
     }
@@ -590,7 +593,8 @@ function renderComponentPreview(comp, props) {
     }
     case 'tile-button':
     case 'tile-label': {
-      const styleClass = props.style === 'outline' ? ' r-scan-tile-outline' : '';
+      const isButton = type === 'tile-button';
+      const styleClass = `${props.style === 'outline' ? ' r-scan-tile-outline' : ''}${isButton ? ' r-scan-tile-button' : ' r-scan-tile-label'}`;
       return `
         <div class="r-scan-tile${styleClass}">
           <div class="r-scan-tile-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
