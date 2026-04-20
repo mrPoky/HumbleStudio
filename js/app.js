@@ -4,9 +4,17 @@ let currentPage = 'loader';
 let validationReport = { errors: [], warnings: [] };
 let componentEditorState = {};
 let currentFoundationDetail = null;
+let currentComponentDetailId = null;
+let currentViewDetailId = null;
 let navMapZoom = 1;
+let globalSearchQuery = '';
+let pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
+let currentLoadSource = null;
+window.__humbleAssetMap = new Map();
 
 const NAVIGATION_TYPES = new Set(['push', 'sheet', 'replace', 'pop']);
+const BUNDLE_EXTENSIONS = ['.humblebundle', '.zip'];
+const LAST_SOURCE_STORAGE_KEY = 'humbleStudio:lastSource';
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -31,6 +39,8 @@ function showPage(id, extra) {
   const titles = { loader:'HumbleStudio', tokens:'Tokens', icons:'Icons', foundationdetail: 'Foundation Detail', typography:'Typography', spacing:'Spacing & Radius', components:'Components', views:'Views', navmap:'Navigation Map', viewdetail: extra || 'View' };
   document.getElementById('topTitle').textContent = titles[id] || id;
   document.getElementById('topBreadcrumb').textContent = config ? (config.meta?.name || '') : '';
+  renderTopbarSource();
+  renderPageFilters();
 
   if (id === 'viewdetail' && extra) renderViewDetail(extra);
   if (id === 'foundationdetail' && extra) renderFoundationDetail(extra.kind, extra.id);
@@ -41,31 +51,64 @@ function showPage(id, extra) {
 async function loadFromUrl() {
   const url = document.getElementById('urlInput').value.trim();
   if (!url) return;
+  rememberLastSource({ type: 'url', value: url });
+  setCurrentLoadSource({ type: 'url', value: url });
+  updateLoaderSourceUi();
+  await loadConfigFromUrl(url);
+}
+
+async function loadConfigFromUrl(url) {
   setStatus('loading', 'Loading...');
   try {
     const r = await fetch(url);
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    applyConfig(await r.json());
+    const buffer = await r.arrayBuffer();
+    if (isBundlePayload(buffer, url) || isBundleResponse(r)) {
+      loadBundleFromArrayBuffer(buffer, url);
+      return;
+    }
+
+    clearBundleAssets();
+    const raw = new TextDecoder().decode(buffer);
+    applyConfig(JSON.parse(raw));
   } catch (e) {
     setStatus('err', 'Load failed: ' + e.message);
   }
 }
 
-function loadFromFile(e) {
+async function loadFromFile(e) {
   const file = e.target.files[0];
   if (!file) return;
-  const label = document.getElementById('fileInputLabel');
-  if (label) label.textContent = file.name;
-  setStatus('loading', 'Reading file...');
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try { applyConfig(JSON.parse(ev.target.result)); }
-    catch (err) { setStatus('err', 'Invalid JSON: ' + err.message); }
-  };
-  reader.readAsText(file);
+  await loadConfigFromFile(file);
 }
 
-function loadDemo() { applyConfig(DEMO_CONFIG); }
+async function loadConfigFromFile(file) {
+  const label = document.getElementById('fileInputLabel');
+  if (label) label.textContent = file.name;
+  rememberLastSource({ type: 'file', value: file.name });
+  setCurrentLoadSource({ type: 'file', value: file.name });
+  updateLoaderSourceUi();
+  setStatus('loading', 'Reading file...');
+  try {
+    const buffer = await file.arrayBuffer();
+    if (isBundlePayload(buffer, file.name)) {
+      loadBundleFromArrayBuffer(buffer, file.name);
+      return;
+    }
+    clearBundleAssets();
+    applyConfig(JSON.parse(new TextDecoder().decode(buffer)));
+  } catch (err) {
+    setStatus('err', 'Invalid file: ' + err.message);
+  }
+}
+
+function loadDemo() {
+  clearBundleAssets();
+  rememberLastSource({ type: 'demo', value: 'HumbleSudoku demo config' });
+  setCurrentLoadSource({ type: 'demo', value: 'HumbleSudoku demo config' });
+  updateLoaderSourceUi();
+  applyConfig(DEMO_CONFIG);
+}
 
 function getComponentStates(component) {
   return component?.states || component?.mocks || [];
@@ -91,6 +134,94 @@ function getComponentEditorState(component) {
     };
   }
   return componentEditorState[component.id];
+}
+
+function isBundleFileName(name = '') {
+  const normalized = String(name || '').toLowerCase();
+  return BUNDLE_EXTENSIONS.some(ext => normalized.endsWith(ext));
+}
+
+function isBundlePayload(buffer, name = '') {
+  if (isBundleFileName(name)) return true;
+  if (!(buffer instanceof ArrayBuffer) || buffer.byteLength < 4) return false;
+  const bytes = new Uint8Array(buffer.slice(0, 4));
+  return bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
+}
+
+function isBundleResponse(response) {
+  const contentType = response.headers.get('content-type') || '';
+  return contentType.includes('zip');
+}
+
+function inferBundleMimeType(name) {
+  const normalized = name.toLowerCase();
+  if (normalized.endsWith('.png')) return 'image/png';
+  if (normalized.endsWith('.jpg') || normalized.endsWith('.jpeg')) return 'image/jpeg';
+  if (normalized.endsWith('.webp')) return 'image/webp';
+  if (normalized.endsWith('.gif')) return 'image/gif';
+  if (normalized.endsWith('.svg')) return 'image/svg+xml';
+  if (normalized.endsWith('.json')) return 'application/json';
+  return 'application/octet-stream';
+}
+
+function clearBundleAssets() {
+  const currentAssets = window.__humbleAssetMap;
+  if (!(currentAssets instanceof Map)) {
+    window.__humbleAssetMap = new Map();
+    return;
+  }
+  currentAssets.forEach(url => URL.revokeObjectURL(url));
+  currentAssets.clear();
+}
+
+function normalizeBundleAssetKey(name) {
+  return String(name || '').replace(/^\.?\//, '').replace(/^\/+/, '');
+}
+
+function registerBundleAssets(entries) {
+  clearBundleAssets();
+  const assetMap = new Map();
+  Object.entries(entries).forEach(([name, bytes]) => {
+    const normalizedName = normalizeBundleAssetKey(name);
+    if (!normalizedName || normalizedName.endsWith('/') || normalizedName.endsWith('design.json')) return;
+
+    const blob = new Blob([bytes], { type: inferBundleMimeType(normalizedName) });
+    const blobUrl = URL.createObjectURL(blob);
+    const baseName = normalizedName.split('/').pop();
+    assetMap.set(normalizedName, blobUrl);
+    if (baseName && !assetMap.has(baseName)) assetMap.set(baseName, blobUrl);
+  });
+  window.__humbleAssetMap = assetMap;
+}
+
+function findBundleDesignEntry(entries) {
+  const names = Object.keys(entries);
+  return names.find(name => normalizeBundleAssetKey(name) === 'design.json')
+    || names.find(name => normalizeBundleAssetKey(name).endsWith('/design.json'))
+    || null;
+}
+
+function loadBundleFromArrayBuffer(buffer, sourceName = 'bundle') {
+  if (!window.fflate?.unzipSync) {
+    setStatus('err', 'Bundle support is not available because the unzip library failed to load.');
+    return;
+  }
+
+  try {
+    setStatus('loading', 'Unpacking bundle...');
+    const archive = window.fflate.unzipSync(new Uint8Array(buffer));
+    const designEntry = findBundleDesignEntry(archive);
+    if (!designEntry) throw new Error('Bundle does not contain `design.json`.');
+
+    registerBundleAssets(archive);
+
+    const rawConfig = new TextDecoder().decode(archive[designEntry]);
+    applyConfig(JSON.parse(rawConfig));
+    setStatus('ok', `Loaded bundle: ${sourceName}`);
+  } catch (error) {
+    clearBundleAssets();
+    setStatus('err', `Bundle load failed: ${error.message}`);
+  }
 }
 
 function validateConfig(data) {
@@ -204,11 +335,17 @@ function validateConfig(data) {
 }
 
 function applyConfig(data) {
+  if (!(window.__humbleAssetMap instanceof Map)) {
+    window.__humbleAssetMap = new Map();
+  }
   const report = validateConfig(data);
   config = report.normalized;
   validationReport = { errors: report.errors, warnings: report.warnings };
   componentEditorState = {};
+  globalSearchQuery = '';
+  pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
   buildSidebar();
+  syncSearchUi();
   renderTokens();
   renderIcons();
   renderTypography();
@@ -225,6 +362,9 @@ function applyConfig(data) {
   }
   document.getElementById('sbAppName').textContent = (config.meta?.name || 'App') + ' v' + (config.meta?.version || '?');
   document.getElementById('btnExport').style.display = '';
+  document.getElementById('topbarSearch').style.display = '';
+  updateLoaderSourceUi();
+  renderTopbarSource();
   showPage('tokens');
 }
 
@@ -315,9 +455,270 @@ function buildSidebar() {
   });
 }
 
+function syncSearchUi() {
+  const input = document.getElementById('globalSearchInput');
+  const clearBtn = document.getElementById('globalSearchClear');
+  if (input) input.value = globalSearchQuery;
+  if (clearBtn) clearBtn.style.display = globalSearchQuery ? '' : 'none';
+}
+
+function rerenderCurrentPage() {
+  if (!config) return;
+  if (currentPage === 'tokens') renderTokens();
+  if (currentPage === 'icons') renderIcons();
+  if (currentPage === 'components') {
+    const currentComp = (config.components || []).find(component => component.id === currentComponentDetailId);
+    if (currentComp && document.getElementById(`component-card-${currentComp.id}`)) {
+      showComponentPage(currentComp.id);
+    } else {
+      renderComponents();
+    }
+  }
+  if (currentPage === 'views') renderViews();
+  if (currentPage === 'viewdetail') {
+    const currentView = (config.views || []).find(view => view.id === currentViewDetailId);
+    if (currentView) renderViewDetail(currentView.id);
+  }
+  if (currentPage === 'foundationdetail' && currentFoundationDetail) {
+    renderFoundationDetail(currentFoundationDetail.kind, currentFoundationDetail.id);
+  }
+}
+
+function resetDiscoveryPage(page) {
+  globalSearchQuery = '';
+  if (page && pageFilterState[page] !== undefined) pageFilterState[page] = 'all';
+  syncSearchUi();
+  renderPageFilters();
+  rerenderCurrentPage();
+}
+
+function handleGlobalSearch(value) {
+  globalSearchQuery = String(value || '').trim();
+  syncSearchUi();
+  rerenderCurrentPage();
+}
+
+function clearGlobalSearch() {
+  globalSearchQuery = '';
+  syncSearchUi();
+  rerenderCurrentPage();
+}
+
+function setPageFilter(page, value) {
+  pageFilterState[page] = value;
+  renderPageFilters();
+  rerenderCurrentPage();
+}
+
+function buildFilterButton(page, value, label) {
+  const active = pageFilterState[page] === value ? ' active' : '';
+  return `<button class="filter-chip${active}" onclick="setPageFilter('${page}','${value}')">${label}</button>`;
+}
+
+function renderPageFilters() {
+  const el = document.getElementById('pageFilters');
+  if (!el || !config) return;
+  let html = '';
+  if (currentPage === 'tokens') {
+    html = [
+      buildFilterButton('tokens', 'all', 'All'),
+      buildFilterButton('tokens', 'colors', 'Colors'),
+      buildFilterButton('tokens', 'gradients', 'Gradients'),
+      buildFilterButton('tokens', 'linked', 'Linked Only'),
+    ].join('');
+  } else if (currentPage === 'icons') {
+    html = [
+      buildFilterButton('icons', 'all', 'All'),
+      buildFilterButton('icons', 'components', 'With Components'),
+      buildFilterButton('icons', 'views', 'With Views'),
+    ].join('');
+  } else if (currentPage === 'components') {
+    html = [
+      buildFilterButton('components', 'all', 'All'),
+      buildFilterButton('components', 'used', 'Used'),
+      buildFilterButton('components', 'catalog', 'Catalog'),
+      buildFilterButton('components', 'snapshot', 'Snapshot'),
+    ].join('');
+  } else if (currentPage === 'views') {
+    html = [
+      buildFilterButton('views', 'all', 'All'),
+      buildFilterButton('views', 'root', 'Root'),
+      buildFilterButton('views', 'snapshot', 'Snapshot'),
+      buildFilterButton('views', 'navigating', 'Has Navigation'),
+    ].join('');
+  }
+
+  if (!html) {
+    el.style.display = 'none';
+    el.innerHTML = '';
+    return;
+  }
+
+  el.style.display = '';
+  el.innerHTML = html;
+}
+
+function rememberLastSource(source) {
+  try {
+    localStorage.setItem(LAST_SOURCE_STORAGE_KEY, JSON.stringify(source));
+  } catch {}
+}
+
+function setCurrentLoadSource(source) {
+  currentLoadSource = source || null;
+}
+
+function getRememberedSource() {
+  try {
+    const raw = localStorage.getItem(LAST_SOURCE_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function getSourceLabel(source) {
+  if (!source?.value) return '';
+  if (source.type === 'url') return 'URL source';
+  if (source.type === 'file') return 'Local file';
+  if (source.type === 'demo') return 'Demo source';
+  return 'Source';
+}
+
+function getSourceValueLabel(source) {
+  if (!source?.value) return '';
+  if (source.type === 'url') {
+    try {
+      const parsed = new URL(source.value);
+      return `${parsed.host}${parsed.pathname}`;
+    } catch {
+      return source.value;
+    }
+  }
+  return source.value;
+}
+
+function renderTopbarSource() {
+  const el = document.getElementById('topSource');
+  if (!el) return;
+  if (!currentLoadSource?.value) {
+    el.style.display = 'none';
+    el.textContent = '';
+    return;
+  }
+  el.style.display = '';
+  el.textContent = `${getSourceLabel(currentLoadSource)} · ${getSourceValueLabel(currentLoadSource)}`;
+}
+
+function clearRememberedSource() {
+  try {
+    localStorage.removeItem(LAST_SOURCE_STORAGE_KEY);
+  } catch {}
+  if (currentLoadSource && currentLoadSource.type !== 'file') {
+    currentLoadSource = null;
+    renderTopbarSource();
+  }
+  updateLoaderSourceUi();
+}
+
+async function reloadLastSource() {
+  const source = getRememberedSource();
+  if (!source) return;
+  if (source.type === 'url' && source.value) {
+    document.getElementById('urlInput').value = source.value;
+    await loadConfigFromUrl(source.value);
+    return;
+  }
+  if (source.type === 'demo') {
+    loadDemo();
+    return;
+  }
+  setStatus('warn', 'Local files cannot be restored automatically. Please drop or choose the file again.');
+}
+
+function updateLoaderSourceUi() {
+  const actions = document.getElementById('loaderUrlActions');
+  const reloadBtn = document.getElementById('reloadLastSourceBtn');
+  const urlInput = document.getElementById('urlInput');
+  const source = getRememberedSource();
+  if (source?.type === 'url' && urlInput && !urlInput.value) {
+    urlInput.value = source.value || '';
+  }
+  if (!currentLoadSource && source?.value) {
+    setCurrentLoadSource(source);
+    renderTopbarSource();
+  }
+  if (!actions || !reloadBtn) return;
+  if (!source?.value) {
+    actions.style.display = 'none';
+    reloadBtn.textContent = '';
+    return;
+  }
+  actions.style.display = 'flex';
+  if (source.type === 'url') {
+    reloadBtn.textContent = `Reload ${source.value}`;
+  } else if (source.type === 'demo') {
+    reloadBtn.textContent = 'Reload HumbleSudoku demo';
+  } else {
+    reloadBtn.textContent = `Last local file: ${source.value}`;
+  }
+}
+
+function setDropzoneState(active) {
+  const dropzone = document.getElementById('loaderDropzone');
+  if (!dropzone) return;
+  dropzone.classList.toggle('drag-active', Boolean(active));
+}
+
+function handleGlobalDropState(event) {
+  if (!event.dataTransfer?.types?.includes('Files')) return;
+  event.preventDefault();
+  setDropzoneState(event.type === 'dragenter' || event.type === 'dragover');
+}
+
+async function handleDroppedFiles(event) {
+  if (!event.dataTransfer?.files?.length) return;
+  event.preventDefault();
+  setDropzoneState(false);
+  await loadConfigFromFile(event.dataTransfer.files[0]);
+}
+
+async function bootstrapLoaderExperience() {
+  updateLoaderSourceUi();
+  syncNavMapZoomLabel();
+
+  const dropzone = document.getElementById('loaderDropzone');
+  if (dropzone) {
+    dropzone.addEventListener('dragenter', handleGlobalDropState);
+    dropzone.addEventListener('dragover', handleGlobalDropState);
+    dropzone.addEventListener('dragleave', () => setDropzoneState(false));
+    dropzone.addEventListener('drop', handleDroppedFiles);
+  }
+
+  window.addEventListener('dragenter', handleGlobalDropState);
+  window.addEventListener('dragover', handleGlobalDropState);
+  window.addEventListener('drop', handleDroppedFiles);
+  window.addEventListener('dragleave', event => {
+    if (event.target === document.documentElement || event.target === document.body) {
+      setDropzoneState(false);
+    }
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const sourceUrl = params.get('bundle') || params.get('config');
+  if (sourceUrl) {
+    document.getElementById('urlInput').value = sourceUrl;
+    rememberLastSource({ type: 'url', value: sourceUrl });
+    setCurrentLoadSource({ type: 'url', value: sourceUrl });
+    updateLoaderSourceUi();
+    await loadConfigFromUrl(sourceUrl);
+  }
+}
+
 function showComponentPage(compId) {
   const comp = (config?.components || []).find(c => c.id === compId);
   if (!comp) return;
+  currentComponentDetailId = compId;
   getComponentEditorState(comp);
   document.getElementById('compPageTitle').textContent = comp.name;
   document.getElementById('compPageDesc').textContent  = comp.description || '';
@@ -435,3 +836,7 @@ function resetNavMapZoom() {
   syncNavMapZoomLabel();
   if (currentPage === 'navmap') renderNavMap();
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  bootstrapLoaderExperience();
+});

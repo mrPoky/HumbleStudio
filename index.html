@@ -52,10 +52,18 @@
 <main class="main">
   <div class="topbar">
     <div class="topbar-title" id="topTitle">HumbleStudio</div>
-    <span class="topbar-breadcrumb" id="topBreadcrumb"></span>
+    <div class="topbar-meta">
+      <span class="topbar-breadcrumb" id="topBreadcrumb"></span>
+      <span class="topbar-source" id="topSource" style="display:none"></span>
+    </div>
+    <div class="topbar-search" id="topbarSearch" style="display:none">
+      <input class="topbar-search-input" id="globalSearchInput" type="search" placeholder="Search tokens, icons, components, views…" oninput="handleGlobalSearch(this.value)" />
+      <button class="btn-sm topbar-search-clear" id="globalSearchClear" onclick="clearGlobalSearch()" style="display:none">Clear</button>
+    </div>
     <button class="btn-sm" onclick="showPage('loader')">⬆ Load config</button>
     <button class="btn-sm btn-sm-accent" id="btnExport" onclick="exportConfig()" style="display:none">↓ Export</button>
   </div>
+  <div class="page-filters" id="pageFilters" style="display:none"></div>
   <div id="validationBanner" class="validation-banner" style="display:none"></div>
 
   <!-- Loader -->
@@ -64,22 +72,26 @@
       <div>
         <div class="loader-logo">HS</div>
         <div class="loader-title">HumbleStudio</div>
-        <div class="loader-sub">Load a <code style="font-family:var(--mono);font-size:12px">.humble/design.json</code> from your repository to get started.</div>
+        <div class="loader-sub">Load a single <code style="font-family:var(--mono);font-size:12px">.humblebundle</code> or a plain <code style="font-family:var(--mono);font-size:12px">design.json</code> to inspect your app.</div>
       </div>
       <div class="loader-box">
         <div class="loader-label">Load from URL (raw GitHub / CDN)</div>
-        <input class="loader-input" id="urlInput" type="url" placeholder="https://raw.githubusercontent.com/user/repo/main/.humble/design.json" />
+        <input class="loader-input" id="urlInput" type="url" placeholder="https://raw.githubusercontent.com/user/repo/main/.humble/HumbleSudoku.humblebundle" />
         <div class="loader-actions">
           <button class="btn-full" onclick="loadFromUrl()">Load URL</button>
         </div>
+        <div class="loader-inline-actions" id="loaderUrlActions" style="display:none">
+          <button class="btn-sm" id="reloadLastSourceBtn" onclick="reloadLastSource()"></button>
+          <button class="btn-sm" onclick="clearRememberedSource()">Forget last source</button>
+        </div>
         <div class="loader-or">— or —</div>
         <div class="loader-label">Upload file</div>
-        <label class="loader-upload" for="fileInput">
-          <input class="loader-file-input" type="file" id="fileInput" accept=".json" onchange="loadFromFile(event)" />
+        <label class="loader-upload" id="loaderDropzone" for="fileInput">
+          <input class="loader-file-input" type="file" id="fileInput" accept=".humblebundle,.zip,.json" onchange="loadFromFile(event)" />
           <span class="loader-upload-icon">↑</span>
           <span class="loader-upload-copy">
-            <span class="loader-upload-title">Choose `design.json`</span>
-            <span class="loader-upload-sub" id="fileInputLabel">Select a local `.json` config file</span>
+            <span class="loader-upload-title">Choose bundle or `design.json`</span>
+            <span class="loader-upload-sub" id="fileInputLabel">Select or drop a local `.humblebundle`, `.zip`, or `.json` file</span>
           </span>
           <span class="loader-upload-cta">Browse</span>
         </label>
@@ -175,6 +187,7 @@
 </div>
 
 <script src="js/demo.js"></script>
+<script src="js/vendor/fflate.js"></script>
 <script src="js/renderers.js"></script>
 <script src="js/app.js"></script>
 </body>

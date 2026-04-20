@@ -11,9 +11,31 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
+function escapeJsString(value) {
+  return JSON.stringify(String(value ?? ''));
+}
+
 function resolveAssetPath(path, basePathKey = 'snapshotBasePath') {
   if (!path) return '';
   if (/^(https?:|data:|blob:|file:)/.test(path)) return path;
+
+  const bundleAssets = window.__humbleAssetMap;
+  if (bundleAssets instanceof Map && bundleAssets.size) {
+    const normalizedPath = String(path).replace(/^\.?\//, '').replace(/^\/+/, '');
+    const base = String(config?.assets?.[basePathKey] || '').replace(/^\.?\//, '').replace(/^\/+/, '').replace(/\/$/, '');
+    const fileName = normalizedPath.split('/').pop();
+    const candidates = [
+      normalizedPath,
+      fileName,
+      base ? `${base}/${normalizedPath}` : '',
+      base ? `${base}/${fileName}` : '',
+    ].filter(Boolean);
+
+    for (const candidate of candidates) {
+      if (bundleAssets.has(candidate)) return bundleAssets.get(candidate);
+    }
+  }
+
   if (path.startsWith('/')) return `file://${encodeURI(path)}`;
 
   const base = config?.assets?.[basePathKey] || '';
@@ -64,14 +86,319 @@ function getDeclaredUsageCount(token) {
   return getDeclaredUsageEntries(token).length;
 }
 
+function getComponentById(componentId) {
+  return (config?.components || []).find(component => component.id === componentId) || null;
+}
+
+function getViewById(viewId) {
+  return (config?.views || []).find(view => view.id === viewId) || null;
+}
+
+function uniqueById(items) {
+  const seen = new Set();
+  return items.filter(item => {
+    if (!item?.id || seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+}
+
+function designSystemList(entity, ...fieldNames) {
+  const designSystem = entity?.designSystem;
+  if (!designSystem || typeof designSystem !== 'object') return [];
+  const values = [];
+  fieldNames.forEach(fieldName => {
+    if (Array.isArray(designSystem[fieldName])) values.push(...designSystem[fieldName]);
+  });
+  return values;
+}
+
+function symbolToGlyph(value) {
+  const map = {
+    qrcodeViewfinder: '⌁',
+    photoOnRectangle: '▣',
+    exclamationmarkTriangleFill: '⚠',
+    checkmarkCircleFill: '✓',
+    bookmarkFill: '🔖',
+    bookmark: '🔖',
+    starFill: '★',
+    circleDotted: '◌',
+    chevronRight: '›',
+  };
+  return map[value] || value || '•';
+}
+
+function getNavigationRootId() {
+  return config?.navigation?.root || (config?.views || []).find(view => view.root)?.id || config?.views?.[0]?.id || null;
+}
+
+function getNavigationPath(viewId) {
+  const rootId = getNavigationRootId();
+  if (!rootId || !viewId) return [];
+  const queue = [[rootId]];
+  const visited = new Set([rootId]);
+  while (queue.length) {
+    const path = queue.shift();
+    const currentId = path[path.length - 1];
+    if (currentId === viewId) return path;
+    const currentView = getViewById(currentId);
+    (currentView?.navigatesTo || []).forEach(edge => {
+      if (!edge?.viewId || visited.has(edge.viewId)) return;
+      visited.add(edge.viewId);
+      queue.push([...path, edge.viewId]);
+    });
+  }
+  return [];
+}
+
+function objectContainsToken(value, tokens) {
+  if (!tokens?.size || value == null) return false;
+  if (typeof value === 'string') return tokens.has(value);
+  if (Array.isArray(value)) return value.some(entry => objectContainsToken(entry, tokens));
+  if (typeof value === 'object') return Object.values(value).some(entry => objectContainsToken(entry, tokens));
+  return false;
+}
+
+function getComponentUsageViews(component) {
+  if (!component) return [];
+  const explicitIds = Array.isArray(component.usedInViews) ? component.usedInViews : [];
+  const candidateIds = explicitIds.length
+    ? explicitIds
+    : (config?.views || [])
+      .filter(view => (view.components || []).includes(component.id))
+      .map(view => view.id);
+  return uniqueById(candidateIds.map(getViewById).filter(Boolean));
+}
+
+function getIncomingViewTransitions(viewId) {
+  return uniqueById(
+    (config?.views || [])
+      .filter(view => (view.navigatesTo || []).some(transition => transition?.viewId === viewId))
+      .map(view => ({ id: view.id, name: view.name }))
+  );
+}
+
+function getSiblingComponents(component) {
+  const usageViews = getComponentUsageViews(component);
+  const siblingIds = new Set();
+  usageViews.forEach(view => {
+    (view.components || []).forEach(componentId => {
+      if (componentId && componentId !== component.id) siblingIds.add(componentId);
+    });
+  });
+  return uniqueById([...siblingIds].map(getComponentById).filter(Boolean));
+}
+
+function getColorImpactEntities(colorId, color) {
+  const gradientIds = getColorGradientUsages(colorId, color);
+  const gradients = uniqueById(gradientIds.map(gradientId => ({ id: gradientId, ...(config?.tokens?.gradients?.[gradientId] || {}) })));
+  const components = uniqueById(
+    gradientIds.flatMap(gradientId => getGradientUsageEntities(gradientId, config?.tokens?.gradients?.[gradientId]).components)
+  );
+  const views = uniqueById(
+    gradientIds.flatMap(gradientId => getGradientUsageEntities(gradientId, config?.tokens?.gradients?.[gradientId]).views)
+  );
+  return { gradients, components, views };
+}
+
+function getGradientUsageEntities(gradientId, gradient) {
+  const explicitComponentIds = Array.isArray(gradient?.usedInComponents) ? gradient.usedInComponents : [];
+  const explicitViewIds = Array.isArray(gradient?.usedInViews) ? gradient.usedInViews : [];
+
+  const components = explicitComponentIds.length
+    ? explicitComponentIds.map(getComponentById).filter(Boolean)
+    : (config?.components || []).filter(component => designSystemList(component, 'gradients').includes(gradientId));
+
+  const views = explicitViewIds.length
+    ? explicitViewIds.map(getViewById).filter(Boolean)
+    : (config?.views || []).filter(view => designSystemList(view, 'gradients').includes(gradientId));
+
+  return {
+    components: uniqueById(components),
+    views: uniqueById(views),
+  };
+}
+
+function getColorGradientUsages(colorId, color) {
+  const explicit = Array.isArray(color?.usedInGradients) ? color.usedInGradients : [];
+  if (explicit.length) return explicit;
+  return Object.entries(config?.tokens?.gradients || {})
+    .filter(([, gradient]) => Array.isArray(gradient?.colorTokens) && gradient.colorTokens.includes(colorId))
+    .map(([gradientId]) => gradientId);
+}
+
+function getGradientColorTokens(gradientId, gradient) {
+  const explicitIds = Array.isArray(gradient?.colorTokens) ? gradient.colorTokens : [];
+  const tokenIds = explicitIds.length
+    ? explicitIds
+    : Object.entries(config?.tokens?.colors || {})
+      .filter(([colorId, color]) => getColorGradientUsages(colorId, color).includes(gradientId))
+      .map(([colorId]) => colorId);
+  return uniqueById(tokenIds.map(colorId => ({ id: colorId, ...(config?.tokens?.colors?.[colorId] || {}) })));
+}
+
+function getComponentFoundationGraph(component) {
+  const icons = uniqueById(
+    (config?.tokens?.icons || []).filter(icon => {
+      const explicit = (icon.usedInComponents || []).includes(component.id);
+      const declared = designSystemList(component, 'icons', 'preferredIcons').some(value => [icon.id, icon.symbol].includes(value));
+      return explicit || declared;
+    })
+  );
+
+  const gradients = uniqueById(
+    Object.entries(config?.tokens?.gradients || {})
+      .filter(([gradientId, gradient]) => {
+        if ((gradient.usedInComponents || []).includes(component.id)) return true;
+        return designSystemList(component, 'gradients').includes(gradientId);
+      })
+      .map(([gradientId, gradient]) => ({ id: gradientId, ...gradient }))
+  );
+
+  const colors = uniqueById(
+    gradients.flatMap(gradient => getGradientColorTokens(gradient.id, gradient))
+  );
+
+  return {
+    colors,
+    gradients,
+    icons,
+    primitives: uniqueById(designSystemList(component, 'primitives').map(value => ({ id: value }))).map(item => item.id),
+    surfaces: uniqueById(designSystemList(component, 'surfaces').map(value => ({ id: value }))).map(item => item.id),
+    textTones: uniqueById(designSystemList(component, 'textTones').map(value => ({ id: value }))).map(item => item.id),
+  };
+}
+
+function getIconUsageEntities(iconId, icon) {
+  const explicitComponentIds = Array.isArray(icon?.usedInComponents) ? icon.usedInComponents : [];
+  const explicitViewIds = Array.isArray(icon?.usedInViews) ? icon.usedInViews : [];
+  const tokens = new Set([iconId, icon?.symbol].filter(Boolean));
+
+  const components = explicitComponentIds.length
+    ? explicitComponentIds.map(getComponentById).filter(Boolean)
+    : (config?.components || []).filter(component => {
+      if (designSystemList(component, 'icons', 'preferredIcons').some(value => tokens.has(value))) return true;
+      return [...(component.states || []), ...(component.mocks || [])].some(entry => objectContainsToken(entry?.props, tokens));
+    });
+
+  const views = explicitViewIds.length
+    ? explicitViewIds.map(getViewById).filter(Boolean)
+    : (config?.views || []).filter(view => designSystemList(view, 'icons', 'preferredIcons').some(value => tokens.has(value)));
+
+  return {
+    components: uniqueById(components),
+    views: uniqueById(views),
+  };
+}
+
+function buildUsagePills(items, kind) {
+  if (!items.length) return '<div class="foundation-empty-note">No linked items found.</div>';
+  const pills = items.map(item => {
+    if (kind === 'component') {
+      return `<button class="usage-pill" onclick="showComponentPage(${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name)}<span>Component</span></button>`;
+    }
+    if (kind === 'view') {
+      return `<button class="usage-pill" onclick="showPage('viewdetail', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name)}<span>View</span></button>`;
+    }
+    return `<button class="usage-pill" onclick="showFoundationDetail('gradient', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.id)}<span>Gradient</span></button>`;
+  }).join('');
+  return `<div class="usage-pill-list">${pills}</div>`;
+}
+
+function buildCodeReferenceList(entries) {
+  if (!entries.length) return '';
+  return `<div class="foundation-meta-card foundation-meta-card-wide">
+    <div class="foundation-meta-label">Code References</div>
+    <div class="foundation-usage-list">${entries.map(entry => `<div class="foundation-usage-item">${escapeHtml(entry)}</div>`).join('')}</div>
+  </div>`;
+}
+
+function buildFoundationPills(items, kind) {
+  if (!items.length) return '<div class="foundation-empty-note">No linked foundation items found.</div>';
+  const pills = items.map(item => {
+    if (kind === 'color') {
+      return `<button class="usage-pill" onclick="showFoundationDetail('color', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.id)}<span>Color</span></button>`;
+    }
+    if (kind === 'icon') {
+      return `<button class="usage-pill" onclick="showFoundationDetail('icon', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name || item.id)}<span>Icon</span></button>`;
+    }
+    return `<button class="usage-pill" onclick="showFoundationDetail('gradient', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.id)}<span>Gradient</span></button>`;
+  }).join('');
+  return `<div class="usage-pill-list">${pills}</div>`;
+}
+
+function buildTagList(items) {
+  if (!items.length) return '<div class="foundation-empty-note">No metadata declared.</div>';
+  return `<div class="usage-pill-list">${items.map(item => `<div class="usage-pill usage-pill-static">${escapeHtml(item)}</div>`).join('')}</div>`;
+}
+
 function renderUsageMeta(token, noun = 'usage') {
   const count = getDeclaredUsageCount(token);
   if (count) return `${count} declared ${noun}${count === 1 ? '' : 's'}`;
   return 'No declared usage';
 }
 
+function buildEmptyState(icon, title, subtitle = '', action = null) {
+  const actionMarkup = action?.label && action?.onclick
+    ? `<button class="empty-action" onclick="${action.onclick}">${escapeHtml(action.label)}</button>`
+    : '';
+  return `<div class="empty"><div class="empty-icon">${escapeHtml(icon)}</div><div class="empty-title">${escapeHtml(title)}</div>${subtitle ? `<div class="empty-sub">${escapeHtml(subtitle)}</div>` : ''}${actionMarkup}</div>`;
+}
+
 function normalizeComparableValue(value) {
   return String(value ?? '').trim().toLowerCase();
+}
+
+function matchesGlobalSearch(...values) {
+  const query = normalizeComparableValue(window.globalSearchQuery || globalSearchQuery || '');
+  if (!query) return true;
+  return values.flatMap(value => Array.isArray(value) ? value : [value]).some(value => normalizeComparableValue(value).includes(query));
+}
+
+function componentSearchText(component) {
+  return [
+    component.id,
+    component.name,
+    component.group,
+    component.description,
+    component.source,
+    component.swiftui,
+    ...designSystemList(component, 'primitives', 'surfaces', 'textTones', 'icons', 'preferredIcons', 'gradients'),
+  ];
+}
+
+function viewSearchText(view) {
+  return [
+    view.id,
+    view.name,
+    view.description,
+    view.source,
+    ...(view.components || []),
+    ...designSystemList(view, 'primitives', 'surfaces', 'textTones', 'icons', 'preferredIcons', 'gradients'),
+  ];
+}
+
+function tokenSearchText(id, token) {
+  return [
+    id,
+    token.group,
+    token.swiftui,
+    token.usage,
+    ...(token.colorTokens || []),
+    ...(token.usedInGradients || []),
+  ];
+}
+
+function iconSearchText(icon) {
+  return [
+    icon.id,
+    icon.name,
+    icon.symbol,
+    icon.description,
+    ...(icon.usedIn || []),
+    ...(icon.usedInComponents || []),
+    ...(icon.usedInViews || []),
+  ];
 }
 
 function arraysEqualNormalized(a, b) {
@@ -111,7 +438,7 @@ function renderComponentPreview(comp, props) {
       const buttonClass = componentName.includes('settingsactionbutton')
         ? `${cls} r-btn-wide r-btn-settings`
         : componentName.includes('startbutton')
-          ? `${cls} r-btn-start`
+          ? `${cls} r-btn-start${normalizedStyle === 'blue' ? ' r-btn-start-warm' : ''}`
           : cls;
       return `<div class="${buttonClass}" style="${disabled}">${icon}<span>${escapeHtml(props.title || 'Button')}</span></div>`;
     }
@@ -140,15 +467,13 @@ function renderComponentPreview(comp, props) {
       return `<div class="r-numpad">${[1,2,3,4,5,6,7,8,9].map(n=>{
         const count = Number(counts[n] ?? 0);
         const exhausted = count >= 9;
-        return `<div class="r-num-btn${n===selNum?' r-sel':''}${exhausted?' r-disabled':''}"><span class="r-num-value">${n}</span>${count ? `<span class="r-num-count">${escapeHtml(count)}</span>` : ''}</div>`;
+        return `<div class="r-num-btn${n===selNum?' r-sel':''}${exhausted?' r-disabled':''}${count > 0 && !exhausted ? ' r-used' : ''}"><span class="r-num-value">${n}</span></div>`;
       }).join('')}</div>`;
     }
     case 'list': {
       const rows = props.rows || [{ label: 'Item', value: 'Value' }];
-      const title = props.title || 'Settings';
       return `
         <div class="r-panel-card r-list-shell">
-          <div class="r-panel-title">${escapeHtml(title)}</div>
           <div class="r-list-card">
             ${rows.map(r => `
               <div class="r-list-row">
@@ -160,7 +485,7 @@ function renderComponentPreview(comp, props) {
                 <span class="r-list-val">
                   ${r.badge ? `<span class="r-list-badge">${escapeHtml(r.badge)}</span>` : ''}
                   ${r.value ? `<span>${escapeHtml(r.value)}</span>` : ''}
-                  ${r.rightType === 'checkmark' ? `<span class="r-list-check">✓</span>` : r.rightType === 'empty' ? '' : `<span class="r-list-chevron">›</span>`}
+                  ${r.rightType === 'checkmark' ? `<span class="r-list-check">✓</span>` : r.rightType === 'empty' ? '' : r.value && String(r.value).trim() !== '' ? `<span class="r-list-chevron">›</span>` : `<span class="r-list-chevron">›</span>`}
                 </span>
               </div>
             `).join('')}
@@ -202,13 +527,75 @@ function renderComponentPreview(comp, props) {
             ${tiles.map(b => `
               <div class="r-action-tile">
                 <span class="r-action-icon">${escapeHtml(b.icon)}</span>
-                <span class="r-action-label">${escapeHtml(b.label)}</span>
+                <span class="r-action-label">${escapeHtml(b.label === 'Camera' ? 'Scan with camera' : b.label === 'Gallery' ? 'Pick from Photos' : b.label)}</span>
               </div>
             `).join('')}
           </div>
           ${error ? `<div class="r-action-banner r-action-banner-error">${escapeHtml(error)}</div>` : ''}
           ${success ? `<div class="r-action-success"><div class="r-action-success-title">${escapeHtml(success.title)}</div><div class="r-action-success-sub">${escapeHtml(success.subtitle || '')}</div></div>` : ''}
-          ${actions.length ? `<div class="r-action-footer">${actions.map(b => `<div class="r-action-pill${b.style === 'primary' ? ' primary' : ''}${b.style === 'destructive' ? ' destructive' : ''}">${escapeHtml(b.label)}</div>`).join('')}</div>` : ''}
+          ${actions.length ? `<div class="r-action-footer">${actions.map(b => `<div class="r-action-cta${b.style === 'primary' ? ' primary' : ''}${b.style === 'destructive' ? ' destructive' : ''}">${escapeHtml(b.label)}</div>`).join('')}</div>` : ''}
+        </div>
+      `;
+    }
+    case 'history-row': {
+      return `
+        <div class="r-history-row">
+          <div class="r-history-status r-history-status-${escapeHtml(String(props.statusIcon || '').toLowerCase())}">${escapeHtml(symbolToGlyph(props.statusIcon))}</div>
+          <div class="r-history-copy">
+            <div class="r-history-title">${escapeHtml(props.title || 'Puzzle')}</div>
+            <div class="r-history-subtitle">${escapeHtml(props.subtitle || '')}</div>
+          </div>
+          <div class="r-history-trailing">
+            ${props.badge ? `<span class="r-history-badge">${escapeHtml(props.badge)}</span>` : ''}
+            ${props.trailingIcon ? `<span class="r-history-chevron">${escapeHtml(symbolToGlyph(props.trailingIcon))}</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
+    case 'inline-banner': {
+      return `
+        <div class="r-inline-banner">
+          <div class="r-inline-banner-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
+          <div class="r-inline-banner-message">${escapeHtml(props.message || 'Message')}</div>
+        </div>
+      `;
+    }
+    case 'labeled-value': {
+      return `
+        <div class="r-labeled-value-card">
+          <div class="r-labeled-value-title">${escapeHtml(props.title || 'Label')}</div>
+          <div class="r-labeled-value-value">${escapeHtml(props.value || 'Value')}</div>
+        </div>
+      `;
+    }
+    case 'empty-state': {
+      return `
+        <div class="r-empty-state-card">
+          <div class="r-empty-state-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
+          <div class="r-empty-state-title">${escapeHtml(props.title || 'Empty state')}</div>
+          <div class="r-empty-state-subtitle">${escapeHtml(props.subtitle || '')}</div>
+        </div>
+      `;
+    }
+    case 'success-card': {
+      return `
+        <div class="r-success-card">
+          <div class="r-success-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
+          <div class="r-success-copy">
+            <div class="r-success-title">${escapeHtml(props.title || 'Success')}</div>
+            <div class="r-success-subtitle">${escapeHtml(props.subtitle || '')}</div>
+          </div>
+        </div>
+      `;
+    }
+    case 'tile-button':
+    case 'tile-label': {
+      const isButton = type === 'tile-button';
+      const styleClass = `${props.style === 'outline' ? ' r-scan-tile-outline' : ''}${isButton ? ' r-scan-tile-button' : ' r-scan-tile-label'}`;
+      return `
+        <div class="r-scan-tile${styleClass}">
+          <div class="r-scan-tile-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
+          <div class="r-scan-tile-title">${escapeHtml(props.title || 'Action')}</div>
         </div>
       `;
     }
@@ -240,11 +627,21 @@ function renderTokens() {
   const gradients = config.tokens?.gradients || {};
   const groups = {};
   Object.entries(colors).forEach(([k,v]) => {
+    const linked = (v.usageCount || 0) > 0 || (Array.isArray(v.usedInGradients) && v.usedInGradients.length);
+    const tokenFilter = pageFilterState?.tokens || 'all';
+    if (tokenFilter === 'gradients') return;
+    if (tokenFilter === 'linked' && !linked) return;
+    if (!matchesGlobalSearch(...tokenSearchText(k, v), `tokens.colors.${k}`)) return;
     const g = v.group || 'Colors';
     if (!groups[g]) groups[g] = { colors: [], gradients: [] };
     groups[g].colors.push([k, v]);
   });
   Object.entries(gradients).forEach(([k, v]) => {
+    const linked = (v.usageCount || 0) > 0 || (Array.isArray(v.usedInComponents) && v.usedInComponents.length) || (Array.isArray(v.usedInViews) && v.usedInViews.length);
+    const tokenFilter = pageFilterState?.tokens || 'all';
+    if (tokenFilter === 'colors') return;
+    if (tokenFilter === 'linked' && !linked) return;
+    if (!matchesGlobalSearch(...tokenSearchText(k, v), `tokens.gradients.${k}`)) return;
     const g = v.group || 'Gradients';
     if (!groups[g]) groups[g] = { colors: [], gradients: [] };
     groups[g].gradients.push([k, v]);
@@ -266,13 +663,13 @@ function renderTokens() {
     });
     html += '</div>';
   });
-  document.getElementById('tokensContent').innerHTML = html || '<div class="empty"><div class="empty-icon">◉</div><div class="empty-title">No foundation tokens</div><div class="empty-sub">Add tokens.colors or tokens.gradients to your design.json</div></div>';
+  document.getElementById('tokensContent').innerHTML = html || buildEmptyState('◉', 'No matching tokens', 'Try clearing search or switching the token filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('tokens')" });
 }
 
 function renderTypography() {
   if (!config) return;
   const scale = config.tokens?.typography || [];
-  if (!scale.length) { document.getElementById('typographyContent').innerHTML='<div class="empty"><div class="empty-icon">T</div><div class="empty-title">No type scale</div></div>'; return; }
+  if (!scale.length) { document.getElementById('typographyContent').innerHTML = buildEmptyState('T', 'No type scale', 'Load a config with `tokens.typography` to inspect text styles.'); return; }
   let html = '<table style="width:100%;border-collapse:collapse"><thead><tr>';
   ['Role','SwiftUI','Size / Weight','Preview'].forEach(h=>{ html+=`<th style="text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding:6px 10px;border-bottom:1px solid var(--border)">${h}</th>`; });
   html += '</tr></thead><tbody>';
@@ -284,9 +681,14 @@ function renderTypography() {
 
 function renderIcons() {
   if (!config) return;
-  const icons = config.tokens?.icons || [];
+  const filter = pageFilterState?.icons || 'all';
+  const icons = (config.tokens?.icons || []).filter(icon => {
+    if (filter === 'components' && !(icon.usedInComponents || []).length) return false;
+    if (filter === 'views' && !(icon.usedInViews || []).length) return false;
+    return matchesGlobalSearch(...iconSearchText(icon));
+  });
   if (!icons.length) {
-    document.getElementById('iconsContent').innerHTML = '<div class="empty"><div class="empty-icon">⌘</div><div class="empty-title">No icon catalog</div><div class="empty-sub">Add tokens.icons to your design.json</div></div>';
+    document.getElementById('iconsContent').innerHTML = buildEmptyState('⌘', 'No matching icons', 'Try clearing search or switching the icon filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('icons')" });
     return;
   }
   document.getElementById('iconsContent').innerHTML = `
@@ -337,17 +739,15 @@ function renderFoundationDetail(kind, id) {
   titleEl.textContent = title;
 
   if (!item) {
-    contentEl.innerHTML = '<div class="empty"><div class="empty-icon">◌</div><div class="empty-title">Detail not found</div></div>';
+    contentEl.innerHTML = buildEmptyState('◌', 'Detail not found', 'The selected foundation item is missing from the current config.');
     return;
   }
 
   const usages = getDeclaredUsageEntries(item);
-  const usageCount = getDeclaredUsageCount(item);
-  const usageList = usages.length
-    ? `<div class="foundation-usage-list">${usages.map(entry => `<div class="foundation-usage-item">${escapeHtml(entry)}</div>`).join('')}</div>`
-    : '<div class="foundation-empty-note">No explicit `usedIn` metadata was declared for this item.</div>';
 
   if (kind === 'icon') {
+    const linked = getIconUsageEntities(id, item);
+    const usageCount = linked.components.length + linked.views.length;
     contentEl.innerHTML = `
       <div class="foundation-detail-layout">
         <div class="foundation-detail-stage">
@@ -368,13 +768,18 @@ function renderFoundationDetail(kind, id) {
           </div>
           <div class="foundation-meta-card">
             <div class="foundation-meta-label">Usage</div>
-            <div class="foundation-meta-value">${usageCount || 0} declared uses</div>
+            <div class="foundation-meta-value">${usageCount} linked items</div>
           </div>
           ${item.description ? `<div class="foundation-meta-card foundation-meta-card-wide"><div class="foundation-meta-label">Notes</div><div class="foundation-meta-copy">${escapeHtml(item.description)}</div></div>` : ''}
           <div class="foundation-meta-card foundation-meta-card-wide">
-            <div class="foundation-meta-label">Used In</div>
-            ${usageList}
+            <div class="foundation-meta-label">Components</div>
+            ${buildUsagePills(linked.components, 'component')}
           </div>
+          <div class="foundation-meta-card foundation-meta-card-wide">
+            <div class="foundation-meta-label">Views</div>
+            ${buildUsagePills(linked.views, 'view')}
+          </div>
+          ${buildCodeReferenceList(usages)}
         </div>
       </div>
     `;
@@ -385,6 +790,8 @@ function renderFoundationDetail(kind, id) {
     const dark = item.dark || item.value || item;
     const light = item.light || item.value || item;
     const sameColor = normalizeComparableValue(dark) === normalizeComparableValue(light);
+    const impact = getColorImpactEntities(id, item);
+    const usageCount = impact.gradients.length + impact.components.length + impact.views.length;
     contentEl.innerHTML = `
       <div class="foundation-detail-layout">
         <div class="foundation-detail-stage">
@@ -414,11 +821,19 @@ function renderFoundationDetail(kind, id) {
           </div>
           <div class="foundation-meta-card">
             <div class="foundation-meta-label">Usage</div>
-            <div class="foundation-meta-value">${usageCount || 0} declared uses</div>
+            <div class="foundation-meta-value">${usageCount} linked items</div>
           </div>
           <div class="foundation-meta-card foundation-meta-card-wide">
-            <div class="foundation-meta-label">Used In</div>
-            ${usageList}
+            <div class="foundation-meta-label">Indirectly Affects Gradients</div>
+            ${buildFoundationPills(impact.gradients, 'gradient')}
+          </div>
+          <div class="foundation-meta-card foundation-meta-card-wide">
+            <div class="foundation-meta-label">Indirectly Affects Components</div>
+            ${buildUsagePills(impact.components, 'component')}
+          </div>
+          <div class="foundation-meta-card foundation-meta-card-wide">
+            <div class="foundation-meta-label">Indirectly Affects Views</div>
+            ${buildUsagePills(impact.views, 'view')}
           </div>
         </div>
       </div>
@@ -434,6 +849,14 @@ function renderFoundationDetail(kind, id) {
   const darkGradientCss = darkStops.length ? `linear-gradient(135deg, ${darkStops.join(', ')})` : gradientCss;
   const sameGradient = arraysEqualNormalized(darkStops, lightStops) || normalizeComparableValue(darkGradientCss) === normalizeComparableValue(lightGradientCss);
   const direction = [item.startPoint, item.endPoint].filter(Boolean).join(' -> ') || 'custom';
+  const linked = getGradientUsageEntities(id, item);
+  const linkedColors = getGradientColorTokens(id, item);
+  const incomingColors = uniqueById(
+    Object.entries(config?.tokens?.colors || {})
+      .filter(([colorId, color]) => getColorGradientUsages(colorId, color).includes(id))
+      .map(([colorId, color]) => ({ id: colorId, ...color }))
+  );
+  const usageCount = linked.components.length + linked.views.length;
   contentEl.innerHTML = `
     <div class="foundation-detail-layout">
       <div class="foundation-detail-stage">
@@ -463,15 +886,23 @@ function renderFoundationDetail(kind, id) {
         </div>
         <div class="foundation-meta-card">
           <div class="foundation-meta-label">Usage</div>
-          <div class="foundation-meta-value">${usageCount || 0} declared uses</div>
+          <div class="foundation-meta-value">${usageCount} linked items</div>
+        </div>
+        <div class="foundation-meta-card foundation-meta-card-wide">
+          <div class="foundation-meta-label">Reached From Colors</div>
+          ${buildFoundationPills(incomingColors.length ? incomingColors : linkedColors, 'color')}
         </div>
         <div class="foundation-meta-card foundation-meta-card-wide">
           <div class="foundation-meta-label">Gradient Stops</div>
           <div class="foundation-stop-list">${previewStops.map(stop => `<div class="foundation-stop">${escapeHtml(stop)}</div>`).join('')}</div>
         </div>
         <div class="foundation-meta-card foundation-meta-card-wide">
-          <div class="foundation-meta-label">Used In</div>
-          ${usageList}
+          <div class="foundation-meta-label">Components</div>
+          ${buildUsagePills(linked.components, 'component')}
+        </div>
+        <div class="foundation-meta-card foundation-meta-card-wide">
+          <div class="foundation-meta-label">Views</div>
+          ${buildUsagePills(linked.views, 'view')}
         </div>
       </div>
     </div>
@@ -498,7 +929,7 @@ function renderSpacing() {
     });
     html += '</div>';
   }
-  document.getElementById('spacingContent').innerHTML = html || '<div class="empty"><div class="empty-icon">⬚</div><div class="empty-title">No spacing tokens</div></div>';
+  document.getElementById('spacingContent').innerHTML = html || buildEmptyState('⬚', 'No spacing tokens', 'Load a config with `tokens.spacing` or `tokens.radius` to inspect layout primitives.');
 }
 
 function buildComponentCard(c, options = {}) {
@@ -523,6 +954,51 @@ function buildComponentCard(c, options = {}) {
       ${catalogOnly ? `<div class="cc-state-badge">Catalog only</div>` : ''}
     </div>
   ` : '';
+  const usageViews = getComponentUsageViews(c);
+  const siblingComponents = getSiblingComponents(c);
+  const foundationGraph = getComponentFoundationGraph(c);
+  const usageSummary = usageViews.length
+    ? `<div class="cc-usage-summary">${usageViews.length} view${usageViews.length === 1 ? '' : 's'}</div>`
+    : '';
+  const usagePanel = !detailed ? '' : `
+    <div class="cc-usage-panel">
+      <div class="cc-usage-title">Used In Views</div>
+      ${buildUsagePills(usageViews, 'view')}
+    </div>
+  `;
+  const relatedPanel = !detailed ? '' : `
+    <div class="cc-related-panel">
+      <div class="cc-usage-title">Related</div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Used With Components</div>
+        ${buildUsagePills(siblingComponents, 'component')}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Colors</div>
+        ${buildFoundationPills(foundationGraph.colors, 'color')}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Gradients</div>
+        ${buildFoundationPills(foundationGraph.gradients, 'gradient')}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Icons</div>
+        ${buildFoundationPills(foundationGraph.icons, 'icon')}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Primitives</div>
+        ${buildTagList(foundationGraph.primitives)}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Surfaces</div>
+        ${buildTagList(foundationGraph.surfaces)}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Text Tones</div>
+        ${buildTagList(foundationGraph.textTones)}
+      </div>
+    </div>
+  `;
   const editor = !detailed ? '' : catalogOnly ? `
     <div class="cc-editor cc-editor-locked">
       <div class="cc-editor-head">
@@ -543,13 +1019,19 @@ function buildComponentCard(c, options = {}) {
       ${state?.error ? `<div class="mock-error">${escapeHtml(state.error)}</div>` : ''}
     </div>
   `;
-  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-name">${escapeHtml(c.name)}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${editor}</div>`;
+  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${relatedPanel}${editor}</div>`;
 }
 
 function renderComponents() {
   if (!config) return;
-  const comps = config.components||[];
-  if (!comps.length) { document.getElementById('componentsContent').innerHTML='<div class="empty"><div class="empty-icon">⬡</div><div class="empty-title">No components</div></div>'; return; }
+  const filter = pageFilterState?.components || 'all';
+  const comps = (config.components||[]).filter(component => {
+    if (filter === 'used' && !getComponentUsageViews(component).length) return false;
+    if (filter === 'catalog' && !isCatalogOnlyComponent(component)) return false;
+    if (filter === 'snapshot' && !component.snapshot?.path) return false;
+    return matchesGlobalSearch(...componentSearchText(component));
+  });
+  if (!comps.length) { document.getElementById('componentsContent').innerHTML = buildEmptyState('⬡', 'No matching components', 'Try clearing search or switching the component filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('components')" }); return; }
   document.getElementById('componentsContent').innerHTML = `<div class="component-grid">${comps.map(c=>buildComponentCard(c)).join('')}</div>`;
 }
 
@@ -570,18 +1052,29 @@ function buildMiniScreen(view) {
     : 'width:75px;height:140px;background:var(--surface);border-radius:10px;border:1px solid var(--border);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3)';
   let inner = `<div style="height:22px;background:var(--bg);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border2)"><span style="font-size:7px;font-weight:700;color:var(--t1)">${escapeHtml(view.name)}</span></div>`;
   (view.components||[]).slice(0,3).forEach(()=>{ inner+=`<div style="margin:4px 4px 0;height:14px;background:var(--surface2);border-radius:3px;opacity:.7"></div>`; });
-  if ((view.navigatesTo||[]).length) inner+=`<div style="margin:6px 4px 4px;height:18px;background:var(--accent);border-radius:5px;opacity:.8;display:flex;align-items:center;justify-content:center"><span style="font-size:7px;font-weight:700;color:#fff">CTA</span></div>`;
+  if ((view.navigatesTo||[]).length) inner+=`<div style="margin:6px 4px 4px;height:18px;background:var(--accent);border-radius:5px;opacity:.8;display:flex;align-items:center;justify-content:center"><span style="font-size:7px;font-weight:700;color:#fff">${escapeHtml((view.navigatesTo || []).length)} link${(view.navigatesTo || []).length === 1 ? '' : 's'}</span></div>`;
   return `<div style="${style}">${inner}</div>`;
 }
 
 function renderViews() {
   if (!config) return;
-  const views = config.views||[];
-  if (!views.length) { document.getElementById('viewsContent').innerHTML='<div class="empty"><div class="empty-icon">▭</div><div class="empty-title">No views</div></div>'; return; }
+  const filter = pageFilterState?.views || 'all';
+  const views = (config.views||[]).filter(view => {
+    if (filter === 'root' && !view.root && config.navigation?.root !== view.id) return false;
+    if (filter === 'snapshot' && !view.snapshot?.path) return false;
+    if (filter === 'navigating' && !(view.navigatesTo || []).length) return false;
+    return matchesGlobalSearch(...viewSearchText(view));
+  });
+  if (!views.length) { document.getElementById('viewsContent').innerHTML = buildEmptyState('▭', 'No matching views', 'Try clearing search or switching the view filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('views')" }); return; }
   let html = '<div class="view-grid">';
   views.forEach(v => {
-    const navTags=(v.navigatesTo||[]).map(n=>`<span class="vc-nav-tag">${n.type === 'pop' ? '←' : '→'} ${escapeHtml(n.viewId)}</span>`).join('');
-    html+=`<div class="view-card" onclick="showPage('viewdetail','${v.id}')"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-comps">${(v.components||[]).length} component${(v.components||[]).length!==1?'s':''}</div><div class="vc-nav-tags">${navTags}</div></div></div>`;
+    const navTags=(v.navigatesTo||[]).slice(0,3).map(n=>{
+      const target = getViewById(n.viewId);
+      const arrow = n.type === 'pop' ? '←' : '→';
+      return `<span class="vc-nav-tag">${arrow} ${escapeHtml(target?.name || n.viewId)}</span>`;
+    }).join('');
+    const hiddenCount = Math.max(0, (v.navigatesTo || []).length - 3);
+    html+=`<div class="view-card" onclick="showPage('viewdetail','${v.id}')"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-comps">${(v.components||[]).length} component${(v.components||[]).length!==1?'s':''}</div><div class="vc-nav-tags">${navTags}${hiddenCount ? `<span class="vc-nav-tag">+${hiddenCount} more</span>` : ''}</div></div></div>`;
   });
   document.getElementById('viewsContent').innerHTML = html + '</div>';
 }
@@ -589,6 +1082,7 @@ function renderViews() {
 function renderViewDetail(viewId) {
   const view = (config?.views||[]).find(v=>v.id===viewId);
   if (!view) return;
+  currentViewDetailId = viewId;
   document.getElementById('vdTitle').textContent = view.name;
   let phoneContent = '';
   const snapshotMarkup = view.snapshot?.path ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame detail-snapshot-frame') : '';
@@ -604,13 +1098,60 @@ function renderViewDetail(viewId) {
   phoneContent += '</div>';
   const compPills=(view.components||[]).map(cid=>{ const comp=(config?.components||[]).find(c=>c.id===cid); return `<div class="vd-comp-pill" onclick="showComponentPage('${cid}')">${escapeHtml(comp?comp.name:cid)}<span style="font-size:10px;color:var(--t3)">›</span></div>`; }).join('');
   const navArrows=(view.navigatesTo||[]).map(n=>{ const t=(config?.views||[]).find(v=>v.id===n.viewId); const bc={push:'nav-push',sheet:'nav-sheet',replace:'nav-replace',pop:'nav-pop'}[n.type]||'nav-push'; return `<div class="nav-arrow" onclick="showPage('viewdetail','${n.viewId}')"><div style="flex:1"><div style="font-size:12px;font-weight:600">${escapeHtml(t?t.name:n.viewId)}</div><div class="nav-trigger">${escapeHtml(n.trigger||'')}</div></div><span class="nav-badge ${bc}">${escapeHtml(n.type||'push')}</span></div>`; }).join('');
-  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
+  const incomingViews = getIncomingViewTransitions(view.id);
+  const incomingArrows = incomingViews.map(sourceView => `<div class="nav-arrow" onclick="showPage('viewdetail','${sourceView.id}')"><div style="flex:1"><div style="font-size:12px;font-weight:600">${escapeHtml(sourceView.name)}</div><div class="nav-trigger">reaches this view</div></div><span class="nav-badge nav-incoming">incoming</span></div>`).join('');
+  const navigationPath = getNavigationPath(view.id).map(id => getViewById(id)?.name || id);
+  const routeSummary = navigationPath.length
+    ? `<div class="vd-route">${navigationPath.map(step => `<span class="vd-route-step">${escapeHtml(step)}</span>`).join('<span class="vd-route-sep">›</span>')}</div>`
+    : '<div class="foundation-empty-note">No route from root was derived for this view.</div>';
+  const flowMeta = `
+    <div class="vd-panel">
+      <div class="vd-panel-title">Navigation Context</div>
+      <div class="vd-graph-section">
+        <div class="vd-graph-label">Route Path</div>
+        ${routeSummary}
+      </div>
+      <div class="vd-graph-section">
+        <div class="vd-graph-label">Role</div>
+        <div class="usage-pill-list">
+          ${view.root ? '<div class="usage-pill usage-pill-static">Root</div>' : ''}
+          ${view.presentation ? `<div class="usage-pill usage-pill-static">${escapeHtml(view.presentation)}</div>` : '<div class="usage-pill usage-pill-static">push</div>'}
+          <div class="usage-pill usage-pill-static">${escapeHtml((view.navigatesTo || []).length)} outgoing</div>
+          <div class="usage-pill usage-pill-static">${escapeHtml(incomingViews.length)} incoming</div>
+        </div>
+      </div>
+    </div>
+  `;
+  const linkedComponents = (view.components || []).map(getComponentById).filter(Boolean);
+  const linkedIcons = uniqueById(
+    (config?.tokens?.icons || []).filter(icon => {
+      const inView = (icon.usedInViews || []).includes(view.id);
+      const inComponents = linkedComponents.some(component => (icon.usedInComponents || []).includes(component.id));
+      return inView || inComponents;
+    })
+  );
+  const linkedGradients = uniqueById(
+    Object.entries(config?.tokens?.gradients || {})
+      .filter(([, gradient]) => (gradient.usedInViews || []).includes(view.id) || linkedComponents.some(component => (gradient.usedInComponents || []).includes(component.id)))
+      .map(([gradientId, gradient]) => ({ id: gradientId, ...gradient }))
+  );
+  const linkedColors = uniqueById(linkedGradients.flatMap(gradient => getGradientColorTokens(gradient.id, gradient)));
+  const primitiveTags = uniqueById(linkedComponents.flatMap(component => designSystemList(component, 'primitives')).map(value => ({ id: value }))).map(item => item.id);
+  const surfaceTags = uniqueById([
+    ...designSystemList(view, 'surfaces'),
+    ...linkedComponents.flatMap(component => designSystemList(component, 'surfaces')),
+  ].map(value => ({ id: value }))).map(item => item.id);
+  const textToneTags = uniqueById([
+    ...designSystemList(view, 'textTones'),
+    ...linkedComponents.flatMap(component => designSystemList(component, 'textTones')),
+  ].map(value => ({ id: value }))).map(item => item.id);
+  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${flowMeta}${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">Reached From</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
 }
 
 function renderNavMap() {
   if (!config) return;
   const views = config.views || [];
-  if (!views.length) { document.getElementById('navMapContainer').innerHTML='<div class="empty" style="padding:60px"><div class="empty-icon">⬡</div><div class="empty-title">No views defined</div></div>'; return; }
+  if (!views.length) { document.getElementById('navMapContainer').innerHTML = buildEmptyState('⬡', 'No views defined', 'Load a config with `views[]` to generate the navigation map.'); return; }
   const nodeW = 208;
   const nodeH = 82;
   const marginX = 68;
