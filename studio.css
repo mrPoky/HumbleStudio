@@ -340,8 +340,6 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .r-num-btn.r-used:not(.r-sel):not(.r-disabled){background:rgba(255,255,255,.14)}
 .r-num-btn.r-disabled{opacity:.45}
 .r-num-value{font-size:20px;font-weight:800}
-.r-num-count{position:absolute;right:8px;bottom:8px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--mono);color:var(--t2)}
-.r-num-btn.r-sel .r-num-count{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.28);color:#fff}
 .r-list-shell{max-width:360px}
 .r-list-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;width:100%}
 .r-list-row{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px;gap:12px}
@@ -380,21 +378,19 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .r-action-pill.primary{background:linear-gradient(180deg, #39d7ba 0%, #169d88 100%);border-color:rgba(255,255,255,.16);color:#fff}
 .r-action-pill.destructive{background:rgba(248,113,113,.14);border-color:rgba(248,113,113,.28);color:#ffd6d6}
 .r-history-row{width:100%;max-width:360px;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.10)}
-.r-history-status{width:34px;height:34px;border-radius:12px;background:rgba(29,184,160,.12);border:1px solid rgba(29,184,160,.18);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--accent);flex-shrink:0}
-.r-history-status-circledotted{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.18);color:#87b6ff}
-.r-history-status-bookmarkfill{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.18);color:#f7cf67}
-.r-history-status-starfill{background:rgba(29,184,160,.12);border-color:rgba(29,184,160,.18);color:var(--accent)}
+.r-history-status{width:22px;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--accent);flex-shrink:0}
+.r-history-status-circledotted{color:#9aa8bc}
+.r-history-status-bookmarkfill{color:#7cb0ff}
+.r-history-status-starfill{color:#49d9b9}
 .r-history-copy{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
 .r-history-title{font-size:13px;font-weight:800;color:var(--t1)}
 .r-history-subtitle{font-size:10px;color:var(--t2)}
 .r-history-trailing{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .r-history-badge{padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:10px;font-family:var(--mono);color:#d5e2f7}
 .r-history-chevron{font-size:15px;color:var(--t3)}
-.r-inline-banner{width:100%;max-width:360px;display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-radius:16px;background:linear-gradient(180deg, rgba(248,113,113,.14), rgba(248,113,113,.09));border:1px solid rgba(248,113,113,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
-.r-inline-banner-icon{width:28px;height:28px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);display:flex;align-items:center;justify-content:center;font-size:14px;color:#ffd6d6;line-height:1.2;flex-shrink:0}
-.r-inline-banner-copy{display:flex;flex-direction:column;gap:3px}
-.r-inline-banner-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#ffd6d6}
-.r-inline-banner-message{font-size:11px;line-height:1.55;color:#ffe3e3}
+.r-inline-banner{width:100%;max-width:360px;display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:16px;background:rgba(248,113,113,.10);border:1px solid rgba(248,113,113,.18)}
+.r-inline-banner-icon{font-size:12px;color:#ff8e8e;line-height:1.35;flex-shrink:0;margin-top:1px}
+.r-inline-banner-message{font-size:11px;line-height:1.55;color:#ff8e8e}
 .r-labeled-value-card{width:100%;max-width:240px;padding:14px 16px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.10)}
 .r-labeled-value-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3)}
 .r-labeled-value-value{margin-top:8px;font-size:24px;font-weight:900;color:var(--t1);font-family:var(--mono)}
@@ -402,11 +398,11 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .r-empty-state-icon{font-size:28px;color:var(--accent);opacity:.9}
 .r-empty-state-title{margin-top:10px;font-size:14px;font-weight:800;color:var(--t1)}
 .r-empty-state-subtitle{margin-top:6px;font-size:11px;line-height:1.55;color:var(--t2)}
-.r-success-card{width:100%;max-width:320px;padding:14px 16px;border-radius:18px;background:linear-gradient(180deg, rgba(61,214,186,.18), rgba(61,214,186,.08));border:1px solid rgba(61,214,186,.22);display:flex;align-items:center;gap:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
-.r-success-icon{width:32px;height:32px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:16px;color:#d9fff6}
+.r-success-card{width:100%;max-width:320px;padding:12px 14px;border-radius:14px;background:linear-gradient(180deg, rgba(61,214,186,.14), rgba(61,214,186,.06));border:1px solid rgba(61,214,186,.18);display:flex;align-items:center;gap:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.r-success-icon{width:24px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--accent);flex-shrink:0}
 .r-success-copy{display:flex;flex-direction:column;gap:3px}
 .r-success-title{font-size:12px;font-weight:800;color:var(--t1)}
-.r-success-subtitle{font-size:11px;color:#d8fff7}
+.r-success-subtitle{font-size:11px;color:var(--t2)}
 .r-scan-tile{width:100%;max-width:156px;min-height:118px;border-radius:18px;padding:16px 14px;background:rgba(8,14,28,.34);border:1px solid rgba(255,255,255,.10);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
 .r-scan-tile-outline{box-shadow:inset 0 0 0 1px rgba(61,214,186,.18)}
 .r-scan-tile-button{background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}

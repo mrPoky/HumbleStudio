@@ -467,7 +467,7 @@ function renderComponentPreview(comp, props) {
       return `<div class="r-numpad">${[1,2,3,4,5,6,7,8,9].map(n=>{
         const count = Number(counts[n] ?? 0);
         const exhausted = count >= 9;
-        return `<div class="r-num-btn${n===selNum?' r-sel':''}${exhausted?' r-disabled':''}${count > 0 && !exhausted ? ' r-used' : ''}"><span class="r-num-value">${n}</span>${count ? `<span class="r-num-count">${escapeHtml(count)}</span>` : ''}</div>`;
+        return `<div class="r-num-btn${n===selNum?' r-sel':''}${exhausted?' r-disabled':''}${count > 0 && !exhausted ? ' r-used' : ''}"><span class="r-num-value">${n}</span></div>`;
       }).join('')}</div>`;
     }
     case 'list': {
@@ -556,10 +556,7 @@ function renderComponentPreview(comp, props) {
       return `
         <div class="r-inline-banner">
           <div class="r-inline-banner-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
-          <div class="r-inline-banner-copy">
-            <div class="r-inline-banner-title">Heads up</div>
-            <div class="r-inline-banner-message">${escapeHtml(props.message || 'Message')}</div>
-          </div>
+          <div class="r-inline-banner-message">${escapeHtml(props.message || 'Message')}</div>
         </div>
       `;
     }
