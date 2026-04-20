@@ -229,6 +229,8 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .cc-editor-locked{background:rgba(255,255,255,.02)}
 .cc-editor-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .cc-editor-actions{display:flex;gap:8px}
+.cc-guided-panel{padding:12px;border-top:1px solid var(--border2);display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,.015)}
+.cc-guided-copy{font-size:11px;color:var(--t2);line-height:1.45}
 .cc-state-meta{padding:0 12px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .cc-state-copy{font-size:12px;color:var(--t2);line-height:1.5}
 .cc-state-badge{padding:5px 9px;border-radius:999px;background:rgba(29,184,160,.12);border:1px solid rgba(29,184,160,.18);font-size:10px;font-weight:700;color:#bdf7ec;white-space:nowrap}
@@ -247,6 +249,14 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .mock-editor{width:100%;min-height:220px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--t1);font-size:12px;line-height:1.5;font-family:var(--mono);resize:vertical}
 .mock-error{font-size:11px;color:var(--dest)}
 .cc-locked-copy{font-size:12px;color:var(--t2);line-height:1.6}
+.guided-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.guided-field{display:flex;flex-direction:column;gap:6px}
+.guided-field-toggle{flex-direction:row;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px}
+.guided-field-copy{display:flex;flex-direction:column;gap:3px}
+.guided-field-label{font-size:11px;font-weight:700;color:var(--t1)}
+.guided-field-hint{font-size:10px;color:var(--t3)}
+.guided-input,.guided-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 11px;font-size:12px;color:var(--t1);font-family:var(--font)}
+.guided-toggle{width:18px;height:18px;accent-color:var(--accent);cursor:pointer}
 
 /* ── VIEW CARDS ── */
 .view-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
@@ -458,4 +468,5 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
   .foundation-mode-compare{grid-template-columns:1fr}
   .nav-map-header{align-items:flex-start;flex-direction:column}
   .cc-capability-grid{grid-template-columns:1fr}
+  .guided-grid{grid-template-columns:1fr}
 }

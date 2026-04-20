@@ -136,6 +136,90 @@ function getComponentEditorState(component) {
   return componentEditorState[component.id];
 }
 
+function isEditablePrimitiveValue(value) {
+  return value == null || ['string', 'number', 'boolean'].includes(typeof value);
+}
+
+function flattenEditableProps(value, prefix = '', bucket = []) {
+  if (isEditablePrimitiveValue(value)) {
+    if (prefix) bucket.push([prefix, value]);
+    return bucket;
+  }
+  if (Array.isArray(value)) return bucket;
+  if (!isPlainObject(value)) return bucket;
+  Object.entries(value).forEach(([key, entry]) => {
+    const path = prefix ? `${prefix}.${key}` : key;
+    flattenEditableProps(entry, path, bucket);
+  });
+  return bucket;
+}
+
+function getDraftProps(component) {
+  const state = getComponentEditorState(component);
+  if (!state?.draft) return { ...(getDefaultMock(component).props || {}) };
+  try {
+    return JSON.parse(state.draft);
+  } catch {
+    return { ...(getDefaultMock(component).props || {}) };
+  }
+}
+
+function getValueAtPath(object, path) {
+  return String(path || '')
+    .split('.')
+    .filter(Boolean)
+    .reduce((current, key) => (current == null ? undefined : current[key]), object);
+}
+
+function setValueAtPath(object, path, value) {
+  const keys = String(path || '').split('.').filter(Boolean);
+  if (!keys.length) return object;
+  const nextObject = isPlainObject(object) ? { ...object } : {};
+  let cursor = nextObject;
+  keys.forEach((key, index) => {
+    if (index === keys.length - 1) {
+      cursor[key] = value;
+      return;
+    }
+    const current = cursor[key];
+    cursor[key] = isPlainObject(current) ? { ...current } : {};
+    cursor = cursor[key];
+  });
+  return nextObject;
+}
+
+function getStructuredPropControls(component) {
+  const states = getComponentStates(component);
+  if (!states.length) return [];
+  const valuesByPath = new Map();
+
+  states.forEach(state => {
+    flattenEditableProps(state.props || {}).forEach(([path, value]) => {
+      if (!valuesByPath.has(path)) valuesByPath.set(path, []);
+      valuesByPath.get(path).push(value);
+    });
+  });
+
+  return [...valuesByPath.entries()]
+    .map(([path, values]) => {
+      const uniqueValues = [...new Map(values.map(value => [JSON.stringify(value), value])).values()];
+      const sample = uniqueValues.find(value => value != null) ?? uniqueValues[0];
+      const kind = typeof sample === 'boolean'
+        ? 'boolean'
+        : typeof sample === 'number'
+          ? 'number'
+          : 'string';
+      return {
+        path,
+        label: path.split('.').join(' / '),
+        kind,
+        options: uniqueValues,
+      };
+    })
+    .filter(control => control.path && (control.options.length > 1 || control.kind === 'boolean'))
+    .sort((left, right) => left.path.localeCompare(right.path));
+}
+
 function isBundleFileName(name = '') {
   const normalized = String(name || '').toLowerCase();
   return BUNDLE_EXTENSIONS.some(ext => normalized.endsWith(ext));
@@ -755,6 +839,22 @@ function handleMockDraftChange(compId, value) {
   const state = getComponentEditorState(comp);
   if (!comp || !state || isCatalogOnlyComponent(comp)) return;
   state.draft = value;
+}
+
+function handleGuidedPropChange(compId, path, rawValue, kind) {
+  const comp = (config?.components || []).find(c => c.id === compId);
+  const state = getComponentEditorState(comp);
+  if (!comp || !state || isCatalogOnlyComponent(comp)) return;
+
+  let nextValue = rawValue;
+  if (kind === 'boolean') nextValue = rawValue === 'true';
+  else if (kind === 'number') nextValue = Number(rawValue);
+
+  const nextProps = setValueAtPath(getDraftProps(comp), path, nextValue);
+  state.draft = JSON.stringify(nextProps, null, 2);
+  state.error = '';
+  state.mode = 'mock';
+  rerenderComponentCard(compId);
 }
 
 function applyMockDraft(compId) {
