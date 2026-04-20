@@ -278,15 +278,20 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .vd-route-sep{font-size:10px;color:var(--t3)}
 .vd-comp-pill{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--t1);display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;cursor:pointer;transition:border-color .1s}
 .vd-comp-pill:hover{border-color:var(--accent)}
-.nav-arrow{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);font-size:11px;margin-bottom:4px;cursor:pointer;transition:border-color .1s}
+.nav-arrow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);font-size:11px;margin-bottom:6px;cursor:pointer;transition:border-color .1s,transform .12s}
 .nav-arrow:hover{border-color:var(--accent)}
-.nav-trigger{font-size:9px;color:var(--t3);margin-top:1px}
+.nav-arrow:hover{transform:translateY(-1px)}
+.nav-arrow-copy{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.nav-eyebrow{font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.65px}
+.nav-headline{font-size:12px;font-weight:700;color:var(--t1);line-height:1.35}
+.nav-trigger{font-size:10px;color:var(--t2);margin-top:0;line-height:1.45}
+.nav-arrow-target{display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:42%;text-align:right}
+.nav-target-name{font-size:11px;font-weight:700;color:var(--t1);line-height:1.35}
 .nav-badge{font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700}
 .nav-push{background:rgba(29,184,160,.15);color:var(--accent)}
 .nav-sheet{background:rgba(59,130,246,.15);color:var(--blue)}
 .nav-replace{background:rgba(251,191,36,.15);color:var(--warn)}
 .nav-pop{background:rgba(148,163,184,.18);color:#94A3B8}
-.nav-incoming{background:rgba(45,212,191,.14);color:var(--accent2)}
 
 /* ── NAV MAP ── */
 .nav-map-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
