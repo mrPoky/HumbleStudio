@@ -202,6 +202,22 @@ function buildCodeReferenceList(entries) {
   </div>`;
 }
 
+function buildFoundationPills(items, kind) {
+  if (!items.length) return '<div class="foundation-empty-note">No linked foundation items found.</div>';
+  const pills = items.map(item => {
+    if (kind === 'icon') {
+      return `<button class="usage-pill" onclick="showFoundationDetail('icon', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name || item.id)}<span>Icon</span></button>`;
+    }
+    return `<button class="usage-pill" onclick="showFoundationDetail('gradient', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.id)}<span>Gradient</span></button>`;
+  }).join('');
+  return `<div class="usage-pill-list">${pills}</div>`;
+}
+
+function buildTagList(items) {
+  if (!items.length) return '<div class="foundation-empty-note">No metadata declared.</div>';
+  return `<div class="usage-pill-list">${items.map(item => `<div class="usage-pill usage-pill-static">${escapeHtml(item)}</div>`).join('')}</div>`;
+}
+
 function renderUsageMeta(token, noun = 'usage') {
   const count = getDeclaredUsageCount(token);
   if (count) return `${count} declared ${noun}${count === 1 ? '' : 's'}`;
@@ -210,6 +226,58 @@ function renderUsageMeta(token, noun = 'usage') {
 
 function normalizeComparableValue(value) {
   return String(value ?? '').trim().toLowerCase();
+}
+
+function matchesGlobalSearch(...values) {
+  const query = normalizeComparableValue(window.globalSearchQuery || globalSearchQuery || '');
+  if (!query) return true;
+  return values.flatMap(value => Array.isArray(value) ? value : [value]).some(value => normalizeComparableValue(value).includes(query));
+}
+
+function componentSearchText(component) {
+  return [
+    component.id,
+    component.name,
+    component.group,
+    component.description,
+    component.source,
+    component.swiftui,
+    ...designSystemList(component, 'primitives', 'surfaces', 'textTones', 'icons', 'preferredIcons', 'gradients'),
+  ];
+}
+
+function viewSearchText(view) {
+  return [
+    view.id,
+    view.name,
+    view.description,
+    view.source,
+    ...(view.components || []),
+    ...designSystemList(view, 'primitives', 'surfaces', 'textTones', 'icons', 'preferredIcons', 'gradients'),
+  ];
+}
+
+function tokenSearchText(id, token) {
+  return [
+    id,
+    token.group,
+    token.swiftui,
+    token.usage,
+    ...(token.colorTokens || []),
+    ...(token.usedInGradients || []),
+  ];
+}
+
+function iconSearchText(icon) {
+  return [
+    icon.id,
+    icon.name,
+    icon.symbol,
+    icon.description,
+    ...(icon.usedIn || []),
+    ...(icon.usedInComponents || []),
+    ...(icon.usedInViews || []),
+  ];
 }
 
 function arraysEqualNormalized(a, b) {
@@ -378,11 +446,21 @@ function renderTokens() {
   const gradients = config.tokens?.gradients || {};
   const groups = {};
   Object.entries(colors).forEach(([k,v]) => {
+    const linked = (v.usageCount || 0) > 0 || (Array.isArray(v.usedInGradients) && v.usedInGradients.length);
+    const tokenFilter = pageFilterState?.tokens || 'all';
+    if (tokenFilter === 'gradients') return;
+    if (tokenFilter === 'linked' && !linked) return;
+    if (!matchesGlobalSearch(...tokenSearchText(k, v), `tokens.colors.${k}`)) return;
     const g = v.group || 'Colors';
     if (!groups[g]) groups[g] = { colors: [], gradients: [] };
     groups[g].colors.push([k, v]);
   });
   Object.entries(gradients).forEach(([k, v]) => {
+    const linked = (v.usageCount || 0) > 0 || (Array.isArray(v.usedInComponents) && v.usedInComponents.length) || (Array.isArray(v.usedInViews) && v.usedInViews.length);
+    const tokenFilter = pageFilterState?.tokens || 'all';
+    if (tokenFilter === 'colors') return;
+    if (tokenFilter === 'linked' && !linked) return;
+    if (!matchesGlobalSearch(...tokenSearchText(k, v), `tokens.gradients.${k}`)) return;
     const g = v.group || 'Gradients';
     if (!groups[g]) groups[g] = { colors: [], gradients: [] };
     groups[g].gradients.push([k, v]);
@@ -404,7 +482,7 @@ function renderTokens() {
     });
     html += '</div>';
   });
-  document.getElementById('tokensContent').innerHTML = html || '<div class="empty"><div class="empty-icon">◉</div><div class="empty-title">No foundation tokens</div><div class="empty-sub">Add tokens.colors or tokens.gradients to your design.json</div></div>';
+  document.getElementById('tokensContent').innerHTML = html || '<div class="empty"><div class="empty-icon">◉</div><div class="empty-title">No matching tokens</div><div class="empty-sub">Try clearing search or switching the token filter.</div></div>';
 }
 
 function renderTypography() {
@@ -422,9 +500,14 @@ function renderTypography() {
 
 function renderIcons() {
   if (!config) return;
-  const icons = config.tokens?.icons || [];
+  const filter = pageFilterState?.icons || 'all';
+  const icons = (config.tokens?.icons || []).filter(icon => {
+    if (filter === 'components' && !(icon.usedInComponents || []).length) return false;
+    if (filter === 'views' && !(icon.usedInViews || []).length) return false;
+    return matchesGlobalSearch(...iconSearchText(icon));
+  });
   if (!icons.length) {
-    document.getElementById('iconsContent').innerHTML = '<div class="empty"><div class="empty-icon">⌘</div><div class="empty-title">No icon catalog</div><div class="empty-sub">Add tokens.icons to your design.json</div></div>';
+    document.getElementById('iconsContent').innerHTML = '<div class="empty"><div class="empty-icon">⌘</div><div class="empty-title">No matching icons</div><div class="empty-sub">Try clearing search or switching the icon filter.</div></div>';
     return;
   }
   document.getElementById('iconsContent').innerHTML = `
@@ -718,8 +801,14 @@ function buildComponentCard(c, options = {}) {
 
 function renderComponents() {
   if (!config) return;
-  const comps = config.components||[];
-  if (!comps.length) { document.getElementById('componentsContent').innerHTML='<div class="empty"><div class="empty-icon">⬡</div><div class="empty-title">No components</div></div>'; return; }
+  const filter = pageFilterState?.components || 'all';
+  const comps = (config.components||[]).filter(component => {
+    if (filter === 'used' && !getComponentUsageViews(component).length) return false;
+    if (filter === 'catalog' && !isCatalogOnlyComponent(component)) return false;
+    if (filter === 'snapshot' && !component.snapshot?.path) return false;
+    return matchesGlobalSearch(...componentSearchText(component));
+  });
+  if (!comps.length) { document.getElementById('componentsContent').innerHTML='<div class="empty"><div class="empty-icon">⬡</div><div class="empty-title">No matching components</div><div class="empty-sub">Try clearing search or switching the component filter.</div></div>'; return; }
   document.getElementById('componentsContent').innerHTML = `<div class="component-grid">${comps.map(c=>buildComponentCard(c)).join('')}</div>`;
 }
 
@@ -746,8 +835,14 @@ function buildMiniScreen(view) {
 
 function renderViews() {
   if (!config) return;
-  const views = config.views||[];
-  if (!views.length) { document.getElementById('viewsContent').innerHTML='<div class="empty"><div class="empty-icon">▭</div><div class="empty-title">No views</div></div>'; return; }
+  const filter = pageFilterState?.views || 'all';
+  const views = (config.views||[]).filter(view => {
+    if (filter === 'root' && !view.root && config.navigation?.root !== view.id) return false;
+    if (filter === 'snapshot' && !view.snapshot?.path) return false;
+    if (filter === 'navigating' && !(view.navigatesTo || []).length) return false;
+    return matchesGlobalSearch(...viewSearchText(view));
+  });
+  if (!views.length) { document.getElementById('viewsContent').innerHTML='<div class="empty"><div class="empty-icon">▭</div><div class="empty-title">No matching views</div><div class="empty-sub">Try clearing search or switching the view filter.</div></div>'; return; }
   let html = '<div class="view-grid">';
   views.forEach(v => {
     const navTags=(v.navigatesTo||[]).map(n=>`<span class="vc-nav-tag">${n.type === 'pop' ? '←' : '→'} ${escapeHtml(n.viewId)}</span>`).join('');
@@ -759,6 +854,7 @@ function renderViews() {
 function renderViewDetail(viewId) {
   const view = (config?.views||[]).find(v=>v.id===viewId);
   if (!view) return;
+  currentViewDetailId = viewId;
   document.getElementById('vdTitle').textContent = view.name;
   let phoneContent = '';
   const snapshotMarkup = view.snapshot?.path ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame detail-snapshot-frame') : '';
@@ -774,7 +870,29 @@ function renderViewDetail(viewId) {
   phoneContent += '</div>';
   const compPills=(view.components||[]).map(cid=>{ const comp=(config?.components||[]).find(c=>c.id===cid); return `<div class="vd-comp-pill" onclick="showComponentPage('${cid}')">${escapeHtml(comp?comp.name:cid)}<span style="font-size:10px;color:var(--t3)">›</span></div>`; }).join('');
   const navArrows=(view.navigatesTo||[]).map(n=>{ const t=(config?.views||[]).find(v=>v.id===n.viewId); const bc={push:'nav-push',sheet:'nav-sheet',replace:'nav-replace',pop:'nav-pop'}[n.type]||'nav-push'; return `<div class="nav-arrow" onclick="showPage('viewdetail','${n.viewId}')"><div style="flex:1"><div style="font-size:12px;font-weight:600">${escapeHtml(t?t.name:n.viewId)}</div><div class="nav-trigger">${escapeHtml(n.trigger||'')}</div></div><span class="nav-badge ${bc}">${escapeHtml(n.type||'push')}</span></div>`; }).join('');
-  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
+  const linkedComponents = (view.components || []).map(getComponentById).filter(Boolean);
+  const linkedIcons = uniqueById(
+    (config?.tokens?.icons || []).filter(icon => {
+      const inView = (icon.usedInViews || []).includes(view.id);
+      const inComponents = linkedComponents.some(component => (icon.usedInComponents || []).includes(component.id));
+      return inView || inComponents;
+    })
+  );
+  const linkedGradients = uniqueById(
+    Object.entries(config?.tokens?.gradients || {})
+      .filter(([, gradient]) => (gradient.usedInViews || []).includes(view.id) || linkedComponents.some(component => (gradient.usedInComponents || []).includes(component.id)))
+      .map(([gradientId, gradient]) => ({ id: gradientId, ...gradient }))
+  );
+  const primitiveTags = uniqueById(linkedComponents.flatMap(component => designSystemList(component, 'primitives')).map(value => ({ id: value }))).map(item => item.id);
+  const surfaceTags = uniqueById([
+    ...designSystemList(view, 'surfaces'),
+    ...linkedComponents.flatMap(component => designSystemList(component, 'surfaces')),
+  ].map(value => ({ id: value }))).map(item => item.id);
+  const textToneTags = uniqueById([
+    ...designSystemList(view, 'textTones'),
+    ...linkedComponents.flatMap(component => designSystemList(component, 'textTones')),
+  ].map(value => ({ id: value }))).map(item => item.id);
+  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">Navigates to</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
 }
 
 function renderNavMap() {

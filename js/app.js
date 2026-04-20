@@ -4,7 +4,11 @@ let currentPage = 'loader';
 let validationReport = { errors: [], warnings: [] };
 let componentEditorState = {};
 let currentFoundationDetail = null;
+let currentComponentDetailId = null;
+let currentViewDetailId = null;
 let navMapZoom = 1;
+let globalSearchQuery = '';
+let pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
 window.__humbleAssetMap = new Map();
 
 const NAVIGATION_TYPES = new Set(['push', 'sheet', 'replace', 'pop']);
@@ -33,6 +37,7 @@ function showPage(id, extra) {
   const titles = { loader:'HumbleStudio', tokens:'Tokens', icons:'Icons', foundationdetail: 'Foundation Detail', typography:'Typography', spacing:'Spacing & Radius', components:'Components', views:'Views', navmap:'Navigation Map', viewdetail: extra || 'View' };
   document.getElementById('topTitle').textContent = titles[id] || id;
   document.getElementById('topBreadcrumb').textContent = config ? (config.meta?.name || '') : '';
+  renderPageFilters();
 
   if (id === 'viewdetail' && extra) renderViewDetail(extra);
   if (id === 'foundationdetail' && extra) renderFoundationDetail(extra.kind, extra.id);
@@ -317,7 +322,10 @@ function applyConfig(data) {
   config = report.normalized;
   validationReport = { errors: report.errors, warnings: report.warnings };
   componentEditorState = {};
+  globalSearchQuery = '';
+  pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
   buildSidebar();
+  syncSearchUi();
   renderTokens();
   renderIcons();
   renderTypography();
@@ -334,6 +342,7 @@ function applyConfig(data) {
   }
   document.getElementById('sbAppName').textContent = (config.meta?.name || 'App') + ' v' + (config.meta?.version || '?');
   document.getElementById('btnExport').style.display = '';
+  document.getElementById('topbarSearch').style.display = '';
   showPage('tokens');
 }
 
@@ -424,9 +433,105 @@ function buildSidebar() {
   });
 }
 
+function syncSearchUi() {
+  const input = document.getElementById('globalSearchInput');
+  const clearBtn = document.getElementById('globalSearchClear');
+  if (input) input.value = globalSearchQuery;
+  if (clearBtn) clearBtn.style.display = globalSearchQuery ? '' : 'none';
+}
+
+function rerenderCurrentPage() {
+  if (!config) return;
+  if (currentPage === 'tokens') renderTokens();
+  if (currentPage === 'icons') renderIcons();
+  if (currentPage === 'components') {
+    const currentComp = (config.components || []).find(component => component.id === currentComponentDetailId);
+    if (currentComp && document.getElementById(`component-card-${currentComp.id}`)) {
+      showComponentPage(currentComp.id);
+    } else {
+      renderComponents();
+    }
+  }
+  if (currentPage === 'views') renderViews();
+  if (currentPage === 'viewdetail') {
+    const currentView = (config.views || []).find(view => view.id === currentViewDetailId);
+    if (currentView) renderViewDetail(currentView.id);
+  }
+  if (currentPage === 'foundationdetail' && currentFoundationDetail) {
+    renderFoundationDetail(currentFoundationDetail.kind, currentFoundationDetail.id);
+  }
+}
+
+function handleGlobalSearch(value) {
+  globalSearchQuery = String(value || '').trim();
+  syncSearchUi();
+  rerenderCurrentPage();
+}
+
+function clearGlobalSearch() {
+  globalSearchQuery = '';
+  syncSearchUi();
+  rerenderCurrentPage();
+}
+
+function setPageFilter(page, value) {
+  pageFilterState[page] = value;
+  renderPageFilters();
+  rerenderCurrentPage();
+}
+
+function buildFilterButton(page, value, label) {
+  const active = pageFilterState[page] === value ? ' active' : '';
+  return `<button class="filter-chip${active}" onclick="setPageFilter('${page}','${value}')">${label}</button>`;
+}
+
+function renderPageFilters() {
+  const el = document.getElementById('pageFilters');
+  if (!el || !config) return;
+  let html = '';
+  if (currentPage === 'tokens') {
+    html = [
+      buildFilterButton('tokens', 'all', 'All'),
+      buildFilterButton('tokens', 'colors', 'Colors'),
+      buildFilterButton('tokens', 'gradients', 'Gradients'),
+      buildFilterButton('tokens', 'linked', 'Linked Only'),
+    ].join('');
+  } else if (currentPage === 'icons') {
+    html = [
+      buildFilterButton('icons', 'all', 'All'),
+      buildFilterButton('icons', 'components', 'With Components'),
+      buildFilterButton('icons', 'views', 'With Views'),
+    ].join('');
+  } else if (currentPage === 'components') {
+    html = [
+      buildFilterButton('components', 'all', 'All'),
+      buildFilterButton('components', 'used', 'Used'),
+      buildFilterButton('components', 'catalog', 'Catalog'),
+      buildFilterButton('components', 'snapshot', 'Snapshot'),
+    ].join('');
+  } else if (currentPage === 'views') {
+    html = [
+      buildFilterButton('views', 'all', 'All'),
+      buildFilterButton('views', 'root', 'Root'),
+      buildFilterButton('views', 'snapshot', 'Snapshot'),
+      buildFilterButton('views', 'navigating', 'Has Navigation'),
+    ].join('');
+  }
+
+  if (!html) {
+    el.style.display = 'none';
+    el.innerHTML = '';
+    return;
+  }
+
+  el.style.display = '';
+  el.innerHTML = html;
+}
+
 function showComponentPage(compId) {
   const comp = (config?.components || []).find(c => c.id === compId);
   if (!comp) return;
+  currentComponentDetailId = compId;
   getComponentEditorState(comp);
   document.getElementById('compPageTitle').textContent = comp.name;
   document.getElementById('compPageDesc').textContent  = comp.description || '';
