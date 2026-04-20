@@ -14,6 +14,24 @@ function escapeHtml(value) {
 function resolveAssetPath(path, basePathKey = 'snapshotBasePath') {
   if (!path) return '';
   if (/^(https?:|data:|blob:|file:)/.test(path)) return path;
+
+  const bundleAssets = window.__humbleAssetMap;
+  if (bundleAssets instanceof Map && bundleAssets.size) {
+    const normalizedPath = String(path).replace(/^\.?\//, '').replace(/^\/+/, '');
+    const base = String(config?.assets?.[basePathKey] || '').replace(/^\.?\//, '').replace(/^\/+/, '').replace(/\/$/, '');
+    const fileName = normalizedPath.split('/').pop();
+    const candidates = [
+      normalizedPath,
+      fileName,
+      base ? `${base}/${normalizedPath}` : '',
+      base ? `${base}/${fileName}` : '',
+    ].filter(Boolean);
+
+    for (const candidate of candidates) {
+      if (bundleAssets.has(candidate)) return bundleAssets.get(candidate);
+    }
+  }
+
   if (path.startsWith('/')) return `file://${encodeURI(path)}`;
 
   const base = config?.assets?.[basePathKey] || '';

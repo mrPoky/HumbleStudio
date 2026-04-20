@@ -4,7 +4,7 @@ Live design system viewer for iOS apps under the [HumblePlatform](https://github
 
 **No dependencies. No build step. Open `index.html` in a browser.**
 
-Load a `.humble/design.json` from any HumblePlatform repo and instantly see the full design system — color tokens, typography, spacing, components with interactive mocks, phone mockups of every screen, and a clickable navigation map.
+Load a single `.humblebundle` or a plain `.humble/design.json` from any HumblePlatform repo and instantly see the full design system — color tokens, typography, spacing, components with interactive mocks, phone mockups of every screen, and a clickable navigation map.
 
 ---
 
@@ -18,15 +18,15 @@ Then pick one of three ways to load a config:
 
 | Method | When to use |
 |--------|-------------|
-| **URL** | Paste a raw GitHub URL to `.humble/design.json` on any branch |
-| **File** | Upload a local `design.json` for offline work |
+| **URL** | Paste a raw GitHub URL to `.humble/HumbleSudoku.humblebundle` or `.humble/design.json` on any branch |
+| **File** | Upload a local `.humblebundle`, `.zip`, or `design.json` for offline work |
 | **Demo** | Click "Load HumbleSudoku demo config" to explore a real example |
 
 ---
 
 ## Config format
 
-Each app repo has `.humble/design.json`. Minimal structure:
+Each app repo can expose either a plain `.humble/design.json` or a packaged `.humblebundle` containing `design.json`, icons, and snapshots. Minimal `design.json` structure:
 
 ```json
 {
