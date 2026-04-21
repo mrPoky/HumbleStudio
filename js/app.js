@@ -36,7 +36,10 @@ function showPage(id, extra) {
   currentPage = id;
   syncSidebarActive(id, extra);
 
-  const titles = { loader:'HumbleStudio', tokens:'Tokens', icons:'Icons', foundationdetail: 'Foundation Detail', typography:'Typography', spacing:'Spacing & Radius', components:'Components', views:'Views', navmap:'Navigation Map', viewdetail: extra || 'View' };
+  const viewTitle = id === 'viewdetail' && extra
+    ? ((config?.views || []).find(view => view.id === extra)?.name || extra)
+    : 'View';
+  const titles = { loader:'HumbleStudio', tokens:'Tokens', icons:'Icons', foundationdetail: 'Foundation Detail', typography:'Typography', spacing:'Spacing & Radius', components:'Components', views:'Views', navmap:'Navigation Map', viewdetail: viewTitle };
   document.getElementById('topTitle').textContent = titles[id] || id;
   document.getElementById('topBreadcrumb').textContent = config ? (config.meta?.name || '') : '';
   renderTopbarSource();
@@ -554,8 +557,8 @@ function renderValidationBanner() {
 
 function syncSidebarActive(id, extra) {
   let navKey = `page:${id}`;
-  if (id === 'components' && extra) navKey = `component:${extra}`;
-  if (id === 'viewdetail' && extra) navKey = `view:${extra}`;
+  if (id === 'components' && extra) navKey = 'page:components';
+  if (id === 'viewdetail' && extra) navKey = 'page:views';
   if (id === 'foundationdetail') {
     navKey = extra?.kind === 'icon' ? 'page:icons' : 'page:tokens';
   }
@@ -569,42 +572,11 @@ function syncSidebarActive(id, extra) {
 function buildSidebar() {
   if (!config) return;
   document.getElementById('sbDesignSections').style.display    = '';
-  document.getElementById('sbComponentSections').style.display = '';
-  document.getElementById('sbViewSections').style.display      = '';
+  document.getElementById('sbExploreSections').style.display   = '';
   document.getElementById('cntTokens').textContent = Object.keys(config.tokens?.colors || {}).length + Object.keys(config.tokens?.gradients || {}).length;
   document.getElementById('cntIcons').textContent = (config.tokens?.icons || []).length;
-
-  const compLinks = document.getElementById('sbComponentLinks');
-  compLinks.innerHTML = '';
-  const groups = {};
-  (config.components || []).forEach(c => { const g = c.group || 'General'; if (!groups[g]) groups[g] = []; groups[g].push(c); });
-  Object.entries(groups).forEach(([grp, comps]) => {
-    if (Object.keys(groups).length > 1) {
-      const lbl = document.createElement('div');
-      lbl.style.cssText = 'font-size:9px;color:var(--t3);padding:8px 10px 2px;font-weight:600;text-transform:uppercase;letter-spacing:.5px';
-      lbl.textContent = grp;
-      compLinks.appendChild(lbl);
-    }
-    comps.forEach(c => {
-      const el = document.createElement('div');
-      el.className = 'sb-link';
-      el.dataset.navKey = `component:${c.id}`;
-      el.innerHTML = `<span class="sb-link-icon">⬡</span>${escapeHtml(c.name)}<span class="sb-count">${getComponentStates(c).length}</span>`;
-      el.onclick = () => showComponentPage(c.id);
-      compLinks.appendChild(el);
-    });
-  });
-
-  const viewLinks = document.getElementById('sbViewLinks');
-  viewLinks.innerHTML = '';
-  (config.views || []).forEach(v => {
-    const el = document.createElement('div');
-    el.className = 'sb-link';
-    el.dataset.navKey = `view:${v.id}`;
-    el.innerHTML = `<span class="sb-link-icon">▭</span>${escapeHtml(v.name)}`;
-    el.onclick = () => showPage('viewdetail', v.id);
-    viewLinks.appendChild(el);
-  });
+  document.getElementById('cntComponents').textContent = (config.components || []).length;
+  document.getElementById('cntViews').textContent = (config.views || []).length;
 }
 
 function syncSearchUi() {
