@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 struct StudioShellView: View {
     @State private var model = StudioShellModel()
     @State private var isImportingFile = false
+    @State private var isDropTargeted = false
 
     var body: some View {
         NavigationStack {
@@ -13,6 +14,10 @@ struct StudioShellView: View {
                 ZStack {
                     StudioWebView(model: model)
                         .ignoresSafeArea()
+
+                    if isDropTargeted {
+                        dropOverlay
+                    }
 
                     if let errorMessage = model.errorMessage {
                         ContentUnavailableView(
@@ -30,6 +35,7 @@ struct StudioShellView: View {
             .toolbar {
                 shellToolbar
             }
+            .onDrop(of: [UTType.fileURL], isTargeted: $isDropTargeted, perform: handleFileDrop)
         }
         .fileImporter(
             isPresented: $isImportingFile,
@@ -225,5 +231,59 @@ struct StudioShellView: View {
         default:
             return .secondary.opacity(0.12)
         }
+    }
+
+    private var dropOverlay: some View {
+        RoundedRectangle(cornerRadius: 28, style: .continuous)
+            .fill(.ultraThinMaterial)
+            .overlay {
+                VStack(spacing: 12) {
+                    Image(systemName: "square.and.arrow.down.on.square")
+                        .font(.system(size: 28, weight: .semibold))
+                    Text("Drop a Humble bundle to import")
+                        .font(.headline)
+                    Text(".humblebundle, .zip or .json")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(28)
+            }
+            .overlay(
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .strokeBorder(.tint.opacity(0.45), style: StrokeStyle(lineWidth: 1.5, dash: [10, 8]))
+            )
+            .padding(28)
+            .transition(.opacity.combined(with: .scale(scale: 0.98)))
+    }
+
+    private func handleFileDrop(_ providers: [NSItemProvider]) -> Bool {
+        guard let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) }) else {
+            return false
+        }
+
+        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
+            if let error {
+                Task { @MainActor in
+                    model.report(error: error)
+                }
+                return
+            }
+
+            let resolvedURL: URL?
+            if let url = item as? URL {
+                resolvedURL = url
+            } else if let data = item as? Data {
+                resolvedURL = URL(dataRepresentation: data, relativeTo: nil)
+            } else {
+                resolvedURL = nil
+            }
+
+            guard let resolvedURL else { return }
+            Task { @MainActor in
+                model.importFile(at: resolvedURL)
+            }
+        }
+
+        return true
     }
 }
