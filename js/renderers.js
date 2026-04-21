@@ -506,7 +506,7 @@ function renderComponentPreview(comp, props) {
       const buttonClass = componentName.includes('settingsactionbutton')
         ? `${cls} r-btn-wide r-btn-settings`
         : componentName.includes('startbutton')
-          ? `${cls} r-btn-start${normalizedStyle === 'blue' ? ' r-btn-start-warm' : ''}`
+          ? `${cls} r-btn-start${normalizedStyle === 'blue' ? ' r-btn-start-warm' : ''}${props.gradientVariant === 'warm' ? ' r-btn-start-warm' : ''}`
           : cls;
       return `<div class="${buttonClass}" style="${disabled}">${icon}<span>${escapeHtml(props.title || 'Button')}</span></div>`;
     }
@@ -652,13 +652,14 @@ function renderComponentPreview(comp, props) {
             <div class="r-success-title">${escapeHtml(props.title || 'Success')}</div>
             <div class="r-success-subtitle">${escapeHtml(props.subtitle || '')}</div>
           </div>
+          <div class="r-success-spacer"></div>
         </div>
       `;
     }
     case 'tile-button':
     case 'tile-label': {
       const isButton = type === 'tile-button';
-      const styleClass = `${props.style === 'outline' ? ' r-scan-tile-outline' : ''}${isButton ? ' r-scan-tile-button' : ' r-scan-tile-label'}`;
+      const styleClass = `${props.style === 'outline' || !isButton ? ' r-scan-tile-outline' : ''}${isButton ? ' r-scan-tile-button' : ' r-scan-tile-label'}`;
       return `
         <div class="r-scan-tile${styleClass}">
           <div class="r-scan-tile-icon">${escapeHtml(symbolToGlyph(props.icon))}</div>
