@@ -374,12 +374,12 @@ function buildUsagePills(items, kind) {
   if (!items.length) return '<div class="foundation-empty-note">No linked items found.</div>';
   const pills = items.map(item => {
     if (kind === 'component') {
-      return `<button class="usage-pill" onclick="showComponentPage(${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name)}<span>Component</span></button>`;
+      return `<button class="usage-pill" onclick="openInspectorPreview('component', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name)}<span>Component</span></button>`;
     }
     if (kind === 'view') {
-      return `<button class="usage-pill" onclick="showPage('viewdetail', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name)}<span>View</span></button>`;
+      return `<button class="usage-pill" onclick="openInspectorPreview('view', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name)}<span>View</span></button>`;
     }
-    return `<button class="usage-pill" onclick="showFoundationDetail('gradient', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.id)}<span>Gradient</span></button>`;
+    return `<button class="usage-pill" onclick="openInspectorPreview('foundation', ${escapeHtml(escapeJsString(item.id))}, 'gradient')">${escapeHtml(item.id)}<span>Gradient</span></button>`;
   }).join('');
   return `<div class="usage-pill-list">${pills}</div>`;
 }
@@ -398,7 +398,7 @@ function buildFoundationTokenPill(kind, id, subtitle = '', label = id) {
   if (!id) return staticMarkup;
 
   if (normalizedKind === 'color' || normalizedKind === 'gradient' || normalizedKind === 'icon') {
-    return `<button class="usage-pill" onclick="showFoundationDetail('${escapeHtml(normalizedKind)}', ${escapeHtml(escapeJsString(id))})">${escapeHtml(label)}${subtitle ? `<span>${escapeHtml(subtitle)}</span>` : ''}</button>`;
+    return `<button class="usage-pill" onclick="openInspectorPreview('foundation', ${escapeHtml(escapeJsString(id))}, ${escapeHtml(escapeJsString(normalizedKind))})">${escapeHtml(label)}${subtitle ? `<span>${escapeHtml(subtitle)}</span>` : ''}</button>`;
   }
 
   return staticMarkup;
@@ -1069,12 +1069,12 @@ function renderIcons() {
   `;
 }
 
-function renderFoundationDetail(kind, id) {
+function renderFoundationDetail(kind, id, target = null) {
   if (!config) return;
-  const titleEl = document.getElementById('foundationDetailTitle');
-  const backBtn = document.getElementById('foundationBackBtn');
-  const contentEl = document.getElementById('foundationDetailContent');
-  if (!titleEl || !backBtn || !contentEl) return;
+  const titleEl = target?.titleEl || document.getElementById('foundationDetailTitle');
+  const backBtn = target?.backBtn || document.getElementById('foundationBackBtn');
+  const contentEl = target?.contentEl || document.getElementById('foundationDetailContent');
+  if (!contentEl) return null;
 
   const colors = config.tokens?.colors || {};
   const gradients = config.tokens?.gradients || {};
@@ -1097,13 +1097,15 @@ function renderFoundationDetail(kind, id) {
     sourcePage = 'icons';
   }
 
-  backBtn.setAttribute('onclick', `showPage('${sourcePage}')`);
-  backBtn.textContent = sourcePage === 'icons' ? '‹ Icons' : '‹ Tokens';
-  titleEl.textContent = title;
+  if (backBtn) {
+    backBtn.setAttribute('onclick', `showPage('${sourcePage}')`);
+    backBtn.textContent = sourcePage === 'icons' ? '‹ Icons' : '‹ Tokens';
+  }
+  if (titleEl) titleEl.textContent = title;
 
   if (!item) {
     contentEl.innerHTML = buildEmptyState('◌', 'Detail not found', 'The selected foundation item is missing from the current config.');
-    return;
+    return { title, subtitle: 'Foundation item', sourcePage, openLabel: 'Open detail' };
   }
 
   const usages = getDeclaredUsageEntries(item);
@@ -1148,7 +1150,7 @@ function renderFoundationDetail(kind, id) {
         </div>
       </div>
     `;
-    return;
+    return { title, subtitle: 'Icon detail', sourcePage, openLabel: 'Open icon detail' };
   }
 
   if (kind === 'color') {
@@ -1205,7 +1207,7 @@ function renderFoundationDetail(kind, id) {
         </div>
       </div>
     `;
-    return;
+    return { title, subtitle: 'Color detail', sourcePage, openLabel: 'Open color detail' };
   }
 
   const darkStops = Array.isArray(item.dark) ? item.dark : (Array.isArray(item.value) ? item.value : []);
@@ -1276,6 +1278,7 @@ function renderFoundationDetail(kind, id) {
       </div>
     </div>
   `;
+  return { title, subtitle: 'Gradient detail', sourcePage, openLabel: 'Open gradient detail' };
 }
 
 function renderSpacing() {
@@ -1551,11 +1554,14 @@ function renderViews() {
   document.getElementById('viewsContent').innerHTML = html + '</div>';
 }
 
-function renderViewDetail(viewId) {
+function renderViewDetail(viewId, target = null) {
   const view = (config?.views||[]).find(v=>v.id===viewId);
-  if (!view) return;
-  currentViewDetailId = viewId;
-  document.getElementById('vdTitle').textContent = view.name;
+  if (!view) return null;
+  if (!target?.preview) currentViewDetailId = viewId;
+  const titleEl = target?.titleEl || document.getElementById('vdTitle');
+  const contentEl = target?.contentEl || document.getElementById('viewDetailContent');
+  if (titleEl) titleEl.textContent = view.name;
+  if (!contentEl) return null;
   let phoneContent = '';
   const snapshotMarkup = view.snapshot?.path ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame detail-snapshot-frame') : '';
   if (view.navbar) {
@@ -1568,16 +1574,16 @@ function renderViewDetail(viewId) {
     phoneContent+=comp?`<div style="margin-bottom:8px">${renderComponentPreview(comp, getDefaultMock(comp).props || {})}</div>`:`<div style="height:24px;background:var(--surface2);border-radius:5px;margin-bottom:6px;opacity:.5"></div>`;
   });
   phoneContent += '</div>';
-  const compPills=(view.components||[]).map(cid=>{ const comp=(config?.components||[]).find(c=>c.id===cid); return `<div class="vd-comp-pill" onclick="showComponentPage('${cid}')">${escapeHtml(comp?comp.name:cid)}<span style="font-size:10px;color:var(--t3)">›</span></div>`; }).join('');
+  const compPills=(view.components||[]).map(cid=>{ const comp=(config?.components||[]).find(c=>c.id===cid); return `<div class="vd-comp-pill" onclick="openInspectorPreview('component', ${escapeHtml(escapeJsString(cid))})">${escapeHtml(comp?comp.name:cid)}<span style="font-size:10px;color:var(--t3)">›</span></div>`; }).join('');
   const navArrows=(view.navigatesTo||[]).map(n=>{
     const targetView = getViewById(n.viewId);
-    return `<div class="nav-arrow" onclick="showPage('viewdetail','${n.viewId}')">${buildNavigationCard(targetView ? targetView.name : n.viewId, n.type || 'push', n.trigger, 'outgoing')}</div>`;
+    return `<div class="nav-arrow" onclick="openInspectorPreview('view', ${escapeHtml(escapeJsString(n.viewId))})">${buildNavigationCard(targetView ? targetView.name : n.viewId, n.type || 'push', n.trigger, 'outgoing')}</div>`;
   }).join('');
   const incomingViews = getIncomingViewTransitions(view.id);
   const incomingArrows = incomingViews.map(entry => {
     const sourceView = entry.sourceView;
     const transition = entry.transition || {};
-    return `<div class="nav-arrow" onclick="showPage('viewdetail','${sourceView.id}')">${buildNavigationCard(sourceView.name, transition.type || 'push', transition.trigger, 'incoming')}</div>`;
+    return `<div class="nav-arrow" onclick="openInspectorPreview('view', ${escapeHtml(escapeJsString(sourceView.id))})">${buildNavigationCard(sourceView.name, transition.type || 'push', transition.trigger, 'incoming')}</div>`;
   }).join('');
   const navigationPath = getNavigationPath(view.id).map(id => getViewById(id)?.name || id);
   const routeSummary = navigationPath.length
@@ -1679,7 +1685,12 @@ function renderViewDetail(viewId) {
       </div>
     </div>
   ` : '';
-  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${flowMeta}${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">How Users Get Here</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">What Users Can Do Next</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div>${dependencyPanel}${viewSourcePanel} ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
+  contentEl.innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${flowMeta}${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">How Users Get Here</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">What Users Can Do Next</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div>${dependencyPanel}${viewSourcePanel} ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
+  const subtitleParts = [];
+  if (view.root || config.navigation?.root === view.id) subtitleParts.push('Root screen');
+  else subtitleParts.push(view.presentation === 'sheet' ? 'Sheet screen' : 'Screen');
+  if (view.snapshot?.path) subtitleParts.push('Snapshot-backed');
+  return { title: view.name, subtitle: subtitleParts.join(' · '), openLabel: 'Open view detail' };
 }
 
 function renderNavMap() {

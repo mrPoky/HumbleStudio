@@ -364,6 +364,29 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .lightbox-sub{font-size:11px;color:var(--t2);margin-top:4px;word-break:break-all}
 .lightbox-stage{position:relative;padding:22px;display:flex;align-items:center;justify-content:center;overflow:auto;background:linear-gradient(180deg, color-mix(in srgb, var(--snapshot-stage) 95%, black 5%), var(--snapshot-stage))}
 .lightbox-stage img{position:relative;z-index:1;display:block;max-width:100%;max-height:calc(100vh - 180px);object-fit:contain;border-radius:16px;background:var(--snapshot-image-bg);border:1px solid var(--snapshot-image-border)}
+.inspector-preview-dialog{width:min(1180px,100%);background:color-mix(in srgb, var(--surface) 94%, black 6%)}
+.inspector-preview-body{padding:22px;overflow:auto;max-height:calc(100vh - 210px);background:var(--bg)}
+.inspector-preview-actions{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid rgba(255,255,255,.08);background:color-mix(in srgb, var(--surface) 96%, black 4%)}
+.inspector-preview-body .cc-mode-toggle,
+.inspector-preview-body .cc-footer,
+.inspector-preview-body .cc-guided-panel,
+.inspector-preview-body .cc-editor{display:none}
+.inspector-preview-body .usage-pill,
+.inspector-preview-body .vd-comp-pill,
+.inspector-preview-body .nav-arrow,
+.inspector-preview-body .swatch-button,
+.inspector-preview-body .icon-card-button,
+.inspector-preview-body .view-card,
+.inspector-preview-body .component-card-summary,
+.inspector-preview-body .cc-mode-btn,
+.inspector-preview-body .mock-select,
+.inspector-preview-body .guided-input,
+.inspector-preview-body .guided-select,
+.inspector-preview-body .guided-toggle,
+.inspector-preview-body textarea{pointer-events:none}
+.inspector-preview-body .component-grid-detail{grid-template-columns:minmax(0,1fr)}
+.inspector-preview-body .component-card-detail{max-width:none}
+.inspector-preview-body .view-detail{grid-template-columns:minmax(0,1fr) 280px}
 
 /* ── RENDERED COMPONENTS ── */
 .r-btn-primary,.r-btn-secondary,.r-btn-destructive,.r-btn-blue,.r-btn-ghost{padding:13px 20px;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}

@@ -6,6 +6,7 @@ let componentEditorState = {};
 let currentFoundationDetail = null;
 let currentComponentDetailId = null;
 let currentViewDetailId = null;
+let currentInspectorPreview = null;
 let navMapZoom = 1;
 let globalSearchQuery = '';
 let pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
@@ -840,19 +841,87 @@ async function bootstrapLoaderExperience() {
 }
 
 function showComponentPage(compId) {
+  const detail = renderComponentDetail(compId);
+  if (!detail) return;
+  showPage('components', compId);
+}
+
+function renderComponentDetail(compId, target = null) {
   const comp = (config?.components || []).find(c => c.id === compId);
-  if (!comp) return;
-  currentComponentDetailId = compId;
+  if (!comp) return null;
+  if (!target?.preview) currentComponentDetailId = compId;
   getComponentEditorState(comp);
-  document.getElementById('compPageTitle').textContent = comp.name;
-  document.getElementById('compPageDesc').textContent  = comp.description || '';
-  document.getElementById('componentsContent').innerHTML = `<div class="component-grid component-grid-detail">${buildComponentCard(comp, { detailed: true })}</div>`;
-  showPage('components', comp.id);
+  const titleEl = target?.titleEl || document.getElementById('compPageTitle');
+  const descEl = target?.descEl || document.getElementById('compPageDesc');
+  const contentEl = target?.contentEl || document.getElementById('componentsContent');
+  if (titleEl) titleEl.textContent = comp.name;
+  if (descEl) descEl.textContent = comp.description || '';
+  if (contentEl) contentEl.innerHTML = `<div class="component-grid component-grid-detail">${buildComponentCard(comp, { detailed: true })}</div>`;
+  const subtitle = [
+    comp.group || null,
+    comp.snapshot?.path ? 'Snapshot-backed' : (isCatalogOnlyComponent(comp) ? 'Catalog states' : 'Interactive preview'),
+  ].filter(Boolean).join(' · ');
+  return { title: comp.name, subtitle, openLabel: 'Open component detail' };
 }
 
 function showFoundationDetail(kind, id) {
   currentFoundationDetail = { kind, id };
   showPage('foundationdetail', currentFoundationDetail);
+}
+
+function closeInspectorPreview() {
+  const modal = document.getElementById('inspectorPreviewModal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  currentInspectorPreview = null;
+}
+
+function openInspectorPreview(entityType, id, extra = '') {
+  const titleEl = document.getElementById('inspectorPreviewTitle');
+  const subtitleEl = document.getElementById('inspectorPreviewSubtitle');
+  const bodyEl = document.getElementById('inspectorPreviewBody');
+  const openBtn = document.getElementById('inspectorPreviewOpenBtn');
+  const modal = document.getElementById('inspectorPreviewModal');
+  if (!titleEl || !subtitleEl || !bodyEl || !openBtn || !modal) return;
+
+  const tempTitle = document.createElement('div');
+  const tempDesc = document.createElement('div');
+  const tempContent = document.createElement('div');
+  let detail = null;
+
+  if (entityType === 'component') {
+    detail = renderComponentDetail(id, { titleEl: tempTitle, descEl: tempDesc, contentEl: tempContent, preview: true });
+  } else if (entityType === 'view') {
+    detail = renderViewDetail(id, { titleEl: tempTitle, contentEl: tempContent, preview: true });
+  } else if (entityType === 'foundation') {
+    detail = renderFoundationDetail(extra, id, { titleEl: tempTitle, contentEl: tempContent, preview: true });
+  }
+
+  if (!detail) return;
+
+  currentInspectorPreview = { entityType, id, extra };
+  titleEl.textContent = detail.title || tempTitle.textContent || 'Detail preview';
+  subtitleEl.textContent = detail.subtitle || tempDesc.textContent || '';
+  bodyEl.innerHTML = tempContent.innerHTML;
+  openBtn.textContent = detail.openLabel || 'Open detail';
+  modal.style.display = 'flex';
+}
+
+function openInspectorPreviewDetail() {
+  if (!currentInspectorPreview) return;
+  const { entityType, id, extra } = currentInspectorPreview;
+  closeInspectorPreview();
+  if (entityType === 'component') {
+    showComponentPage(id);
+    return;
+  }
+  if (entityType === 'view') {
+    showPage('viewdetail', id);
+    return;
+  }
+  if (entityType === 'foundation') {
+    showFoundationDetail(extra, id);
+  }
 }
 
 function setComponentPreviewMode(compId, mode) {
