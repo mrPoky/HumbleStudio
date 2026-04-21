@@ -792,6 +792,10 @@ function buildComponentPreviewStage(component, state, detailed) {
     `;
   }
 
+  if (!detailed) {
+    return `<div class="cc-preview-approx cc-preview-approx-summary">${approximation}</div>`;
+  }
+
   return approximation;
 }
 
