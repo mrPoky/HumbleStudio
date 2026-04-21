@@ -8,5 +8,34 @@ struct HumbleStudioMacApp: App {
                 .frame(minWidth: 1100, minHeight: 760)
         }
         .defaultSize(width: 1320, height: 860)
+        .commands {
+            CommandMenu("Studio") {
+                Button("Open Bundle…") {
+                    post(.studioOpenImport)
+                }
+                .keyboardShortcut("o", modifiers: [.command])
+
+                Button("Reload") {
+                    post(.studioReload)
+                }
+                .keyboardShortcut("r", modifiers: [.command])
+
+                Divider()
+
+                Button("Show Home") {
+                    post(.studioLoadHome)
+                }
+                .keyboardShortcut("h", modifiers: [.command, .shift])
+
+                Button("Load Demo") {
+                    post(.studioLoadDemo)
+                }
+                .keyboardShortcut("d", modifiers: [.command, .shift])
+            }
+        }
+    }
+
+    private func post(_ notification: Notification.Name) {
+        NotificationCenter.default.post(name: notification, object: nil)
     }
 }
