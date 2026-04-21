@@ -1,0 +1,493 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		101B6D3E4055A66EFE9444B6 /* StudioShellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C13464105FE50E0343800A /* StudioShellModel.swift */; };
+		36741C0B293FEE13E3A183C6 /* StudioWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */; };
+		5242C028E7591D57129E09B9 /* HumbleStudioiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC38BC02A4C65C8C269C130 /* HumbleStudioiOSApp.swift */; };
+		948B959AD9E8A0C0A904162C /* StudioShellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C13464105FE50E0343800A /* StudioShellModel.swift */; };
+		A817540636AC3DBCF3267431 /* HumbleStudioMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4750EAFF90869AE84E110EF2 /* HumbleStudioMacApp.swift */; };
+		ACE9607ED3E6C4880FB57034 /* StudioWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */; };
+		BB189871D6EA8502C2E15FCA /* StudioBundleLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */; };
+		D3B4FB992647FF3A47C89B71 /* StudioShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B07D498AE97DC178F220C /* StudioShellView.swift */; };
+		E14F6A8D9730E2E181F2231D /* StudioBundleLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */; };
+		FCE41AC494B4670B5D6F476D /* StudioShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B07D498AE97DC178F220C /* StudioShellView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioBundleLocator.swift; sourceTree = "<group>"; };
+		22C13464105FE50E0343800A /* StudioShellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioShellModel.swift; sourceTree = "<group>"; };
+		4750EAFF90869AE84E110EF2 /* HumbleStudioMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HumbleStudioMacApp.swift; sourceTree = "<group>"; };
+		4F5B07D498AE97DC178F220C /* StudioShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioShellView.swift; sourceTree = "<group>"; };
+		C75A2EC73C22FE8B86A984AB /* HumbleStudioMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HumbleStudioMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioWebView.swift; sourceTree = "<group>"; };
+		EFC38BC02A4C65C8C269C130 /* HumbleStudioiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HumbleStudioiOSApp.swift; sourceTree = "<group>"; };
+		FB7CE41A7E1FDC4B6A9C245C /* HumbleStudioiOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HumbleStudioiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		051BEF474058A985B9985D53 /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				A8E67F1D4A4E8D1C7E1BBF3E /* Sources */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		2E5A128B3C0FCA4C772481ED = {
+			isa = PBXGroup;
+			children = (
+				A52614B1200A770392CC18A0 /* AppleApps */,
+				E360F2E79CED64A7ABF6D46A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8523D7DFD42D687E4F997844 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				C58F185795ED807DABB2E697 /* Sources */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		9BB66170363B985A2829D4D8 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				D9DFB185BB248AA412CC325D /* Sources */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		A52614B1200A770392CC18A0 /* AppleApps */ = {
+			isa = PBXGroup;
+			children = (
+				8523D7DFD42D687E4F997844 /* iOS */,
+				051BEF474058A985B9985D53 /* macOS */,
+				9BB66170363B985A2829D4D8 /* Shared */,
+			);
+			path = AppleApps;
+			sourceTree = "<group>";
+		};
+		A8E67F1D4A4E8D1C7E1BBF3E /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				4750EAFF90869AE84E110EF2 /* HumbleStudioMacApp.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		C58F185795ED807DABB2E697 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				EFC38BC02A4C65C8C269C130 /* HumbleStudioiOSApp.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		D9DFB185BB248AA412CC325D /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */,
+				22C13464105FE50E0343800A /* StudioShellModel.swift */,
+				4F5B07D498AE97DC178F220C /* StudioShellView.swift */,
+				CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		E360F2E79CED64A7ABF6D46A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FB7CE41A7E1FDC4B6A9C245C /* HumbleStudioiOS.app */,
+				C75A2EC73C22FE8B86A984AB /* HumbleStudioMac.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4EC4CB3354D48B8BE21BEEB7 /* HumbleStudioMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 10752DBEF3D04172580FCB53 /* Build configuration list for PBXNativeTarget "HumbleStudioMac" */;
+			buildPhases = (
+				E1417D962BC6217B8DB11DD0 /* Copy HumbleStudio Web Assets */,
+				596B26E8C595C8D54E81A2EE /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HumbleStudioMac;
+			packageProductDependencies = (
+			);
+			productName = HumbleStudioMac;
+			productReference = C75A2EC73C22FE8B86A984AB /* HumbleStudioMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		668374735AD6FDB1C8635D7A /* HumbleStudioiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 039227CF02E257907340E2DB /* Build configuration list for PBXNativeTarget "HumbleStudioiOS" */;
+			buildPhases = (
+				0F12EFD49B649F3B69D4E758 /* Copy HumbleStudio Web Assets */,
+				A4F719F29436FB047AD7AE61 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HumbleStudioiOS;
+			packageProductDependencies = (
+			);
+			productName = HumbleStudioiOS;
+			productReference = FB7CE41A7E1FDC4B6A9C245C /* HumbleStudioiOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		029747CC1EDCA5377552A67F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = EB547E8B6615016FE967D01F /* Build configuration list for PBXProject "HumbleStudio" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 2E5A128B3C0FCA4C772481ED;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4EC4CB3354D48B8BE21BEEB7 /* HumbleStudioMac */,
+				668374735AD6FDB1C8635D7A /* HumbleStudioiOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0F12EFD49B649F3B69D4E758 /* Copy HumbleStudio Web Assets */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy HumbleStudio Web Assets";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"$SRCROOT/AppleApps/Scripts/copy_web_assets.sh\"\n";
+		};
+		E1417D962BC6217B8DB11DD0 /* Copy HumbleStudio Web Assets */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy HumbleStudio Web Assets";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"$SRCROOT/AppleApps/Scripts/copy_web_assets.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		596B26E8C595C8D54E81A2EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A817540636AC3DBCF3267431 /* HumbleStudioMacApp.swift in Sources */,
+				E14F6A8D9730E2E181F2231D /* StudioBundleLocator.swift in Sources */,
+				948B959AD9E8A0C0A904162C /* StudioShellModel.swift in Sources */,
+				FCE41AC494B4670B5D6F476D /* StudioShellView.swift in Sources */,
+				36741C0B293FEE13E3A183C6 /* StudioWebView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A4F719F29436FB047AD7AE61 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5242C028E7591D57129E09B9 /* HumbleStudioiOSApp.swift in Sources */,
+				BB189871D6EA8502C2E15FCA /* StudioBundleLocator.swift in Sources */,
+				101B6D3E4055A66EFE9444B6 /* StudioShellModel.swift in Sources */,
+				D3B4FB992647FF3A47C89B71 /* StudioShellView.swift in Sources */,
+				ACE9607ED3E6C4880FB57034 /* StudioWebView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3613AAE6FFE4B7FD06052020 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		534E27547EB85A60E3FB1AEA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AppleApps/iOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mrpoky.HumbleStudio.ios;
+				PRODUCT_NAME = HumbleStudio;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		6B9EA40C49152D23801D6CD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AppleApps/iOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mrpoky.HumbleStudio.ios;
+				PRODUCT_NAME = HumbleStudio;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		7958DF4C1F062E6DF5E696A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AppleApps/macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mrpoky.HumbleStudio.mac;
+				PRODUCT_NAME = HumbleStudio;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		C706054776B0F5F30F04DABD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AppleApps/macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mrpoky.HumbleStudio.mac;
+				PRODUCT_NAME = HumbleStudio;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		F6D8C4BE38D21DF308A076DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		039227CF02E257907340E2DB /* Build configuration list for PBXNativeTarget "HumbleStudioiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				534E27547EB85A60E3FB1AEA /* Debug */,
+				6B9EA40C49152D23801D6CD4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		10752DBEF3D04172580FCB53 /* Build configuration list for PBXNativeTarget "HumbleStudioMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7958DF4C1F062E6DF5E696A3 /* Debug */,
+				C706054776B0F5F30F04DABD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EB547E8B6615016FE967D01F /* Build configuration list for PBXProject "HumbleStudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3613AAE6FFE4B7FD06052020 /* Debug */,
+				F6D8C4BE38D21DF308A076DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 029747CC1EDCA5377552A67F /* Project object */;
+}
