@@ -1,7 +1,9 @@
 import SwiftUI
 import WebKit
 
-final class StudioWebCoordinator: NSObject, WKNavigationDelegate {
+final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+    fileprivate static let shellMessageHandlerName = "studioShell"
+
     private let model: StudioShellModel
     private weak var webView: WKWebView?
 
@@ -45,6 +47,7 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         model.clearError()
         model.markPageReady()
+        runJavaScript("if (window.syncNativeShellState) { window.syncNativeShellState(); }")
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -53,6 +56,27 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         model.report(error: error)
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard
+            message.name == Self.shellMessageHandlerName,
+            let body = message.body as? [String: Any],
+            let type = body["type"] as? String,
+            type == "shellState",
+            let payload = body["payload"] as? [String: Any]
+        else {
+            return
+        }
+
+        model.updateShellState(
+            title: payload["title"] as? String,
+            breadcrumb: payload["breadcrumb"] as? String,
+            sourceLabel: payload["sourceLabel"] as? String,
+            sourceValue: payload["sourceValue"] as? String,
+            statusText: payload["statusText"] as? String,
+            statusLevel: payload["statusLevel"] as? String
+        )
     }
 
     private func loadDemo() {
@@ -120,6 +144,7 @@ private extension StudioWebView {
     func makeConfiguredWebView(coordinator: StudioWebCoordinator) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         configuration.defaultWebpagePreferences.allowsContentJavaScript = true
+        configuration.userContentController.add(coordinator, name: StudioWebCoordinator.shellMessageHandlerName)
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = coordinator
