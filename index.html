@@ -183,6 +183,21 @@
   </div>
 </div>
 
+<div id="inspectorPreviewModal" class="lightbox" style="display:none" onclick="closeInspectorPreview()">
+  <div class="lightbox-dialog inspector-preview-dialog" onclick="event.stopPropagation()">
+    <button class="lightbox-close" onclick="closeInspectorPreview()">✕</button>
+    <div class="lightbox-meta">
+      <div class="lightbox-title" id="inspectorPreviewTitle">Detail preview</div>
+      <div class="lightbox-sub" id="inspectorPreviewSubtitle"></div>
+    </div>
+    <div class="inspector-preview-body" id="inspectorPreviewBody"></div>
+    <div class="inspector-preview-actions">
+      <button class="btn-sm" onclick="closeInspectorPreview()">Close</button>
+      <button class="btn-sm btn-sm-accent" id="inspectorPreviewOpenBtn" onclick="openInspectorPreviewDetail()">Open detail</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/demo.js"></script>
 <script src="js/vendor/fflate.js"></script>
 <script src="js/renderers.js"></script>
