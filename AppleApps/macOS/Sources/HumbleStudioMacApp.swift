@@ -15,6 +15,11 @@ struct HumbleStudioMacApp: App {
                 }
                 .keyboardShortcut("o", modifiers: [.command])
 
+                Button("Reopen Recent Import") {
+                    post(.studioReopenRecentImport)
+                }
+                .keyboardShortcut("o", modifiers: [.command, .shift])
+
                 Button("Reload") {
                     post(.studioReload)
                 }
