@@ -1214,7 +1214,15 @@ function buildComponentCard(c, options = {}) {
     c.source,
     ...usageViews.map(view => view.source),
   ]);
-  const sourcePanel = !detailed || (!c.source && !c.swiftui && !sourceFiles.length) ? '' : `
+  const sourceSnippet = c.sourceSnippet || null;
+  const sourceSnippetMeta = !sourceSnippet ? '' : [
+    sourceSnippet.symbol || null,
+    sourceSnippet.startLine && sourceSnippet.endLine
+      ? `lines ${sourceSnippet.startLine}-${sourceSnippet.endLine}`
+      : null,
+    sourceSnippet.truncated ? 'excerpt trimmed' : null,
+  ].filter(Boolean).join(' · ');
+  const sourcePanel = !detailed || (!c.source && !c.swiftui && !sourceFiles.length && !sourceSnippet) ? '' : `
     <div class="cc-related-panel">
       <div class="cc-usage-title">Source</div>
       ${c.swiftui ? `
@@ -1222,6 +1230,15 @@ function buildComponentCard(c, options = {}) {
           <div class="cc-related-label">SwiftUI API</div>
           <div class="cc-source-card">
             <div class="cc-source-code">${escapeHtml(c.swiftui)}</div>
+          </div>
+        </div>
+      ` : ''}
+      ${sourceSnippet ? `
+        <div class="cc-related-section">
+          <div class="cc-related-label">Source Excerpt</div>
+          <div class="cc-source-card">
+            ${sourceSnippetMeta ? `<div class="cc-source-meta">${escapeHtml(sourceSnippetMeta)}</div>` : ''}
+            <pre class="cc-source-code">${escapeHtml(sourceSnippet.excerpt || '')}</pre>
           </div>
         </div>
       ` : ''}
