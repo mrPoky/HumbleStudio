@@ -16,6 +16,12 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate {
                 loadBundledStudio: { [weak self] in
                     self?.loadBundledStudio()
                 },
+                loadDemo: { [weak self] in
+                    self?.loadDemo()
+                },
+                importPayload: { [weak self] fileName, data in
+                    self?.loadNativePayload(fileName: fileName, data: data)
+                },
                 reload: { [weak self] in
                     self?.webView?.reload()
                 }
@@ -38,6 +44,7 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         model.clearError()
+        model.markPageReady()
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -46,6 +53,34 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         model.report(error: error)
+    }
+
+    private func loadDemo() {
+        runJavaScript("loadDemo();")
+    }
+
+    private func loadNativePayload(fileName: String, data: Data) {
+        do {
+            let fileNameLiteral = try makeJavaScriptStringLiteral(fileName)
+            let dataLiteral = try makeJavaScriptStringLiteral(data.base64EncodedString())
+            runJavaScript("loadNativePayload(\(fileNameLiteral), \(dataLiteral));")
+        } catch {
+            model.report(error: error)
+        }
+    }
+
+    private func runJavaScript(_ script: String) {
+        webView?.evaluateJavaScript(script) { [weak self] _, error in
+            if let error {
+                self?.model.report(error: error)
+            }
+        }
+    }
+
+    private func makeJavaScriptStringLiteral(_ value: String) throws -> String {
+        let encoded = try JSONSerialization.data(withJSONObject: [value], options: [])
+        let arrayLiteral = String(decoding: encoded, as: UTF8.self)
+        return String(arrayLiteral.dropFirst().dropLast())
     }
 }
 

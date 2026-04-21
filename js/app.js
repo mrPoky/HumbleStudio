@@ -106,6 +106,45 @@ async function loadConfigFromFile(file) {
   }
 }
 
+function base64ToArrayBuffer(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes.buffer;
+}
+
+async function loadNativePayload(fileName, base64) {
+  if (!fileName || !base64) {
+    setStatus('err', 'Native import failed: missing file payload.');
+    return false;
+  }
+
+  const label = document.getElementById('fileInputLabel');
+  if (label) label.textContent = fileName;
+
+  rememberLastSource({ type: 'file', value: fileName });
+  setCurrentLoadSource({ type: 'file', value: fileName });
+  updateLoaderSourceUi();
+  setStatus('loading', 'Importing native file...');
+
+  try {
+    const buffer = base64ToArrayBuffer(base64);
+    if (isBundlePayload(buffer, fileName)) {
+      loadBundleFromArrayBuffer(buffer, fileName);
+      return true;
+    }
+
+    clearBundleAssets();
+    applyConfig(JSON.parse(new TextDecoder().decode(buffer)));
+    return true;
+  } catch (error) {
+    setStatus('err', `Native import failed: ${error.message}`);
+    return false;
+  }
+}
+
 function loadDemo() {
   clearBundleAssets();
   rememberLastSource({ type: 'demo', value: 'HumbleSudoku demo config' });
