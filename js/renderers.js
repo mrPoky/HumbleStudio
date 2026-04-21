@@ -79,6 +79,161 @@ function buildIconAssetPreview(icon) {
   return `<img class="icon-preview-image" src="${escapeHtml(src)}" alt="${escapeHtml(icon.name || icon.symbol || 'Icon')}" loading="lazy">`;
 }
 
+function buildComponentInspectorPreview(comp) {
+  if (!comp) return '';
+  const state = getComponentEditorState(comp);
+  const preview = buildComponentPreviewStage(comp, state, false);
+  const subtitle = [
+    comp.group || null,
+    comp.snapshot?.path ? 'Snapshot-backed' : (isCatalogOnlyComponent(comp) ? 'Catalog states' : 'Interactive preview'),
+  ].filter(Boolean).join(' · ');
+  const chips = [
+    comp.renderer || comp.type || inferType(comp.id),
+    comp.interactionMode || 'editable',
+    comp.snapshot?.path ? 'Has snapshot' : 'Approximation only',
+  ].filter(Boolean);
+  return `
+    <div class="inspector-preview-shell">
+      <div class="inspector-preview-card">
+        <div class="inspector-preview-head">
+          <div class="inspector-preview-kicker">${escapeHtml(subtitle)}</div>
+          <div class="inspector-preview-name">${escapeHtml(comp.name)}</div>
+          ${comp.description ? `<div class="inspector-preview-copy">${escapeHtml(comp.description)}</div>` : ''}
+          <div class="inspector-preview-meta">${chips.map(chip => `<span class="inspector-preview-chip">${escapeHtml(chip)}</span>`).join('')}</div>
+        </div>
+        <div class="inspector-preview-stage">${preview}</div>
+      </div>
+    </div>
+  `;
+}
+
+function buildViewInspectorPreview(view) {
+  if (!view) return '';
+  const subtitleParts = [];
+  if (view.root || config.navigation?.root === view.id) subtitleParts.push('Root screen');
+  else subtitleParts.push(view.presentation === 'sheet' ? 'Sheet screen' : 'Screen');
+  if (view.snapshot?.path) subtitleParts.push('Snapshot-backed');
+  const stage = view.snapshot?.path
+    ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame inspector-preview-snapshot', false, true)
+    : buildMiniScreen(view);
+  return `
+    <div class="inspector-preview-shell">
+      <div class="inspector-preview-card">
+        <div class="inspector-preview-head">
+          <div class="inspector-preview-kicker">${escapeHtml(subtitleParts.join(' · '))}</div>
+          <div class="inspector-preview-name">${escapeHtml(view.name)}</div>
+          ${view.description ? `<div class="inspector-preview-copy">${escapeHtml(view.description)}</div>` : ''}
+          <div class="inspector-preview-meta">
+            <span class="inspector-preview-chip">${escapeHtml((view.components || []).length)} components</span>
+            <span class="inspector-preview-chip">${escapeHtml((view.navigatesTo || []).length)} next steps</span>
+          </div>
+        </div>
+        <div class="inspector-preview-stage">${stage}</div>
+      </div>
+    </div>
+  `;
+}
+
+function buildFoundationInspectorPreview(kind, id) {
+  const colors = config?.tokens?.colors || {};
+  const gradients = config?.tokens?.gradients || {};
+  const icons = config?.tokens?.icons || [];
+
+  if (kind === 'icon') {
+    const item = icons.find(icon => (icon.id || icon.name || icon.symbol) === id);
+    if (!item) return '';
+    return `
+      <div class="inspector-preview-shell">
+        <div class="inspector-preview-card">
+          <div class="inspector-preview-head">
+            <div class="inspector-preview-kicker">Icon</div>
+            <div class="inspector-preview-name">${escapeHtml(item.name || item.id || item.symbol || id)}</div>
+            <div class="inspector-preview-meta">
+              ${item.symbol ? `<span class="inspector-preview-chip">${escapeHtml(item.symbol)}</span>` : ''}
+            </div>
+          </div>
+          <div class="inspector-preview-stage">
+            <div class="foundation-icon-canvas">
+              ${item.path ? buildIconAssetPreview(item) : `<div class="icon-preview-glyph icon-preview-glyph-large">${escapeHtml(item.symbol || '?')}</div>`}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (kind === 'color') {
+    const item = colors[id];
+    if (!item) return '';
+    const dark = item.dark || item.value || item;
+    const light = item.light || item.value || item;
+    const sameColor = normalizeComparableValue(dark) === normalizeComparableValue(light);
+    return `
+      <div class="inspector-preview-shell">
+        <div class="inspector-preview-card">
+          <div class="inspector-preview-head">
+            <div class="inspector-preview-kicker">Color token</div>
+            <div class="inspector-preview-name">${escapeHtml(id)}</div>
+            <div class="inspector-preview-meta">
+              <span class="inspector-preview-chip">${escapeHtml(dark)}</span>
+              ${sameColor ? '' : `<span class="inspector-preview-chip">${escapeHtml(light)}</span>`}
+            </div>
+          </div>
+          <div class="inspector-preview-stage">
+            <div class="inspector-preview-foundation-compare${sameColor ? ' single' : ''}">
+              <div class="inspector-preview-foundation-panel">
+                <div class="inspector-preview-foundation-label">${sameColor ? 'Dark / Light' : 'Dark'}</div>
+                <div class="foundation-color-stage" style="background:${escapeHtml(dark)}"></div>
+              </div>
+              ${sameColor ? '' : `<div class="inspector-preview-foundation-panel">
+                <div class="inspector-preview-foundation-label">Light</div>
+                <div class="foundation-color-stage" style="background:${escapeHtml(light)}"></div>
+              </div>`}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (kind === 'gradient') {
+    const item = gradients[id];
+    if (!item) return '';
+    const darkStops = Array.isArray(item.dark) ? item.dark : (Array.isArray(item.value) ? item.value : []);
+    const lightStops = Array.isArray(item.light) ? item.light : (Array.isArray(item.value) ? item.value : []);
+    const darkGradientCss = darkStops.length ? `linear-gradient(135deg, ${darkStops.join(', ')})` : 'transparent';
+    const lightGradientCss = lightStops.length ? `linear-gradient(135deg, ${lightStops.join(', ')})` : darkGradientCss;
+    const sameGradient = arraysEqualNormalized(darkStops, lightStops) || normalizeComparableValue(darkGradientCss) === normalizeComparableValue(lightGradientCss);
+    return `
+      <div class="inspector-preview-shell">
+        <div class="inspector-preview-card">
+          <div class="inspector-preview-head">
+            <div class="inspector-preview-kicker">${escapeHtml(item.type || 'linear gradient')}</div>
+            <div class="inspector-preview-name">${escapeHtml(id)}</div>
+            <div class="inspector-preview-meta">
+              <span class="inspector-preview-chip">${escapeHtml(String(darkStops.length || lightStops.length || 0))} stops</span>
+            </div>
+          </div>
+          <div class="inspector-preview-stage">
+            <div class="inspector-preview-foundation-compare${sameGradient ? ' single' : ''}">
+              <div class="inspector-preview-foundation-panel">
+                <div class="inspector-preview-foundation-label">${sameGradient ? 'Dark / Light' : 'Dark'}</div>
+                <div class="foundation-gradient-stage" style="background:${escapeHtml(darkGradientCss)}"></div>
+              </div>
+              ${sameGradient ? '' : `<div class="inspector-preview-foundation-panel">
+                <div class="inspector-preview-foundation-label">Light</div>
+                <div class="foundation-gradient-stage" style="background:${escapeHtml(lightGradientCss)}"></div>
+              </div>`}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  return '';
+}
+
 function getDeclaredUsageEntries(token) {
   return Array.isArray(token?.usedIn) ? token.usedIn : [];
 }

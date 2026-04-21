@@ -185,16 +185,13 @@
 
 <div id="inspectorPreviewModal" class="lightbox" style="display:none" onclick="closeInspectorPreview()">
   <div class="lightbox-dialog inspector-preview-dialog" onclick="event.stopPropagation()">
-    <button class="lightbox-close" onclick="closeInspectorPreview()">✕</button>
+    <button class="lightbox-close inspector-preview-open-top" id="inspectorPreviewOpenBtn" onclick="openInspectorPreviewDetail()" title="Open detail" aria-label="Open detail">↗</button>
+    <button class="lightbox-close" onclick="closeInspectorPreview()" title="Close preview" aria-label="Close preview">✕</button>
     <div class="lightbox-meta">
       <div class="lightbox-title" id="inspectorPreviewTitle">Detail preview</div>
       <div class="lightbox-sub" id="inspectorPreviewSubtitle"></div>
     </div>
     <div class="inspector-preview-body" id="inspectorPreviewBody"></div>
-    <div class="inspector-preview-actions">
-      <button class="btn-sm" onclick="closeInspectorPreview()">Close</button>
-      <button class="btn-sm btn-sm-accent" id="inspectorPreviewOpenBtn" onclick="openInspectorPreviewDetail()">Open detail</button>
-    </div>
   </div>
 </div>
 
