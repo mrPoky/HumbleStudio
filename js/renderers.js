@@ -51,21 +51,23 @@ function resolveAssetPath(path, basePathKey = 'snapshotBasePath') {
   return `${base.replace(/\/$/, '')}/${path.split('/').pop()}`;
 }
 
-function buildSnapshotPreview(snapshot, alt, className = 'snapshot-frame') {
+function buildSnapshotPreview(snapshot, alt, className = 'snapshot-frame', clickable = true) {
   if (!snapshot?.path) return '';
   const src = resolveAssetPath(snapshot.path);
   const title = snapshot.name || alt || 'Snapshot';
   const subtitle = snapshot.path || '';
-  return `
-    <div
+  const clickAttrs = clickable ? `
       class="${className} snapshot-clickable"
       data-lightbox-src="${escapeHtml(src)}"
       data-lightbox-title="${escapeHtml(title)}"
       data-lightbox-subtitle="${escapeHtml(subtitle)}"
-      onclick="openSnapshotLightbox(this.dataset.lightboxSrc, this.dataset.lightboxTitle, this.dataset.lightboxSubtitle)">
+      onclick="openSnapshotLightbox(this.dataset.lightboxSrc, this.dataset.lightboxTitle, this.dataset.lightboxSubtitle)"`
+    : `class="${className}"`;
+  return `
+    <div${clickAttrs}>
       <img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy"
         onerror="this.closest('.snapshot-frame').classList.add('snapshot-missing')">
-      <button class="snapshot-zoom" onclick="event.stopPropagation();openSnapshotLightbox(this.parentElement.dataset.lightboxSrc, this.parentElement.dataset.lightboxTitle, this.parentElement.dataset.lightboxSubtitle)">Zoom</button>
+      ${clickable ? `<button class="snapshot-zoom" onclick="event.stopPropagation();openSnapshotLightbox(this.parentElement.dataset.lightboxSrc, this.parentElement.dataset.lightboxTitle, this.parentElement.dataset.lightboxSubtitle)">Zoom</button>` : ''}
       <div class="snapshot-label">${escapeHtml(snapshot.name || 'Snapshot')}</div>
     </div>
   `;
@@ -771,7 +773,7 @@ function buildComponentPreviewStage(component, state, detailed) {
   const hasSnapshot = Boolean(component?.snapshot?.path);
   const shouldShowSnapshotOnly = hasSnapshot && (!detailed || state?.mode === 'snapshot');
   if (shouldShowSnapshotOnly) {
-    return buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame');
+    return buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame', detailed);
   }
 
   const approximation = renderComponentInteractivePreview(component);
@@ -784,7 +786,7 @@ function buildComponentPreviewStage(component, state, detailed) {
         </div>
         <div class="cc-compare-pane">
           <div class="cc-compare-label">Reference Snapshot</div>
-          ${buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame component-snapshot-frame-compare')}
+          ${buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame component-snapshot-frame-compare', true)}
         </div>
       </div>
     `;
@@ -1114,6 +1116,10 @@ function buildComponentCard(c, options = {}) {
   const catalogOnly = isCatalogOnlyComponent(c);
   const preview = buildComponentPreviewStage(c, state, detailed);
   const mockOpts = mocks.map(m=>`<option value="${escapeHtml(m.id)}"${m.id === selectedMockId ? ' selected' : ''}>${escapeHtml(m.label)}</option>`).join('');
+  const compactSubtitle = [
+    c.group || null,
+    c.snapshot?.path ? 'Snapshot-backed' : (catalogOnly ? 'Catalog states' : 'Interactive preview'),
+  ].filter(Boolean).join(' · ');
   const detailControls = !detailed ? '' : `
     <div class="cc-mode-toggle">
       ${c.snapshot ? `<button class="cc-mode-btn${state?.mode === 'snapshot' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','snapshot')">Snapshot</button>` : ''}
@@ -1137,7 +1143,7 @@ function buildComponentCard(c, options = {}) {
   const usageViews = getComponentUsageViews(c);
   const siblingComponents = getSiblingComponents(c);
   const foundationGraph = getComponentFoundationGraph(c);
-  const usageSummary = usageViews.length
+  const usageSummary = detailed && usageViews.length
     ? `<div class="cc-usage-summary">${usageViews.length} view${usageViews.length === 1 ? '' : 's'}</div>`
     : '';
   const usagePanel = !detailed ? '' : `
@@ -1284,7 +1290,16 @@ function buildComponentCard(c, options = {}) {
       ${state?.error ? `<div class="mock-error">${escapeHtml(state.error)}</div>` : ''}
     </div>
   `;
-  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}${approximationNote}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${sourcePanel}${guidedEditor}${editor}</div>`;
+  const header = detailed
+    ? `<div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div>`
+    : `<div class="cc-header cc-header-compact"><div class="cc-name">${escapeHtml(c.name)}</div>${compactSubtitle ? `<div class="cc-summary-subtitle">${escapeHtml(compactSubtitle)}</div>` : ''}</div>`;
+  const footer = detailed
+    ? `<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>`
+    : '';
+  if (!detailed) {
+    return `<div class="component-card component-card-summary" id="component-card-${c.id}" role="button" tabindex="0" onclick="showComponentPage(${escapeHtml(escapeJsString(c.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showComponentPage(${escapeHtml(escapeJsString(c.id))})}">${header}<div class="cc-preview" id="preview-${c.id}">${preview}</div></div>`;
+  }
+  return `<div class="component-card component-card-detail" id="component-card-${c.id}">${header}<div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}${approximationNote}${footer}${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${sourcePanel}${guidedEditor}${editor}</div>`;
 }
 
 function renderComponents() {
@@ -1310,7 +1325,7 @@ function updateMockPreview(compId, mockId) {
 
 function buildMiniScreen(view) {
   if (view.snapshot?.path) {
-    return buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame view-snapshot-frame');
+    return buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame view-snapshot-frame', false);
   }
   const style = view.presentation==='sheet'
     ? 'width:75px;max-height:170px;background:var(--surface);border-radius:10px 10px 6px 6px;border:1px solid var(--border);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3)'
