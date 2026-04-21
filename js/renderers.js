@@ -83,6 +83,11 @@ function getDeclaredUsageEntries(token) {
   return Array.isArray(token?.usedIn) ? token.usedIn : [];
 }
 
+function getReferenceCount(token) {
+  if (typeof token?.references?.count === 'number') return token.references.count;
+  return getDeclaredUsageCount(token);
+}
+
 function getDeclaredUsageCount(token) {
   if (typeof token?.usageCount === 'number') return token.usageCount;
   return getDeclaredUsageEntries(token).length;
@@ -387,16 +392,23 @@ function buildCodeReferenceList(entries) {
   </div>`;
 }
 
+function buildFoundationTokenPill(kind, id, subtitle = '', label = id) {
+  const normalizedKind = kind === 'colors' ? 'color' : kind === 'gradients' ? 'gradient' : kind === 'icons' ? 'icon' : kind;
+  const staticMarkup = `<div class="usage-pill usage-pill-static">${escapeHtml(label)}${subtitle ? `<span>${escapeHtml(subtitle)}</span>` : ''}</div>`;
+  if (!id) return staticMarkup;
+
+  if (normalizedKind === 'color' || normalizedKind === 'gradient' || normalizedKind === 'icon') {
+    return `<button class="usage-pill" onclick="showFoundationDetail('${escapeHtml(normalizedKind)}', ${escapeHtml(escapeJsString(id))})">${escapeHtml(label)}${subtitle ? `<span>${escapeHtml(subtitle)}</span>` : ''}</button>`;
+  }
+
+  return staticMarkup;
+}
+
 function buildFoundationPills(items, kind) {
   if (!items.length) return '<div class="foundation-empty-note">No linked foundation items found.</div>';
   const pills = items.map(item => {
-    if (kind === 'color') {
-      return `<button class="usage-pill" onclick="showFoundationDetail('color', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.id)}<span>Color</span></button>`;
-    }
-    if (kind === 'icon') {
-      return `<button class="usage-pill" onclick="showFoundationDetail('icon', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.name || item.id)}<span>Icon</span></button>`;
-    }
-    return `<button class="usage-pill" onclick="showFoundationDetail('gradient', ${escapeHtml(escapeJsString(item.id))})">${escapeHtml(item.id)}<span>Gradient</span></button>`;
+    const subtitle = kind === 'color' ? 'Color' : kind === 'icon' ? 'Icon' : 'Gradient';
+    return buildFoundationTokenPill(kind, item.id, subtitle, item.name || item.id);
   }).join('');
   return `<div class="usage-pill-list">${pills}</div>`;
 }
@@ -404,6 +416,177 @@ function buildFoundationPills(items, kind) {
 function buildTagList(items) {
   if (!items.length) return '<div class="foundation-empty-note">No metadata declared.</div>';
   return `<div class="usage-pill-list">${items.map(item => `<div class="usage-pill usage-pill-static">${escapeHtml(item)}</div>`).join('')}</div>`;
+}
+
+function buildTokenDependencyPills(entries, kind, sourceMode = false) {
+  if (!entries.length) return '<div class="foundation-empty-note">No tokens in this category.</div>';
+  return `<div class="usage-pill-list">${entries.map(entry => {
+    const normalized = typeof entry === 'string' ? { id: entry } : entry;
+    const subtitle = sourceMode
+      ? `${normalized.count || 1} ref${(normalized.count || 1) === 1 ? '' : 's'}`
+      : null;
+    return buildFoundationTokenPill(kind, normalized.id, subtitle);
+  }).join('')}</div>`;
+}
+
+function buildTokenDependencySections(dependencies, sourceMode = false) {
+  const categories = [
+    ['colors', 'Colors', 'color'],
+    ['gradients', 'Gradients', 'gradient'],
+    ['icons', 'Icons', 'icon'],
+    ['primitives', 'Primitives', 'primitive'],
+    ['surfaces', 'Surfaces', 'surface'],
+    ['textTones', 'Text Tones', 'textTone'],
+    ['spacing', 'Spacing', 'spacing'],
+    ['radius', 'Radius', 'radius'],
+    ['typography', 'Typography', 'typography'],
+    ['frames', 'Frames', 'frame'],
+    ['actionRoles', 'Action Roles', 'actionRole'],
+    ['preferredIcons', 'Preferred Icons', 'icon'],
+  ];
+
+  const sections = categories
+    .filter(([key]) => Array.isArray(dependencies?.[key]) && dependencies[key].length)
+    .map(([key, label, kind]) => `
+      <div class="dependency-group">
+        <div class="cc-related-label">${escapeHtml(label)}</div>
+        ${buildTokenDependencyPills(dependencies[key], kind, sourceMode)}
+      </div>
+    `);
+
+  return sections.length
+    ? `<div class="dependency-group-list">${sections.join('')}</div>`
+    : '<div class="foundation-empty-note">No token dependencies recorded.</div>';
+}
+
+function buildTokenDependencyPanel(entity, title = 'Token Dependencies') {
+  const dependencies = entity?.tokenDependencies;
+  if (!dependencies) return '';
+
+  const summary = dependencies.summary || {};
+  return `
+    <div class="cc-related-panel">
+      <div class="cc-usage-title">${escapeHtml(title)}</div>
+      <div class="cc-capability-grid">
+        <div class="cc-capability-card">
+          <div class="cc-capability-label">Declared Tokens</div>
+          <div class="cc-capability-value">${escapeHtml(String(summary.designTokenCount || 0))}</div>
+        </div>
+        <div class="cc-capability-card">
+          <div class="cc-capability-label">Observed Tokens</div>
+          <div class="cc-capability-value">${escapeHtml(String(summary.sourceTokenCount || 0))}</div>
+        </div>
+        <div class="cc-capability-card">
+          <div class="cc-capability-label">Categories</div>
+          <div class="cc-capability-value">${escapeHtml(String((summary.categories || []).length))}</div>
+        </div>
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Declared Design Tokens</div>
+        ${buildTokenDependencySections(dependencies.design || {}, false)}
+      </div>
+      <div class="cc-related-section">
+        <div class="cc-related-label">Observed Source Tokens</div>
+        ${buildTokenDependencySections(dependencies.source || {}, true)}
+      </div>
+    </div>
+  `;
+}
+
+function buildTokenReferenceCards(kind, item) {
+  const references = item?.references;
+  if (!references || !references.count) return '';
+
+  const designComponents = (references.design || [])
+    .filter(reference => reference.type === 'component')
+    .map(reference => getComponentById(reference.id))
+    .filter(Boolean);
+  const designViews = (references.design || [])
+    .filter(reference => reference.type === 'view')
+    .map(reference => getViewById(reference.id))
+    .filter(Boolean);
+  const derivedFoundations = uniqueById(
+    (references.derived || [])
+      .filter(reference => ['color', 'gradient', 'icon'].includes(reference.type))
+      .map(reference => ({ id: reference.id, kind: reference.type }))
+  );
+  const sourceEntries = (references.source || []).map(reference =>
+    `${reference.path}${reference.count ? ` · ${reference.count}×` : ''}`
+  );
+
+  return `
+    <div class="foundation-meta-card">
+      <div class="foundation-meta-label">Observed References</div>
+      <div class="foundation-meta-value">${escapeHtml(String(references.count))}</div>
+    </div>
+    ${(designComponents.length || designViews.length) ? `
+      <div class="foundation-meta-card foundation-meta-card-wide">
+        <div class="foundation-meta-label">Design References</div>
+        <div class="dependency-group-list">
+          <div class="dependency-group">
+            <div class="cc-related-label">Components</div>
+            ${buildUsagePills(designComponents, 'component')}
+          </div>
+          <div class="dependency-group">
+            <div class="cc-related-label">Views</div>
+            ${buildUsagePills(designViews, 'view')}
+          </div>
+        </div>
+      </div>
+    ` : ''}
+    ${derivedFoundations.length ? `
+      <div class="foundation-meta-card foundation-meta-card-wide">
+        <div class="foundation-meta-label">Derived Through</div>
+        <div class="usage-pill-list">
+          ${derivedFoundations.map(reference => buildFoundationTokenPill(reference.kind, reference.id, titleCaseToken(reference.kind))).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${buildCodeReferenceList(sourceEntries)}
+  `;
+}
+
+function buildNormalizationCard(kind, item) {
+  const hasNormalization = item?.normalizationHint || item?.canonicalToken || (item?.sameValuePeers || []).length;
+  if (!hasNormalization) return '';
+
+  const hintCopy = {
+    alias: 'This token is an alias and should usually resolve through the canonical token below.',
+    sharedValuePeer: 'This token currently shares a value with peers, but remains distinct in design intent.',
+  }[item.normalizationHint] || 'This token includes normalization metadata.';
+
+  return `
+    <div class="foundation-meta-card foundation-meta-card-wide">
+      <div class="foundation-meta-label">Normalization</div>
+      <div class="foundation-meta-copy">${escapeHtml(hintCopy)}</div>
+      <div class="dependency-group-list">
+        ${item.normalizationHint ? `
+          <div class="dependency-group">
+            <div class="cc-related-label">Hint</div>
+            <div class="usage-pill-list">
+              <div class="usage-pill usage-pill-static">${escapeHtml(item.normalizationHint)}</div>
+            </div>
+          </div>
+        ` : ''}
+        ${item.canonicalToken ? `
+          <div class="dependency-group">
+            <div class="cc-related-label">Canonical Token</div>
+            <div class="usage-pill-list">
+              ${buildFoundationTokenPill(kind, item.canonicalToken, item.canonicalValue || '')}
+            </div>
+          </div>
+        ` : ''}
+        ${(item.sameValuePeers || []).length ? `
+          <div class="dependency-group">
+            <div class="cc-related-label">Same Value Peers</div>
+            <div class="usage-pill-list">
+              ${(item.sameValuePeers || []).map(peerId => buildFoundationTokenPill(kind, peerId)).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
 }
 
 function renderUsageMeta(token, noun = 'usage') {
@@ -807,7 +990,7 @@ function renderTokens() {
   const gradients = config.tokens?.gradients || {};
   const groups = {};
   Object.entries(colors).forEach(([k,v]) => {
-    const linked = (v.usageCount || 0) > 0 || (Array.isArray(v.usedInGradients) && v.usedInGradients.length);
+    const linked = getReferenceCount(v) > 0 || (Array.isArray(v.usedInGradients) && v.usedInGradients.length);
     const tokenFilter = pageFilterState?.tokens || 'all';
     if (tokenFilter === 'gradients') return;
     if (tokenFilter === 'linked' && !linked) return;
@@ -817,7 +1000,7 @@ function renderTokens() {
     groups[g].colors.push([k, v]);
   });
   Object.entries(gradients).forEach(([k, v]) => {
-    const linked = (v.usageCount || 0) > 0 || (Array.isArray(v.usedInComponents) && v.usedInComponents.length) || (Array.isArray(v.usedInViews) && v.usedInViews.length);
+    const linked = getReferenceCount(v) > 0 || (Array.isArray(v.usedInComponents) && v.usedInComponents.length) || (Array.isArray(v.usedInViews) && v.usedInViews.length);
     const tokenFilter = pageFilterState?.tokens || 'all';
     if (tokenFilter === 'colors') return;
     if (tokenFilter === 'linked' && !linked) return;
@@ -863,8 +1046,8 @@ function renderIcons() {
   if (!config) return;
   const filter = pageFilterState?.icons || 'all';
   const icons = (config.tokens?.icons || []).filter(icon => {
-    if (filter === 'components' && !(icon.usedInComponents || []).length) return false;
-    if (filter === 'views' && !(icon.usedInViews || []).length) return false;
+    if (filter === 'components' && !(icon.usedInComponents || []).length && !((icon.references?.design || []).some(reference => reference.type === 'component'))) return false;
+    if (filter === 'views' && !(icon.usedInViews || []).length && !((icon.references?.design || []).some(reference => reference.type === 'view'))) return false;
     return matchesGlobalSearch(...iconSearchText(icon));
   });
   if (!icons.length) {
@@ -927,7 +1110,7 @@ function renderFoundationDetail(kind, id) {
 
   if (kind === 'icon') {
     const linked = getIconUsageEntities(id, item);
-    const usageCount = linked.components.length + linked.views.length;
+    const usageCount = getReferenceCount(item) || linked.components.length + linked.views.length;
     contentEl.innerHTML = `
       <div class="foundation-detail-layout">
         <div class="foundation-detail-stage">
@@ -950,6 +1133,7 @@ function renderFoundationDetail(kind, id) {
             <div class="foundation-meta-label">Usage</div>
             <div class="foundation-meta-value">${usageCount} linked items</div>
           </div>
+          ${buildNormalizationCard('icon', item)}
           ${item.description ? `<div class="foundation-meta-card foundation-meta-card-wide"><div class="foundation-meta-label">Notes</div><div class="foundation-meta-copy">${escapeHtml(item.description)}</div></div>` : ''}
           <div class="foundation-meta-card foundation-meta-card-wide">
             <div class="foundation-meta-label">Components</div>
@@ -959,7 +1143,8 @@ function renderFoundationDetail(kind, id) {
             <div class="foundation-meta-label">Views</div>
             ${buildUsagePills(linked.views, 'view')}
           </div>
-          ${buildCodeReferenceList(usages)}
+          ${buildTokenReferenceCards('icon', item)}
+          ${item.references?.count ? '' : buildCodeReferenceList(usages)}
         </div>
       </div>
     `;
@@ -971,7 +1156,7 @@ function renderFoundationDetail(kind, id) {
     const light = item.light || item.value || item;
     const sameColor = normalizeComparableValue(dark) === normalizeComparableValue(light);
     const impact = getColorImpactEntities(id, item);
-    const usageCount = impact.gradients.length + impact.components.length + impact.views.length;
+    const usageCount = getReferenceCount(item) || impact.gradients.length + impact.components.length + impact.views.length;
     contentEl.innerHTML = `
       <div class="foundation-detail-layout">
         <div class="foundation-detail-stage">
@@ -1003,6 +1188,7 @@ function renderFoundationDetail(kind, id) {
             <div class="foundation-meta-label">Usage</div>
             <div class="foundation-meta-value">${usageCount} linked items</div>
           </div>
+          ${buildNormalizationCard('color', item)}
           <div class="foundation-meta-card foundation-meta-card-wide">
             <div class="foundation-meta-label">Indirectly Affects Gradients</div>
             ${buildFoundationPills(impact.gradients, 'gradient')}
@@ -1015,6 +1201,7 @@ function renderFoundationDetail(kind, id) {
             <div class="foundation-meta-label">Indirectly Affects Views</div>
             ${buildUsagePills(impact.views, 'view')}
           </div>
+          ${buildTokenReferenceCards('color', item)}
         </div>
       </div>
     `;
@@ -1036,7 +1223,7 @@ function renderFoundationDetail(kind, id) {
       .filter(([colorId, color]) => getColorGradientUsages(colorId, color).includes(id))
       .map(([colorId, color]) => ({ id: colorId, ...color }))
   );
-  const usageCount = linked.components.length + linked.views.length;
+  const usageCount = getReferenceCount(item) || linked.components.length + linked.views.length;
   contentEl.innerHTML = `
     <div class="foundation-detail-layout">
       <div class="foundation-detail-stage">
@@ -1068,6 +1255,7 @@ function renderFoundationDetail(kind, id) {
           <div class="foundation-meta-label">Usage</div>
           <div class="foundation-meta-value">${usageCount} linked items</div>
         </div>
+        ${buildNormalizationCard('gradient', item)}
         <div class="foundation-meta-card foundation-meta-card-wide">
           <div class="foundation-meta-label">Reached From Colors</div>
           ${buildFoundationPills(incomingColors.length ? incomingColors : linkedColors, 'color')}
@@ -1084,6 +1272,7 @@ function renderFoundationDetail(kind, id) {
           <div class="foundation-meta-label">Views</div>
           ${buildUsagePills(linked.views, 'view')}
         </div>
+        ${buildTokenReferenceCards('gradient', item)}
       </div>
     </div>
   `;
@@ -1220,6 +1409,7 @@ function buildComponentCard(c, options = {}) {
       </div>
     </div>
   `;
+  const dependencyPanel = !detailed ? '' : buildTokenDependencyPanel(c);
   const sourceFiles = uniqueStrings([
     c.source,
     ...usageViews.map(view => view.source),
@@ -1303,7 +1493,7 @@ function buildComponentCard(c, options = {}) {
   if (!detailed) {
     return `<div class="component-card component-card-summary" id="component-card-${c.id}" role="button" tabindex="0" onclick="showComponentPage(${escapeHtml(escapeJsString(c.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showComponentPage(${escapeHtml(escapeJsString(c.id))})}">${header}<div class="cc-preview" id="preview-${c.id}">${preview}</div></div>`;
   }
-  return `<div class="component-card component-card-detail" id="component-card-${c.id}">${header}<div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}${approximationNote}${footer}${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${sourcePanel}${guidedEditor}${editor}</div>`;
+  return `<div class="component-card component-card-detail" id="component-card-${c.id}">${header}<div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}${approximationNote}${footer}${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${dependencyPanel}${sourcePanel}${guidedEditor}${editor}</div>`;
 }
 
 function renderComponents() {
@@ -1434,7 +1624,62 @@ function renderViewDetail(viewId) {
     ...designSystemList(view, 'textTones'),
     ...linkedComponents.flatMap(component => designSystemList(component, 'textTones')),
   ].map(value => ({ id: value }))).map(item => item.id);
-  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${flowMeta}${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">How Users Get Here</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">What Users Can Do Next</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div> ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
+  const sourceSnippet = view.sourceSnippet || null;
+  const sourceSnippetMeta = !sourceSnippet ? '' : [
+    sourceSnippet.symbol || null,
+    sourceSnippet.startLine && sourceSnippet.endLine ? `lines ${sourceSnippet.startLine}-${sourceSnippet.endLine}` : null,
+    sourceSnippet.truncated ? 'excerpt trimmed' : null,
+  ].filter(Boolean).join(' · ');
+  const viewSourcePanel = (!view.source && !sourceSnippet) ? '' : `
+    <div class="vd-panel">
+      <div class="vd-panel-title">Source</div>
+      ${sourceSnippet ? `
+        <div class="cc-related-section">
+          <div class="cc-related-label">Source Excerpt</div>
+          <div class="cc-source-card">
+            ${sourceSnippetMeta ? `<div class="cc-source-meta">${escapeHtml(sourceSnippetMeta)}</div>` : ''}
+            <pre class="cc-source-code">${escapeHtml(sourceSnippet.excerpt || '')}</pre>
+          </div>
+        </div>
+      ` : ''}
+      ${view.source ? `
+        <div class="cc-related-section">
+          <div class="cc-related-label">View File</div>
+          <div class="cc-source-card">
+            <div class="cc-source-path">${escapeHtml(view.source)}</div>
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+  const dependencyPanel = view.tokenDependencies ? `
+    <div class="vd-panel">
+      <div class="vd-panel-title">Token Dependencies</div>
+      <div class="cc-capability-grid">
+        <div class="cc-capability-card">
+          <div class="cc-capability-label">Declared Tokens</div>
+          <div class="cc-capability-value">${escapeHtml(String(view.tokenDependencies?.summary?.designTokenCount || 0))}</div>
+        </div>
+        <div class="cc-capability-card">
+          <div class="cc-capability-label">Observed Tokens</div>
+          <div class="cc-capability-value">${escapeHtml(String(view.tokenDependencies?.summary?.sourceTokenCount || 0))}</div>
+        </div>
+        <div class="cc-capability-card">
+          <div class="cc-capability-label">Categories</div>
+          <div class="cc-capability-value">${escapeHtml(String((view.tokenDependencies?.summary?.categories || []).length))}</div>
+        </div>
+      </div>
+      <div class="vd-graph-section">
+        <div class="vd-graph-label">Declared Design Tokens</div>
+        ${buildTokenDependencySections(view.tokenDependencies.design || {}, false)}
+      </div>
+      <div class="vd-graph-section">
+        <div class="vd-graph-label">Observed Source Tokens</div>
+        ${buildTokenDependencySections(view.tokenDependencies.source || {}, true)}
+      </div>
+    </div>
+  ` : '';
+  document.getElementById('viewDetailContent').innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${flowMeta}${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">How Users Get Here</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">What Users Can Do Next</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div>${dependencyPanel}${viewSourcePanel} ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
 }
 
 function renderNavMap() {
