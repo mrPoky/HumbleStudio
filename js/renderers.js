@@ -51,7 +51,7 @@ function resolveAssetPath(path, basePathKey = 'snapshotBasePath') {
   return `${base.replace(/\/$/, '')}/${path.split('/').pop()}`;
 }
 
-function buildSnapshotPreview(snapshot, alt, className = 'snapshot-frame', clickable = true) {
+function buildSnapshotPreview(snapshot, alt, className = 'snapshot-frame', clickable = true, compact = false) {
   if (!snapshot?.path) return '';
   const src = resolveAssetPath(snapshot.path);
   const title = snapshot.name || alt || 'Snapshot';
@@ -68,7 +68,7 @@ function buildSnapshotPreview(snapshot, alt, className = 'snapshot-frame', click
       <img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy"
         onerror="this.closest('.snapshot-frame').classList.add('snapshot-missing')">
       ${clickable ? `<button class="snapshot-zoom" onclick="event.stopPropagation();openSnapshotLightbox(this.parentElement.dataset.lightboxSrc, this.parentElement.dataset.lightboxTitle, this.parentElement.dataset.lightboxSubtitle)">Zoom</button>` : ''}
-      <div class="snapshot-label">${escapeHtml(snapshot.name || 'Snapshot')}</div>
+      ${compact ? '' : `<div class="snapshot-label">${escapeHtml(snapshot.name || 'Snapshot')}</div>`}
     </div>
   `;
 }
@@ -773,7 +773,7 @@ function buildComponentPreviewStage(component, state, detailed) {
   const hasSnapshot = Boolean(component?.snapshot?.path);
   const shouldShowSnapshotOnly = hasSnapshot && (!detailed || state?.mode === 'snapshot');
   if (shouldShowSnapshotOnly) {
-    return buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame', detailed);
+    return buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame', detailed, !detailed);
   }
 
   const approximation = renderComponentInteractivePreview(component);
@@ -786,7 +786,7 @@ function buildComponentPreviewStage(component, state, detailed) {
         </div>
         <div class="cc-compare-pane">
           <div class="cc-compare-label">Reference Snapshot</div>
-          ${buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame component-snapshot-frame-compare', true)}
+          ${buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame component-snapshot-frame-compare', true, false)}
         </div>
       </div>
     `;
@@ -1325,7 +1325,7 @@ function updateMockPreview(compId, mockId) {
 
 function buildMiniScreen(view) {
   if (view.snapshot?.path) {
-    return buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame view-snapshot-frame', false);
+    return buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame view-snapshot-frame', false, true);
   }
   const style = view.presentation==='sheet'
     ? 'width:75px;max-height:170px;background:var(--surface);border-radius:10px 10px 6px 6px;border:1px solid var(--border);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3)'
@@ -1348,13 +1348,11 @@ function renderViews() {
   if (!views.length) { document.getElementById('viewsContent').innerHTML = buildEmptyState('▭', 'No matching views', 'Try clearing search or switching the view filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('views')" }); return; }
   let html = '<div class="view-grid">';
   views.forEach(v => {
-    const navTags=(v.navigatesTo||[]).slice(0,3).map(n=>{
-      const target = getViewById(n.viewId);
-      const arrow = n.type === 'pop' ? '←' : '→';
-      return `<span class="vc-nav-tag">${arrow} ${escapeHtml(target?.name || n.viewId)}</span>`;
-    }).join('');
-    const hiddenCount = Math.max(0, (v.navigatesTo || []).length - 3);
-    html+=`<div class="view-card" onclick="showPage('viewdetail','${v.id}')"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-comps">${(v.components||[]).length} component${(v.components||[]).length!==1?'s':''}</div><div class="vc-nav-tags">${navTags}${hiddenCount ? `<span class="vc-nav-tag">+${hiddenCount} more</span>` : ''}</div></div></div>`;
+    const subtitleParts = [];
+    if (v.root || config.navigation?.root === v.id) subtitleParts.push('Root screen');
+    else subtitleParts.push(v.presentation === 'sheet' ? 'Sheet screen' : 'Screen');
+    if (v.snapshot?.path) subtitleParts.push('Snapshot-backed');
+    html+=`<div class="view-card" onclick="showPage('viewdetail','${v.id}')"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-summary-subtitle">${escapeHtml(subtitleParts.join(' · '))}</div></div></div>`;
   });
   document.getElementById('viewsContent').innerHTML = html + '</div>';
 }
