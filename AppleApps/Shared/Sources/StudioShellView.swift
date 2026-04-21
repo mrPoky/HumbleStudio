@@ -40,6 +40,18 @@ struct StudioShellView: View {
                 model.report(error: error)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .studioOpenImport)) { _ in
+            isImportingFile = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .studioLoadDemo)) { _ in
+            model.loadDemo()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .studioLoadHome)) { _ in
+            model.loadBundledStudio()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .studioReload)) { _ in
+            model.reload()
+        }
     }
 
     private static var supportedImportTypes: [UTType] {
