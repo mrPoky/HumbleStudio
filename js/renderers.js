@@ -1089,13 +1089,21 @@ function buildComponentCard(c, options = {}) {
   const detailControls = !detailed ? '' : `
     <div class="cc-mode-toggle">
       ${c.snapshot ? `<button class="cc-mode-btn${state?.mode === 'snapshot' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','snapshot')">Snapshot</button>` : ''}
-      <button class="cc-mode-btn${state?.mode === 'mock' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','mock')">${catalogOnly ? 'State Preview' : 'Live Mock'}</button>
+      <button class="cc-mode-btn${state?.mode === 'mock' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','mock')">${catalogOnly ? 'State Preview' : 'Live Approximation'}</button>
     </div>
   `;
   const stateMeta = detailed && mocks.length ? `
     <div class="cc-state-meta">
       ${mocks.find(m => m.id === selectedMockId)?.description ? `<div class="cc-state-copy">${escapeHtml(mocks.find(m => m.id === selectedMockId).description)}</div>` : ''}
       ${catalogOnly ? `<div class="cc-state-badge">Catalog only</div>` : ''}
+    </div>
+  ` : '';
+  const approximationNote = detailed && c.snapshot && state?.mode === 'mock' ? `
+    <div class="cc-approx-note">
+      <div class="cc-approx-note-card">
+        <div class="cc-approx-note-title">Reference Available</div>
+        <div class="cc-approx-note-copy">This mode is an interactive approximation. Use <strong>Snapshot</strong> for the 1:1 visual source of truth.</div>
+      </div>
     </div>
   ` : '';
   const usageViews = getComponentUsageViews(c);
@@ -1195,7 +1203,7 @@ function buildComponentCard(c, options = {}) {
       ${state?.error ? `<div class="mock-error">${escapeHtml(state.error)}</div>` : ''}
     </div>
   `;
-  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${guidedEditor}${editor}</div>`;
+  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}${approximationNote}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${guidedEditor}${editor}</div>`;
 }
 
 function renderComponents() {
