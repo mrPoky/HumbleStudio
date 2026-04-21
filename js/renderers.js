@@ -359,6 +359,10 @@ function getIconUsageEntities(iconId, icon) {
   };
 }
 
+function uniqueStrings(values) {
+  return [...new Set((values || []).filter(Boolean))];
+}
+
 function buildUsagePills(items, kind) {
   if (!items.length) return '<div class="foundation-empty-note">No linked items found.</div>';
   const pills = items.map(item => {
@@ -1206,6 +1210,42 @@ function buildComponentCard(c, options = {}) {
       </div>
     </div>
   `;
+  const sourceFiles = uniqueStrings([
+    c.source,
+    ...usageViews.map(view => view.source),
+  ]);
+  const sourcePanel = !detailed || (!c.source && !c.swiftui && !sourceFiles.length) ? '' : `
+    <div class="cc-related-panel">
+      <div class="cc-usage-title">Source</div>
+      ${c.swiftui ? `
+        <div class="cc-related-section">
+          <div class="cc-related-label">SwiftUI API</div>
+          <div class="cc-source-card">
+            <div class="cc-source-code">${escapeHtml(c.swiftui)}</div>
+          </div>
+        </div>
+      ` : ''}
+      ${c.source ? `
+        <div class="cc-related-section">
+          <div class="cc-related-label">Component File</div>
+          <div class="cc-source-card">
+            <div class="cc-source-path">${escapeHtml(c.source)}</div>
+          </div>
+        </div>
+      ` : ''}
+      ${sourceFiles.length > 1 ? `
+        <div class="cc-related-section">
+          <div class="cc-related-label">Appears In View Files</div>
+          <div class="cc-source-list">
+            ${sourceFiles
+              .filter(path => path !== c.source)
+              .map(path => `<div class="cc-source-card"><div class="cc-source-path">${escapeHtml(path)}</div></div>`)
+              .join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
   const guidedEditor = !detailed ? '' : buildGuidedEditor(c);
   const editor = !detailed ? '' : catalogOnly ? `
     <div class="cc-editor cc-editor-locked">
@@ -1227,7 +1267,7 @@ function buildComponentCard(c, options = {}) {
       ${state?.error ? `<div class="mock-error">${escapeHtml(state.error)}</div>` : ''}
     </div>
   `;
-  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}${approximationNote}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${guidedEditor}${editor}</div>`;
+  return `<div class="component-card${detailed ? ' component-card-detail' : ''}" id="component-card-${c.id}"><div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div><div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}${approximationNote}<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${sourcePanel}${guidedEditor}${editor}</div>`;
 }
 
 function renderComponents() {
