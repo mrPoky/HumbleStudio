@@ -1,7 +1,9 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct StudioShellView: View {
     @State private var model = StudioShellModel()
+    @State private var isImportingFile = false
 
     var body: some View {
         NavigationStack {
@@ -25,6 +27,23 @@ struct StudioShellView: View {
                 shellToolbar
             }
         }
+        .fileImporter(
+            isPresented: $isImportingFile,
+            allowedContentTypes: Self.supportedImportTypes,
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                model.importFile(at: url)
+            case .failure(let error):
+                model.report(error: error)
+            }
+        }
+    }
+
+    private static var supportedImportTypes: [UTType] {
+        [UTType(filenameExtension: "humblebundle") ?? .zip, .zip, .json]
     }
 
     @ToolbarContentBuilder
@@ -43,6 +62,20 @@ struct StudioShellView: View {
     @ViewBuilder
     private var toolbarButtons: some View {
         Button {
+            isImportingFile = true
+        } label: {
+            Label("Open", systemImage: "folder")
+        }
+        .disabled(!model.isPageReady)
+
+        Button {
+            model.loadDemo()
+        } label: {
+            Label("Demo", systemImage: "sparkles")
+        }
+        .disabled(!model.isPageReady)
+
+        Button {
             model.loadBundledStudio()
         } label: {
             Label("Home", systemImage: "house")
@@ -54,6 +87,6 @@ struct StudioShellView: View {
         } label: {
             Label("Reload", systemImage: "arrow.clockwise")
         }
-        .disabled(!model.isConnected)
+        .disabled(!model.isPageReady)
     }
 }
