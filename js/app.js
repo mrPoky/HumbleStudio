@@ -11,6 +11,7 @@ let navMapZoom = 1;
 let globalSearchQuery = '';
 let pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
 let currentLoadSource = null;
+let currentStatus = { type: 'loading', text: 'Booting studio…' };
 window.__humbleAssetMap = new Map();
 
 const NAVIGATION_TYPES = new Set(['push', 'sheet', 'replace', 'pop']);
@@ -49,6 +50,7 @@ function showPage(id, extra) {
   if (id === 'viewdetail' && extra) renderViewDetail(extra);
   if (id === 'foundationdetail' && extra) renderFoundationDetail(extra.kind, extra.id);
   if (id === 'navmap') renderNavMap();
+  syncNativeShellState();
 }
 
 // ─── Config loaders ───────────────────────────────────────────────────────────
@@ -561,15 +563,18 @@ function applyConfig(data) {
   updateLoaderSourceUi();
   renderTopbarSource();
   showPage('tokens');
+  syncNativeShellState();
 }
 
 function setStatus(type, msg) {
+  currentStatus = { type, text: msg };
   const dot = document.getElementById('statusDot');
   dot.className = 'status-dot';
   if (type === 'loading') dot.classList.add('loading');
   if (type === 'err')     dot.classList.add('err');
   if (type === 'warn')    dot.classList.add('warn');
   document.getElementById('statusText').textContent = msg;
+  syncNativeShellState();
 }
 
 function renderValidationBanner() {
@@ -730,6 +735,7 @@ function rememberLastSource(source) {
 
 function setCurrentLoadSource(source) {
   currentLoadSource = source || null;
+  syncNativeShellState();
 }
 
 function getRememberedSource() {
@@ -772,6 +778,41 @@ function renderTopbarSource() {
   }
   el.style.display = '';
   el.textContent = `${getSourceLabel(currentLoadSource)} · ${getSourceValueLabel(currentLoadSource)}`;
+}
+
+function getNativeShellTitle() {
+  if (currentPage === 'components' && currentComponentDetailId) {
+    const component = (config?.components || []).find(entry => entry.id === currentComponentDetailId);
+    if (component?.name) return component.name;
+  }
+  if (currentPage === 'viewdetail' && currentViewDetailId) {
+    const view = (config?.views || []).find(entry => entry.id === currentViewDetailId);
+    if (view?.name) return view.name;
+  }
+  if (currentPage === 'foundationdetail' && currentFoundationDetail?.id) {
+    return currentFoundationDetail.id;
+  }
+  return document.getElementById('topTitle')?.textContent?.trim() || 'HumbleStudio';
+}
+
+function postNativeShellMessage(type, payload) {
+  try {
+    const handler = window.webkit?.messageHandlers?.studioShell;
+    if (!handler?.postMessage) return;
+    handler.postMessage({ type, payload });
+  } catch {}
+}
+
+function syncNativeShellState() {
+  postNativeShellMessage('shellState', {
+    title: getNativeShellTitle(),
+    breadcrumb: document.getElementById('topBreadcrumb')?.textContent?.trim() || '',
+    sourceType: currentLoadSource?.type || '',
+    sourceLabel: getSourceLabel(currentLoadSource),
+    sourceValue: getSourceValueLabel(currentLoadSource),
+    statusText: currentStatus.text || '',
+    statusLevel: currentStatus.type || '',
+  });
 }
 
 function clearRememberedSource() {
