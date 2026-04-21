@@ -1,0 +1,70 @@
+name: HumbleStudio
+options:
+  minimumXcodeGenVersion: 2.44.0
+  createIntermediateGroups: true
+configs:
+  Debug: debug
+  Release: release
+settingGroups:
+  base:
+    CURRENT_PROJECT_VERSION: 1
+    GENERATE_INFOPLIST_FILE: NO
+    MARKETING_VERSION: 1.0
+    PRODUCT_NAME: HumbleStudio
+    SWIFT_VERSION: 5.0
+    VERSIONING_SYSTEM: apple-generic
+targets:
+  HumbleStudioiOS:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    info:
+      path: AppleApps/iOS/Info.plist
+      properties:
+        CFBundleDisplayName: HumbleStudio
+        UIApplicationSupportsIndirectInputEvents: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    settings:
+      groups:
+        - base
+      base:
+        CODE_SIGNING_ALLOWED: NO
+        PRODUCT_BUNDLE_IDENTIFIER: com.mrpoky.HumbleStudio.ios
+        SUPPORTS_MACCATALYST: NO
+        TARGETED_DEVICE_FAMILY: "1,2"
+    sources:
+      - path: AppleApps/Shared/Sources
+      - path: AppleApps/iOS/Sources
+    preBuildScripts:
+      - name: Copy HumbleStudio Web Assets
+        basedOnDependencyAnalysis: false
+        script: |
+          /bin/sh "$SRCROOT/AppleApps/Scripts/copy_web_assets.sh"
+  HumbleStudioMac:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    info:
+      path: AppleApps/macOS/Info.plist
+      properties:
+        CFBundleDisplayName: HumbleStudio
+        LSApplicationCategoryType: public.app-category.developer-tools
+        NSHumanReadableCopyright: ""
+    settings:
+      groups:
+        - base
+      base:
+        CODE_SIGNING_ALLOWED: NO
+        PRODUCT_BUNDLE_IDENTIFIER: com.mrpoky.HumbleStudio.mac
+    sources:
+      - path: AppleApps/Shared/Sources
+      - path: AppleApps/macOS/Sources
+    preBuildScripts:
+      - name: Copy HumbleStudio Web Assets
+        basedOnDependencyAnalysis: false
+        script: |
+          /bin/sh "$SRCROOT/AppleApps/Scripts/copy_web_assets.sh"
