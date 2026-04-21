@@ -763,6 +763,32 @@ function buildGuidedEditor(component) {
   `;
 }
 
+function buildComponentPreviewStage(component, state, detailed) {
+  const hasSnapshot = Boolean(component?.snapshot?.path);
+  const shouldShowSnapshotOnly = hasSnapshot && (!detailed || state?.mode === 'snapshot');
+  if (shouldShowSnapshotOnly) {
+    return buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame');
+  }
+
+  const approximation = renderComponentInteractivePreview(component);
+  if (detailed && hasSnapshot && state?.mode === 'mock') {
+    return `
+      <div class="cc-compare-stage">
+        <div class="cc-compare-pane">
+          <div class="cc-compare-label">Approximation</div>
+          <div class="cc-compare-shell">${approximation}</div>
+        </div>
+        <div class="cc-compare-pane">
+          <div class="cc-compare-label">Reference Snapshot</div>
+          ${buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame component-snapshot-frame-compare')}
+        </div>
+      </div>
+    `;
+  }
+
+  return approximation;
+}
+
 // ─── Page renderers ───────────────────────────────────────────────────────────
 
 function renderTokens() {
@@ -1082,9 +1108,7 @@ function buildComponentCard(c, options = {}) {
   const state = getComponentEditorState(c);
   const selectedMockId = state?.selectedMockId || mocks[0]?.id || '';
   const catalogOnly = isCatalogOnlyComponent(c);
-  const preview = state?.mode === 'snapshot' && c.snapshot
-    ? buildSnapshotPreview(c.snapshot, `${c.name} snapshot`, 'snapshot-frame component-snapshot-frame')
-    : renderComponentInteractivePreview(c);
+  const preview = buildComponentPreviewStage(c, state, detailed);
   const mockOpts = mocks.map(m=>`<option value="${escapeHtml(m.id)}"${m.id === selectedMockId ? ' selected' : ''}>${escapeHtml(m.label)}</option>`).join('');
   const detailControls = !detailed ? '' : `
     <div class="cc-mode-toggle">
