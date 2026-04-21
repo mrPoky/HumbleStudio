@@ -188,6 +188,47 @@ function setValueAtPath(object, path, value) {
   return nextObject;
 }
 
+function titleCaseToken(token) {
+  return String(token || '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function getGuidedControlMeta(path, kind) {
+  const explicit = {
+    selected: { label: 'Selected Number', hint: 'Pick the currently highlighted value.' },
+    disabled: { label: 'Disabled State', hint: 'Toggle whether the control is inactive.' },
+    title: { label: 'Title', hint: 'Main visible title for this component.' },
+    subtitle: { label: 'Subtitle', hint: 'Secondary helper copy shown under the title.' },
+    message: { label: 'Message', hint: 'Inline feedback text shown to the user.' },
+    value: { label: 'Value', hint: 'Primary displayed value.' },
+    badge: { label: 'Badge', hint: 'Small supporting label shown on the right.' },
+    icon: { label: 'Icon', hint: 'Symbol used by this component state.' },
+    rows: { label: 'Rows Preset', hint: 'Switch between declared row configurations.' },
+    tiles: { label: 'Import Tiles', hint: 'Swap between declared tile layouts.' },
+    buttons: { label: 'Button Set', hint: 'Choose a declared button arrangement.' },
+    actions: { label: 'Action Buttons', hint: 'Switch between declared action groups.' },
+    success: { label: 'Success Message', hint: 'Choose a declared success state block.' },
+    error: { label: 'Error Message', hint: 'Inline error feedback shown in this state.' },
+    statusIcon: { label: 'Status Icon', hint: 'Visual status marker for this row.' },
+    trailingIcon: { label: 'Trailing Icon', hint: 'Accessory icon shown on the right.' },
+    style: { label: 'Visual Style', hint: 'Declared visual variant for this component.' },
+    label: { label: 'Label', hint: 'Primary label shown to the user.' },
+    counts: { label: 'Counts Preset', hint: 'Use a declared availability/counts setup.' },
+  };
+
+  const token = String(path || '').split('.').pop();
+  const meta = explicit[path] || explicit[token] || {};
+  const label = meta.label || String(path || '').split('.').map(titleCaseToken).join(' / ');
+  const hint = meta.hint || (kind === 'preset'
+    ? 'Switch between declared structured variants.'
+    : kind === 'boolean'
+      ? 'Toggle this declared state value.'
+      : 'Choose from values declared in the component states.');
+  return { label, hint };
+}
+
 function getStructuredPropControls(component) {
   const states = getComponentStates(component);
   if (!states.length) return [];
@@ -219,7 +260,7 @@ function getStructuredPropControls(component) {
           : 'string';
       return {
         path,
-        label: path.split('.').join(' / '),
+        ...getGuidedControlMeta(path, kind),
         kind,
         options: uniqueValues,
       };
@@ -233,7 +274,7 @@ function getStructuredPropControls(component) {
       if (uniqueEntries.length <= 1) return null;
       return {
         path,
-        label: path,
+        ...getGuidedControlMeta(path, 'preset'),
         kind: 'preset',
         options: uniqueEntries.map(entry => ({
           value: entry.value,

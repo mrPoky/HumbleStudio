@@ -699,7 +699,7 @@ function buildGuidedControlField(component, control, currentProps) {
       <label class="guided-field guided-field-toggle">
         <span class="guided-field-copy">
           <span class="guided-field-label">${escapeHtml(label)}</span>
-          <span class="guided-field-hint">Declared boolean state</span>
+          <span class="guided-field-hint">${escapeHtml(control.hint || 'Declared boolean state')}</span>
         </span>
         <input type="checkbox" class="guided-toggle" ${currentValue ? 'checked' : ''} onchange="${sharedOnChange}">
       </label>
@@ -716,7 +716,7 @@ function buildGuidedControlField(component, control, currentProps) {
             return `<option value="${escapeHtml(valueKey)}"${JSON.stringify(currentValue) === valueKey ? ' selected' : ''}>${escapeHtml(option.label || control.label || control.path)}</option>`;
           }).join('')}
         </select>
-        <span class="guided-field-hint">Structured preset from declared component states</span>
+        <span class="guided-field-hint">${escapeHtml(control.hint || 'Structured preset from declared component states')}</span>
       </label>
     `;
   }
@@ -728,6 +728,7 @@ function buildGuidedControlField(component, control, currentProps) {
         <select class="guided-select" onchange="${sharedOnChange}">
           ${optionValues.map(option => `<option value="${escapeHtml(String(option.value))}"${JSON.stringify(currentValue) === option.key ? ' selected' : ''}>${escapeHtml(String(option.value))}</option>`).join('')}
         </select>
+        <span class="guided-field-hint">${escapeHtml(control.hint || 'Choose from values declared in the component states.')}</span>
       </label>
     `;
   }
@@ -740,6 +741,7 @@ function buildGuidedControlField(component, control, currentProps) {
         type="${control.kind === 'number' ? 'number' : 'text'}"
         value="${escapeHtml(currentValue ?? '')}"
         onchange="${sharedOnChange}">
+      <span class="guided-field-hint">${escapeHtml(control.hint || 'Edit this declared prop value.')}</span>
     </label>
   `;
 }
