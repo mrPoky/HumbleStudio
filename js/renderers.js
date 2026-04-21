@@ -541,19 +541,18 @@ function renderComponentPreview(comp, props) {
     case 'list': {
       const rows = props.rows || [{ label: 'Item', value: 'Value' }];
       return `
-        <div class="r-panel-card r-list-shell">
+        <div class="r-list-shell">
           <div class="r-list-card">
             ${rows.map(r => `
               <div class="r-list-row">
-                ${r.icon ? `<div class="r-list-icon">${escapeHtml(r.icon)}</div>` : ''}
                 <div class="r-list-copy">
                   <span class="r-list-label">${escapeHtml(r.label)}</span>
                   ${r.caption || r.subtitle ? `<span class="r-list-caption">${escapeHtml(r.caption || r.subtitle)}</span>` : ''}
                 </div>
                 <span class="r-list-val">
                   ${r.badge ? `<span class="r-list-badge">${escapeHtml(r.badge)}</span>` : ''}
-                  ${r.value ? `<span>${escapeHtml(r.value)}</span>` : ''}
-                  ${r.rightType === 'checkmark' ? `<span class="r-list-check">✓</span>` : r.rightType === 'empty' ? '' : r.value && String(r.value).trim() !== '' ? `<span class="r-list-chevron">›</span>` : `<span class="r-list-chevron">›</span>`}
+                  ${r.value ? `<span class="r-list-value-text">${escapeHtml(r.value)}</span>` : ''}
+                  ${r.rightType === 'checkmark' ? `<span class="r-list-check">✓</span>` : r.rightType === 'empty' ? '' : `<span class="r-list-chevron">›</span>`}
                 </span>
               </div>
             `).join('')}
@@ -601,7 +600,7 @@ function renderComponentPreview(comp, props) {
           </div>
           ${error ? `<div class="r-action-banner r-action-banner-error">${escapeHtml(error)}</div>` : ''}
           ${success ? `<div class="r-action-success"><div class="r-action-success-title">${escapeHtml(success.title)}</div><div class="r-action-success-sub">${escapeHtml(success.subtitle || '')}</div></div>` : ''}
-          ${actions.length ? `<div class="r-action-footer">${actions.map(b => `<div class="r-action-cta${b.style === 'primary' ? ' primary' : ''}${b.style === 'destructive' ? ' destructive' : ''}">${escapeHtml(b.label)}</div>`).join('')}</div>` : ''}
+          ${actions.length ? `<div class="r-action-footer">${actions.map(b => `<div class="r-action-cta${b.style === 'primary' || b.style === 'filled' ? ' primary' : ''}${b.style === 'destructive' ? ' destructive' : ''}${b.style === 'secondary' ? ' secondary' : ''}">${escapeHtml(b.label)}</div>`).join('')}</div>` : ''}
         </div>
       `;
     }
