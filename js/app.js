@@ -884,26 +884,47 @@ function openInspectorPreview(entityType, id, extra = '') {
   const modal = document.getElementById('inspectorPreviewModal');
   if (!titleEl || !subtitleEl || !bodyEl || !openBtn || !modal) return;
 
-  const tempTitle = document.createElement('div');
-  const tempDesc = document.createElement('div');
-  const tempContent = document.createElement('div');
   let detail = null;
+  let bodyHtml = '';
 
   if (entityType === 'component') {
-    detail = renderComponentDetail(id, { titleEl: tempTitle, descEl: tempDesc, contentEl: tempContent, preview: true });
+    const comp = (config?.components || []).find(c => c.id === id);
+    if (!comp) return;
+    detail = {
+      title: comp.name,
+      subtitle: [comp.group || null, comp.snapshot?.path ? 'Snapshot-backed' : (isCatalogOnlyComponent(comp) ? 'Catalog states' : 'Interactive preview')].filter(Boolean).join(' · '),
+      openLabel: 'Open component detail',
+    };
+    bodyHtml = buildComponentInspectorPreview(comp);
   } else if (entityType === 'view') {
-    detail = renderViewDetail(id, { titleEl: tempTitle, contentEl: tempContent, preview: true });
+    const view = (config?.views || []).find(v => v.id === id);
+    if (!view) return;
+    const subtitleParts = [];
+    if (view.root || config.navigation?.root === view.id) subtitleParts.push('Root screen');
+    else subtitleParts.push(view.presentation === 'sheet' ? 'Sheet screen' : 'Screen');
+    if (view.snapshot?.path) subtitleParts.push('Snapshot-backed');
+    detail = {
+      title: view.name,
+      subtitle: subtitleParts.join(' · '),
+      openLabel: 'Open view detail',
+    };
+    bodyHtml = buildViewInspectorPreview(view);
   } else if (entityType === 'foundation') {
-    detail = renderFoundationDetail(extra, id, { titleEl: tempTitle, contentEl: tempContent, preview: true });
+    detail = {
+      title: id,
+      subtitle: `${extra === 'icon' ? 'Icon' : extra === 'gradient' ? 'Gradient' : 'Color'} preview`,
+      openLabel: `Open ${extra} detail`,
+    };
+    bodyHtml = buildFoundationInspectorPreview(extra, id);
+    if (!bodyHtml) return;
   }
 
-  if (!detail) return;
-
   currentInspectorPreview = { entityType, id, extra };
-  titleEl.textContent = detail.title || tempTitle.textContent || 'Detail preview';
-  subtitleEl.textContent = detail.subtitle || tempDesc.textContent || '';
-  bodyEl.innerHTML = tempContent.innerHTML;
-  openBtn.textContent = detail.openLabel || 'Open detail';
+  titleEl.textContent = detail.title || 'Detail preview';
+  subtitleEl.textContent = detail.subtitle || '';
+  bodyEl.innerHTML = bodyHtml;
+  openBtn.setAttribute('title', detail.openLabel || 'Open detail');
+  openBtn.setAttribute('aria-label', detail.openLabel || 'Open detail');
   modal.style.display = 'flex';
 }
 
