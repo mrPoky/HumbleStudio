@@ -10,7 +10,20 @@ struct StudioShellActions {
 
 @Observable
 final class StudioShellModel {
+    private enum RecentImportStore {
+        static let bookmarkKey = "StudioShell.recentImportBookmark"
+        static let nameKey = "StudioShell.recentImportName"
+    }
+
     private var actions = StudioShellActions()
+
+    #if os(iOS)
+    private static let bookmarkCreationOptions: URL.BookmarkCreationOptions = []
+    private static let bookmarkResolutionOptions: URL.BookmarkResolutionOptions = []
+    #else
+    private static let bookmarkCreationOptions: URL.BookmarkCreationOptions = [.withSecurityScope]
+    private static let bookmarkResolutionOptions: URL.BookmarkResolutionOptions = [.withSecurityScope]
+    #endif
 
     var errorMessage: String?
     var isConnected = false
@@ -21,6 +34,7 @@ final class StudioShellModel {
     var sourceValue = "Embedded app assets"
     var statusLevel = "loading"
     var statusText = "Loading bundled studio…"
+    var recentImportName = UserDefaults.standard.string(forKey: RecentImportStore.nameKey)
 
     var sourceSummary: String {
         let trimmedValue = sourceValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -28,6 +42,10 @@ final class StudioShellModel {
             return sourceLabel
         }
         return "\(sourceLabel) · \(trimmedValue)"
+    }
+
+    var hasRecentImport: Bool {
+        recentImportName != nil && UserDefaults.standard.data(forKey: RecentImportStore.bookmarkKey) != nil
     }
 
     func connect(actions: StudioShellActions) {
@@ -60,6 +78,30 @@ final class StudioShellModel {
         actions.loadDemo?()
     }
 
+    func reopenRecentImport() {
+        guard let bookmarkData = UserDefaults.standard.data(forKey: RecentImportStore.bookmarkKey) else {
+            statusLevel = "warn"
+            statusText = "No recent import is available yet."
+            return
+        }
+
+        do {
+            var isStale = false
+            let url = try URL(
+                resolvingBookmarkData: bookmarkData,
+                options: Self.bookmarkResolutionOptions,
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale
+            )
+            if isStale {
+                try rememberRecentImport(for: url)
+            }
+            importFile(at: url)
+        } catch {
+            report(error: error)
+        }
+    }
+
     func importFile(at url: URL) {
         let accessed = url.startAccessingSecurityScopedResource()
         defer {
@@ -70,6 +112,7 @@ final class StudioShellModel {
 
         do {
             let fileData = try Data(contentsOf: url)
+            try rememberRecentImport(for: url)
             clearError()
             sourceLabel = "Local file"
             sourceValue = url.lastPathComponent
@@ -121,5 +164,16 @@ final class StudioShellModel {
         errorMessage = error.localizedDescription
         statusLevel = "err"
         statusText = error.localizedDescription
+    }
+
+    private func rememberRecentImport(for url: URL) throws {
+        let bookmarkData = try url.bookmarkData(
+            options: Self.bookmarkCreationOptions,
+            includingResourceValuesForKeys: nil,
+            relativeTo: nil
+        )
+        UserDefaults.standard.set(bookmarkData, forKey: RecentImportStore.bookmarkKey)
+        UserDefaults.standard.set(url.lastPathComponent, forKey: RecentImportStore.nameKey)
+        recentImportName = url.lastPathComponent
     }
 }

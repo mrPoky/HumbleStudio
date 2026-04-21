@@ -53,6 +53,9 @@ struct StudioShellView: View {
         .onReceive(NotificationCenter.default.publisher(for: .studioOpenImport)) { _ in
             isImportingFile = true
         }
+        .onReceive(NotificationCenter.default.publisher(for: .studioReopenRecentImport)) { _ in
+            model.reopenRecentImport()
+        }
         .onReceive(NotificationCenter.default.publisher(for: .studioLoadDemo)) { _ in
             model.loadDemo()
         }
@@ -89,6 +92,16 @@ struct StudioShellView: View {
             Label("Open", systemImage: "folder")
         }
         .disabled(!model.isPageReady)
+
+        if model.hasRecentImport {
+            Button {
+                model.reopenRecentImport()
+            } label: {
+                Label("Recent", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+            }
+            .help(model.recentImportName ?? "Reopen recent import")
+            .disabled(!model.isPageReady)
+        }
 
         Button {
             model.loadDemo()
