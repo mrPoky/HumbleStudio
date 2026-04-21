@@ -62,7 +62,7 @@ function buildSnapshotPreview(snapshot, alt, className = 'snapshot-frame', click
       data-lightbox-title="${escapeHtml(title)}"
       data-lightbox-subtitle="${escapeHtml(subtitle)}"
       onclick="openSnapshotLightbox(this.dataset.lightboxSrc, this.dataset.lightboxTitle, this.dataset.lightboxSubtitle)"`
-    : `class="${className}"`;
+    : ` class="${className}"`;
   return `
     <div${clickAttrs}>
       <img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy"
