@@ -1649,7 +1649,7 @@ function buildComponentCard(c, options = {}) {
     ? `<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>`
     : '';
   if (!detailed) {
-    return `<div class="component-card component-card-summary" id="component-card-${c.id}" role="button" tabindex="0" onclick="showComponentPage(${escapeHtml(escapeJsString(c.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showComponentPage(${escapeHtml(escapeJsString(c.id))})}">${header}<div class="cc-preview" id="preview-${c.id}">${preview}</div></div>`;
+    return `<div class="component-card component-card-summary" id="component-card-${c.id}" role="button" tabindex="0" onclick="openInspectorPreview('component', ${escapeHtml(escapeJsString(c.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInspectorPreview('component', ${escapeHtml(escapeJsString(c.id))})}">${header}<div class="cc-preview" id="preview-${c.id}">${preview}</div></div>`;
   }
   return `<div class="component-card component-card-detail" id="component-card-${c.id}">${header}<div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}${approximationNote}${footer}${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${dependencyPanel}${sourcePanel}${guidedEditor}${editor}</div>`;
 }
@@ -1704,7 +1704,7 @@ function renderViews() {
     if (v.root || config.navigation?.root === v.id) subtitleParts.push('Root screen');
     else subtitleParts.push(v.presentation === 'sheet' ? 'Sheet screen' : 'Screen');
     if (v.snapshot?.path) subtitleParts.push('Snapshot-backed');
-    html+=`<div class="view-card" onclick="showPage('viewdetail','${v.id}')"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-summary-subtitle">${escapeHtml(subtitleParts.join(' · '))}</div></div></div>`;
+    html+=`<div class="view-card" role="button" tabindex="0" onclick="openInspectorPreview('view', ${escapeHtml(escapeJsString(v.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInspectorPreview('view', ${escapeHtml(escapeJsString(v.id))})}"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-summary-subtitle">${escapeHtml(subtitleParts.join(' · '))}</div></div></div>`;
   });
   document.getElementById('viewsContent').innerHTML = html + '</div>';
 }
