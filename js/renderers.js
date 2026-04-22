@@ -762,6 +762,59 @@ function iconSearchText(icon) {
   ];
 }
 
+function getFilteredColorEntries() {
+  const colors = config?.tokens?.colors || {};
+  return Object.entries(colors).filter(([key, value]) => {
+    const linked = getReferenceCount(value) > 0 || (Array.isArray(value.usedInGradients) && value.usedInGradients.length);
+    const tokenFilter = pageFilterState?.tokens || 'all';
+    if (tokenFilter === 'gradients') return false;
+    if (tokenFilter === 'linked' && !linked) return false;
+    return matchesGlobalSearch(...tokenSearchText(key, value), `tokens.colors.${key}`);
+  });
+}
+
+function getFilteredGradientEntries() {
+  const gradients = config?.tokens?.gradients || {};
+  return Object.entries(gradients).filter(([key, value]) => {
+    const linked = getReferenceCount(value) > 0
+      || (Array.isArray(value.usedInComponents) && value.usedInComponents.length)
+      || (Array.isArray(value.usedInViews) && value.usedInViews.length);
+    const tokenFilter = pageFilterState?.tokens || 'all';
+    if (tokenFilter === 'colors') return false;
+    if (tokenFilter === 'linked' && !linked) return false;
+    return matchesGlobalSearch(...tokenSearchText(key, value), `tokens.gradients.${key}`);
+  });
+}
+
+function getFilteredIcons() {
+  const filter = pageFilterState?.icons || 'all';
+  return (config?.tokens?.icons || []).filter(icon => {
+    if (filter === 'components' && !(icon.usedInComponents || []).length && !((icon.references?.design || []).some(reference => reference.type === 'component'))) return false;
+    if (filter === 'views' && !(icon.usedInViews || []).length && !((icon.references?.design || []).some(reference => reference.type === 'view'))) return false;
+    return matchesGlobalSearch(...iconSearchText(icon));
+  });
+}
+
+function getFilteredComponents() {
+  const filter = pageFilterState?.components || 'all';
+  return (config?.components || []).filter(component => {
+    if (filter === 'used' && !getComponentUsageViews(component).length) return false;
+    if (filter === 'catalog' && !isCatalogOnlyComponent(component)) return false;
+    if (filter === 'snapshot' && !component.snapshot?.path) return false;
+    return matchesGlobalSearch(...componentSearchText(component));
+  });
+}
+
+function getFilteredViews() {
+  const filter = pageFilterState?.views || 'all';
+  return (config?.views || []).filter(view => {
+    if (filter === 'root' && !view.root && config.navigation?.root !== view.id) return false;
+    if (filter === 'snapshot' && !view.snapshot?.path) return false;
+    if (filter === 'navigating' && !(view.navigatesTo || []).length) return false;
+    return matchesGlobalSearch(...viewSearchText(view));
+  });
+}
+
 function arraysEqualNormalized(a, b) {
   if (a.length !== b.length) return false;
   return a.every((value, index) => normalizeComparableValue(value) === normalizeComparableValue(b[index]));
@@ -1264,25 +1317,13 @@ function buildComponentPreviewStage(component, state, detailed) {
 
 function renderTokens() {
   if (!config) return;
-  const colors = config.tokens?.colors || {};
-  const gradients = config.tokens?.gradients || {};
   const groups = {};
-  Object.entries(colors).forEach(([k,v]) => {
-    const linked = getReferenceCount(v) > 0 || (Array.isArray(v.usedInGradients) && v.usedInGradients.length);
-    const tokenFilter = pageFilterState?.tokens || 'all';
-    if (tokenFilter === 'gradients') return;
-    if (tokenFilter === 'linked' && !linked) return;
-    if (!matchesGlobalSearch(...tokenSearchText(k, v), `tokens.colors.${k}`)) return;
+  getFilteredColorEntries().forEach(([k,v]) => {
     const g = v.group || 'Colors';
     if (!groups[g]) groups[g] = { colors: [], gradients: [] };
     groups[g].colors.push([k, v]);
   });
-  Object.entries(gradients).forEach(([k, v]) => {
-    const linked = getReferenceCount(v) > 0 || (Array.isArray(v.usedInComponents) && v.usedInComponents.length) || (Array.isArray(v.usedInViews) && v.usedInViews.length);
-    const tokenFilter = pageFilterState?.tokens || 'all';
-    if (tokenFilter === 'colors') return;
-    if (tokenFilter === 'linked' && !linked) return;
-    if (!matchesGlobalSearch(...tokenSearchText(k, v), `tokens.gradients.${k}`)) return;
+  getFilteredGradientEntries().forEach(([k, v]) => {
     const g = v.group || 'Gradients';
     if (!groups[g]) groups[g] = { colors: [], gradients: [] };
     groups[g].gradients.push([k, v]);
@@ -1322,12 +1363,7 @@ function renderTypography() {
 
 function renderIcons() {
   if (!config) return;
-  const filter = pageFilterState?.icons || 'all';
-  const icons = (config.tokens?.icons || []).filter(icon => {
-    if (filter === 'components' && !(icon.usedInComponents || []).length && !((icon.references?.design || []).some(reference => reference.type === 'component'))) return false;
-    if (filter === 'views' && !(icon.usedInViews || []).length && !((icon.references?.design || []).some(reference => reference.type === 'view'))) return false;
-    return matchesGlobalSearch(...iconSearchText(icon));
-  });
+  const icons = getFilteredIcons();
   if (!icons.length) {
     document.getElementById('iconsContent').innerHTML = buildEmptyState('⌘', 'No matching icons', 'Try clearing search or switching the icon filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('icons')" });
     return;
@@ -1782,17 +1818,14 @@ function buildComponentCard(c, options = {}) {
   }
   const header = detailed
     ? `<div class="cc-header cc-header-detail">
-        <div class="cc-head-top">
-          <button class="cc-back-link" onclick="showComponentsDashboard()">← Back to Components</button>
+        <div class="cc-head-row">
+          <div class="cc-head-tags">
+            ${c.group ? `<span class="cc-head-tag">${escapeHtml(c.group)}</span>` : ''}
+            <span class="cc-head-tag">${escapeHtml(c.snapshot ? 'Snapshot-backed' : (catalogOnly ? 'Catalog states' : 'Interactive preview'))}</span>
+            <span class="cc-head-tag">${escapeHtml(c.renderer || c.type || inferType(c.id))}</span>
+          </div>
           ${usageSummary}
         </div>
-        <div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div></div>
-        <div class="cc-head-tags">
-          ${c.group ? `<span class="cc-head-tag">${escapeHtml(c.group)}</span>` : ''}
-          <span class="cc-head-tag">${escapeHtml(c.snapshot ? 'Snapshot-backed' : (catalogOnly ? 'Catalog states' : 'Interactive preview'))}</span>
-          <span class="cc-head-tag">${escapeHtml(c.renderer || c.type || inferType(c.id))}</span>
-        </div>
-        ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}
       </div>`
     : `<div class="cc-header cc-header-compact"><div class="cc-name">${escapeHtml(c.name)}</div>${compactSubtitle ? `<div class="cc-summary-subtitle">${escapeHtml(compactSubtitle)}</div>` : ''}</div>`;
   if (!detailed) {
@@ -1805,13 +1838,7 @@ function buildComponentCard(c, options = {}) {
 
 function renderComponents() {
   if (!config) return;
-  const filter = pageFilterState?.components || 'all';
-  const comps = (config.components||[]).filter(component => {
-    if (filter === 'used' && !getComponentUsageViews(component).length) return false;
-    if (filter === 'catalog' && !isCatalogOnlyComponent(component)) return false;
-    if (filter === 'snapshot' && !component.snapshot?.path) return false;
-    return matchesGlobalSearch(...componentSearchText(component));
-  });
+  const comps = getFilteredComponents();
   if (!comps.length) { document.getElementById('componentsContent').innerHTML = buildEmptyState('⬡', 'No matching components', 'Try clearing search or switching the component filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('components')" }); return; }
   document.getElementById('componentsContent').innerHTML = `<div class="component-grid">${comps.map(c=>buildComponentCard(c)).join('')}</div>`;
 }
@@ -1839,13 +1866,7 @@ function buildMiniScreen(view) {
 
 function renderViews() {
   if (!config) return;
-  const filter = pageFilterState?.views || 'all';
-  const views = (config.views||[]).filter(view => {
-    if (filter === 'root' && !view.root && config.navigation?.root !== view.id) return false;
-    if (filter === 'snapshot' && !view.snapshot?.path) return false;
-    if (filter === 'navigating' && !(view.navigatesTo || []).length) return false;
-    return matchesGlobalSearch(...viewSearchText(view));
-  });
+  const views = getFilteredViews();
   if (!views.length) { document.getElementById('viewsContent').innerHTML = buildEmptyState('▭', 'No matching views', 'Try clearing search or switching the view filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('views')" }); return; }
   let html = '<div class="view-grid">';
   views.forEach(v => {
