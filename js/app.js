@@ -1194,6 +1194,27 @@ function getInspectorPreviewCollection(entityType, extra = '') {
       return gradients.map(([id]) => ({ entityType: 'foundation', id, extra: 'gradient' }));
     }
 
+    if (extra === 'typography') {
+      const entries = currentPage === 'typography'
+        ? getFilteredTypographyEntries()
+        : getTypographyEntries();
+      return entries.map(([id]) => ({ entityType: 'foundation', id, extra: 'typography' }));
+    }
+
+    if (extra === 'spacing') {
+      const entries = currentPage === 'spacing'
+        ? getFilteredSpacingEntries()
+        : Object.entries(config?.tokens?.spacing || {});
+      return entries.map(([id]) => ({ entityType: 'foundation', id, extra: 'spacing' }));
+    }
+
+    if (extra === 'radius') {
+      const entries = currentPage === 'spacing'
+        ? getFilteredRadiusEntries()
+        : Object.entries(config?.tokens?.radius || {});
+      return entries.map(([id]) => ({ entityType: 'foundation', id, extra: 'radius' }));
+    }
+
     const colors = currentPage === 'tokens'
       ? getFilteredColorEntries()
       : Object.entries(config?.tokens?.colors || {});
@@ -1236,13 +1257,30 @@ function buildInspectorPreviewPayload(entityType, id, extra = '') {
     };
     bodyHtml = buildViewInspectorPreview(view);
   } else if (entityType === 'foundation') {
+    const foundationLabels = {
+      color: 'Color',
+      gradient: 'Gradient',
+      icon: 'Icon',
+      typography: 'Typography',
+      spacing: 'Spacing',
+      radius: 'Corner radius',
+    };
     detail = {
       title: id,
-      subtitle: `${extra === 'icon' ? 'Icon' : extra === 'gradient' ? 'Gradient' : 'Color'} preview`,
-      openLabel: `Open ${extra} detail`,
+      subtitle: `${foundationLabels[extra] || 'Foundation'} preview`,
+      openLabel: `Open ${foundationLabels[extra] || 'foundation'} detail`,
     };
     bodyHtml = buildFoundationInspectorPreview(extra, id);
     if (!bodyHtml) return null;
+
+    if (extra === 'icon') {
+      const icon = (config?.tokens?.icons || []).find(item => (item.id || item.name || item.symbol) === id);
+      if (icon?.name) detail.title = icon.name;
+    } else if (extra === 'typography') {
+      const token = getTypographyTokenById(id);
+      if (token?.role) detail.title = token.role;
+      if (token?.swiftui) detail.subtitle = `${foundationLabels[extra]} · ${token.swiftui}`;
+    }
   }
 
   return { detail, bodyHtml };
