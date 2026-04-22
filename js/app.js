@@ -12,6 +12,10 @@ let globalSearchQuery = '';
 let pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
 let currentLoadSource = null;
 let currentStatus = { type: 'loading', text: 'Booting studio…' };
+let pendingInitialRoute = null;
+let routeHistoryIndex = 0;
+let routeHistoryMax = 0;
+let isRestoringRoute = false;
 window.__humbleAssetMap = new Map();
 
 const NAVIGATION_TYPES = new Set(['push', 'sheet', 'replace', 'pop']);
@@ -30,12 +34,148 @@ function setTheme(t) {
   syncNavMapZoomLabel();
 }
 
+// ─── Route history ────────────────────────────────────────────────────────────
+function routesMatch(a, b) {
+  return JSON.stringify(a || null) === JSON.stringify(b || null);
+}
+
+function getCurrentRoute() {
+  if (currentPage === 'components' && currentComponentDetailId) {
+    return { page: 'componentdetail', componentId: currentComponentDetailId };
+  }
+  if (currentPage === 'viewdetail' && currentViewDetailId) {
+    return { page: 'viewdetail', viewId: currentViewDetailId };
+  }
+  if (currentPage === 'foundationdetail' && currentFoundationDetail?.kind && currentFoundationDetail?.id) {
+    return { page: 'foundationdetail', kind: currentFoundationDetail.kind, id: currentFoundationDetail.id };
+  }
+  return { page: currentPage || 'loader' };
+}
+
+function encodeRouteHash(route) {
+  if (!route?.page || route.page === 'loader') return '';
+  if (route.page === 'componentdetail' && route.componentId) {
+    return `#/components/${encodeURIComponent(route.componentId)}`;
+  }
+  if (route.page === 'viewdetail' && route.viewId) {
+    return `#/views/${encodeURIComponent(route.viewId)}`;
+  }
+  if (route.page === 'foundationdetail' && route.kind && route.id) {
+    return `#/foundation/${encodeURIComponent(route.kind)}/${encodeURIComponent(route.id)}`;
+  }
+  return `#/${encodeURIComponent(route.page)}`;
+}
+
+function decodeRouteHash(hash) {
+  const cleaned = String(hash || '').replace(/^#\/?/, '').trim();
+  if (!cleaned) return { page: 'loader' };
+  const parts = cleaned.split('/').map(part => decodeURIComponent(part));
+  if (parts[0] === 'components' && parts[1]) return { page: 'componentdetail', componentId: parts[1] };
+  if (parts[0] === 'views' && parts[1]) return { page: 'viewdetail', viewId: parts[1] };
+  if (parts[0] === 'foundation' && parts[1] && parts[2]) return { page: 'foundationdetail', kind: parts[1], id: parts[2] };
+  if (parts[0] === 'tokens' || parts[0] === 'icons' || parts[0] === 'typography' || parts[0] === 'spacing' || parts[0] === 'components' || parts[0] === 'views' || parts[0] === 'navmap' || parts[0] === 'loader') {
+    return { page: parts[0] };
+  }
+  return { page: 'loader' };
+}
+
+function routeNeedsConfig(route) {
+  return route?.page && route.page !== 'loader';
+}
+
+function buildHistoryState(route, index) {
+  return {
+    humbleStudio: true,
+    route,
+    routeIndex: index,
+  };
+}
+
+function syncCurrentRoute(options = {}) {
+  const route = getCurrentRoute();
+  if (!route) {
+    syncNativeShellState();
+    return;
+  }
+
+  const currentStateRoute = history.state?.humbleStudio ? history.state.route : decodeRouteHash(window.location.hash);
+  const url = new URL(window.location.href);
+  url.hash = encodeRouteHash(route);
+
+  if (!isRestoringRoute && !options.skipHistory) {
+    if (options.replaceHistory) {
+      history.replaceState(buildHistoryState(route, routeHistoryIndex), '', url);
+    } else if (!routesMatch(route, currentStateRoute)) {
+      routeHistoryIndex += 1;
+      routeHistoryMax = routeHistoryIndex;
+      history.pushState(buildHistoryState(route, routeHistoryIndex), '', url);
+    }
+  }
+
+  syncNativeShellState();
+}
+
+function showRoute(route, options = {}) {
+  if (!route?.page) {
+    showPage('loader', null, options);
+    return;
+  }
+
+  if (routeNeedsConfig(route) && !config) {
+    pendingInitialRoute = route;
+    showPage('loader', null, { ...options, skipHistory: true });
+    return;
+  }
+
+  if (route.page === 'componentdetail') {
+    showComponentPage(route.componentId, options);
+    return;
+  }
+  if (route.page === 'viewdetail') {
+    showPage('viewdetail', route.viewId, options);
+    return;
+  }
+  if (route.page === 'foundationdetail') {
+    showFoundationDetail(route.kind, route.id, options);
+    return;
+  }
+  showPage(route.page, null, options);
+}
+
+function bootstrapRouteHistory() {
+  const stateRoute = history.state?.humbleStudio ? history.state.route : null;
+  const initialRoute = stateRoute || decodeRouteHash(window.location.hash);
+  routeHistoryIndex = history.state?.humbleStudio ? (history.state.routeIndex || 0) : 0;
+  routeHistoryMax = routeHistoryIndex;
+
+  if (!history.state?.humbleStudio) {
+    const url = new URL(window.location.href);
+    url.hash = encodeRouteHash(initialRoute);
+    history.replaceState(buildHistoryState(initialRoute, 0), '', url);
+  }
+
+  if (routeNeedsConfig(initialRoute)) {
+    pendingInitialRoute = initialRoute;
+  }
+
+  window.addEventListener('popstate', event => {
+    const route = event.state?.humbleStudio ? event.state.route : decodeRouteHash(window.location.hash);
+    routeHistoryIndex = event.state?.humbleStudio ? (event.state.routeIndex || 0) : routeHistoryIndex;
+    isRestoringRoute = true;
+    showRoute(route, { skipHistory: true });
+    isRestoringRoute = false;
+  });
+}
+
 // ─── Page routing ─────────────────────────────────────────────────────────────
-function showPage(id, extra) {
+function showPage(id, extra, options = {}) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-' + id);
   if (page) page.classList.add('active');
   currentPage = id;
+  if (id === 'components' && !extra) currentComponentDetailId = null;
+  if (id !== 'viewdetail') currentViewDetailId = null;
+  if (id !== 'foundationdetail') currentFoundationDetail = null;
   syncSidebarActive(id, extra);
 
   const viewTitle = id === 'viewdetail' && extra
@@ -50,7 +190,7 @@ function showPage(id, extra) {
   if (id === 'viewdetail' && extra) renderViewDetail(extra);
   if (id === 'foundationdetail' && extra) renderFoundationDetail(extra.kind, extra.id);
   if (id === 'navmap') renderNavMap();
-  syncNativeShellState();
+  syncCurrentRoute(options);
 }
 
 // ─── Config loaders ───────────────────────────────────────────────────────────
@@ -562,7 +702,13 @@ function applyConfig(data) {
   document.getElementById('topbarSearch').style.display = '';
   updateLoaderSourceUi();
   renderTopbarSource();
-  showPage('tokens');
+  const routeToRestore = pendingInitialRoute;
+  pendingInitialRoute = null;
+  if (routeToRestore && routeNeedsConfig(routeToRestore)) {
+    showRoute(routeToRestore, { replaceHistory: true });
+  } else {
+    showPage('tokens', null, { replaceHistory: true });
+  }
   syncNativeShellState();
 }
 
@@ -812,7 +958,21 @@ function syncNativeShellState() {
     sourceValue: getSourceValueLabel(currentLoadSource),
     statusText: currentStatus.text || '',
     statusLevel: currentStatus.type || '',
+    canGoBack: routeHistoryIndex > 0,
+    canGoForward: routeHistoryIndex < routeHistoryMax,
   });
+}
+
+function navigateBack() {
+  if (routeHistoryIndex <= 0) return false;
+  window.history.back();
+  return true;
+}
+
+function navigateForward() {
+  if (routeHistoryIndex >= routeHistoryMax) return false;
+  window.history.forward();
+  return true;
 }
 
 function clearRememberedSource() {
@@ -920,10 +1080,10 @@ async function bootstrapLoaderExperience() {
   }
 }
 
-function showComponentPage(compId) {
+function showComponentPage(compId, options = {}) {
   const detail = renderComponentDetail(compId);
   if (!detail) return;
-  showPage('components', compId);
+  showPage('components', compId, options);
 }
 
 function renderComponentDetail(compId, target = null) {
@@ -944,9 +1104,9 @@ function renderComponentDetail(compId, target = null) {
   return { title: comp.name, subtitle, openLabel: 'Open component detail' };
 }
 
-function showFoundationDetail(kind, id) {
+function showFoundationDetail(kind, id, options = {}) {
   currentFoundationDetail = { kind, id };
-  showPage('foundationdetail', currentFoundationDetail);
+  showPage('foundationdetail', currentFoundationDetail, options);
 }
 
 function closeInspectorPreview() {
@@ -1149,5 +1309,6 @@ function resetNavMapZoom() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  bootstrapRouteHistory();
   bootstrapLoaderExperience();
 });
