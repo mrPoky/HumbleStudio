@@ -8,6 +8,7 @@ let currentFoundationDetail = null;
 let currentComponentDetailId = null;
 let currentViewDetailId = null;
 let currentInspectorPreview = null;
+let commandPaletteState = { open: false, query: '', selectedIndex: 0, results: [] };
 let navMapZoom = 1;
 let globalSearchQuery = '';
 let pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
@@ -25,6 +26,16 @@ const LAST_SOURCE_STORAGE_KEY = 'humbleStudio:lastSource';
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function normalizeSearchValue(value = '') {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[_./-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
@@ -727,6 +738,7 @@ function applyConfig(data) {
   } else {
     showPage('tokens', null, { replaceHistory: true });
   }
+  if (isCommandPaletteOpen()) updateCommandPaletteResults(commandPaletteState.query);
   syncNativeShellState();
 }
 
@@ -793,6 +805,439 @@ function syncSearchUi() {
   const clearBtn = document.getElementById('globalSearchClear');
   if (input) input.value = globalSearchQuery;
   if (clearBtn) clearBtn.style.display = globalSearchQuery ? '' : 'none';
+}
+
+function getCommandPaletteShortcutLabel() {
+  const platform = `${navigator.platform || ''} ${navigator.userAgent || ''}`;
+  return /Mac|iPhone|iPad|iPod/i.test(platform) ? '⌘K' : 'Ctrl K';
+}
+
+function syncCommandPaletteTriggerUi() {
+  const trigger = document.getElementById('quickOpenBtn');
+  const hint = document.getElementById('commandPaletteHint');
+  const shortcut = getCommandPaletteShortcutLabel();
+  if (trigger) {
+    const spans = trigger.querySelectorAll('span');
+    if (spans[0]) spans[0].textContent = shortcut;
+  }
+  if (hint) hint.textContent = `Enter to preview or navigate · Shift+Enter opens full detail · ${shortcut} to reopen`;
+}
+
+function getPaletteTypeMeta(type) {
+  const meta = {
+    page: { section: 'Pages', label: 'Page', order: 0 },
+    view: { section: 'Views', label: 'View', order: 1 },
+    component: { section: 'Components', label: 'Component', order: 2 },
+    color: { section: 'Colors', label: 'Color', order: 3 },
+    gradient: { section: 'Gradients', label: 'Gradient', order: 4 },
+    icon: { section: 'Icons', label: 'Icon', order: 5 },
+    typography: { section: 'Typography', label: 'Type', order: 6 },
+    spacing: { section: 'Spacing', label: 'Spacing', order: 7 },
+    radius: { section: 'Corner Radius', label: 'Radius', order: 8 },
+  };
+  return meta[type] || { section: 'Results', label: 'Item', order: 99 };
+}
+
+function createPaletteItem(type, title, subtitle, options = {}) {
+  return {
+    key: options.key || `${type}:${title}`,
+    type,
+    section: options.section || getPaletteTypeMeta(type).section,
+    typeLabel: options.typeLabel || getPaletteTypeMeta(type).label,
+    title,
+    subtitle,
+    keywords: options.keywords || [],
+    page: options.page || '',
+    entityType: options.entityType || '',
+    entityId: options.entityId || '',
+    extra: options.extra || '',
+  };
+}
+
+function getCommandPalettePages() {
+  const items = [
+    createPaletteItem('page', 'Load config', 'Open a bundle, JSON file, or remote URL', {
+      key: 'page:loader',
+      page: 'loader',
+      keywords: ['config import upload bundle json url'],
+    }),
+  ];
+  if (!config) return items;
+  return items.concat([
+    createPaletteItem('page', 'Tokens', 'Browse colors and gradients', {
+      key: 'page:tokens',
+      page: 'tokens',
+      keywords: ['foundation colors gradients'],
+    }),
+    createPaletteItem('page', 'Icons', 'Inspect app icon usage', {
+      key: 'page:icons',
+      page: 'icons',
+      keywords: ['symbols sf symbols'],
+    }),
+    createPaletteItem('page', 'Typography', 'Inspect the type scale', {
+      key: 'page:typography',
+      page: 'typography',
+      keywords: ['text styles fonts'],
+    }),
+    createPaletteItem('page', 'Spacing & Radius', 'Inspect layout primitives', {
+      key: 'page:spacing',
+      page: 'spacing',
+      keywords: ['spacing radius layout primitives'],
+    }),
+    createPaletteItem('page', 'Views', 'Open the screen dashboard', {
+      key: 'page:views',
+      page: 'views',
+      keywords: ['screens routes'],
+    }),
+    createPaletteItem('page', 'Components', 'Open the component dashboard', {
+      key: 'page:components',
+      page: 'components',
+      keywords: ['ui reusable controls'],
+    }),
+    createPaletteItem('page', 'Navigation Map', 'Inspect the app flow graph', {
+      key: 'page:navmap',
+      page: 'navmap',
+      keywords: ['flow graph routes navigation'],
+    }),
+  ]);
+}
+
+function getCommandPaletteContextItems() {
+  const items = [];
+  if (currentViewDetailId) {
+    const view = getViewById(currentViewDetailId);
+    if (view) {
+      items.push(createPaletteItem('view', view.name, 'Current view detail', {
+        key: `context:view:${view.id}`,
+        entityType: 'view',
+        entityId: view.id,
+        keywords: [view.id, view.description || ''],
+      }));
+    }
+  }
+  if (currentComponentDetailId) {
+    const component = getComponentById(currentComponentDetailId);
+    if (component) {
+      items.push(createPaletteItem('component', component.name, 'Current component detail', {
+        key: `context:component:${component.id}`,
+        entityType: 'component',
+        entityId: component.id,
+        keywords: [component.id, component.group || '', component.description || ''],
+      }));
+    }
+  }
+  if (currentFoundationDetail?.kind && currentFoundationDetail?.id) {
+    items.push(createPaletteItem(currentFoundationDetail.kind, currentFoundationDetail.id, 'Current foundation detail', {
+      key: `context:foundation:${currentFoundationDetail.kind}:${currentFoundationDetail.id}`,
+      entityType: 'foundation',
+      entityId: currentFoundationDetail.id,
+      extra: currentFoundationDetail.kind,
+      keywords: [`tokens ${currentFoundationDetail.kind}`],
+      section: 'Current Context',
+      typeLabel: getPaletteTypeMeta(currentFoundationDetail.kind).label,
+    }));
+  }
+  if (config?.navigation?.root) {
+    const rootView = getViewById(config.navigation.root);
+    if (rootView) {
+      items.push(createPaletteItem('view', rootView.name, 'Navigation root', {
+        key: `context:root:${rootView.id}`,
+        entityType: 'view',
+        entityId: rootView.id,
+        keywords: [rootView.id, 'root'],
+      }));
+    }
+  }
+  return [...new Map(items.map(item => [item.key, item])).values()];
+}
+
+function getCommandPaletteEntityItems() {
+  if (!config) return [];
+
+  const components = (config.components || []).map(component => createPaletteItem(
+    'component',
+    component.name,
+    [component.group || null, component.snapshot?.path ? 'Snapshot-backed' : (isCatalogOnlyComponent(component) ? 'Catalog states' : 'Interactive preview')].filter(Boolean).join(' · '),
+    {
+      key: `component:${component.id}`,
+      entityType: 'component',
+      entityId: component.id,
+      keywords: [component.id, component.group || '', component.description || '', component.swiftui || '', component.renderer || ''],
+    }
+  ));
+
+  const views = (config.views || []).map(view => createPaletteItem(
+    'view',
+    view.name,
+    [
+      view.root || config.navigation?.root === view.id ? 'Root screen' : (view.presentation === 'sheet' ? 'Sheet screen' : 'Screen'),
+      view.snapshot?.path ? 'Snapshot-backed' : null,
+    ].filter(Boolean).join(' · '),
+    {
+      key: `view:${view.id}`,
+      entityType: 'view',
+      entityId: view.id,
+      keywords: [view.id, view.description || '', view.source || '', (view.components || []).join(' ')],
+    }
+  ));
+
+  const colors = Object.entries(config.tokens?.colors || {}).map(([id, color]) => createPaletteItem(
+    'color',
+    id,
+    'tokens.colors',
+    {
+      key: `color:${id}`,
+      entityType: 'foundation',
+      entityId: id,
+      extra: 'color',
+      keywords: [color.dark || '', color.light || '', color.group || '', color.description || ''],
+    }
+  ));
+
+  const gradients = Object.entries(config.tokens?.gradients || {}).map(([id, gradient]) => createPaletteItem(
+    'gradient',
+    id,
+    'tokens.gradients',
+    {
+      key: `gradient:${id}`,
+      entityType: 'foundation',
+      entityId: id,
+      extra: 'gradient',
+      keywords: [(gradient.dark || []).join(' '), (gradient.light || []).join(' '), gradient.group || '', gradient.description || ''],
+    }
+  ));
+
+  const icons = (config.tokens?.icons || []).map(icon => {
+    const id = icon.id || icon.name || icon.symbol;
+    return createPaletteItem(
+      'icon',
+      icon.name || id || 'Icon',
+      icon.symbol || 'tokens.icons',
+      {
+        key: `icon:${id}`,
+        entityType: 'foundation',
+        entityId: id,
+        extra: 'icon',
+        keywords: [id, icon.symbol || '', icon.description || '', (icon.usedIn || []).join(' ')],
+      }
+    );
+  });
+
+  const typography = getTypographyEntries().map(([id, token]) => createPaletteItem(
+    'typography',
+    token.role || id,
+    `${token.swiftui || 'Text style'} · ${token.size}pt`,
+    {
+      key: `typography:${id}`,
+      entityType: 'foundation',
+      entityId: id,
+      extra: 'typography',
+      keywords: [id, token.swiftui || '', token.preview || '', token.weight || ''],
+    }
+  ));
+
+  const spacing = Object.entries(config.tokens?.spacing || {}).map(([id, token]) => createPaletteItem(
+    'spacing',
+    id,
+    `${token.value || token}px spacing`,
+    {
+      key: `spacing:${id}`,
+      entityType: 'foundation',
+      entityId: id,
+      extra: 'spacing',
+      keywords: [token.value || '', token.usage || ''],
+    }
+  ));
+
+  const radius = Object.entries(config.tokens?.radius || {}).map(([id, token]) => createPaletteItem(
+    'radius',
+    id,
+    `${token.value || token}px radius`,
+    {
+      key: `radius:${id}`,
+      entityType: 'foundation',
+      entityId: id,
+      extra: 'radius',
+      keywords: [token.value || '', token.usage || '', 'corner'],
+    }
+  ));
+
+  return [...components, ...views, ...colors, ...gradients, ...icons, ...typography, ...spacing, ...radius];
+}
+
+function getCommandPaletteMatchScore(item, query) {
+  const normalizedQuery = normalizeSearchValue(query);
+  if (!normalizedQuery) return 0;
+
+  const values = [
+    item.title,
+    item.subtitle,
+    ...(item.keywords || []),
+    item.entityId,
+  ].map(normalizeSearchValue).filter(Boolean);
+
+  let bestScore = Infinity;
+  values.forEach(value => {
+    if (value === normalizedQuery) bestScore = Math.min(bestScore, 0);
+    else if (value.startsWith(normalizedQuery)) bestScore = Math.min(bestScore, 1);
+    else if (value.split(' ').some(token => token.startsWith(normalizedQuery))) bestScore = Math.min(bestScore, 2);
+    else if (value.includes(normalizedQuery)) bestScore = Math.min(bestScore, 3);
+  });
+
+  return Number.isFinite(bestScore) ? bestScore : null;
+}
+
+function getCommandPaletteResults(query = '') {
+  const normalizedQuery = normalizeSearchValue(query);
+  const pages = getCommandPalettePages();
+  if (!normalizedQuery) return [...getCommandPaletteContextItems(), ...pages];
+
+  return [...pages, ...getCommandPaletteEntityItems()]
+    .map(item => ({ ...item, score: getCommandPaletteMatchScore(item, normalizedQuery) }))
+    .filter(item => item.score !== null)
+    .sort((left, right) => {
+      if (left.score !== right.score) return left.score - right.score;
+      const typeDiff = getPaletteTypeMeta(left.type).order - getPaletteTypeMeta(right.type).order;
+      if (typeDiff) return typeDiff;
+      return left.title.localeCompare(right.title);
+    })
+    .slice(0, 40);
+}
+
+function isCommandPaletteOpen() {
+  return Boolean(commandPaletteState.open);
+}
+
+function renderCommandPalette() {
+  const list = document.getElementById('commandPaletteList');
+  const input = document.getElementById('commandPaletteInput');
+  if (!list || !input) return;
+
+  input.value = commandPaletteState.query;
+  const results = commandPaletteState.results || [];
+  if (!results.length) {
+    list.innerHTML = `
+      <div class="command-palette-empty">
+        <strong>No matching result</strong>
+        <span>Try a component name, screen ID, token, or page label.</span>
+      </div>
+    `;
+    return;
+  }
+
+  let currentSection = '';
+  list.innerHTML = results.map((item, index) => {
+    const sectionPrefix = item.section !== currentSection
+      ? `<div class="command-palette-section">${escapeHtml(item.section)}</div>`
+      : '';
+    currentSection = item.section;
+    return `
+      ${sectionPrefix}
+      <button
+        class="command-palette-item${index === commandPaletteState.selectedIndex ? ' active' : ''}"
+        data-index="${index}"
+        onmouseenter="setCommandPaletteSelection(${index})"
+        onclick="activateCommandPaletteSelection(${index}, event.shiftKey)">
+        <div class="command-palette-copy">
+          <div class="command-palette-title-row">
+            <span class="command-palette-title">${escapeHtml(item.title)}</span>
+            <span class="command-palette-type">${escapeHtml(item.typeLabel)}</span>
+          </div>
+          <div class="command-palette-subtitle">${escapeHtml(item.subtitle || ' ')}</div>
+        </div>
+        <div class="command-palette-meta">
+          <span class="command-palette-action">${escapeHtml(item.type === 'page' ? 'Open' : 'Preview')}</span>
+          ${item.type === 'page' ? '' : '<span class="command-palette-shortcut">Shift+Enter = detail</span>'}
+        </div>
+      </button>
+    `;
+  }).join('');
+
+  requestAnimationFrame(() => {
+    const active = list.querySelector('.command-palette-item.active');
+    active?.scrollIntoView({ block: 'nearest' });
+  });
+}
+
+function setCommandPaletteSelection(index) {
+  const results = commandPaletteState.results || [];
+  if (!results.length) return;
+  commandPaletteState.selectedIndex = Math.max(0, Math.min(index, results.length - 1));
+  renderCommandPalette();
+}
+
+function updateCommandPaletteResults(query = '') {
+  commandPaletteState.query = query;
+  commandPaletteState.results = getCommandPaletteResults(query);
+  commandPaletteState.selectedIndex = 0;
+  renderCommandPalette();
+}
+
+function openCommandPalette(initialQuery = '') {
+  const modal = document.getElementById('commandPaletteModal');
+  const input = document.getElementById('commandPaletteInput');
+  if (!modal || !input) return;
+  commandPaletteState.open = true;
+  commandPaletteState.query = initialQuery;
+  commandPaletteState.results = getCommandPaletteResults(initialQuery);
+  commandPaletteState.selectedIndex = 0;
+  modal.style.display = 'flex';
+  renderCommandPalette();
+  requestAnimationFrame(() => {
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  });
+}
+
+function closeCommandPalette() {
+  const modal = document.getElementById('commandPaletteModal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  commandPaletteState.open = false;
+  commandPaletteState.query = '';
+  commandPaletteState.results = [];
+  commandPaletteState.selectedIndex = 0;
+}
+
+function moveCommandPaletteSelection(delta) {
+  const results = commandPaletteState.results || [];
+  if (!results.length) return false;
+  const nextIndex = (commandPaletteState.selectedIndex + delta + results.length) % results.length;
+  commandPaletteState.selectedIndex = nextIndex;
+  renderCommandPalette();
+  return true;
+}
+
+function runCommandPaletteItem(item, forceDetail = false) {
+  if (!item) return false;
+  closeCommandPalette();
+  closeInspectorPreview();
+  closeSnapshotLightbox();
+  if (item.type === 'page') {
+    showPage(item.page);
+    return true;
+  }
+  if (item.entityType === 'component') {
+    if (forceDetail) showComponentPage(item.entityId);
+    else openInspectorPreview('component', item.entityId);
+    return true;
+  }
+  if (item.entityType === 'view') {
+    if (forceDetail) showPage('viewdetail', item.entityId);
+    else openInspectorPreview('view', item.entityId);
+    return true;
+  }
+  if (item.entityType === 'foundation') {
+    if (forceDetail) showFoundationDetail(item.extra, item.entityId);
+    else openInspectorPreview('foundation', item.entityId, item.extra);
+    return true;
+  }
+  return false;
+}
+
+function activateCommandPaletteSelection(index = commandPaletteState.selectedIndex, forceDetail = false) {
+  const item = (commandPaletteState.results || [])[index];
+  return runCommandPaletteItem(item, forceDetail);
 }
 
 function rerenderCurrentPage() {
@@ -1497,7 +1942,39 @@ function resetNavMapZoom() {
 window.addEventListener('DOMContentLoaded', () => {
   bootstrapRouteHistory();
   bootstrapLoaderExperience();
+  syncCommandPaletteTriggerUi();
   window.addEventListener('keydown', event => {
+    const isQuickOpenShortcut = (event.metaKey || event.ctrlKey) && !event.altKey && event.key.toLowerCase() === 'k';
+    if (isQuickOpenShortcut) {
+      event.preventDefault();
+      if (isCommandPaletteOpen()) closeCommandPalette();
+      else openCommandPalette();
+      return;
+    }
+
+    if (isCommandPaletteOpen()) {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        moveCommandPaletteSelection(1);
+        return;
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        moveCommandPaletteSelection(-1);
+        return;
+      }
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        activateCommandPaletteSelection(commandPaletteState.selectedIndex, event.shiftKey);
+        return;
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeCommandPalette();
+      }
+      return;
+    }
+
     if (!currentInspectorPreview) return;
     const modal = document.getElementById('inspectorPreviewModal');
     if (!modal || modal.style.display === 'none') return;
