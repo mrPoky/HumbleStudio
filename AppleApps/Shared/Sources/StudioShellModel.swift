@@ -21,6 +21,17 @@ final class StudioShellModel: ObservableObject {
         static let urlKey = "StudioShell.recentRemoteURL"
     }
 
+    private enum PreferredLaunchStore {
+        static let sourceKey = "StudioShell.preferredLaunchSource"
+    }
+
+    enum PreferredLaunchSource: String {
+        case bundled
+        case demo
+        case recentImport
+        case recentRemote
+    }
+
     private var actions = StudioShellActions()
 
     #if os(iOS)
@@ -61,6 +72,16 @@ final class StudioShellModel: ObservableObject {
         !(recentRemoteURL?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
     }
 
+    var preferredLaunchSource: PreferredLaunchSource {
+        get {
+            let rawValue = UserDefaults.standard.string(forKey: PreferredLaunchStore.sourceKey)
+            return PreferredLaunchSource(rawValue: rawValue ?? "") ?? .bundled
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: PreferredLaunchStore.sourceKey)
+        }
+    }
+
     func connect(actions: StudioShellActions) {
         self.actions = actions
         isConnected = true
@@ -78,6 +99,7 @@ final class StudioShellModel: ObservableObject {
 
     func loadBundledStudio() {
         isPageReady = false
+        preferredLaunchSource = .bundled
         sourceLabel = "Bundled studio"
         sourceValue = "Embedded app assets"
         statusLevel = "loading"
@@ -86,6 +108,7 @@ final class StudioShellModel: ObservableObject {
     }
 
     func loadDemo() {
+        preferredLaunchSource = .demo
         statusLevel = "loading"
         statusText = "Loading demo config…"
         actions.loadDemo?()
@@ -130,6 +153,7 @@ final class StudioShellModel: ObservableObject {
         }
 
         rememberRecentRemoteURL(trimmed)
+        preferredLaunchSource = .recentRemote
         clearError()
         sourceLabel = "Remote URL"
         sourceValue = trimmed
@@ -179,6 +203,37 @@ final class StudioShellModel: ObservableObject {
         actions.navigateForward?()
     }
 
+    func resumePreferredSourceAfterLaunch() {
+        switch preferredLaunchSource {
+        case .bundled:
+            return
+        case .demo:
+            statusLevel = "loading"
+            statusText = "Restoring demo source…"
+            actions.loadDemo?()
+        case .recentImport:
+            guard hasRecentImport else {
+                preferredLaunchSource = .bundled
+                statusLevel = "warn"
+                statusText = "Recent import is unavailable. Showing bundled studio."
+                return
+            }
+            statusLevel = "loading"
+            statusText = "Reopening recent import…"
+            reopenRecentImport()
+        case .recentRemote:
+            guard hasRecentRemoteURL else {
+                preferredLaunchSource = .bundled
+                statusLevel = "warn"
+                statusText = "Recent remote URL is unavailable. Showing bundled studio."
+                return
+            }
+            statusLevel = "loading"
+            statusText = "Restoring remote source…"
+            reopenRecentRemoteURL()
+        }
+    }
+
     func importFile(at url: URL) {
         let accessed = url.startAccessingSecurityScopedResource()
         defer {
@@ -190,6 +245,7 @@ final class StudioShellModel: ObservableObject {
         do {
             let fileData = try Data(contentsOf: url)
             try rememberRecentImport(for: url)
+            preferredLaunchSource = .recentImport
             clearError()
             sourceLabel = "Local file"
             sourceValue = url.lastPathComponent

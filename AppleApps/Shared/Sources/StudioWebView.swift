@@ -6,6 +6,7 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
 
     private let model: StudioShellModel
     private weak var webView: WKWebView?
+    private var hasResumedPreferredSource = false
 
     init(model: StudioShellModel) {
         self.model = model
@@ -57,6 +58,10 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
         model.clearError()
         model.markPageReady()
         runJavaScript("if (window.syncNativeShellState) { window.syncNativeShellState(); }")
+        if !hasResumedPreferredSource {
+            hasResumedPreferredSource = true
+            model.resumePreferredSourceAfterLaunch()
+        }
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
