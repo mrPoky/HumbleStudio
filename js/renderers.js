@@ -84,10 +84,8 @@ function buildComponentInspectorPreview(comp) {
   const state = getComponentEditorState(comp);
   const preview = buildComponentPreviewStage(comp, state, false);
   return `
-    <div class="inspector-preview-shell">
-      <div class="inspector-preview-card">
-        <div class="inspector-preview-stage">${preview}</div>
-      </div>
+    <div class="inspector-preview-shell inspector-preview-shell-flat">
+      <div class="inspector-preview-stage inspector-preview-stage-flat">${preview}</div>
     </div>
   `;
 }
@@ -98,10 +96,8 @@ function buildViewInspectorPreview(view) {
     ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame inspector-preview-snapshot', false, true)
     : buildMiniScreen(view);
   return `
-    <div class="inspector-preview-shell">
-      <div class="inspector-preview-card">
-        <div class="inspector-preview-stage">${stage}</div>
-      </div>
+    <div class="inspector-preview-shell inspector-preview-shell-flat">
+      <div class="inspector-preview-stage inspector-preview-stage-flat">${stage}</div>
     </div>
   `;
 }
@@ -1786,7 +1782,11 @@ function buildComponentCard(c, options = {}) {
   }
   const header = detailed
     ? `<div class="cc-header cc-header-detail">
-        <div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>
+        <div class="cc-head-top">
+          <button class="cc-back-link" onclick="showComponentsDashboard()">← Back to Components</button>
+          ${usageSummary}
+        </div>
+        <div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div></div>
         <div class="cc-head-tags">
           ${c.group ? `<span class="cc-head-tag">${escapeHtml(c.group)}</span>` : ''}
           <span class="cc-head-tag">${escapeHtml(c.snapshot ? 'Snapshot-backed' : (catalogOnly ? 'Catalog states' : 'Interactive preview'))}</span>

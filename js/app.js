@@ -1099,6 +1099,12 @@ function showComponentPage(compId, options = {}) {
   showPage('components', compId, options);
 }
 
+function showComponentsDashboard(options = {}) {
+  currentComponentDetailId = null;
+  showPage('components', null, options);
+  renderComponents();
+}
+
 function renderComponentDetail(compId, target = null) {
   const comp = (config?.components || []).find(c => c.id === compId);
   if (!comp) return null;
