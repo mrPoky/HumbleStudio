@@ -148,6 +148,27 @@ final class StudioShellModel: ObservableObject {
         loadRemoteURL(recentRemoteURL)
     }
 
+    func handleIncomingURL(_ url: URL) {
+        if url.isFileURL {
+            importFile(at: url)
+            return
+        }
+
+        guard let scheme = url.scheme?.lowercased() else {
+            statusLevel = "warn"
+            statusText = "Unsupported incoming URL."
+            return
+        }
+
+        if ["http", "https"].contains(scheme) {
+            loadRemoteURL(url.absoluteString)
+            return
+        }
+
+        statusLevel = "warn"
+        statusText = "Only file, http, and https URLs are supported."
+    }
+
     func navigateBack() {
         guard canGoBack else { return }
         actions.navigateBack?()
