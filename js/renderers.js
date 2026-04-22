@@ -1592,16 +1592,38 @@ function buildComponentCard(c, options = {}) {
       ${state?.error ? `<div class="mock-error">${escapeHtml(state.error)}</div>` : ''}
     </div>
   `;
-  const header = detailed
-    ? `<div class="cc-header"><div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>${c.swiftui?`<div class="cc-swift">${escapeHtml(c.swiftui)}</div>`:''} ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}${c.source?`<div class="cc-source">${escapeHtml(c.source)}</div>`:''}</div>`
-    : `<div class="cc-header cc-header-compact"><div class="cc-name">${escapeHtml(c.name)}</div>${compactSubtitle ? `<div class="cc-summary-subtitle">${escapeHtml(compactSubtitle)}</div>` : ''}</div>`;
   const footer = detailed
     ? `<div class="cc-footer"><span class="mock-label">${catalogOnly ? 'State' : 'Mock'}</span><select class="mock-select" id="mock-sel-${c.id}" onchange="handleMockSelection('${c.id}', this.value)">${mockOpts||'<option>—</option>'}</select></div>`
     : '';
+  const availableTabs = [
+    { id: 'preview', label: 'Preview', content: `${detailControls}${approximationNote}${footer}${stateMeta}${guidedEditor}${editor}` },
+    { id: 'relationships', label: 'Relationships', content: `${usagePanel}${relatedPanel}${dependencyPanel}` },
+    { id: 'contract', label: 'Contract', content: capabilityPanel },
+    { id: 'source', label: 'Source', content: sourcePanel },
+  ].filter(tab => tab.content && tab.content.trim());
+  const activeDetailTab = detailed
+    ? ((availableTabs.find(tab => tab.id === state?.detailTab)?.id) || availableTabs[0]?.id || 'preview')
+    : 'preview';
+  if (detailed && state && state.detailTab !== activeDetailTab) {
+    state.detailTab = activeDetailTab;
+  }
+  const header = detailed
+    ? `<div class="cc-header cc-header-detail">
+        <div class="cc-head-row"><div class="cc-name">${escapeHtml(c.name)}</div>${usageSummary}</div>
+        <div class="cc-head-tags">
+          ${c.group ? `<span class="cc-head-tag">${escapeHtml(c.group)}</span>` : ''}
+          <span class="cc-head-tag">${escapeHtml(c.snapshot ? 'Snapshot-backed' : (catalogOnly ? 'Catalog states' : 'Interactive preview'))}</span>
+          <span class="cc-head-tag">${escapeHtml(c.renderer || c.type || inferType(c.id))}</span>
+        </div>
+        ${c.description?`<div class="cc-desc">${escapeHtml(c.description)}</div>`:''}
+      </div>`
+    : `<div class="cc-header cc-header-compact"><div class="cc-name">${escapeHtml(c.name)}</div>${compactSubtitle ? `<div class="cc-summary-subtitle">${escapeHtml(compactSubtitle)}</div>` : ''}</div>`;
   if (!detailed) {
     return `<div class="component-card component-card-summary" id="component-card-${c.id}" role="button" tabindex="0" onclick="openInspectorPreview('component', ${escapeHtml(escapeJsString(c.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInspectorPreview('component', ${escapeHtml(escapeJsString(c.id))})}">${header}<div class="cc-preview" id="preview-${c.id}">${preview}</div></div>`;
   }
-  return `<div class="component-card component-card-detail" id="component-card-${c.id}">${header}<div class="cc-preview" id="preview-${c.id}">${preview}</div>${detailControls}${approximationNote}${footer}${stateMeta}${usagePanel}${capabilityPanel}${relatedPanel}${dependencyPanel}${sourcePanel}${guidedEditor}${editor}</div>`;
+  const tabButtons = availableTabs.map(tab => `<button class="cc-detail-tab${tab.id === activeDetailTab ? ' active' : ''}" onclick="setComponentDetailTab('${c.id}', '${tab.id}')">${escapeHtml(tab.label)}</button>`).join('');
+  const activeTabContent = availableTabs.find(tab => tab.id === activeDetailTab)?.content || '';
+  return `<div class="component-card component-card-detail" id="component-card-${c.id}">${header}<div class="cc-detail-shell"><div class="cc-preview-shell"><div class="cc-preview" id="preview-${c.id}">${preview}</div></div><div class="cc-detail-body"><div class="cc-detail-tabs">${tabButtons}</div><div class="cc-detail-content">${activeTabContent}</div></div></div></div>`;
 }
 
 function renderComponents() {

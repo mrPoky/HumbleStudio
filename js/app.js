@@ -314,6 +314,7 @@ function getComponentEditorState(component) {
     componentEditorState[component.id] = {
       mode: component.snapshot ? 'snapshot' : 'mock',
       selectedMockId: mock.id,
+      detailTab: 'preview',
       draft: JSON.stringify(mock.props || {}, null, 2),
       error: '',
     };
@@ -1258,6 +1259,14 @@ function rerenderComponentCard(compId) {
   const card = document.getElementById(`component-card-${compId}`);
   if (!card) return;
   card.outerHTML = buildComponentCard(comp, { detailed: true });
+}
+
+function setComponentDetailTab(compId, tab) {
+  const comp = (config?.components || []).find(c => c.id === compId);
+  const state = getComponentEditorState(comp);
+  if (!comp || !state) return;
+  state.detailTab = tab || 'preview';
+  rerenderComponentCard(compId);
 }
 
 // ─── Export ───────────────────────────────────────────────────────────────────
