@@ -133,7 +133,14 @@
 
   <!-- Components -->
   <div id="page-components" class="page content">
-    <div class="section-header"><div class="section-title" id="compPageTitle">Components</div><div class="section-desc" id="compPageDesc"></div></div>
+    <div class="section-header" id="componentsDashboardHeader"><div class="section-title">Components</div><div class="section-desc" id="componentsDashboardDesc">All reusable UI pieces. Click to preview.</div></div>
+    <div class="section-header-nav" id="componentsDetailHeader" style="display:none">
+      <button class="btn-sm" id="componentBackBtn" onclick="showComponentsDashboard()">‹ Components</button>
+      <div class="section-heading-copy">
+        <div class="section-title" id="compPageTitle"></div>
+        <div class="section-desc" id="compPageDesc"></div>
+      </div>
+    </div>
     <div id="componentsContent"></div>
   </div>
 

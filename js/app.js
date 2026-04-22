@@ -190,6 +190,11 @@ function showPage(id, extra, options = {}) {
 
   if (id === 'viewdetail' && extra) renderViewDetail(extra);
   if (id === 'foundationdetail' && extra) renderFoundationDetail(extra.kind, extra.id);
+  if (id === 'components' && !extra) {
+    syncComponentsPageChrome('dashboard');
+    renderComponents();
+  }
+  if (id === 'views') renderViews();
   if (id === 'navmap') renderNavMap();
   syncCurrentRoute(options);
 }
@@ -799,6 +804,7 @@ function rerenderCurrentPage() {
     if (currentComp && document.getElementById(`component-card-${currentComp.id}`)) {
       showComponentPage(currentComp.id);
     } else {
+      syncComponentsPageChrome('dashboard');
       renderComponents();
     }
   }
@@ -1099,10 +1105,36 @@ function showComponentPage(compId, options = {}) {
   showPage('components', compId, options);
 }
 
+function syncComponentsPageChrome(mode = 'dashboard', comp = null) {
+  const dashboardHeader = document.getElementById('componentsDashboardHeader');
+  const detailHeader = document.getElementById('componentsDetailHeader');
+  const titleEl = document.getElementById('compPageTitle');
+  const descEl = document.getElementById('compPageDesc');
+  const dashboardDescEl = document.getElementById('componentsDashboardDesc');
+
+  if (mode === 'detail' && comp) {
+    if (dashboardHeader) dashboardHeader.style.display = 'none';
+    if (detailHeader) detailHeader.style.display = 'flex';
+    if (titleEl) titleEl.textContent = comp.name;
+    if (descEl) {
+      descEl.textContent = comp.description || [
+        comp.group || null,
+        comp.snapshot?.path ? 'Snapshot-backed' : (isCatalogOnlyComponent(comp) ? 'Catalog states' : 'Interactive preview'),
+      ].filter(Boolean).join(' · ');
+    }
+    return;
+  }
+
+  if (dashboardHeader) dashboardHeader.style.display = '';
+  if (detailHeader) detailHeader.style.display = 'none';
+  if (dashboardDescEl) dashboardDescEl.textContent = 'All reusable UI pieces. Click to preview.';
+  if (titleEl) titleEl.textContent = '';
+  if (descEl) descEl.textContent = '';
+}
+
 function showComponentsDashboard(options = {}) {
   currentComponentDetailId = null;
   showPage('components', null, options);
-  renderComponents();
 }
 
 function renderComponentDetail(compId, target = null) {
@@ -1110,11 +1142,8 @@ function renderComponentDetail(compId, target = null) {
   if (!comp) return null;
   if (!target?.preview) currentComponentDetailId = compId;
   getComponentEditorState(comp);
-  const titleEl = target?.titleEl || document.getElementById('compPageTitle');
-  const descEl = target?.descEl || document.getElementById('compPageDesc');
   const contentEl = target?.contentEl || document.getElementById('componentsContent');
-  if (titleEl) titleEl.textContent = comp.name;
-  if (descEl) descEl.textContent = comp.description || '';
+  if (!target?.preview) syncComponentsPageChrome('detail', comp);
   if (contentEl) contentEl.innerHTML = `<div class="component-grid component-grid-detail">${buildComponentCard(comp, { detailed: true })}</div>`;
   const subtitle = [
     comp.group || null,
@@ -1135,20 +1164,58 @@ function closeInspectorPreview() {
   currentInspectorPreview = null;
 }
 
-function openInspectorPreview(entityType, id, extra = '') {
-  const titleEl = document.getElementById('inspectorPreviewTitle');
-  const subtitleEl = document.getElementById('inspectorPreviewSubtitle');
-  const bodyEl = document.getElementById('inspectorPreviewBody');
-  const openBtn = document.getElementById('inspectorPreviewOpenBtn');
-  const modal = document.getElementById('inspectorPreviewModal');
-  if (!titleEl || !subtitleEl || !bodyEl || !openBtn || !modal) return;
+function getInspectorPreviewCollection(entityType, extra = '') {
+  if (entityType === 'component') {
+    const components = currentPage === 'components' && !currentComponentDetailId
+      ? getFilteredComponents()
+      : (config?.components || []);
+    return components.map(component => ({ entityType: 'component', id: component.id, extra: '' }));
+  }
 
+  if (entityType === 'view') {
+    const views = currentPage === 'views'
+      ? getFilteredViews()
+      : (config?.views || []);
+    return views.map(view => ({ entityType: 'view', id: view.id, extra: '' }));
+  }
+
+  if (entityType === 'foundation') {
+    if (extra === 'icon') {
+      const icons = currentPage === 'icons'
+        ? getFilteredIcons()
+        : (config?.tokens?.icons || []);
+      return icons.map(icon => ({ entityType: 'foundation', id: icon.id || icon.name || icon.symbol, extra: 'icon' }));
+    }
+
+    if (extra === 'gradient') {
+      const gradients = currentPage === 'tokens'
+        ? getFilteredGradientEntries()
+        : Object.entries(config?.tokens?.gradients || {});
+      return gradients.map(([id]) => ({ entityType: 'foundation', id, extra: 'gradient' }));
+    }
+
+    const colors = currentPage === 'tokens'
+      ? getFilteredColorEntries()
+      : Object.entries(config?.tokens?.colors || {});
+    return colors.map(([id]) => ({ entityType: 'foundation', id, extra: 'color' }));
+  }
+
+  return [];
+}
+
+function getInspectorPreviewPosition(entityType, id, extra = '') {
+  const items = getInspectorPreviewCollection(entityType, extra);
+  const index = items.findIndex(item => item.id === id && item.extra === extra);
+  return { items, index };
+}
+
+function buildInspectorPreviewPayload(entityType, id, extra = '') {
   let detail = null;
   let bodyHtml = '';
 
   if (entityType === 'component') {
     const comp = (config?.components || []).find(c => c.id === id);
-    if (!comp) return;
+    if (!comp) return null;
     detail = {
       title: comp.name,
       subtitle: [comp.group || null, comp.snapshot?.path ? 'Snapshot-backed' : (isCatalogOnlyComponent(comp) ? 'Catalog states' : 'Interactive preview')].filter(Boolean).join(' · '),
@@ -1157,7 +1224,7 @@ function openInspectorPreview(entityType, id, extra = '') {
     bodyHtml = buildComponentInspectorPreview(comp);
   } else if (entityType === 'view') {
     const view = (config?.views || []).find(v => v.id === id);
-    if (!view) return;
+    if (!view) return null;
     const subtitleParts = [];
     if (view.root || config.navigation?.root === view.id) subtitleParts.push('Root screen');
     else subtitleParts.push(view.presentation === 'sheet' ? 'Sheet screen' : 'Screen');
@@ -1175,16 +1242,56 @@ function openInspectorPreview(entityType, id, extra = '') {
       openLabel: `Open ${extra} detail`,
     };
     bodyHtml = buildFoundationInspectorPreview(extra, id);
-    if (!bodyHtml) return;
+    if (!bodyHtml) return null;
   }
 
-  currentInspectorPreview = { entityType, id, extra };
+  return { detail, bodyHtml };
+}
+
+function renderInspectorPreview() {
+  const titleEl = document.getElementById('inspectorPreviewTitle');
+  const subtitleEl = document.getElementById('inspectorPreviewSubtitle');
+  const bodyEl = document.getElementById('inspectorPreviewBody');
+  const openBtn = document.getElementById('inspectorPreviewOpenBtn');
+  const modal = document.getElementById('inspectorPreviewModal');
+  if (!titleEl || !subtitleEl || !bodyEl || !openBtn || !modal) return;
+  if (!currentInspectorPreview) return;
+
+  const { entityType, id, extra } = currentInspectorPreview;
+  const payload = buildInspectorPreviewPayload(entityType, id, extra);
+  if (!payload) {
+    closeInspectorPreview();
+    return;
+  }
+
+  const { detail, bodyHtml } = payload;
+  const { items, index } = getInspectorPreviewPosition(entityType, id, extra);
+  const galleryHint = items.length > 1 && index >= 0
+    ? `${index + 1} of ${items.length} · Use ← →`
+    : '';
+
   titleEl.textContent = detail.title || 'Detail preview';
-  subtitleEl.textContent = detail.subtitle || '';
+  subtitleEl.textContent = [detail.subtitle || '', galleryHint].filter(Boolean).join(' · ');
   bodyEl.innerHTML = bodyHtml;
   openBtn.setAttribute('title', detail.openLabel || 'Open detail');
   openBtn.setAttribute('aria-label', detail.openLabel || 'Open detail');
   modal.style.display = 'flex';
+}
+
+function openInspectorPreview(entityType, id, extra = '') {
+  currentInspectorPreview = { entityType, id, extra };
+  renderInspectorPreview();
+}
+
+function shiftInspectorPreview(delta) {
+  if (!currentInspectorPreview || !delta) return false;
+  const { entityType, id, extra } = currentInspectorPreview;
+  const { items, index } = getInspectorPreviewPosition(entityType, id, extra);
+  if (index === -1 || items.length < 2) return false;
+  const nextIndex = (index + delta + items.length) % items.length;
+  currentInspectorPreview = items[nextIndex];
+  renderInspectorPreview();
+  return true;
 }
 
 function openInspectorPreviewDetail() {
@@ -1325,6 +1432,12 @@ function closeSnapshotLightbox() {
   image.src = '';
 }
 
+function isTypingTarget(target) {
+  if (!target) return false;
+  const tag = target.tagName;
+  return target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+}
+
 function syncNavMapZoomLabel() {
   const label = document.getElementById('navMapZoomLabel');
   if (!label) return;
@@ -1346,4 +1459,25 @@ function resetNavMapZoom() {
 window.addEventListener('DOMContentLoaded', () => {
   bootstrapRouteHistory();
   bootstrapLoaderExperience();
+  window.addEventListener('keydown', event => {
+    if (!currentInspectorPreview) return;
+    const modal = document.getElementById('inspectorPreviewModal');
+    if (!modal || modal.style.display === 'none') return;
+    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (isTypingTarget(event.target)) return;
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      shiftInspectorPreview(-1);
+      return;
+    }
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      shiftInspectorPreview(1);
+      return;
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeInspectorPreview();
+    }
+  });
 });
