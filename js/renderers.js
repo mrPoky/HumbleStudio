@@ -886,9 +886,95 @@ function getFilteredIcons() {
   });
 }
 
+function getComponentTruthStatus(component) {
+  if (component?.snapshot?.path) {
+    return {
+      kind: 'reference',
+      tag: 'Reference',
+      label: 'Reference snapshot',
+      summary: 'A standalone exported snapshot is available, so this preview has a 1:1 visual source of truth.',
+      tone: 'good',
+      needsAttention: false,
+    };
+  }
+  if (isCatalogOnlyComponent(component)) {
+    return {
+      kind: 'catalog',
+      tag: 'Catalog only',
+      label: 'Catalog states',
+      summary: 'This component is driven by declared app states, but it still lacks a standalone exported snapshot.',
+      tone: 'caution',
+      needsAttention: true,
+    };
+  }
+  return {
+    kind: 'approximation',
+    tag: 'Approximation',
+    label: 'Approximation only',
+    summary: 'This preview is a best-effort approximation because no standalone snapshot was exported for the component.',
+    tone: 'caution',
+    needsAttention: true,
+  };
+}
+
+function getViewTruthStatus(view) {
+  if (view?.snapshot?.path) {
+    return {
+      kind: 'reference',
+      tag: 'Reference',
+      label: 'Reference snapshot',
+      summary: 'A screen snapshot is available, so this view uses an exported visual source of truth.',
+      tone: 'good',
+      needsAttention: false,
+    };
+  }
+  return {
+    kind: 'approximation',
+    tag: 'Approximation',
+    label: 'Approximation only',
+    summary: 'This screen is synthesized from config data because no exported snapshot exists yet.',
+    tone: 'caution',
+    needsAttention: true,
+  };
+}
+
+function getComponentStatusSubtitle(component) {
+  return [component?.group || null, getComponentTruthStatus(component).label].filter(Boolean).join(' · ');
+}
+
+function getViewStatusSubtitle(view) {
+  return [
+    view?.root || config?.navigation?.root === view?.id ? 'Root screen' : (view?.presentation === 'sheet' ? 'Sheet screen' : 'Screen'),
+    getViewTruthStatus(view).label,
+  ].filter(Boolean).join(' · ');
+}
+
+function buildPreviewStatusSummary(items, resolver, noun) {
+  if (!items.length) return '';
+  const counts = items.reduce((acc, item) => {
+    const status = resolver(item);
+    acc.total += 1;
+    if (status.kind === 'reference') acc.reference += 1;
+    if (status.kind === 'catalog') acc.catalog += 1;
+    if (status.needsAttention) acc.attention += 1;
+    return acc;
+  }, { total: 0, reference: 0, catalog: 0, attention: 0 });
+
+  const pills = [
+    `<div class="coverage-pill"><strong>${counts.total}</strong><span>${escapeHtml(noun)}</span></div>`,
+    `<div class="coverage-pill coverage-pill-good"><strong>${counts.reference}</strong><span>Reference</span></div>`,
+    counts.catalog ? `<div class="coverage-pill coverage-pill-caution"><strong>${counts.catalog}</strong><span>Catalog only</span></div>` : '',
+    counts.attention ? `<div class="coverage-pill coverage-pill-caution"><strong>${counts.attention}</strong><span>Needs attention</span></div>` : '',
+  ].filter(Boolean).join('');
+
+  return `<div class="coverage-summary">${pills}</div>`;
+}
+
 function getFilteredComponents() {
   const filter = pageFilterState?.components || 'all';
   return (config?.components || []).filter(component => {
+    const truth = getComponentTruthStatus(component);
+    if (filter === 'attention' && !truth.needsAttention) return false;
     if (filter === 'used' && !getComponentUsageViews(component).length) return false;
     if (filter === 'catalog' && !isCatalogOnlyComponent(component)) return false;
     if (filter === 'snapshot' && !component.snapshot?.path) return false;
@@ -899,6 +985,8 @@ function getFilteredComponents() {
 function getFilteredViews() {
   const filter = pageFilterState?.views || 'all';
   return (config?.views || []).filter(view => {
+    const truth = getViewTruthStatus(view);
+    if (filter === 'attention' && !truth.needsAttention) return false;
     if (filter === 'root' && !view.root && config.navigation?.root !== view.id) return false;
     if (filter === 'snapshot' && !view.snapshot?.path) return false;
     if (filter === 'navigating' && !(view.navigatesTo || []).length) return false;
@@ -1880,12 +1968,10 @@ function buildComponentCard(c, options = {}) {
   const state = getComponentEditorState(c);
   const selectedMockId = state?.selectedMockId || mocks[0]?.id || '';
   const catalogOnly = isCatalogOnlyComponent(c);
+  const truth = getComponentTruthStatus(c);
   const preview = buildComponentPreviewStage(c, state, detailed);
   const mockOpts = mocks.map(m=>`<option value="${escapeHtml(m.id)}"${m.id === selectedMockId ? ' selected' : ''}>${escapeHtml(m.label)}</option>`).join('');
-  const compactSubtitle = [
-    c.group || null,
-    c.snapshot?.path ? 'Snapshot-backed' : (catalogOnly ? 'Catalog states' : 'Interactive preview'),
-  ].filter(Boolean).join(' · ');
+  const compactSubtitle = getComponentStatusSubtitle(c);
   const detailControls = !detailed ? '' : `
     <div class="cc-mode-toggle">
       ${c.snapshot ? `<button class="cc-mode-btn${state?.mode === 'snapshot' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','snapshot')">Snapshot</button>` : ''}
@@ -1921,6 +2007,11 @@ function buildComponentCard(c, options = {}) {
   const capabilityPanel = !detailed ? '' : `
     <div class="cc-capability-panel">
       <div class="cc-usage-title">Capabilities</div>
+      <div class="cc-capability-card cc-capability-card-wide cc-capability-card-${escapeHtml(truth.tone)}">
+        <div class="cc-capability-label">Preview Truth</div>
+        <div class="cc-capability-value">${escapeHtml(truth.label)}</div>
+        <div class="cc-capability-copy">${escapeHtml(truth.summary)}</div>
+      </div>
       <div class="cc-capability-grid">
         <div class="cc-capability-card">
           <div class="cc-capability-label">Renderer</div>
@@ -1932,7 +2023,7 @@ function buildComponentCard(c, options = {}) {
         </div>
         <div class="cc-capability-card">
           <div class="cc-capability-label">Preview Modes</div>
-          <div class="cc-capability-value">${escapeHtml(c.snapshot ? (catalogOnly ? 'snapshot + catalog' : 'snapshot + mock') : (catalogOnly ? 'catalog only' : 'mock only'))}</div>
+          <div class="cc-capability-value">${escapeHtml(c.snapshot ? (catalogOnly ? 'snapshot + catalog' : 'snapshot + approximation') : (catalogOnly ? 'catalog only' : 'approximation only'))}</div>
         </div>
         <div class="cc-capability-card">
           <div class="cc-capability-label">Declared States</div>
@@ -2077,7 +2168,7 @@ function buildComponentCard(c, options = {}) {
         <div class="cc-head-row">
           <div class="cc-head-tags">
             ${c.group ? `<span class="cc-head-tag">${escapeHtml(c.group)}</span>` : ''}
-            <span class="cc-head-tag">${escapeHtml(c.snapshot ? 'Snapshot-backed' : (catalogOnly ? 'Catalog states' : 'Interactive preview'))}</span>
+            <span class="cc-head-tag">${escapeHtml(truth.label)}</span>
             <span class="cc-head-tag">${escapeHtml(c.renderer || c.type || inferType(c.id))}</span>
           </div>
           ${usageSummary}
@@ -2096,7 +2187,7 @@ function renderComponents() {
   if (!config) return;
   const comps = getFilteredComponents();
   if (!comps.length) { document.getElementById('componentsContent').innerHTML = buildEmptyState('⬡', 'No matching components', 'Try clearing search or switching the component filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('components')" }); return; }
-  document.getElementById('componentsContent').innerHTML = `<div class="component-grid">${comps.map(c=>buildComponentCard(c)).join('')}</div>`;
+  document.getElementById('componentsContent').innerHTML = `${buildPreviewStatusSummary(comps, getComponentTruthStatus, 'components')}<div class="component-grid">${comps.map(c=>buildComponentCard(c)).join('')}</div>`;
 }
 
 function updateMockPreview(compId, mockId) {
@@ -2124,13 +2215,9 @@ function renderViews() {
   if (!config) return;
   const views = getFilteredViews();
   if (!views.length) { document.getElementById('viewsContent').innerHTML = buildEmptyState('▭', 'No matching views', 'Try clearing search or switching the view filter.', { label: 'Reset filters', onclick: "resetDiscoveryPage('views')" }); return; }
-  let html = '<div class="view-grid">';
+  let html = `${buildPreviewStatusSummary(views, getViewTruthStatus, 'views')}<div class="view-grid">`;
   views.forEach(v => {
-    const subtitleParts = [];
-    if (v.root || config.navigation?.root === v.id) subtitleParts.push('Root screen');
-    else subtitleParts.push(v.presentation === 'sheet' ? 'Sheet screen' : 'Screen');
-    if (v.snapshot?.path) subtitleParts.push('Snapshot-backed');
-    html+=`<div class="view-card" role="button" tabindex="0" onclick="openInspectorPreview('view', ${escapeHtml(escapeJsString(v.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInspectorPreview('view', ${escapeHtml(escapeJsString(v.id))})}"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-summary-subtitle">${escapeHtml(subtitleParts.join(' · '))}</div></div></div>`;
+    html+=`<div class="view-card" role="button" tabindex="0" onclick="openInspectorPreview('view', ${escapeHtml(escapeJsString(v.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInspectorPreview('view', ${escapeHtml(escapeJsString(v.id))})}"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-summary-subtitle">${escapeHtml(getViewStatusSubtitle(v))}</div></div></div>`;
   });
   document.getElementById('viewsContent').innerHTML = html + '</div>';
 }
@@ -2138,6 +2225,7 @@ function renderViews() {
 function renderViewDetail(viewId, target = null) {
   const view = (config?.views||[]).find(v=>v.id===viewId);
   if (!view) return null;
+  const truth = getViewTruthStatus(view);
   if (!target?.preview) currentViewDetailId = viewId;
   const state = getViewDetailState(view);
   const titleEl = target?.titleEl || document.getElementById('vdTitle');
@@ -2279,6 +2367,15 @@ function renderViewDetail(viewId, target = null) {
       </div>
     </div>
   `;
+  const truthPanel = `
+    <div class="vd-panel">
+      <div class="vd-panel-title">Preview Truth</div>
+      <div class="coverage-pill coverage-pill-${escapeHtml(truth.tone)} coverage-pill-block">
+        <strong>${escapeHtml(truth.label)}</strong>
+        <span>${escapeHtml(truth.summary)}</span>
+      </div>
+    </div>
+  `;
   const designGraphPanel = `
     <div class="vd-panel">
       <div class="vd-panel-title">Design Graph</div>
@@ -2291,6 +2388,7 @@ function renderViewDetail(viewId, target = null) {
     </div>
   `;
   const previewTab = `
+    ${truthPanel}
     ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''}
     ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div class="vd-body-copy">${escapeHtml(view.description)}</div></div>`:''}
     ${configPanel}
@@ -2321,11 +2419,7 @@ function renderViewDetail(viewId, target = null) {
   const tabButtons = availableTabs.map(tab => `<button class="vd-detail-tab${tab.id === activeDetailTab ? ' active' : ''}" onclick="setViewDetailTab('${view.id}', '${tab.id}')">${escapeHtml(tab.label)}</button>`).join('');
   const activeTabContent = availableTabs.find(tab => tab.id === activeDetailTab)?.content || '';
   contentEl.innerHTML=`<div class="view-detail active"><div class="vd-stage">${screenMarkup}</div><div class="vd-detail-body"><div class="vd-detail-tabs">${tabButtons}</div><div class="vd-detail-content">${activeTabContent}</div></div></div>`;
-  const subtitleParts = [];
-  if (view.root || config.navigation?.root === view.id) subtitleParts.push('Root screen');
-  else subtitleParts.push(view.presentation === 'sheet' ? 'Sheet screen' : 'Screen');
-  if (view.snapshot?.path) subtitleParts.push('Snapshot-backed');
-  return { title: view.name, subtitle: subtitleParts.join(' · '), openLabel: 'Open view detail' };
+  return { title: view.name, subtitle: getViewStatusSubtitle(view), openLabel: 'Open view detail' };
 }
 
 function renderNavMap() {

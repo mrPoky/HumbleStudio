@@ -243,6 +243,13 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 /* ── COMPONENT CARD ── */
 .component-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
 .component-grid-detail{grid-template-columns:minmax(0,1fr)}
+.coverage-summary{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.coverage-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--border);font-size:11px;color:var(--t2)}
+.coverage-pill strong{font-size:12px;color:var(--t1)}
+.coverage-pill-good{background:color-mix(in srgb, var(--accent-soft-bg) 82%, var(--surface) 18%);border-color:var(--accent-soft-border);color:var(--accent-soft-text)}
+.coverage-pill-caution{background:rgba(251,191,36,.10);border-color:rgba(251,191,36,.22);color:color-mix(in srgb, var(--warn) 78%, var(--t1) 22%)}
+.coverage-pill-block{display:flex;flex-direction:column;align-items:flex-start;border-radius:18px;padding:12px 14px}
+.coverage-pill-block span{line-height:1.55}
 .component-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
 .component-card-detail{max-width:1100px}
 .component-card-summary{width:100%;padding:0;text-align:left;cursor:pointer;font-family:var(--font);color:inherit;appearance:none;background:var(--surface);transition:border-color .15s,transform .15s,box-shadow .15s}
@@ -314,8 +321,12 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .cc-capability-panel{padding:0 12px 12px;display:flex;flex-direction:column;gap:10px}
 .cc-capability-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .cc-capability-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px}
+.cc-capability-card-wide{grid-column:1 / -1}
+.cc-capability-card-good{background:color-mix(in srgb, var(--accent-soft-bg) 78%, var(--surface2) 22%);border-color:var(--accent-soft-border)}
+.cc-capability-card-caution{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.18)}
 .cc-capability-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3)}
 .cc-capability-value{margin-top:6px;font-size:11px;font-weight:700;color:var(--t1);line-height:1.45}
+.cc-capability-copy{margin-top:6px;font-size:11px;color:var(--t2);line-height:1.55}
 .cc-usage-title{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.7px}
 .cc-related-panel{padding:0 12px 12px;display:flex;flex-direction:column;gap:10px}
 .cc-related-section{display:flex;flex-direction:column;gap:8px}
