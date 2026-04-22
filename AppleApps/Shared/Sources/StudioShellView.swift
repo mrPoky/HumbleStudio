@@ -92,18 +92,23 @@ struct StudioShellView: View {
     @ToolbarContentBuilder
     private var shellToolbar: some ToolbarContent {
         #if os(iOS)
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            toolbarButtons
+        ToolbarItemGroup(placement: .topBarLeading) {
+            navigationButtons
+        }
+
+        ToolbarItem(placement: .topBarTrailing) {
+            sourceMenu
         }
         #else
         ToolbarItemGroup {
-            toolbarButtons
+            navigationButtons
+            directSourceButtons
         }
         #endif
     }
 
     @ViewBuilder
-    private var toolbarButtons: some View {
+    private var navigationButtons: some View {
         Button {
             model.navigateBack()
         } label: {
@@ -117,7 +122,10 @@ struct StudioShellView: View {
             Label("Forward", systemImage: "chevron.forward")
         }
         .disabled(!model.canGoForward)
+    }
 
+    @ViewBuilder
+    private var directSourceButtons: some View {
         Button {
             isImportingFile = true
         } label: {
@@ -163,6 +171,68 @@ struct StudioShellView: View {
             Label("Reload", systemImage: "arrow.clockwise")
         }
         .disabled(!model.isPageReady)
+    }
+
+    private var sourceMenu: some View {
+        Menu {
+            Button {
+                isImportingFile = true
+            } label: {
+                Label("Open Bundle…", systemImage: "folder")
+            }
+            .disabled(!model.isPageReady)
+
+            Button {
+                remoteURLDraft = model.recentRemoteURL ?? ""
+                isImportingRemoteURL = true
+            } label: {
+                Label("Open URL…", systemImage: "link")
+            }
+            .disabled(!model.isPageReady)
+
+            if model.hasRecentImport {
+                Button {
+                    model.reopenRecentImport()
+                } label: {
+                    Label("Reopen Recent File", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                }
+                .disabled(!model.isPageReady)
+            }
+
+            if model.hasRecentRemoteURL {
+                Button {
+                    model.reopenRecentRemoteURL()
+                } label: {
+                    Label("Reopen Recent URL", systemImage: "clock.badge.checkmark")
+                }
+                .disabled(!model.isPageReady)
+            }
+
+            Divider()
+
+            Button {
+                model.loadDemo()
+            } label: {
+                Label("Load Demo", systemImage: "sparkles")
+            }
+            .disabled(!model.isPageReady)
+
+            Button {
+                model.loadBundledStudio()
+            } label: {
+                Label("Show Home", systemImage: "house")
+            }
+            .disabled(!model.isConnected)
+
+            Button {
+                model.reload()
+            } label: {
+                Label("Reload", systemImage: "arrow.clockwise")
+            }
+            .disabled(!model.isPageReady)
+        } label: {
+            Label("Sources", systemImage: "ellipsis.circle")
+        }
     }
 
     private var remoteURLSheet: some View {
