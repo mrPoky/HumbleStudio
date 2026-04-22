@@ -80,6 +80,9 @@ struct StudioShellView: View {
         .onReceive(NotificationCenter.default.publisher(for: .studioReload)) { _ in
             model.reload()
         }
+        .onOpenURL { url in
+            model.handleIncomingURL(url)
+        }
         .sheet(isPresented: $isImportingRemoteURL) {
             remoteURLSheet
         }
