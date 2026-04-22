@@ -1,15 +1,16 @@
 import Foundation
-import Observation
+import Combine
 
 struct StudioShellActions {
     var loadBundledStudio: (() -> Void)?
     var loadDemo: (() -> Void)?
     var importPayload: ((String, Data) -> Void)?
+    var navigateBack: (() -> Void)?
+    var navigateForward: (() -> Void)?
     var reload: (() -> Void)?
 }
 
-@Observable
-final class StudioShellModel {
+final class StudioShellModel: ObservableObject {
     private enum RecentImportStore {
         static let bookmarkKey = "StudioShell.recentImportBookmark"
         static let nameKey = "StudioShell.recentImportName"
@@ -25,16 +26,18 @@ final class StudioShellModel {
     private static let bookmarkResolutionOptions: URL.BookmarkResolutionOptions = [.withSecurityScope]
     #endif
 
-    var errorMessage: String?
-    var isConnected = false
-    var isPageReady = false
-    var pageTitle = "HumbleStudio"
-    var breadcrumb = "Bundled studio"
-    var sourceLabel = "Bundled studio"
-    var sourceValue = "Embedded app assets"
-    var statusLevel = "loading"
-    var statusText = "Loading bundled studio…"
-    var recentImportName = UserDefaults.standard.string(forKey: RecentImportStore.nameKey)
+    @Published var errorMessage: String?
+    @Published var isConnected = false
+    @Published var isPageReady = false
+    @Published var canGoBack = false
+    @Published var canGoForward = false
+    @Published var pageTitle = "HumbleStudio"
+    @Published var breadcrumb = "Bundled studio"
+    @Published var sourceLabel = "Bundled studio"
+    @Published var sourceValue = "Embedded app assets"
+    @Published var statusLevel = "loading"
+    @Published var statusText = "Loading bundled studio…"
+    @Published var recentImportName = UserDefaults.standard.string(forKey: RecentImportStore.nameKey)
 
     var sourceSummary: String {
         let trimmedValue = sourceValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -102,6 +105,16 @@ final class StudioShellModel {
         }
     }
 
+    func navigateBack() {
+        guard canGoBack else { return }
+        actions.navigateBack?()
+    }
+
+    func navigateForward() {
+        guard canGoForward else { return }
+        actions.navigateForward?()
+    }
+
     func importFile(at url: URL) {
         let accessed = url.startAccessingSecurityScopedResource()
         defer {
@@ -138,7 +151,9 @@ final class StudioShellModel {
         sourceLabel: String?,
         sourceValue: String?,
         statusText: String?,
-        statusLevel: String?
+        statusLevel: String?,
+        canGoBack: Bool?,
+        canGoForward: Bool?
     ) {
         if let title, !title.isEmpty {
             pageTitle = title
@@ -157,6 +172,12 @@ final class StudioShellModel {
         }
         if let statusLevel, !statusLevel.isEmpty {
             self.statusLevel = statusLevel
+        }
+        if let canGoBack {
+            self.canGoBack = canGoBack
+        }
+        if let canGoForward {
+            self.canGoForward = canGoForward
         }
     }
 

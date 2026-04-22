@@ -10,6 +10,18 @@ struct HumbleStudioMacApp: App {
         .defaultSize(width: 1320, height: 860)
         .commands {
             CommandMenu("Studio") {
+                Button("Back") {
+                    post(.studioNavigateBack)
+                }
+                .keyboardShortcut("[", modifiers: [.command])
+
+                Button("Forward") {
+                    post(.studioNavigateForward)
+                }
+                .keyboardShortcut("]", modifiers: [.command])
+
+                Divider()
+
                 Button("Open Bundle…") {
                     post(.studioOpenImport)
                 }

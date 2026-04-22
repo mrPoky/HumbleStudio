@@ -24,6 +24,12 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
                 importPayload: { [weak self] fileName, data in
                     self?.loadNativePayload(fileName: fileName, data: data)
                 },
+                navigateBack: { [weak self] in
+                    self?.navigateBack()
+                },
+                navigateForward: { [weak self] in
+                    self?.navigateForward()
+                },
                 reload: { [weak self] in
                     self?.webView?.reload()
                 }
@@ -75,7 +81,9 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
             sourceLabel: payload["sourceLabel"] as? String,
             sourceValue: payload["sourceValue"] as? String,
             statusText: payload["statusText"] as? String,
-            statusLevel: payload["statusLevel"] as? String
+            statusLevel: payload["statusLevel"] as? String,
+            canGoBack: payload["canGoBack"] as? Bool,
+            canGoForward: payload["canGoForward"] as? Bool
         )
     }
 
@@ -91,6 +99,14 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
         } catch {
             model.report(error: error)
         }
+    }
+
+    private func navigateBack() {
+        runJavaScript("if (window.navigateBack) { window.navigateBack(); }")
+    }
+
+    private func navigateForward() {
+        runJavaScript("if (window.navigateForward) { window.navigateForward(); }")
     }
 
     private func runJavaScript(_ script: String) {
@@ -110,7 +126,7 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
 
 #if os(iOS)
 struct StudioWebView: UIViewRepresentable {
-    @Bindable var model: StudioShellModel
+    @ObservedObject var model: StudioShellModel
 
     func makeCoordinator() -> StudioWebCoordinator {
         StudioWebCoordinator(model: model)
@@ -125,7 +141,7 @@ struct StudioWebView: UIViewRepresentable {
 }
 #else
 struct StudioWebView: NSViewRepresentable {
-    @Bindable var model: StudioShellModel
+    @ObservedObject var model: StudioShellModel
 
     func makeCoordinator() -> StudioWebCoordinator {
         StudioWebCoordinator(model: model)

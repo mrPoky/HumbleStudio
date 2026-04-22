@@ -2,7 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct StudioShellView: View {
-    @State private var model = StudioShellModel()
+    @StateObject private var model = StudioShellModel()
     @State private var isImportingFile = false
     @State private var isDropTargeted = false
 
@@ -56,6 +56,12 @@ struct StudioShellView: View {
         .onReceive(NotificationCenter.default.publisher(for: .studioReopenRecentImport)) { _ in
             model.reopenRecentImport()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .studioNavigateBack)) { _ in
+            model.navigateBack()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .studioNavigateForward)) { _ in
+            model.navigateForward()
+        }
         .onReceive(NotificationCenter.default.publisher(for: .studioLoadDemo)) { _ in
             model.loadDemo()
         }
@@ -86,6 +92,20 @@ struct StudioShellView: View {
 
     @ViewBuilder
     private var toolbarButtons: some View {
+        Button {
+            model.navigateBack()
+        } label: {
+            Label("Back", systemImage: "chevron.backward")
+        }
+        .disabled(!model.canGoBack)
+
+        Button {
+            model.navigateForward()
+        } label: {
+            Label("Forward", systemImage: "chevron.forward")
+        }
+        .disabled(!model.canGoForward)
+
         Button {
             isImportingFile = true
         } label: {
