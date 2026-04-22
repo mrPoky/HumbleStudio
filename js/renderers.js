@@ -106,6 +106,9 @@ function buildFoundationInspectorPreview(kind, id) {
   const colors = config?.tokens?.colors || {};
   const gradients = config?.tokens?.gradients || {};
   const icons = config?.tokens?.icons || [];
+  const typography = getTypographyTokenById(id);
+  const spacing = config?.tokens?.spacing || {};
+  const radius = config?.tokens?.radius || {};
 
   if (kind === 'icon') {
     const item = icons.find(icon => (icon.id || icon.name || icon.symbol) === id);
@@ -170,6 +173,62 @@ function buildFoundationInspectorPreview(kind, id) {
                 <div class="inspector-preview-foundation-label">Light</div>
                 <div class="foundation-gradient-stage" style="background:${escapeHtml(lightGradientCss)}"></div>
               </div>`}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (kind === 'typography') {
+    const item = typography;
+    if (!item) return '';
+    const previewText = item.preview || item.role || 'Typography';
+    return `
+      <div class="inspector-preview-shell">
+        <div class="inspector-preview-card">
+          <div class="inspector-preview-stage">
+            <div class="foundation-typography-stage">
+              <div class="foundation-typography-kicker">${escapeHtml(item.swiftui || 'Text style')}</div>
+              <div class="foundation-typography-sample" style="font-size:${escapeHtml(Math.min(Number(item.size) || 16, 36))}px;font-weight:${escapeHtml(item.weight || 600)};${item.mono ? 'font-family:var(--mono);' : ''}${item.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${item.secondary ? 'color:var(--t2);' : ''}">
+                ${escapeHtml(previewText)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (kind === 'spacing') {
+    const item = spacing[id];
+    if (!item) return '';
+    const px = Number.parseInt(item.value || item, 10) || 0;
+    return `
+      <div class="inspector-preview-shell">
+        <div class="inspector-preview-card">
+          <div class="inspector-preview-stage">
+            <div class="foundation-spacing-stage">
+              <div class="foundation-spacing-bar" style="width:${Math.max(10, Math.min(px * 2, 260))}px"></div>
+              <div class="foundation-spacing-value">${escapeHtml(px)}px</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (kind === 'radius') {
+    const item = radius[id];
+    if (!item) return '';
+    const px = Number.parseInt(item.value || item, 10) || 0;
+    return `
+      <div class="inspector-preview-shell">
+        <div class="inspector-preview-card">
+          <div class="inspector-preview-stage">
+            <div class="foundation-radius-stage">
+              <div class="foundation-radius-shape" style="border-radius:${escapeHtml(px)}px"></div>
+              <div class="foundation-spacing-value">${escapeHtml(px)}px</div>
             </div>
           </div>
         </div>
@@ -762,6 +821,38 @@ function iconSearchText(icon) {
   ];
 }
 
+function resolveTypographyId(token, index = 0) {
+  return token?.id || token?.role || token?.swiftui || `typography-${index + 1}`;
+}
+
+function getTypographyEntries() {
+  return (config?.tokens?.typography || []).map((token, index) => [resolveTypographyId(token, index), token]);
+}
+
+function getTypographyTokenById(id) {
+  return getTypographyEntries().find(([entryId]) => entryId === id)?.[1] || null;
+}
+
+function typographySearchText(id, token) {
+  return [
+    id,
+    token.role,
+    token.swiftui,
+    token.preview,
+    token.weight,
+    token.size,
+  ];
+}
+
+function spacingSearchText(id, token) {
+  return [
+    id,
+    token.value || token,
+    token.usage,
+    token.swiftui,
+  ];
+}
+
 function getFilteredColorEntries() {
   const colors = config?.tokens?.colors || {};
   return Object.entries(colors).filter(([key, value]) => {
@@ -813,6 +904,24 @@ function getFilteredViews() {
     if (filter === 'navigating' && !(view.navigatesTo || []).length) return false;
     return matchesGlobalSearch(...viewSearchText(view));
   });
+}
+
+function getFilteredTypographyEntries() {
+  return getTypographyEntries().filter(([id, token]) => (
+    matchesGlobalSearch(...typographySearchText(id, token))
+  ));
+}
+
+function getFilteredSpacingEntries() {
+  return Object.entries(config?.tokens?.spacing || {}).filter(([id, token]) => (
+    matchesGlobalSearch(...spacingSearchText(id, token), `tokens.spacing.${id}`)
+  ));
+}
+
+function getFilteredRadiusEntries() {
+  return Object.entries(config?.tokens?.radius || {}).filter(([id, token]) => (
+    matchesGlobalSearch(...spacingSearchText(id, token), `tokens.radius.${id}`)
+  ));
 }
 
 function arraysEqualNormalized(a, b) {
@@ -1333,7 +1442,7 @@ function renderTokens() {
     html += `<div class="subsection">${escapeHtml(grp)}</div><div class="token-grid">`;
     entries.colors.forEach(([k, v]) => {
       const dv=v.dark||v.value||v, lv=v.light||v.value||v;
-      html += `<button class="swatch swatch-button" onclick="showFoundationDetail('color','${escapeHtml(k)}')"><div class="swatch-block" style="background:${dv}"></div><div class="swatch-info"><div class="swatch-name">${escapeHtml(k)}</div><div class="swatch-token">tokens.colors.${escapeHtml(k)}</div></div></button>`;
+      html += `<button class="swatch swatch-button" onclick="openInspectorPreview('foundation', ${escapeHtml(escapeJsString(k))}, 'color')"><div class="swatch-block" style="background:${dv}"></div><div class="swatch-info"><div class="swatch-name">${escapeHtml(k)}</div><div class="swatch-token">tokens.colors.${escapeHtml(k)}</div></div></button>`;
     });
     entries.gradients.forEach(([k, v]) => {
       const darkStops = Array.isArray(v.dark) ? v.dark : (Array.isArray(v.value) ? v.value : []);
@@ -1341,7 +1450,7 @@ function renderTokens() {
       const previewStops = darkStops.length ? darkStops : lightStops;
       const gradientCss = previewStops.length ? `linear-gradient(135deg, ${previewStops.join(', ')})` : 'transparent';
       const direction = [v.startPoint, v.endPoint].filter(Boolean).join(' -> ') || 'custom';
-      html += `<button class="swatch swatch-button gradient-swatch" onclick="showFoundationDetail('gradient','${escapeHtml(k)}')"><div class="swatch-block" style="background:${gradientCss}"></div><div class="swatch-info"><div class="swatch-name">${escapeHtml(k)}</div><div class="swatch-token">tokens.gradients.${escapeHtml(k)}</div></div></button>`;
+      html += `<button class="swatch swatch-button gradient-swatch" onclick="openInspectorPreview('foundation', ${escapeHtml(escapeJsString(k))}, 'gradient')"><div class="swatch-block" style="background:${gradientCss}"></div><div class="swatch-info"><div class="swatch-name">${escapeHtml(k)}</div><div class="swatch-token">tokens.gradients.${escapeHtml(k)}</div></div></button>`;
     });
     html += '</div>';
   });
@@ -1350,15 +1459,23 @@ function renderTokens() {
 
 function renderTypography() {
   if (!config) return;
-  const scale = config.tokens?.typography || [];
-  if (!scale.length) { document.getElementById('typographyContent').innerHTML = buildEmptyState('T', 'No type scale', 'Load a config with `tokens.typography` to inspect text styles.'); return; }
-  let html = '<table style="width:100%;border-collapse:collapse"><thead><tr>';
-  ['Role','SwiftUI','Size / Weight','Preview'].forEach(h=>{ html+=`<th style="text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding:6px 10px;border-bottom:1px solid var(--border)">${h}</th>`; });
-  html += '</tr></thead><tbody>';
-  scale.forEach(t => {
-    html += `<tr><td style="padding:10px;border-bottom:1px solid var(--border2)"><span class="tag">${escapeHtml(t.role)}</span></td><td style="padding:10px;border-bottom:1px solid var(--border2)"><span class="tag">${escapeHtml(t.swiftui||'-')}</span></td><td style="padding:10px;border-bottom:1px solid var(--border2);font-family:var(--mono);font-size:10px;color:var(--t2)">${escapeHtml(t.size)}pt / ${escapeHtml(t.weight)}</td><td style="padding:10px;border-bottom:1px solid var(--border2)"><span style="font-size:${Math.min(t.size,28)}px;font-weight:${t.weight};${t.mono?'font-family:var(--mono)':''};${t.caps?'text-transform:uppercase;letter-spacing:1px':''};color:${t.secondary?'var(--t2)':'var(--t1)'}">${escapeHtml(t.preview||t.role)}</span></td></tr>`;
-  });
-  document.getElementById('typographyContent').innerHTML = html + '</tbody></table>';
+  const entries = getFilteredTypographyEntries();
+  if (!entries.length) { document.getElementById('typographyContent').innerHTML = buildEmptyState('T', 'No type scale', 'Load a config with `tokens.typography` to inspect text styles.'); return; }
+  document.getElementById('typographyContent').innerHTML = `
+    <div class="foundation-list">
+      ${entries.map(([id, t]) => `
+        <button class="foundation-list-item" onclick="openInspectorPreview('foundation', ${escapeHtml(escapeJsString(id))}, 'typography')">
+          <div class="foundation-list-main">
+            <div class="foundation-list-name">${escapeHtml(t.role || id)}</div>
+            <div class="foundation-list-token">${escapeHtml(t.swiftui || 'Text style')} · ${escapeHtml(t.size)}pt / ${escapeHtml(t.weight)}</div>
+          </div>
+          <div class="foundation-list-preview" style="font-size:${Math.min(t.size, 26)}px;font-weight:${escapeHtml(t.weight)};${t.mono ? 'font-family:var(--mono);' : ''}${t.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${t.secondary ? 'color:var(--t2);' : ''}">
+            ${escapeHtml(t.preview || t.role || id)}
+          </div>
+        </button>
+      `).join('')}
+    </div>
+  `;
 }
 
 function renderIcons() {
@@ -1371,7 +1488,7 @@ function renderIcons() {
   document.getElementById('iconsContent').innerHTML = `
     <div class="icon-grid">
       ${icons.map(icon => `
-        <button class="icon-card icon-card-button" onclick="showFoundationDetail('icon','${escapeHtml(icon.id || icon.name || icon.symbol)}')">
+        <button class="icon-card icon-card-button" onclick="openInspectorPreview('foundation', ${escapeHtml(escapeJsString(icon.id || icon.name || icon.symbol))}, 'icon')">
           <div class="icon-preview">
             ${icon.path ? buildIconAssetPreview(icon) : `<div class="icon-preview-glyph">${escapeHtml((icon.symbol || '?').split('.').slice(0, 2).join('.'))}</div>`}
           </div>
@@ -1393,6 +1510,9 @@ function renderFoundationDetail(kind, id, target = null) {
   const colors = config.tokens?.colors || {};
   const gradients = config.tokens?.gradients || {};
   const icons = config.tokens?.icons || [];
+  const typography = getTypographyTokenById(id);
+  const spacing = config.tokens?.spacing || {};
+  const radius = config.tokens?.radius || {};
   let item = null;
   let title = 'Foundation Detail';
   let sourcePage = 'tokens';
@@ -1409,11 +1529,23 @@ function renderFoundationDetail(kind, id, target = null) {
     item = icons.find(icon => (icon.id || icon.name || icon.symbol) === id);
     title = item?.name || item?.id || item?.symbol || id;
     sourcePage = 'icons';
+  } else if (kind === 'typography') {
+    item = typography;
+    title = item?.role || id;
+    sourcePage = 'typography';
+  } else if (kind === 'spacing') {
+    item = spacing[id];
+    title = id;
+    sourcePage = 'spacing';
+  } else if (kind === 'radius') {
+    item = radius[id];
+    title = id;
+    sourcePage = 'spacing';
   }
 
   if (backBtn) {
     backBtn.setAttribute('onclick', `showPage('${sourcePage}')`);
-    backBtn.textContent = sourcePage === 'icons' ? '‹ Icons' : '‹ Tokens';
+    backBtn.textContent = sourcePage === 'icons' ? '‹ Icons' : sourcePage === 'typography' ? '‹ Typography' : sourcePage === 'spacing' ? '‹ Spacing & Radius' : '‹ Tokens';
   }
   if (titleEl) titleEl.textContent = title;
 
@@ -1524,6 +1656,113 @@ function renderFoundationDetail(kind, id, target = null) {
     return { title, subtitle: 'Color detail', sourcePage, openLabel: 'Open color detail' };
   }
 
+  if (kind === 'typography') {
+    const previewText = item.preview || item.role || id;
+    contentEl.innerHTML = `
+      <div class="foundation-detail-layout">
+        <div class="foundation-detail-stage">
+          <div class="foundation-typography-stage foundation-typography-stage-large">
+            <div class="foundation-typography-kicker">${escapeHtml(item.swiftui || 'Text style')}</div>
+            <div class="foundation-typography-sample foundation-typography-sample-large" style="font-size:${escapeHtml(Math.min(Number(item.size) || 16, 44))}px;font-weight:${escapeHtml(item.weight || 600)};${item.mono ? 'font-family:var(--mono);' : ''}${item.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${item.secondary ? 'color:var(--t2);' : ''}">
+              ${escapeHtml(previewText)}
+            </div>
+          </div>
+        </div>
+        <div class="foundation-detail-meta">
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Type</div>
+            <div class="foundation-meta-value">Typography</div>
+          </div>
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">SwiftUI</div>
+            <div class="foundation-meta-value foundation-meta-mono">${escapeHtml(item.swiftui || '-')}</div>
+          </div>
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Size</div>
+            <div class="foundation-meta-value">${escapeHtml(item.size)}pt</div>
+          </div>
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Weight</div>
+            <div class="foundation-meta-value">${escapeHtml(item.weight || '-')}</div>
+          </div>
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Monospace</div>
+            <div class="foundation-meta-value">${item.mono ? 'Yes' : 'No'}</div>
+          </div>
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Uppercase</div>
+            <div class="foundation-meta-value">${item.caps ? 'Yes' : 'No'}</div>
+          </div>
+          <div class="foundation-meta-card foundation-meta-card-wide">
+            <div class="foundation-meta-label">Preview Text</div>
+            <div class="foundation-meta-copy">${escapeHtml(previewText)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    return { title, subtitle: 'Typography detail', sourcePage, openLabel: 'Open typography detail' };
+  }
+
+  if (kind === 'spacing') {
+    const px = Number.parseInt(item.value || item, 10) || 0;
+    contentEl.innerHTML = `
+      <div class="foundation-detail-layout">
+        <div class="foundation-detail-stage">
+          <div class="foundation-spacing-stage foundation-spacing-stage-large">
+            <div class="foundation-spacing-bar" style="width:${Math.max(12, Math.min(px * 2.2, 320))}px"></div>
+            <div class="foundation-spacing-value">${escapeHtml(px)}px</div>
+          </div>
+        </div>
+        <div class="foundation-detail-meta">
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Type</div>
+            <div class="foundation-meta-value">Spacing</div>
+          </div>
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Value</div>
+            <div class="foundation-meta-value foundation-meta-mono">${escapeHtml(px)}px</div>
+          </div>
+          <div class="foundation-meta-card foundation-meta-card-wide">
+            <div class="foundation-meta-label">Token Path</div>
+            <div class="foundation-meta-value foundation-meta-mono">tokens.spacing.${escapeHtml(id)}</div>
+          </div>
+          ${item.usage ? `<div class="foundation-meta-card foundation-meta-card-wide"><div class="foundation-meta-label">Usage</div><div class="foundation-meta-copy">${escapeHtml(item.usage)}</div></div>` : ''}
+        </div>
+      </div>
+    `;
+    return { title, subtitle: 'Spacing detail', sourcePage, openLabel: 'Open spacing detail' };
+  }
+
+  if (kind === 'radius') {
+    const px = Number.parseInt(item.value || item, 10) || 0;
+    contentEl.innerHTML = `
+      <div class="foundation-detail-layout">
+        <div class="foundation-detail-stage">
+          <div class="foundation-radius-stage foundation-radius-stage-large">
+            <div class="foundation-radius-shape foundation-radius-shape-large" style="border-radius:${escapeHtml(px)}px"></div>
+            <div class="foundation-spacing-value">${escapeHtml(px)}px</div>
+          </div>
+        </div>
+        <div class="foundation-detail-meta">
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Type</div>
+            <div class="foundation-meta-value">Corner Radius</div>
+          </div>
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Value</div>
+            <div class="foundation-meta-value foundation-meta-mono">${escapeHtml(px)}px</div>
+          </div>
+          <div class="foundation-meta-card foundation-meta-card-wide">
+            <div class="foundation-meta-label">Token Path</div>
+            <div class="foundation-meta-value foundation-meta-mono">tokens.radius.${escapeHtml(id)}</div>
+          </div>
+          ${item.usage ? `<div class="foundation-meta-card foundation-meta-card-wide"><div class="foundation-meta-label">Usage</div><div class="foundation-meta-copy">${escapeHtml(item.usage)}</div></div>` : ''}
+        </div>
+      </div>
+    `;
+    return { title, subtitle: 'Corner radius detail', sourcePage, openLabel: 'Open radius detail' };
+  }
+
   const darkStops = Array.isArray(item.dark) ? item.dark : (Array.isArray(item.value) ? item.value : []);
   const lightStops = Array.isArray(item.light) ? item.light : (Array.isArray(item.value) ? item.value : []);
   const previewStops = darkStops.length ? darkStops : lightStops;
@@ -1597,21 +1836,38 @@ function renderFoundationDetail(kind, id, target = null) {
 
 function renderSpacing() {
   if (!config) return;
-  const spacing = config.tokens?.spacing || {}, radius = config.tokens?.radius || {};
+  const spacing = getFilteredSpacingEntries();
+  const radius = getFilteredRadiusEntries();
   let html = '';
-  if (Object.keys(spacing).length) {
-    html += '<div class="subsection">Spacing</div><div style="display:flex;flex-direction:column;gap:6px">';
-    Object.entries(spacing).forEach(([k,v]) => {
-      const px = parseInt(v.value||v);
-      html += `<div style="display:flex;align-items:center;gap:12px"><div style="width:${Math.min(px*2,120)}px;height:18px;background:var(--accent);border-radius:3px;opacity:.7;min-width:4px"></div><span style="font-size:11px;font-family:var(--mono);color:var(--t2);min-width:150px">${escapeHtml(k)} · ${escapeHtml(px)}px · ${escapeHtml(v.usage||'')}</span></div>`;
+  if (spacing.length) {
+    html += '<div class="subsection">Spacing</div><div class="foundation-metric-grid">';
+    spacing.forEach(([k,v]) => {
+      const px = parseInt(v.value||v, 10) || 0;
+      html += `
+        <button class="foundation-metric-card" onclick="openInspectorPreview('foundation', ${escapeHtml(escapeJsString(k))}, 'spacing')">
+          <div class="foundation-metric-visual">
+            <div class="foundation-spacing-bar" style="width:${Math.max(8, Math.min(px * 2, 140))}px"></div>
+          </div>
+          <div class="foundation-metric-name">${escapeHtml(k)}</div>
+          <div class="foundation-metric-token">tokens.spacing.${escapeHtml(k)}</div>
+        </button>
+      `;
     });
     html += '</div>';
   }
-  if (Object.keys(radius).length) {
-    html += '<div class="subsection" style="margin-top:24px">Corner Radius</div><div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">';
-    Object.entries(radius).forEach(([k,v]) => {
-      const px = v.value||v;
-      html += `<div style="text-align:center"><div style="width:52px;height:52px;background:var(--surface2);border:1px solid var(--border);border-radius:${px};margin:0 auto 6px"></div><div style="font-size:9px;font-family:var(--mono);color:var(--t3)">${escapeHtml(px)}</div><div style="font-size:10px;font-weight:700;color:var(--t1);margin-top:1px">${escapeHtml(k)}</div></div>`;
+  if (radius.length) {
+    html += '<div class="subsection" style="margin-top:24px">Corner Radius</div><div class="foundation-metric-grid">';
+    radius.forEach(([k,v]) => {
+      const px = Number.parseInt(v.value||v, 10) || 0;
+      html += `
+        <button class="foundation-metric-card" onclick="openInspectorPreview('foundation', ${escapeHtml(escapeJsString(k))}, 'radius')">
+          <div class="foundation-metric-visual">
+            <div class="foundation-radius-shape" style="border-radius:${escapeHtml(px)}px"></div>
+          </div>
+          <div class="foundation-metric-name">${escapeHtml(k)}</div>
+          <div class="foundation-metric-token">tokens.radius.${escapeHtml(k)}</div>
+        </button>
+      `;
     });
     html += '</div>';
   }
