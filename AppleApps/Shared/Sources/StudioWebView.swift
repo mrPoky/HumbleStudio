@@ -24,6 +24,9 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
                 importPayload: { [weak self] fileName, data in
                     self?.loadNativePayload(fileName: fileName, data: data)
                 },
+                loadRemoteURL: { [weak self] url in
+                    self?.loadRemoteURL(url)
+                },
                 navigateBack: { [weak self] in
                     self?.navigateBack()
                 },
@@ -89,6 +92,21 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
 
     private func loadDemo() {
         runJavaScript("loadDemo();")
+    }
+
+    private func loadRemoteURL(_ url: String) {
+        do {
+            let urlLiteral = try makeJavaScriptStringLiteral(url)
+            runJavaScript("""
+            (async function() {
+                const input = document.getElementById('urlInput');
+                if (input) input.value = \(urlLiteral);
+                await loadFromUrl();
+            })();
+            """)
+        } catch {
+            model.report(error: error)
+        }
     }
 
     private func loadNativePayload(fileName: String, data: Data) {

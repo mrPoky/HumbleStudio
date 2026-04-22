@@ -27,10 +27,20 @@ struct HumbleStudioMacApp: App {
                 }
                 .keyboardShortcut("o", modifiers: [.command])
 
+                Button("Open Remote URL…") {
+                    post(.studioOpenRemoteURL)
+                }
+                .keyboardShortcut("u", modifiers: [.command, .shift])
+
                 Button("Reopen Recent Import") {
                     post(.studioReopenRecentImport)
                 }
                 .keyboardShortcut("o", modifiers: [.command, .shift])
+
+                Button("Reopen Recent Remote URL") {
+                    post(.studioReopenRecentRemoteURL)
+                }
+                .keyboardShortcut("u", modifiers: [.command, .option])
 
                 Button("Reload") {
                     post(.studioReload)

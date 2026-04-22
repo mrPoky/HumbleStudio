@@ -5,6 +5,7 @@ struct StudioShellActions {
     var loadBundledStudio: (() -> Void)?
     var loadDemo: (() -> Void)?
     var importPayload: ((String, Data) -> Void)?
+    var loadRemoteURL: ((String) -> Void)?
     var navigateBack: (() -> Void)?
     var navigateForward: (() -> Void)?
     var reload: (() -> Void)?
@@ -14,6 +15,10 @@ final class StudioShellModel: ObservableObject {
     private enum RecentImportStore {
         static let bookmarkKey = "StudioShell.recentImportBookmark"
         static let nameKey = "StudioShell.recentImportName"
+    }
+
+    private enum RecentRemoteStore {
+        static let urlKey = "StudioShell.recentRemoteURL"
     }
 
     private var actions = StudioShellActions()
@@ -38,6 +43,7 @@ final class StudioShellModel: ObservableObject {
     @Published var statusLevel = "loading"
     @Published var statusText = "Loading bundled studio…"
     @Published var recentImportName = UserDefaults.standard.string(forKey: RecentImportStore.nameKey)
+    @Published var recentRemoteURL = UserDefaults.standard.string(forKey: RecentRemoteStore.urlKey)
 
     var sourceSummary: String {
         let trimmedValue = sourceValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -49,6 +55,10 @@ final class StudioShellModel: ObservableObject {
 
     var hasRecentImport: Bool {
         recentImportName != nil && UserDefaults.standard.data(forKey: RecentImportStore.bookmarkKey) != nil
+    }
+
+    var hasRecentRemoteURL: Bool {
+        !(recentRemoteURL?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
     }
 
     func connect(actions: StudioShellActions) {
@@ -103,6 +113,39 @@ final class StudioShellModel: ObservableObject {
         } catch {
             report(error: error)
         }
+    }
+
+    func loadRemoteURL(_ rawValue: String) {
+        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            statusLevel = "warn"
+            statusText = "Enter a remote bundle or config URL."
+            return
+        }
+
+        guard let parsed = URL(string: trimmed), let scheme = parsed.scheme?.lowercased(), ["http", "https"].contains(scheme) else {
+            statusLevel = "warn"
+            statusText = "Only http and https URLs are supported."
+            return
+        }
+
+        rememberRecentRemoteURL(trimmed)
+        clearError()
+        sourceLabel = "Remote URL"
+        sourceValue = trimmed
+        statusLevel = "loading"
+        statusText = "Loading remote source…"
+        actions.loadRemoteURL?(trimmed)
+    }
+
+    func reopenRecentRemoteURL() {
+        guard let recentRemoteURL, !recentRemoteURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            statusLevel = "warn"
+            statusText = "No recent remote URL is available yet."
+            return
+        }
+
+        loadRemoteURL(recentRemoteURL)
     }
 
     func navigateBack() {
@@ -196,5 +239,10 @@ final class StudioShellModel: ObservableObject {
         UserDefaults.standard.set(bookmarkData, forKey: RecentImportStore.bookmarkKey)
         UserDefaults.standard.set(url.lastPathComponent, forKey: RecentImportStore.nameKey)
         recentImportName = url.lastPathComponent
+    }
+
+    private func rememberRecentRemoteURL(_ urlString: String) {
+        UserDefaults.standard.set(urlString, forKey: RecentRemoteStore.urlKey)
+        recentRemoteURL = urlString
     }
 }
