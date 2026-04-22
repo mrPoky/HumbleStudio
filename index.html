@@ -57,6 +57,10 @@
       <input class="topbar-search-input" id="globalSearchInput" type="search" placeholder="Search tokens, icons, components, views…" oninput="handleGlobalSearch(this.value)" />
       <button class="btn-sm topbar-search-clear" id="globalSearchClear" onclick="clearGlobalSearch()" style="display:none">Clear</button>
     </div>
+    <button class="btn-sm command-palette-trigger" id="quickOpenBtn" onclick="openCommandPalette()">
+      <span>⌘K</span>
+      <span>Quick open</span>
+    </button>
     <button class="btn-sm" onclick="showPage('loader')">⬆ Load config</button>
     <button class="btn-sm btn-sm-accent" id="btnExport" onclick="exportConfig()" style="display:none">↓ Export</button>
   </div>
@@ -199,6 +203,23 @@
       <div class="lightbox-sub" id="inspectorPreviewSubtitle"></div>
     </div>
     <div class="inspector-preview-body" id="inspectorPreviewBody"></div>
+  </div>
+</div>
+
+<div id="commandPaletteModal" class="command-palette" style="display:none" onclick="closeCommandPalette()">
+  <div class="command-palette-dialog" onclick="event.stopPropagation()">
+    <div class="command-palette-head">
+      <input
+        class="command-palette-input"
+        id="commandPaletteInput"
+        type="search"
+        placeholder="Jump to pages, views, components, or tokens…"
+        autocomplete="off"
+        oninput="updateCommandPaletteResults(this.value)">
+      <button class="command-palette-close" onclick="closeCommandPalette()" aria-label="Close quick open">✕</button>
+    </div>
+    <div class="command-palette-hint" id="commandPaletteHint">Enter to preview or navigate · Shift+Enter opens full detail</div>
+    <div class="command-palette-list" id="commandPaletteList"></div>
   </div>
 </div>
 
