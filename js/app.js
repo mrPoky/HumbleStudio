@@ -957,7 +957,7 @@ function getCommandPaletteEntityItems() {
   const components = (config.components || []).map(component => createPaletteItem(
     'component',
     component.name,
-    [component.group || null, component.snapshot?.path ? 'Snapshot-backed' : (isCatalogOnlyComponent(component) ? 'Catalog states' : 'Interactive preview')].filter(Boolean).join(' · '),
+    getComponentStatusSubtitle(component),
     {
       key: `component:${component.id}`,
       entityType: 'component',
@@ -969,10 +969,7 @@ function getCommandPaletteEntityItems() {
   const views = (config.views || []).map(view => createPaletteItem(
     'view',
     view.name,
-    [
-      view.root || config.navigation?.root === view.id ? 'Root screen' : (view.presentation === 'sheet' ? 'Sheet screen' : 'Screen'),
-      view.snapshot?.path ? 'Snapshot-backed' : null,
-    ].filter(Boolean).join(' · '),
+    getViewStatusSubtitle(view),
     {
       key: `view:${view.id}`,
       entityType: 'view',
@@ -1314,6 +1311,7 @@ function renderPageFilters() {
   } else if (currentPage === 'components') {
     html = [
       buildFilterButton('components', 'all', 'All'),
+      buildFilterButton('components', 'attention', 'Needs Review'),
       buildFilterButton('components', 'used', 'Used'),
       buildFilterButton('components', 'catalog', 'Catalog'),
       buildFilterButton('components', 'snapshot', 'Snapshot'),
@@ -1321,6 +1319,7 @@ function renderPageFilters() {
   } else if (currentPage === 'views') {
     html = [
       buildFilterButton('views', 'all', 'All'),
+      buildFilterButton('views', 'attention', 'Needs Review'),
       buildFilterButton('views', 'root', 'Root'),
       buildFilterButton('views', 'snapshot', 'Snapshot'),
       buildFilterButton('views', 'navigating', 'Has Navigation'),
@@ -1562,10 +1561,7 @@ function syncComponentsPageChrome(mode = 'dashboard', comp = null) {
     if (detailHeader) detailHeader.style.display = 'flex';
     if (titleEl) titleEl.textContent = comp.name;
     if (descEl) {
-      descEl.textContent = comp.description || [
-        comp.group || null,
-        comp.snapshot?.path ? 'Snapshot-backed' : (isCatalogOnlyComponent(comp) ? 'Catalog states' : 'Interactive preview'),
-      ].filter(Boolean).join(' · ');
+      descEl.textContent = comp.description || getComponentStatusSubtitle(comp);
     }
     return;
   }
@@ -1590,10 +1586,7 @@ function renderComponentDetail(compId, target = null) {
   const contentEl = target?.contentEl || document.getElementById('componentsContent');
   if (!target?.preview) syncComponentsPageChrome('detail', comp);
   if (contentEl) contentEl.innerHTML = `<div class="component-grid component-grid-detail">${buildComponentCard(comp, { detailed: true })}</div>`;
-  const subtitle = [
-    comp.group || null,
-    comp.snapshot?.path ? 'Snapshot-backed' : (isCatalogOnlyComponent(comp) ? 'Catalog states' : 'Interactive preview'),
-  ].filter(Boolean).join(' · ');
+  const subtitle = getComponentStatusSubtitle(comp);
   return { title: comp.name, subtitle, openLabel: 'Open component detail' };
 }
 
@@ -1684,20 +1677,16 @@ function buildInspectorPreviewPayload(entityType, id, extra = '') {
     if (!comp) return null;
     detail = {
       title: comp.name,
-      subtitle: [comp.group || null, comp.snapshot?.path ? 'Snapshot-backed' : (isCatalogOnlyComponent(comp) ? 'Catalog states' : 'Interactive preview')].filter(Boolean).join(' · '),
+      subtitle: getComponentStatusSubtitle(comp),
       openLabel: 'Open component detail',
     };
     bodyHtml = buildComponentInspectorPreview(comp);
   } else if (entityType === 'view') {
     const view = (config?.views || []).find(v => v.id === id);
     if (!view) return null;
-    const subtitleParts = [];
-    if (view.root || config.navigation?.root === view.id) subtitleParts.push('Root screen');
-    else subtitleParts.push(view.presentation === 'sheet' ? 'Sheet screen' : 'Screen');
-    if (view.snapshot?.path) subtitleParts.push('Snapshot-backed');
     detail = {
       title: view.name,
-      subtitle: subtitleParts.join(' · '),
+      subtitle: getViewStatusSubtitle(view),
       openLabel: 'Open view detail',
     };
     bodyHtml = buildViewInspectorPreview(view);
