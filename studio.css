@@ -446,6 +446,12 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .r-panel-card{width:100%;max-width:320px;padding:16px;border-radius:20px;background:linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
 .r-panel-title{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:12px}
 .r-diff-card{max-width:340px}
+.r-difficulty-card{width:100%;max-width:360px;padding:18px;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.r-difficulty-card-title{font-size:14px;font-weight:800;color:var(--t1);text-align:center;margin-bottom:12px}
+.r-difficulty-card-panel{padding:8px;border-radius:20px;background:rgba(8,14,28,.42);border:1px solid rgba(255,255,255,.08)}
+.r-difficulty-options{display:flex;gap:8px;width:100%}
+.r-difficulty-option{flex:1;min-height:46px;padding:0 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid transparent;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:800;color:var(--t2);line-height:1.2}
+.r-difficulty-option-selected{background:linear-gradient(180deg, #5c9dff 0%, #3b82f6 100%);border-color:rgba(255,255,255,.24);color:#fff;box-shadow:0 10px 18px rgba(59,130,246,.24)}
 .r-diff-picker-shell{padding:7px;border-radius:18px;background:rgba(8,14,28,.42);border:1px solid rgba(255,255,255,.08)}
 .r-diff-picker{display:flex;gap:7px;width:100%}
 .r-diff-chip{flex:1;padding:11px 6px;border-radius:12px;background:transparent;border:1px solid transparent;color:var(--t2);font-size:11px;font-weight:700;text-align:center;cursor:pointer}
@@ -493,6 +499,17 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .r-action-head{margin-bottom:14px}
 .r-action-title{font-size:14px;font-weight:800;color:var(--t1)}
 .r-action-sub{font-size:11px;color:var(--t2);margin-top:4px;line-height:1.5}
+.r-import-card{width:100%;max-width:372px;padding:18px;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));border:1px solid rgba(61,214,186,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.r-import-copy{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.r-import-title{font-size:15px;font-weight:800;color:var(--t1);line-height:1.25}
+.r-import-subtitle{font-size:12px;color:var(--t2);line-height:1.5}
+.r-import-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.r-import-tile{max-width:none;min-height:116px;padding-block:18px}
+.r-import-banner{margin-top:16px}
+.r-import-success-wrap{margin-top:16px}
+.r-import-success{max-width:none}
+.r-import-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.r-import-action-btn{max-width:none;min-height:46px}
 .r-action-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .r-action-tile{background:transparent;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
 .r-action-icon{font-size:24px;line-height:1;color:var(--accent)}
