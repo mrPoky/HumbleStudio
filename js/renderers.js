@@ -835,6 +835,18 @@ function renderComponentPreview(comp, props) {
       const options = props.options || ['Extra lehke', 'Lehke', 'Stredni', 'Tezke', 'Extra tezke'];
       const sel = props.selected ?? 2;
       const title = props.title || 'Difficulty';
+      if (componentId === 'difficulty-picker-card' || componentName.includes('difficultypickercard')) {
+        return `
+          <div class="r-difficulty-card">
+            <div class="r-difficulty-card-title">${escapeHtml(title)}</div>
+            <div class="r-difficulty-card-panel">
+              <div class="r-difficulty-options">
+                ${options.map((o, i) => `<div class="r-difficulty-option${i === sel ? ' r-difficulty-option-selected' : ''}">${escapeHtml(o)}</div>`).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
       return `
         <div class="r-panel-card r-diff-card">
           <div class="r-panel-title">${escapeHtml(title)}</div>
@@ -926,6 +938,60 @@ function renderComponentPreview(comp, props) {
       const error = props.error;
       const success = props.success;
       const actions = props.actions || [];
+      if (componentId === 'puzzle-import-card' || componentName.includes('puzzleimportcard')) {
+        const resolveImportLabel = (label) => {
+          if (label === 'Camera') return 'Scan with camera';
+          if (label === 'Gallery') return 'Pick from Photos';
+          return label;
+        };
+        return `
+          <div class="r-import-card">
+            <div class="r-import-copy">
+              <div class="r-import-title">${escapeHtml(props.title || 'Import puzzle code')}</div>
+              <div class="r-import-subtitle">${escapeHtml(props.subtitle || '')}</div>
+            </div>
+            <div class="r-import-tiles">
+              ${tiles.map(tile => `
+                <div class="r-scan-tile r-scan-tile-outline r-import-tile">
+                  <div class="r-scan-tile-icon">${escapeHtml(symbolToGlyph(tile.icon))}</div>
+                  <div class="r-scan-tile-title">${escapeHtml(resolveImportLabel(tile.label))}</div>
+                </div>
+              `).join('')}
+            </div>
+            ${error ? `
+              <div class="r-inline-banner r-import-banner">
+                <div class="r-inline-banner-icon">${escapeHtml(symbolToGlyph('exclamationmarkTriangleFill'))}</div>
+                <div class="r-inline-banner-message">${escapeHtml(error)}</div>
+              </div>
+            ` : ''}
+            ${success ? `
+              <div class="r-import-success-wrap">
+                <div class="r-success-card r-import-success">
+                  <div class="r-success-icon">${escapeHtml(symbolToGlyph('checkmarkCircleFill'))}</div>
+                  <div class="r-success-copy">
+                    <div class="r-success-title">${escapeHtml(success.title || 'Puzzle loaded')}</div>
+                    <div class="r-success-subtitle">${escapeHtml(success.subtitle || '')}</div>
+                  </div>
+                  <div class="r-success-spacer"></div>
+                </div>
+              </div>
+            ` : ''}
+            ${actions.length ? `
+              <div class="r-import-actions">
+                ${actions.map(action => {
+                  const style = action.style || 'secondary';
+                  const cls = style === 'primary' || style === 'filled'
+                    ? 'r-btn-primary'
+                    : style === 'destructive'
+                      ? 'r-btn-destructive'
+                      : 'r-btn-secondary';
+                  return `<div class="${cls} r-btn-wide r-btn-settings r-import-action-btn">${escapeHtml(action.label)}</div>`;
+                }).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
       return `
         <div class="r-action-card">
           <div class="r-action-head">
