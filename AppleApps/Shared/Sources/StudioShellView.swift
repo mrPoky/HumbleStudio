@@ -4,7 +4,9 @@ import UniformTypeIdentifiers
 struct StudioShellView: View {
     @StateObject private var model = StudioShellModel()
     @State private var isImportingFile = false
+    @State private var isImportingRemoteURL = false
     @State private var isDropTargeted = false
+    @State private var remoteURLDraft = ""
 
     var body: some View {
         NavigationStack {
@@ -56,6 +58,13 @@ struct StudioShellView: View {
         .onReceive(NotificationCenter.default.publisher(for: .studioReopenRecentImport)) { _ in
             model.reopenRecentImport()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .studioOpenRemoteURL)) { _ in
+            remoteURLDraft = model.recentRemoteURL ?? ""
+            isImportingRemoteURL = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .studioReopenRecentRemoteURL)) { _ in
+            model.reopenRecentRemoteURL()
+        }
         .onReceive(NotificationCenter.default.publisher(for: .studioNavigateBack)) { _ in
             model.navigateBack()
         }
@@ -70,6 +79,9 @@ struct StudioShellView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .studioReload)) { _ in
             model.reload()
+        }
+        .sheet(isPresented: $isImportingRemoteURL) {
+            remoteURLSheet
         }
     }
 
@@ -113,6 +125,14 @@ struct StudioShellView: View {
         }
         .disabled(!model.isPageReady)
 
+        Button {
+            remoteURLDraft = model.recentRemoteURL ?? ""
+            isImportingRemoteURL = true
+        } label: {
+            Label("URL", systemImage: "link")
+        }
+        .disabled(!model.isPageReady)
+
         if model.hasRecentImport {
             Button {
                 model.reopenRecentImport()
@@ -143,6 +163,64 @@ struct StudioShellView: View {
             Label("Reload", systemImage: "arrow.clockwise")
         }
         .disabled(!model.isPageReady)
+    }
+
+    private var remoteURLSheet: some View {
+        NavigationStack {
+            Form {
+                Section("Remote source") {
+                    TextField(
+                        "https://raw.githubusercontent.com/user/repo/main/.humble/HumbleSudoku.humblebundle",
+                        text: $remoteURLDraft,
+                        axis: .vertical
+                    )
+                    #if os(iOS)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .keyboardType(.URL)
+                    #endif
+
+                    Text("Use a raw http/https URL to a `.humblebundle`, `.zip`, or `design.json`.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    if model.hasRecentRemoteURL, let recentRemoteURL = model.recentRemoteURL {
+                        Button {
+                            remoteURLDraft = recentRemoteURL
+                        } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Use recent URL")
+                                Text(recentRemoteURL)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Open Remote URL")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        isImportingRemoteURL = false
+                    }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Load") {
+                        let url = remoteURLDraft
+                        isImportingRemoteURL = false
+                        model.loadRemoteURL(url)
+                    }
+                    .disabled(remoteURLDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
+        }
+        .frame(minWidth: 520, minHeight: 240)
     }
 
     private var nativeContextBar: some View {
