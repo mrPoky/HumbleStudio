@@ -231,11 +231,14 @@ function symbolToGlyph(value) {
     photoOnRectangle: '▣',
     exclamationmarkTriangleFill: '⚠',
     checkmarkCircleFill: '✓',
+    checkmarkCircle: '✓',
+    checkmarkSealFill: '✓',
     bookmarkFill: '🔖',
     bookmark: '🔖',
     starFill: '★',
     circleDotted: '◌',
     chevronRight: '›',
+    sparkles: '✦',
   };
   return map[value] || value || '•';
 }
@@ -785,9 +788,19 @@ function renderComponentPreview(comp, props) {
   const type = comp.renderer || comp.type || inferType(comp.id);
   const disabled = props.disabled ? 'opacity:.4;pointer-events:none' : '';
   const componentName = (comp.name || '').toLowerCase();
+  const componentId = String(comp.id || '').toLowerCase();
 
   switch (type) {
     case 'button': {
+      if (componentName.includes('gamecontrolbutton') || componentId === 'game-control-button') {
+        const isActive = Boolean(props.active);
+        return `
+          <div class="r-game-control${isActive ? ' r-game-control-active' : ''}" style="${disabled}">
+            <div class="r-game-control-icon">${escapeHtml(symbolToGlyph(props.symbol || props.icon || 'sparkles'))}</div>
+            <div class="r-game-control-title">${escapeHtml(props.title || 'Hint')}</div>
+          </div>
+        `;
+      }
       const normalizedStyle = props.style || 'primary';
       const cls = {
         primary: 'r-btn-primary',
@@ -805,7 +818,15 @@ function renderComponentPreview(comp, props) {
       return `<div class="${buttonClass}" style="${disabled}">${icon}<span>${escapeHtml(props.title || 'Button')}</span></div>`;
     }
     case 'badge': {
-      const cls = {teal:'r-badge-teal',surface:'r-badge-surface',blue:'r-badge-blue'}[props.style||'teal']||'r-badge-teal';
+      const cls = {
+        teal: 'r-badge-teal',
+        surface: 'r-badge-surface',
+        secondary: 'r-badge-surface',
+        accent: 'r-badge-teal',
+        blue: 'r-badge-blue',
+        success: 'r-badge-success',
+        gradient: 'r-badge-gradient',
+      }[props.style || 'teal'] || 'r-badge-teal';
       return `<span class="${cls}">${escapeHtml(props.label||'Badge')}</span>`;
     }
     case 'timer':
@@ -834,6 +855,21 @@ function renderComponentPreview(comp, props) {
     }
     case 'list': {
       const rows = props.rows || [{ label: 'Item', value: 'Value' }];
+      if (componentName.includes('settingslist') || componentId === 'settings-list') {
+        return `
+          <div class="r-settings-list">
+            ${rows.map(r => `
+              <div class="r-settings-row">
+                <span class="r-settings-row-label">${escapeHtml(r.label)}</span>
+                <span class="r-settings-row-right">
+                  ${r.value ? `<span class="r-settings-row-value">${escapeHtml(r.value)}</span>` : ''}
+                  ${r.rightType === 'checkmark' ? `<span class="r-settings-row-check">✓</span>` : r.rightType === 'empty' ? '' : `<span class="r-settings-row-chevron">›</span>`}
+                </span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
       return `
         <div class="r-list-shell">
           <div class="r-list-card">
@@ -860,6 +896,18 @@ function renderComponentPreview(comp, props) {
     }
     case 'stat-chips': {
       const chips = props.chips||[{label:'Obtížnost',value:'Střední'},{label:'Čas',value:'00:06',accent:true}];
+      if (componentId === 'puzzle-detail-meta' || componentName.includes('puzzledetail')) {
+        return `
+          <div class="r-puzzle-meta">
+            ${chips.map(c => `
+              <div class="r-puzzle-meta-badge${c.accent ? ' r-puzzle-meta-badge-accent' : ''}">
+                <span class="r-puzzle-meta-label">${escapeHtml(c.label)}</span>
+                <span class="r-puzzle-meta-value">${escapeHtml(c.value)}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
       return `<div class="r-stat-row">${chips.map(c=>`<div class="r-stat-chip"><div class="r-stat-label">${escapeHtml(c.label)}</div><div class="r-stat-val" style="${c.accent?'color:var(--accent);font-family:var(--mono)':''}">${escapeHtml(c.value)}</div></div>`).join('')}</div>`;
     }
     case 'cell-states': {
@@ -949,6 +997,69 @@ function renderComponentPreview(comp, props) {
           <div class="r-success-spacer"></div>
         </div>
       `;
+    }
+    case 'sheet': {
+      if (componentId === 'hint-panel' || componentName.includes('hintpanelview') || props.level != null) {
+        const level = Math.min(3, Math.max(0, Number(props.level ?? 0)));
+        const hintCopy = [
+          'Look at the center row first.',
+          'Only one empty cell in the middle block can take a seven.',
+          'Row 5 and column 5 eliminate every other option, so the answer here is 7.',
+          'The answer here is 7.',
+        ][level];
+        return `
+          <div class="r-sheet r-sheet-hint">
+            <div class="r-sheet-icon r-sheet-icon-plain-accent">${escapeHtml(symbolToGlyph('sparkles'))}</div>
+            <div class="r-sheet-title">Hint</div>
+            <div class="r-sheet-message">${escapeHtml(hintCopy)}</div>
+            ${level === 3 ? `<div class="r-sheet-answer"><span class="r-sheet-answer-value">7</span><span class="r-sheet-answer-copy">Final answer</span></div>` : ''}
+            <div class="r-sheet-dots">${[0,1,2,3].map(index => `<span class="r-sheet-dot${index === level ? ' active' : ''}"></span>`).join('')}</div>
+          </div>
+        `;
+      }
+
+      if (componentId === 'game-feedback-sheet' || componentName.includes('gamefeedbacksheet') || props.kind) {
+        const kind = String(props.kind || 'check');
+        const feedback = {
+          check: {
+            icon: 'checkmarkCircle',
+            title: 'Check',
+            message: 'Two cells are currently conflicting. Fix them before you continue.',
+            iconClass: 'r-sheet-icon-accent',
+            action: '',
+          },
+          evaluation: {
+            icon: 'checkmarkSealFill',
+            title: 'Evaluation',
+            message: 'Nice progress. The board is not solved yet, but there are no immediate conflicts.',
+            iconClass: 'r-sheet-icon-plain-accent',
+            action: '<div class="r-sheet-action">Close</div>',
+          },
+          hint: {
+            icon: 'sparkles',
+            title: 'Hint',
+            message: 'Try stepping through the hint levels before revealing the final answer.',
+            iconClass: 'r-sheet-icon-plain-accent',
+            action: '<div class="r-sheet-action">Close</div>',
+          },
+        }[kind] || {
+          icon: 'checkmarkCircle',
+          title: 'Status',
+          message: 'Current game feedback.',
+          iconClass: 'r-sheet-icon-accent',
+          action: '',
+        };
+        return `
+          <div class="r-sheet r-sheet-feedback">
+            <div class="r-sheet-icon ${feedback.iconClass}">${escapeHtml(symbolToGlyph(feedback.icon))}</div>
+            <div class="r-sheet-title">${escapeHtml(feedback.title)}</div>
+            <div class="r-sheet-message">${escapeHtml(feedback.message)}</div>
+            ${feedback.action}
+          </div>
+        `;
+      }
+
+      return `<div class="r-sheet"><div class="r-sheet-title">${escapeHtml(props.title || comp.name || 'Sheet')}</div></div>`;
     }
     case 'tile-button':
     case 'tile-label': {
