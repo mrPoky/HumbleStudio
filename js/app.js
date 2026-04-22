@@ -3,6 +3,7 @@ let config = null;
 let currentPage = 'loader';
 let validationReport = { errors: [], warnings: [] };
 let componentEditorState = {};
+let viewDetailState = {};
 let currentFoundationDetail = null;
 let currentComponentDetailId = null;
 let currentViewDetailId = null;
@@ -350,6 +351,16 @@ function getDraftProps(component) {
   }
 }
 
+function getViewDetailState(view) {
+  if (!view) return null;
+  if (!viewDetailState[view.id]) {
+    viewDetailState[view.id] = {
+      detailTab: 'preview',
+    };
+  }
+  return viewDetailState[view.id];
+}
+
 function getValueAtPath(object, path) {
   return String(path || '')
     .split('.')
@@ -680,6 +691,7 @@ function applyConfig(data) {
   config = report.normalized;
   validationReport = { errors: report.errors, warnings: report.warnings };
   componentEditorState = {};
+  viewDetailState = {};
   globalSearchQuery = '';
   pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
   buildSidebar();
@@ -1267,6 +1279,14 @@ function setComponentDetailTab(compId, tab) {
   if (!comp || !state) return;
   state.detailTab = tab || 'preview';
   rerenderComponentCard(compId);
+}
+
+function setViewDetailTab(viewId, tab) {
+  const view = (config?.views || []).find(entry => entry.id === viewId);
+  const state = getViewDetailState(view);
+  if (!view || !state) return;
+  state.detailTab = tab || 'preview';
+  renderViewDetail(viewId);
 }
 
 // ─── Export ───────────────────────────────────────────────────────────────────

@@ -1685,6 +1685,7 @@ function renderViewDetail(viewId, target = null) {
   const view = (config?.views||[]).find(v=>v.id===viewId);
   if (!view) return null;
   if (!target?.preview) currentViewDetailId = viewId;
+  const state = getViewDetailState(view);
   const titleEl = target?.titleEl || document.getElementById('vdTitle');
   const contentEl = target?.contentEl || document.getElementById('viewDetailContent');
   if (titleEl) titleEl.textContent = view.name;
@@ -1812,7 +1813,60 @@ function renderViewDetail(viewId, target = null) {
       </div>
     </div>
   ` : '';
-  contentEl.innerHTML=`<div class="view-detail active"><div class="vd-screen">${snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`}</div><div class="vd-sidebar">${flowMeta}${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">How Users Get Here</div>${incomingArrows}</div>`:''} ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''} ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">What Users Can Do Next</div>${navArrows}</div>`:''} <div class="vd-panel"><div class="vd-panel-title">Design Graph</div><div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div><div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div><div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div><div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div><div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div></div>${dependencyPanel}${viewSourcePanel} ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${escapeHtml(view.description)}</div></div>`:''}<div class="vd-panel"><div class="vd-panel-title">Config</div><div style="font-size:10px;color:var(--t3)">id: <span style="color:var(--accent);font-family:var(--mono)">${escapeHtml(view.id)}</span></div>${view.snapshot?.path ? `<div style="font-size:10px;color:var(--t3);margin-top:4px">snapshot: <span style="color:var(--t2)">${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</span></div>` : ''}${view.presentation?`<div style="font-size:10px;color:var(--t3);margin-top:4px">presentation: <span style="color:var(--t2)">${escapeHtml(view.presentation)}</span></div>`:''} ${view.root?`<div style="font-size:10px;color:var(--t3);margin-top:4px">root: <span style="color:var(--warn)">true</span></div>`:''}</div></div></div>`;
+  const screenMarkup = snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`;
+  const configPanel = `
+    <div class="vd-panel">
+      <div class="vd-panel-title">Config</div>
+      <div class="vd-detail-kv-list">
+        <div class="vd-detail-kv"><span>ID</span><strong>${escapeHtml(view.id)}</strong></div>
+        ${view.snapshot?.path ? `<div class="vd-detail-kv"><span>Snapshot</span><strong>${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</strong></div>` : ''}
+        <div class="vd-detail-kv"><span>Presentation</span><strong>${escapeHtml(view.presentation || 'push')}</strong></div>
+        <div class="vd-detail-kv"><span>Role</span><strong>${view.root ? 'Root' : 'Standard'}</strong></div>
+      </div>
+    </div>
+  `;
+  const designGraphPanel = `
+    <div class="vd-panel">
+      <div class="vd-panel-title">Design Graph</div>
+      <div class="vd-graph-section"><div class="vd-graph-label">Colors</div>${buildFoundationPills(linkedColors, 'color')}</div>
+      <div class="vd-graph-section"><div class="vd-graph-label">Gradients</div>${buildFoundationPills(linkedGradients, 'gradient')}</div>
+      <div class="vd-graph-section"><div class="vd-graph-label">Icons</div>${buildFoundationPills(linkedIcons, 'icon')}</div>
+      <div class="vd-graph-section"><div class="vd-graph-label">Primitives</div>${buildTagList(primitiveTags)}</div>
+      <div class="vd-graph-section"><div class="vd-graph-label">Surfaces</div>${buildTagList(surfaceTags)}</div>
+      <div class="vd-graph-section"><div class="vd-graph-label">Text Tones</div>${buildTagList(textToneTags)}</div>
+    </div>
+  `;
+  const previewTab = `
+    ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''}
+    ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div class="vd-body-copy">${escapeHtml(view.description)}</div></div>`:''}
+    ${configPanel}
+  `;
+  const flowTab = `
+    ${flowMeta}
+    ${incomingArrows?`<div class="vd-panel"><div class="vd-panel-title">How Users Get Here</div>${incomingArrows}</div>`:''}
+    ${navArrows?`<div class="vd-panel"><div class="vd-panel-title">What Users Can Do Next</div>${navArrows}</div>`:''}
+  `;
+  const designTab = `
+    ${designGraphPanel}
+    ${dependencyPanel}
+  `;
+  const sourceTab = `
+    ${viewSourcePanel || `<div class="vd-panel"><div class="vd-panel-title">Source</div><div class="foundation-empty-note">No source metadata is available for this view yet.</div></div>`}
+    ${configPanel}
+  `;
+  const availableTabs = [
+    { id: 'preview', label: 'Preview', content: previewTab },
+    { id: 'flow', label: 'Flow', content: flowTab },
+    { id: 'design', label: 'Design', content: designTab },
+    { id: 'source', label: 'Source', content: sourceTab },
+  ].filter(tab => tab.content && tab.content.trim());
+  const activeDetailTab = ((availableTabs.find(tab => tab.id === state?.detailTab)?.id) || availableTabs[0]?.id || 'preview');
+  if (state && state.detailTab !== activeDetailTab) {
+    state.detailTab = activeDetailTab;
+  }
+  const tabButtons = availableTabs.map(tab => `<button class="vd-detail-tab${tab.id === activeDetailTab ? ' active' : ''}" onclick="setViewDetailTab('${view.id}', '${tab.id}')">${escapeHtml(tab.label)}</button>`).join('');
+  const activeTabContent = availableTabs.find(tab => tab.id === activeDetailTab)?.content || '';
+  contentEl.innerHTML=`<div class="view-detail active"><div class="vd-stage">${screenMarkup}</div><div class="vd-detail-body"><div class="vd-detail-tabs">${tabButtons}</div><div class="vd-detail-content">${activeTabContent}</div></div></div>`;
   const subtitleParts = [];
   if (view.root || config.navigation?.root === view.id) subtitleParts.push('Root screen');
   else subtitleParts.push(view.presentation === 'sheet' ? 'Sheet screen' : 'Screen');
