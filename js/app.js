@@ -7,6 +7,8 @@ let viewDetailState = {};
 let currentFoundationDetail = null;
 let currentComponentDetailId = null;
 let currentViewDetailId = null;
+let currentComponentDetailContext = '';
+let currentViewDetailContext = '';
 let currentInspectorPreview = null;
 let commandPaletteState = { open: false, query: '', selectedIndex: 0, results: [] };
 let navMapZoom = 1;
@@ -144,7 +146,7 @@ function showRoute(route, options = {}) {
     return;
   }
   if (route.page === 'viewdetail') {
-    showPage('viewdetail', route.viewId, options);
+    showViewPage(route.viewId, options);
     return;
   }
   if (route.page === 'foundationdetail') {
@@ -185,8 +187,14 @@ function showPage(id, extra, options = {}) {
   const page = document.getElementById('page-' + id);
   if (page) page.classList.add('active');
   currentPage = id;
-  if (id === 'components' && !extra) currentComponentDetailId = null;
-  if (id !== 'viewdetail') currentViewDetailId = null;
+  if (id === 'components' && !extra) {
+    currentComponentDetailId = null;
+    currentComponentDetailContext = '';
+  }
+  if (id !== 'viewdetail') {
+    currentViewDetailId = null;
+    currentViewDetailContext = '';
+  }
   if (id !== 'foundationdetail') currentFoundationDetail = null;
   syncSidebarActive(id, extra);
 
@@ -1554,9 +1562,15 @@ async function bootstrapLoaderExperience() {
 }
 
 function showComponentPage(compId, options = {}) {
+  currentComponentDetailContext = options.collectionKey || '';
   const detail = renderComponentDetail(compId);
   if (!detail) return;
   showPage('components', compId, options);
+}
+
+function showViewPage(viewId, options = {}) {
+  currentViewDetailContext = options.collectionKey || '';
+  showPage('viewdetail', viewId, options);
 }
 
 function syncComponentsPageChrome(mode = 'dashboard', comp = null) {
@@ -1571,7 +1585,13 @@ function syncComponentsPageChrome(mode = 'dashboard', comp = null) {
     if (detailHeader) detailHeader.style.display = 'flex';
     if (titleEl) titleEl.textContent = comp.name;
     if (descEl) {
-      descEl.textContent = comp.description || getComponentStatusSubtitle(comp);
+      const truth = getComponentTruthStatus(comp);
+      const usageCount = getComponentUsageViews(comp).length;
+      descEl.textContent = [
+        truth.label,
+        comp.renderer || comp.type || inferType(comp.id),
+        `${usageCount} view${usageCount === 1 ? '' : 's'}`,
+      ].filter(Boolean).join(' · ');
     }
     return;
   }
@@ -1581,6 +1601,150 @@ function syncComponentsPageChrome(mode = 'dashboard', comp = null) {
   if (dashboardDescEl) dashboardDescEl.textContent = 'All reusable UI pieces. Click to preview.';
   if (titleEl) titleEl.textContent = '';
   if (descEl) descEl.textContent = '';
+}
+
+function getInspectorCollectionLabel(collectionKey, fallback = 'Collection') {
+  if (!collectionKey) return fallback;
+  if (collectionKey === 'review:component' || collectionKey === 'review:view') return 'Review Queue';
+  return fallback;
+}
+
+function getInspectorPreviewCollection(entityType, extra = '', collectionKey = '') {
+  if (entityType === 'component') {
+    if (collectionKey === 'review:component' || (currentPage === 'review' && !collectionKey)) {
+      return getReviewQueueData().components.map(component => ({ entityType: 'component', id: component.id, extra: '', collectionKey: 'review:component' }));
+    }
+    const components = currentPage === 'components' && !currentComponentDetailId
+      ? getFilteredComponents()
+      : (config?.components || []);
+    return components.map(component => ({ entityType: 'component', id: component.id, extra: '', collectionKey }));
+  }
+
+  if (entityType === 'view') {
+    if (collectionKey === 'review:view' || (currentPage === 'review' && !collectionKey)) {
+      return getReviewQueueData().views.map(view => ({ entityType: 'view', id: view.id, extra: '', collectionKey: 'review:view' }));
+    }
+    const views = currentPage === 'views'
+      ? getFilteredViews()
+      : (config?.views || []);
+    return views.map(view => ({ entityType: 'view', id: view.id, extra: '', collectionKey }));
+  }
+
+  if (entityType === 'foundation') {
+    if (extra === 'icon') {
+      const icons = currentPage === 'icons'
+        ? getFilteredIcons()
+        : (config?.tokens?.icons || []);
+      return icons.map(icon => ({ entityType: 'foundation', id: icon.id || icon.name || icon.symbol, extra: 'icon', collectionKey }));
+    }
+
+    if (extra === 'gradient') {
+      const gradients = currentPage === 'tokens'
+        ? getFilteredGradientEntries()
+        : Object.entries(config?.tokens?.gradients || {});
+      return gradients.map(([id]) => ({ entityType: 'foundation', id, extra: 'gradient', collectionKey }));
+    }
+
+    if (extra === 'typography') {
+      const entries = currentPage === 'typography'
+        ? getFilteredTypographyEntries()
+        : getTypographyEntries();
+      return entries.map(([id]) => ({ entityType: 'foundation', id, extra: 'typography', collectionKey }));
+    }
+
+    if (extra === 'spacing') {
+      const entries = currentPage === 'spacing'
+        ? getFilteredSpacingEntries()
+        : Object.entries(config?.tokens?.spacing || {});
+      return entries.map(([id]) => ({ entityType: 'foundation', id, extra: 'spacing', collectionKey }));
+    }
+
+    if (extra === 'radius') {
+      const entries = currentPage === 'spacing'
+        ? getFilteredRadiusEntries()
+        : Object.entries(config?.tokens?.radius || {});
+      return entries.map(([id]) => ({ entityType: 'foundation', id, extra: 'radius', collectionKey }));
+    }
+
+    const colors = currentPage === 'tokens'
+      ? getFilteredColorEntries()
+      : Object.entries(config?.tokens?.colors || {});
+    return colors.map(([id]) => ({ entityType: 'foundation', id, extra: 'color', collectionKey }));
+  }
+
+  return [];
+}
+
+function getInspectorPreviewPosition(entityType, id, extra = '', collectionKey = '') {
+  const items = getInspectorPreviewCollection(entityType, extra, collectionKey);
+  const index = items.findIndex(item => item.id === id && item.extra === extra);
+  return { items, index };
+}
+
+function getInspectorSequenceMeta(entityType, id, extra = '', collectionKey = '') {
+  if (!collectionKey) return null;
+  const { items, index } = getInspectorPreviewPosition(entityType, id, extra, collectionKey);
+  if (index === -1 || !items.length) return null;
+  return {
+    collectionKey,
+    label: getInspectorCollectionLabel(collectionKey),
+    items,
+    index,
+    count: items.length,
+    previous: items[(index - 1 + items.length) % items.length],
+    next: items[(index + 1) % items.length],
+  };
+}
+
+function syncComponentDetailContextNav(comp) {
+  const backBtn = document.getElementById('componentBackBtn');
+  const navEl = document.getElementById('componentDetailNav');
+  if (!backBtn || !navEl || !comp) return;
+  const sequence = getInspectorSequenceMeta('component', comp.id, '', currentComponentDetailContext);
+  if (sequence) {
+    backBtn.textContent = '‹ Review Queue';
+    backBtn.onclick = () => showPage('review');
+    navEl.innerHTML = `
+      <div class="section-context-note">${escapeHtml(sequence.label)} · ${sequence.index + 1} / ${sequence.count}</div>
+      <button class="btn-sm" onclick="showComponentPage(${escapeHtml(escapeJsString(sequence.previous.id))}, { collectionKey: ${escapeHtml(escapeJsString(sequence.collectionKey))} })">‹ Previous</button>
+      <button class="btn-sm" onclick="showComponentPage(${escapeHtml(escapeJsString(sequence.next.id))}, { collectionKey: ${escapeHtml(escapeJsString(sequence.collectionKey))} })">Next ›</button>
+    `;
+    return;
+  }
+
+  backBtn.textContent = '‹ Components';
+  backBtn.onclick = () => showComponentsDashboard();
+  navEl.innerHTML = '';
+}
+
+function syncViewDetailContextNav(view) {
+  const backBtn = document.getElementById('viewBackBtn');
+  const navEl = document.getElementById('viewDetailNav');
+  const descEl = document.getElementById('vdDesc');
+  if (!backBtn || !navEl || !view) return;
+  if (descEl) {
+    const truth = getViewTruthStatus(view);
+    descEl.textContent = [
+      truth.label,
+      `${(view.components || []).length} component${(view.components || []).length === 1 ? '' : 's'}`,
+      `${(view.navigatesTo || []).length} next step${(view.navigatesTo || []).length === 1 ? '' : 's'}`,
+    ].join(' · ');
+  }
+  const sequence = getInspectorSequenceMeta('view', view.id, '', currentViewDetailContext);
+  if (sequence) {
+    backBtn.textContent = '‹ Review Queue';
+    backBtn.onclick = () => showPage('review');
+    navEl.innerHTML = `
+      <div class="section-context-note">${escapeHtml(sequence.label)} · ${sequence.index + 1} / ${sequence.count}</div>
+      <button class="btn-sm" onclick="showViewPage(${escapeHtml(escapeJsString(sequence.previous.id))}, { collectionKey: ${escapeHtml(escapeJsString(sequence.collectionKey))} })">‹ Previous</button>
+      <button class="btn-sm" onclick="showViewPage(${escapeHtml(escapeJsString(sequence.next.id))}, { collectionKey: ${escapeHtml(escapeJsString(sequence.collectionKey))} })">Next ›</button>
+    `;
+    return;
+  }
+
+  backBtn.textContent = '‹ Views';
+  backBtn.onclick = () => showPage('views');
+  navEl.innerHTML = '';
 }
 
 function showComponentsDashboard(options = {}) {
@@ -1595,6 +1759,7 @@ function renderComponentDetail(compId, target = null) {
   getComponentEditorState(comp);
   const contentEl = target?.contentEl || document.getElementById('componentsContent');
   if (!target?.preview) syncComponentsPageChrome('detail', comp);
+  if (!target?.preview) syncComponentDetailContextNav(comp);
   if (contentEl) contentEl.innerHTML = `<div class="component-grid component-grid-detail">${buildComponentCard(comp, { detailed: true })}</div>`;
   const subtitle = getComponentStatusSubtitle(comp);
   return { title: comp.name, subtitle, openLabel: 'Open component detail' };
@@ -1612,72 +1777,6 @@ function closeInspectorPreview() {
   currentInspectorPreview = null;
 }
 
-function getInspectorPreviewCollection(entityType, extra = '') {
-  if (entityType === 'component') {
-    const components = currentPage === 'components' && !currentComponentDetailId
-      ? getFilteredComponents()
-      : (config?.components || []);
-    return components.map(component => ({ entityType: 'component', id: component.id, extra: '' }));
-  }
-
-  if (entityType === 'view') {
-    const views = currentPage === 'views'
-      ? getFilteredViews()
-      : (config?.views || []);
-    return views.map(view => ({ entityType: 'view', id: view.id, extra: '' }));
-  }
-
-  if (entityType === 'foundation') {
-    if (extra === 'icon') {
-      const icons = currentPage === 'icons'
-        ? getFilteredIcons()
-        : (config?.tokens?.icons || []);
-      return icons.map(icon => ({ entityType: 'foundation', id: icon.id || icon.name || icon.symbol, extra: 'icon' }));
-    }
-
-    if (extra === 'gradient') {
-      const gradients = currentPage === 'tokens'
-        ? getFilteredGradientEntries()
-        : Object.entries(config?.tokens?.gradients || {});
-      return gradients.map(([id]) => ({ entityType: 'foundation', id, extra: 'gradient' }));
-    }
-
-    if (extra === 'typography') {
-      const entries = currentPage === 'typography'
-        ? getFilteredTypographyEntries()
-        : getTypographyEntries();
-      return entries.map(([id]) => ({ entityType: 'foundation', id, extra: 'typography' }));
-    }
-
-    if (extra === 'spacing') {
-      const entries = currentPage === 'spacing'
-        ? getFilteredSpacingEntries()
-        : Object.entries(config?.tokens?.spacing || {});
-      return entries.map(([id]) => ({ entityType: 'foundation', id, extra: 'spacing' }));
-    }
-
-    if (extra === 'radius') {
-      const entries = currentPage === 'spacing'
-        ? getFilteredRadiusEntries()
-        : Object.entries(config?.tokens?.radius || {});
-      return entries.map(([id]) => ({ entityType: 'foundation', id, extra: 'radius' }));
-    }
-
-    const colors = currentPage === 'tokens'
-      ? getFilteredColorEntries()
-      : Object.entries(config?.tokens?.colors || {});
-    return colors.map(([id]) => ({ entityType: 'foundation', id, extra: 'color' }));
-  }
-
-  return [];
-}
-
-function getInspectorPreviewPosition(entityType, id, extra = '') {
-  const items = getInspectorPreviewCollection(entityType, extra);
-  const index = items.findIndex(item => item.id === id && item.extra === extra);
-  return { items, index };
-}
-
 function buildInspectorPreviewPayload(entityType, id, extra = '') {
   let detail = null;
   let bodyHtml = '';
@@ -1689,6 +1788,10 @@ function buildInspectorPreviewPayload(entityType, id, extra = '') {
       title: comp.name,
       subtitle: getComponentStatusSubtitle(comp),
       openLabel: 'Open component detail',
+      metaItems: [
+        { label: 'Truth', value: getComponentTruthStatus(comp).label },
+        { label: 'Used In', value: `${getComponentUsageViews(comp).length} views` },
+      ],
     };
     bodyHtml = buildComponentInspectorPreview(comp);
   } else if (entityType === 'view') {
@@ -1698,6 +1801,10 @@ function buildInspectorPreviewPayload(entityType, id, extra = '') {
       title: view.name,
       subtitle: getViewStatusSubtitle(view),
       openLabel: 'Open view detail',
+      metaItems: [
+        { label: 'Truth', value: getViewTruthStatus(view).label },
+        { label: 'Flow', value: `${(view.navigatesTo || []).length} next step${(view.navigatesTo || []).length === 1 ? '' : 's'}` },
+      ],
     };
     bodyHtml = buildViewInspectorPreview(view);
   } else if (entityType === 'foundation') {
@@ -1713,6 +1820,7 @@ function buildInspectorPreviewPayload(entityType, id, extra = '') {
       title: id,
       subtitle: `${foundationLabels[extra] || 'Foundation'} preview`,
       openLabel: `Open ${foundationLabels[extra] || 'foundation'} detail`,
+      metaItems: [],
     };
     bodyHtml = buildFoundationInspectorPreview(extra, id);
     if (!bodyHtml) return null;
@@ -1720,10 +1828,49 @@ function buildInspectorPreviewPayload(entityType, id, extra = '') {
     if (extra === 'icon') {
       const icon = (config?.tokens?.icons || []).find(item => (item.id || item.name || item.symbol) === id);
       if (icon?.name) detail.title = icon.name;
+      detail.metaItems = [
+        { label: 'Symbol', value: icon?.symbol || '—' },
+        { label: 'Usage', value: `${getReferenceCount(icon) || getIconUsageEntities(id, icon).components.length + getIconUsageEntities(id, icon).views.length} linked items` },
+      ];
     } else if (extra === 'typography') {
       const token = getTypographyTokenById(id);
       if (token?.role) detail.title = token.role;
       if (token?.swiftui) detail.subtitle = `${foundationLabels[extra]} · ${token.swiftui}`;
+      detail.metaItems = [
+        { label: 'Style', value: token?.swiftui || 'Typography' },
+        { label: 'Size', value: `${token?.size || 0} pt` },
+      ];
+    } else if (extra === 'color') {
+      const token = config?.tokens?.colors?.[id];
+      detail.metaItems = [
+        { label: 'Token', value: `tokens.colors.${id}` },
+        { label: 'Usage', value: `${getReferenceCount(token) || 0} linked items` },
+      ];
+    } else if (extra === 'gradient') {
+      const token = config?.tokens?.gradients?.[id];
+      const stopCount = Math.max(
+        Array.isArray(token?.dark) ? token.dark.length : 0,
+        Array.isArray(token?.light) ? token.light.length : 0,
+        Array.isArray(token?.value) ? token.value.length : 0,
+      );
+      detail.metaItems = [
+        { label: 'Token', value: `tokens.gradients.${id}` },
+        { label: 'Stops', value: `${stopCount} stop${stopCount === 1 ? '' : 's'}` },
+      ];
+    } else if (extra === 'spacing') {
+      const token = config?.tokens?.spacing?.[id];
+      const px = Number.parseInt(token?.value || token, 10) || 0;
+      detail.metaItems = [
+        { label: 'Token', value: `tokens.spacing.${id}` },
+        { label: 'Value', value: `${px}px` },
+      ];
+    } else if (extra === 'radius') {
+      const token = config?.tokens?.radius?.[id];
+      const px = Number.parseInt(token?.value || token, 10) || 0;
+      detail.metaItems = [
+        { label: 'Token', value: `tokens.radius.${id}` },
+        { label: 'Value', value: `${px}px` },
+      ];
     }
   }
 
@@ -1733,13 +1880,16 @@ function buildInspectorPreviewPayload(entityType, id, extra = '') {
 function renderInspectorPreview() {
   const titleEl = document.getElementById('inspectorPreviewTitle');
   const subtitleEl = document.getElementById('inspectorPreviewSubtitle');
+  const metaEl = document.getElementById('inspectorPreviewMeta');
   const bodyEl = document.getElementById('inspectorPreviewBody');
   const openBtn = document.getElementById('inspectorPreviewOpenBtn');
+  const prevBtn = document.getElementById('inspectorPreviewPrevBtn');
+  const nextBtn = document.getElementById('inspectorPreviewNextBtn');
   const modal = document.getElementById('inspectorPreviewModal');
-  if (!titleEl || !subtitleEl || !bodyEl || !openBtn || !modal) return;
+  if (!titleEl || !subtitleEl || !metaEl || !bodyEl || !openBtn || !prevBtn || !nextBtn || !modal) return;
   if (!currentInspectorPreview) return;
 
-  const { entityType, id, extra } = currentInspectorPreview;
+  const { entityType, id, extra, collectionKey } = currentInspectorPreview;
   const payload = buildInspectorPreviewPayload(entityType, id, extra);
   if (!payload) {
     closeInspectorPreview();
@@ -1747,28 +1897,37 @@ function renderInspectorPreview() {
   }
 
   const { detail, bodyHtml } = payload;
-  const { items, index } = getInspectorPreviewPosition(entityType, id, extra);
+  const { items, index } = getInspectorPreviewPosition(entityType, id, extra, collectionKey);
   const galleryHint = items.length > 1 && index >= 0
     ? `${index + 1} of ${items.length} · Use ← →`
     : '';
 
   titleEl.textContent = detail.title || 'Detail preview';
   subtitleEl.textContent = [detail.subtitle || '', galleryHint].filter(Boolean).join(' · ');
+  metaEl.innerHTML = (detail.metaItems || []).slice(0, 2).map(item => `
+    <div class="inspector-preview-chip">
+      <span>${escapeHtml(item.label)}</span>
+      <strong>${escapeHtml(item.value)}</strong>
+    </div>
+  `).join('');
   bodyEl.innerHTML = bodyHtml;
   openBtn.setAttribute('title', detail.openLabel || 'Open detail');
   openBtn.setAttribute('aria-label', detail.openLabel || 'Open detail');
+  const canShift = items.length > 1 && index >= 0;
+  prevBtn.style.display = canShift ? 'flex' : 'none';
+  nextBtn.style.display = canShift ? 'flex' : 'none';
   modal.style.display = 'flex';
 }
 
-function openInspectorPreview(entityType, id, extra = '') {
-  currentInspectorPreview = { entityType, id, extra };
+function openInspectorPreview(entityType, id, extra = '', collectionKey = '') {
+  currentInspectorPreview = { entityType, id, extra, collectionKey };
   renderInspectorPreview();
 }
 
 function shiftInspectorPreview(delta) {
   if (!currentInspectorPreview || !delta) return false;
-  const { entityType, id, extra } = currentInspectorPreview;
-  const { items, index } = getInspectorPreviewPosition(entityType, id, extra);
+  const { entityType, id, extra, collectionKey } = currentInspectorPreview;
+  const { items, index } = getInspectorPreviewPosition(entityType, id, extra, collectionKey);
   if (index === -1 || items.length < 2) return false;
   const nextIndex = (index + delta + items.length) % items.length;
   currentInspectorPreview = items[nextIndex];
@@ -1778,14 +1937,14 @@ function shiftInspectorPreview(delta) {
 
 function openInspectorPreviewDetail() {
   if (!currentInspectorPreview) return;
-  const { entityType, id, extra } = currentInspectorPreview;
+  const { entityType, id, extra, collectionKey } = currentInspectorPreview;
   closeInspectorPreview();
   if (entityType === 'component') {
-    showComponentPage(id);
+    showComponentPage(id, { collectionKey });
     return;
   }
   if (entityType === 'view') {
-    showPage('viewdetail', id);
+    showViewPage(id, { collectionKey });
     return;
   }
   if (entityType === 'foundation') {

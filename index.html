@@ -145,6 +145,7 @@
         <div class="section-title" id="compPageTitle"></div>
         <div class="section-desc" id="compPageDesc"></div>
       </div>
+      <div class="section-header-actions" id="componentDetailNav"></div>
     </div>
     <div id="componentsContent"></div>
   </div>
@@ -166,9 +167,13 @@
 
   <!-- View detail -->
   <div id="page-viewdetail" class="page content">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
-      <button class="btn-sm" onclick="showPage('views')">‹ Views</button>
-      <div class="section-title" id="vdTitle"></div>
+    <div class="section-header-nav" id="viewDetailHeader">
+      <button class="btn-sm" id="viewBackBtn" onclick="showPage('views')">‹ Views</button>
+      <div class="section-heading-copy">
+        <div class="section-title" id="vdTitle"></div>
+        <div class="section-desc" id="vdDesc"></div>
+      </div>
+      <div class="section-header-actions" id="viewDetailNav"></div>
     </div>
     <div id="viewDetailContent"></div>
   </div>
@@ -206,11 +211,14 @@
 
 <div id="inspectorPreviewModal" class="lightbox" style="display:none" onclick="closeInspectorPreview()">
   <div class="lightbox-dialog inspector-preview-dialog" onclick="event.stopPropagation()">
+    <button class="inspector-preview-nav inspector-preview-nav-left" id="inspectorPreviewPrevBtn" onclick="shiftInspectorPreview(-1)" title="Previous" aria-label="Previous item">‹</button>
+    <button class="inspector-preview-nav inspector-preview-nav-right" id="inspectorPreviewNextBtn" onclick="shiftInspectorPreview(1)" title="Next" aria-label="Next item">›</button>
     <button class="lightbox-close inspector-preview-open-top" id="inspectorPreviewOpenBtn" onclick="openInspectorPreviewDetail()" title="Open detail" aria-label="Open detail">↗</button>
     <button class="lightbox-close" onclick="closeInspectorPreview()" title="Close preview" aria-label="Close preview">✕</button>
     <div class="lightbox-meta">
       <div class="lightbox-title" id="inspectorPreviewTitle">Detail preview</div>
       <div class="lightbox-sub" id="inspectorPreviewSubtitle"></div>
+      <div class="inspector-preview-meta" id="inspectorPreviewMeta"></div>
     </div>
     <div class="inspector-preview-body" id="inspectorPreviewBody"></div>
   </div>
