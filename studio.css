@@ -465,10 +465,12 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .lightbox-stage img{position:relative;z-index:1;display:block;max-width:100%;max-height:calc(100vh - 180px);object-fit:contain;border-radius:16px;background:var(--snapshot-image-bg);border:1px solid var(--snapshot-image-border)}
 .inspector-preview-dialog{width:min(1180px,100%);background:color-mix(in srgb, var(--surface) 94%, black 6%)}
 .inspector-preview-open-top{right:58px}
-.inspector-preview-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border:none;border-radius:999px;background:color-mix(in srgb, var(--surface2) 86%, var(--bg) 14%);border:1px solid var(--border);color:var(--t1);font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;box-shadow:0 12px 30px rgba(0,0,0,.18);opacity:.92}
-.inspector-preview-nav:hover{background:var(--surface)}
-.inspector-preview-nav-left{left:14px}
-.inspector-preview-nav-right{right:14px}
+.inspector-preview-nav{position:absolute;top:calc(50% + 34px);transform:translateY(-50%);width:34px;height:72px;border:none;background:transparent;color:color-mix(in srgb, var(--t2) 82%, var(--bg) 18%);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;opacity:.68;transition:opacity .15s,color .15s,transform .15s}
+.inspector-preview-nav:hover{opacity:.96;color:var(--t1);transform:translateY(-50%) scale(1.03)}
+.inspector-preview-nav:focus-visible{outline:none;opacity:1;color:var(--t1)}
+.inspector-preview-nav svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none;overflow:visible}
+.inspector-preview-nav-left{left:18px}
+.inspector-preview-nav-right{right:18px}
 .inspector-preview-body{padding:24px;overflow:auto;max-height:calc(100vh - 128px);background:var(--bg)}
 .inspector-preview-shell{display:flex;flex-direction:column;gap:14px}
 .inspector-preview-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden}
