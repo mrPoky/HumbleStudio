@@ -98,13 +98,51 @@ function buildPreviewAppearanceToggle(entityType, extra = '', toolbarClass = 'pr
         ${options.map(option => `
           <button
             class="cc-mode-btn${option === active ? ' active' : ''}"
-            onclick="setPreviewAppearance(${escapeJsString(entityType)}, ${escapeJsString(option)}, ${escapeJsString(extra)})">
+            onclick="setPreviewAppearance(${escapeHtml(escapeJsString(entityType))}, ${escapeHtml(escapeJsString(option))}, ${escapeHtml(escapeJsString(extra))})">
             ${escapeHtml(getPreviewAppearanceLabel(option))}
           </button>
         `).join('')}
       </div>
     </div>
   `;
+}
+
+function buildFoundationModeCompareLayout(appearance, values) {
+  const normalized = appearance === 'light' || appearance === 'dark' || appearance === 'both'
+    ? appearance
+    : 'both';
+  const dark = values.dark;
+  const light = values.light;
+  const sameValue = Boolean(values.sameValue);
+  const panelBuilder = (label, stageClass, styleValue) => `
+    <div class="${escapeHtml(values.panelClass)}">
+      <div class="${escapeHtml(values.labelClass)}">${escapeHtml(label)}</div>
+      <div class="${escapeHtml(stageClass)}" style="background:${escapeHtml(styleValue)}"></div>
+    </div>
+  `;
+
+  if (normalized === 'light') {
+    return `<div class="${escapeHtml(values.containerClass)} ${escapeHtml(values.singleClass)}">
+      ${panelBuilder('Light', values.stageClass, light)}
+    </div>`;
+  }
+
+  if (normalized === 'dark') {
+    return `<div class="${escapeHtml(values.containerClass)} ${escapeHtml(values.singleClass)}">
+      ${panelBuilder('Dark', values.stageClass, dark)}
+    </div>`;
+  }
+
+  if (sameValue) {
+    return `<div class="${escapeHtml(values.containerClass)} ${escapeHtml(values.singleClass)}">
+      ${panelBuilder('Dark / Light', values.stageClass, dark)}
+    </div>`;
+  }
+
+  return `<div class="${escapeHtml(values.containerClass)}">
+    ${panelBuilder('Dark', values.stageClass, dark)}
+    ${panelBuilder('Light', values.stageClass, light)}
+  </div>`;
 }
 
 function buildPreviewAppearancePanels(appearance, renderMarkup, options = {}) {
@@ -194,11 +232,18 @@ function buildFoundationInspectorPreview(kind, id) {
       <div class="inspector-preview-shell">
         ${buildPreviewAppearanceToggle('foundation', 'color', 'preview-appearance-toolbar preview-appearance-toolbar-modal')}
         <div class="inspector-preview-card">
-          ${buildPreviewAppearancePanels(appearance, mode => `
-            <div class="inspector-preview-stage">
-              <div class="foundation-color-stage" style="background:${escapeHtml(mode === 'light' ? light : dark)}"></div>
-            </div>
-          `)}
+          <div class="inspector-preview-stage">
+            ${buildFoundationModeCompareLayout(appearance, {
+              dark,
+              light,
+              sameValue: normalizeComparableValue(dark) === normalizeComparableValue(light),
+              containerClass: 'inspector-preview-foundation-compare',
+              singleClass: 'single',
+              panelClass: 'inspector-preview-foundation-panel',
+              labelClass: 'inspector-preview-foundation-label',
+              stageClass: 'foundation-color-stage',
+            })}
+          </div>
         </div>
       </div>
     `;
@@ -216,11 +261,18 @@ function buildFoundationInspectorPreview(kind, id) {
       <div class="inspector-preview-shell">
         ${buildPreviewAppearanceToggle('foundation', 'gradient', 'preview-appearance-toolbar preview-appearance-toolbar-modal')}
         <div class="inspector-preview-card">
-          ${buildPreviewAppearancePanels(appearance, mode => `
-            <div class="inspector-preview-stage">
-              <div class="foundation-gradient-stage" style="background:${escapeHtml(mode === 'light' ? lightGradientCss : darkGradientCss)}"></div>
-            </div>
-          `)}
+          <div class="inspector-preview-stage">
+            ${buildFoundationModeCompareLayout(appearance, {
+              dark: darkGradientCss,
+              light: lightGradientCss,
+              sameValue: arraysEqualNormalized(darkStops, lightStops) || normalizeComparableValue(darkGradientCss) === normalizeComparableValue(lightGradientCss),
+              containerClass: 'inspector-preview-foundation-compare',
+              singleClass: 'single',
+              panelClass: 'inspector-preview-foundation-panel',
+              labelClass: 'inspector-preview-foundation-label',
+              stageClass: 'foundation-gradient-stage',
+            })}
+          </div>
         </div>
       </div>
     `;
@@ -1822,9 +1874,16 @@ function renderFoundationDetail(kind, id, target = null) {
         <div class="foundation-detail-stage">
           <div class="foundation-preview-stack">
             ${buildPreviewAppearanceToggle('foundation', 'color', 'preview-appearance-toolbar preview-appearance-toolbar-detail')}
-            ${buildPreviewAppearancePanels(appearance, mode => `
-              <div class="foundation-color-stage" style="background:${escapeHtml(mode === 'light' ? light : dark)}"></div>
-            `, { viewportClass: 'preview-appearance-viewport-detail' })}
+            ${buildFoundationModeCompareLayout(appearance, {
+              dark,
+              light,
+              sameValue: normalizeComparableValue(dark) === normalizeComparableValue(light),
+              containerClass: 'foundation-mode-compare',
+              singleClass: 'foundation-mode-compare-single',
+              panelClass: 'foundation-mode-panel',
+              labelClass: 'foundation-mode-label',
+              stageClass: 'foundation-color-stage',
+            })}
           </div>
         </div>
         <div class="foundation-detail-meta">
@@ -2004,9 +2063,16 @@ function renderFoundationDetail(kind, id, target = null) {
       <div class="foundation-detail-stage">
         <div class="foundation-preview-stack">
           ${buildPreviewAppearanceToggle('foundation', 'gradient', 'preview-appearance-toolbar preview-appearance-toolbar-detail')}
-          ${buildPreviewAppearancePanels(appearance, mode => `
-            <div class="foundation-gradient-stage" style="background:${escapeHtml(mode === 'light' ? lightGradientCss : darkGradientCss)}"></div>
-          `, { viewportClass: 'preview-appearance-viewport-detail' })}
+          ${buildFoundationModeCompareLayout(appearance, {
+            dark: darkGradientCss,
+            light: lightGradientCss,
+            sameValue: arraysEqualNormalized(darkStops, lightStops) || normalizeComparableValue(darkGradientCss) === normalizeComparableValue(lightGradientCss),
+            containerClass: 'foundation-mode-compare',
+            singleClass: 'foundation-mode-compare-single',
+            panelClass: 'foundation-mode-panel',
+            labelClass: 'foundation-mode-label',
+            stageClass: 'foundation-gradient-stage',
+          })}
         </div>
       </div>
       <div class="foundation-detail-meta">
