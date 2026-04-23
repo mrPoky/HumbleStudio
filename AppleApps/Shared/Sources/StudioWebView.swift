@@ -133,7 +133,14 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
     }
 
     private func runJavaScript(_ script: String) {
-        webView?.evaluateJavaScript(script) { [weak self] _, error in
+        let wrappedScript = """
+        (function() {
+            \(script)
+            return true;
+        })();
+        """
+
+        webView?.evaluateJavaScript(wrappedScript) { [weak self] _, error in
             if let error {
                 self?.model.report(error: error)
             }
