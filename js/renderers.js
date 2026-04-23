@@ -187,10 +187,6 @@ function buildFoundationInspectorPreview(kind, id) {
         <div class="inspector-preview-card">
           <div class="inspector-preview-stage">
             <div class="foundation-typography-stage">
-              <div class="foundation-typography-spec">
-                <div class="foundation-typography-kicker">Style</div>
-                <div class="foundation-typography-spec-value">${escapeHtml(item.swiftui || item.role || 'Text style')}</div>
-              </div>
               <div class="foundation-typography-sample-wrap">
                 <div class="foundation-typography-kicker">Sample</div>
                 <div class="foundation-typography-sample" style="font-size:${escapeHtml(Math.min(Number(item.size) || 16, 36))}px;font-weight:${escapeHtml(item.weight || 600)};${item.mono ? 'font-family:var(--mono);' : ''}${item.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${item.secondary ? 'color:var(--t2);' : ''}">
@@ -1876,7 +1872,7 @@ function renderFoundationDetail(kind, id, target = null) {
           </div>
         </div>
       </div>
-    `;
+  `;
     return { title, subtitle: 'Typography detail', sourcePage, openLabel: 'Open typography detail' };
   }
 

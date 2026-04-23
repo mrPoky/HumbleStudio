@@ -222,7 +222,7 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .foundation-icon-stage,.foundation-color-stage,.foundation-gradient-stage{width:min(100%,560px);margin:0 auto}
 .foundation-icon-stage{display:flex;align-items:center;justify-content:center}
 .foundation-icon-canvas{width:100%;min-height:320px;border-radius:28px;background:color-mix(in srgb, var(--surface2) 80%, var(--surface) 20%);border:1px solid var(--snapshot-panel-border);display:flex;align-items:center;justify-content:center}
-.foundation-icon-canvas-flat{min-height:220px;background:transparent;border:none}
+.foundation-icon-canvas-flat{width:min(100%,420px);min-height:220px;background:color-mix(in srgb, var(--surface2) 80%, var(--surface) 20%);border:1px solid var(--snapshot-panel-border)}
 .foundation-icon-canvas .icon-preview-image{max-width:132px;max-height:132px;filter:var(--icon-preview-filter)}
 .icon-preview-glyph-large{font-size:40px}
 .foundation-color-stage,.foundation-gradient-stage{height:320px;border-radius:28px;border:1px solid rgba(255,255,255,.18);box-shadow:0 20px 40px rgba(0,0,0,.18);background-repeat:no-repeat;background-position:center;background-size:cover}
