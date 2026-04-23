@@ -33,6 +33,7 @@
       <div class="sb-section-title">Explore</div>
       <div class="sb-link" data-nav-key="page:views" onclick="showPage('views')"><span class="sb-link-icon">▭</span>Views <span class="sb-count" id="cntViews">0</span></div>
       <div class="sb-link" data-nav-key="page:components" onclick="showPage('components')"><span class="sb-link-icon">⬡</span>Components <span class="sb-count" id="cntComponents">0</span></div>
+      <div class="sb-link" data-nav-key="page:review" onclick="showPage('review')"><span class="sb-link-icon">!</span>Review Queue <span class="sb-count" id="cntReview">0</span></div>
       <div class="sb-link" data-nav-key="page:navmap" onclick="showPage('navmap')"><span class="sb-link-icon">⬡</span>Navigation Map</div>
     </div>
   </div>
@@ -152,6 +153,15 @@
   <div id="page-views" class="page content">
     <div class="section-header"><div class="section-title">Views</div><div class="section-desc">All app screens. Click to preview.</div></div>
     <div id="viewsContent"></div>
+  </div>
+
+  <!-- Review -->
+  <div id="page-review" class="page content">
+    <div class="section-header">
+      <div class="section-title">Review Queue</div>
+      <div class="section-desc">The weakest parts of the export contract and preview truth, surfaced in one place.</div>
+    </div>
+    <div id="reviewContent"></div>
   </div>
 
   <!-- View detail -->

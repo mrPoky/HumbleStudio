@@ -85,7 +85,7 @@ function decodeRouteHash(hash) {
   if (parts[0] === 'components' && parts[1]) return { page: 'componentdetail', componentId: parts[1] };
   if (parts[0] === 'views' && parts[1]) return { page: 'viewdetail', viewId: parts[1] };
   if (parts[0] === 'foundation' && parts[1] && parts[2]) return { page: 'foundationdetail', kind: parts[1], id: parts[2] };
-  if (parts[0] === 'tokens' || parts[0] === 'icons' || parts[0] === 'typography' || parts[0] === 'spacing' || parts[0] === 'components' || parts[0] === 'views' || parts[0] === 'navmap' || parts[0] === 'loader') {
+  if (parts[0] === 'tokens' || parts[0] === 'icons' || parts[0] === 'typography' || parts[0] === 'spacing' || parts[0] === 'components' || parts[0] === 'views' || parts[0] === 'review' || parts[0] === 'navmap' || parts[0] === 'loader') {
     return { page: parts[0] };
   }
   return { page: 'loader' };
@@ -193,7 +193,7 @@ function showPage(id, extra, options = {}) {
   const viewTitle = id === 'viewdetail' && extra
     ? ((config?.views || []).find(view => view.id === extra)?.name || extra)
     : 'View';
-  const titles = { loader:'HumbleStudio', tokens:'Tokens', icons:'Icons', foundationdetail: 'Foundation Detail', typography:'Typography', spacing:'Spacing & Radius', components:'Components', views:'Views', navmap:'Navigation Map', viewdetail: viewTitle };
+  const titles = { loader:'HumbleStudio', tokens:'Tokens', icons:'Icons', foundationdetail: 'Foundation Detail', typography:'Typography', spacing:'Spacing & Radius', components:'Components', views:'Views', review:'Review Queue', navmap:'Navigation Map', viewdetail: viewTitle };
   document.getElementById('topTitle').textContent = titles[id] || id;
   document.getElementById('topBreadcrumb').textContent = config ? (config.meta?.name || '') : '';
   renderTopbarSource();
@@ -206,6 +206,7 @@ function showPage(id, extra, options = {}) {
     renderComponents();
   }
   if (id === 'views') renderViews();
+  if (id === 'review') renderReview();
   if (id === 'navmap') renderNavMap();
   syncCurrentRoute(options);
 }
@@ -718,6 +719,7 @@ function applyConfig(data) {
   renderSpacing();
   renderComponents();
   renderViews();
+  renderReview();
   renderValidationBanner();
   if (report.errors.length) {
     setStatus('err', `Loaded with ${report.errors.length} error${report.errors.length === 1 ? '' : 's'}`);
@@ -798,6 +800,8 @@ function buildSidebar() {
   document.getElementById('cntIcons').textContent = (config.tokens?.icons || []).length;
   document.getElementById('cntComponents').textContent = (config.components || []).length;
   document.getElementById('cntViews').textContent = (config.views || []).length;
+  const reviewCounts = typeof getReviewQueueCounts === 'function' ? getReviewQueueCounts() : { total: 0 };
+  document.getElementById('cntReview').textContent = reviewCounts.total || 0;
 }
 
 function syncSearchUi() {
@@ -888,6 +892,11 @@ function getCommandPalettePages() {
       key: 'page:views',
       page: 'views',
       keywords: ['screens routes'],
+    }),
+    createPaletteItem('page', 'Review Queue', 'Inspect items that still need exported truth', {
+      key: 'page:review',
+      page: 'review',
+      keywords: ['review queue coverage attention missing snapshot truth'],
     }),
     createPaletteItem('page', 'Components', 'Open the component dashboard', {
       key: 'page:components',
@@ -1251,6 +1260,7 @@ function rerenderCurrentPage() {
     }
   }
   if (currentPage === 'views') renderViews();
+  if (currentPage === 'review') renderReview();
   if (currentPage === 'viewdetail') {
     const currentView = (config.views || []).find(view => view.id === currentViewDetailId);
     if (currentView) renderViewDetail(currentView.id);
