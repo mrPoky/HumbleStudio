@@ -91,6 +91,13 @@ struct StudioNativeDocument: Equatable {
     }
 
     struct ViewItem: Identifiable, Equatable {
+        struct NavigationSummary: Equatable, Identifiable {
+            let id: String
+            let targetID: String
+            let trigger: String
+            let type: String
+        }
+
         let id: String
         let name: String
         let summary: String
@@ -100,10 +107,20 @@ struct StudioNativeDocument: Equatable {
         let defaultState: String
         let statesCount: Int
         let componentsCount: Int
+        let components: [String]
+        let states: [String]
         let entryPoints: [String]
         let primaryActions: [String]
         let secondaryActions: [String]
         let navigationCount: Int
+        let navigatesTo: [NavigationSummary]
+        let designTokenCategories: [String]
+        let designTokenCount: Int
+        let sourceTokenCount: Int
+        let sourceSnippetSymbol: String
+        let sourceSnippetRange: String
+        let sheetPatternsCount: Int
+        let overlayPatternsCount: Int
         let snapshot: SnapshotAsset?
     }
 
@@ -778,6 +795,8 @@ final class StudioShellModel: ObservableObject {
         array.compactMap { value in
             guard let id = value["id"] as? String else { return nil }
             let actions = value["actions"] as? [String: Any] ?? [:]
+            let tokenSummary = (value["tokenDependencies"] as? [String: Any])?["summary"] as? [String: Any] ?? [:]
+            let sourceSnippet = value["sourceSnippet"] as? [String: Any] ?? [:]
             return StudioNativeDocument.ViewItem(
                 id: id,
                 name: (value["name"] as? String) ?? humanizedIdentifier(id),
@@ -788,16 +807,40 @@ final class StudioShellModel: ObservableObject {
                 defaultState: (value["defaultState"] as? String) ?? "",
                 statesCount: (value["states"] as? [Any])?.count ?? 0,
                 componentsCount: (value["components"] as? [Any])?.count ?? 0,
+                components: value["components"] as? [String] ?? [],
+                states: value["states"] as? [String] ?? [],
                 entryPoints: value["entryPoints"] as? [String] ?? [],
                 primaryActions: actions["primary"] as? [String] ?? [],
                 secondaryActions: actions["secondary"] as? [String] ?? [],
                 navigationCount: (value["navigatesTo"] as? [Any])?.count ?? 0,
+                navigatesTo: parseNavigationSummaries(value["navigatesTo"] as? [[String: Any]] ?? []),
+                designTokenCategories: tokenSummary["categories"] as? [String] ?? [],
+                designTokenCount: tokenSummary["designTokenCount"] as? Int ?? 0,
+                sourceTokenCount: tokenSummary["sourceTokenCount"] as? Int ?? 0,
+                sourceSnippetSymbol: (sourceSnippet["symbol"] as? String) ?? "",
+                sourceSnippetRange: sourceSnippetRange(sourceSnippet),
+                sheetPatternsCount: (value["sheetPatterns"] as? [Any])?.count ?? 0,
+                overlayPatternsCount: (value["overlayPatterns"] as? [Any])?.count ?? 0,
                 snapshot: parseSnapshotAsset(value["snapshot"] as? [String: Any])
             )
         }
         .sorted { lhs, rhs in
             if lhs.root != rhs.root { return lhs.root && !rhs.root }
             return lhs.name < rhs.name
+        }
+    }
+
+    private static func parseNavigationSummaries(_ array: [[String: Any]]) -> [StudioNativeDocument.ViewItem.NavigationSummary] {
+        array.enumerated().compactMap { index, value in
+            guard let targetID = value["viewId"] as? String else { return nil }
+            let trigger = value["trigger"] as? String ?? ""
+            let type = value["type"] as? String ?? "navigate"
+            return StudioNativeDocument.ViewItem.NavigationSummary(
+                id: "\(targetID)-\(type)-\(index)",
+                targetID: targetID,
+                trigger: trigger,
+                type: type
+            )
         }
     }
 
