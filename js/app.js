@@ -1893,7 +1893,7 @@ function renderInspectorPreview() {
   const { detail, bodyHtml } = payload;
   const { items, index } = getInspectorPreviewPosition(entityType, id, extra, collectionKey);
   const galleryHint = items.length > 1 && index >= 0
-    ? `${index + 1} of ${items.length} · Use ← →`
+    ? `${index + 1} of ${items.length}`
     : '';
 
   titleEl.textContent = detail.title || 'Detail preview';
