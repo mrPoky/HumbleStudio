@@ -14,6 +14,13 @@ let commandPaletteState = { open: false, query: '', selectedIndex: 0, results: [
 let navMapZoom = 1;
 let globalSearchQuery = '';
 let pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
+const DEFAULT_PREVIEW_APPEARANCE = Object.freeze({
+  component: 'dark',
+  view: 'dark',
+  color: 'both',
+  gradient: 'both',
+});
+let previewAppearanceState = { ...DEFAULT_PREVIEW_APPEARANCE };
 let currentLoadSource = null;
 let currentStatus = { type: 'loading', text: 'Booting studio…' };
 let pendingInitialRoute = null;
@@ -346,6 +353,57 @@ function getComponentEditorState(component) {
     };
   }
   return componentEditorState[component.id];
+}
+
+function getPreviewAppearanceKey(entityType, extra = '') {
+  if (entityType === 'component') return 'component';
+  if (entityType === 'view') return 'view';
+  if (entityType === 'foundation' && (extra === 'color' || extra === 'gradient')) return extra;
+  return '';
+}
+
+function getSupportedPreviewAppearances(entityType, extra = '') {
+  return getPreviewAppearanceKey(entityType, extra) ? ['light', 'both', 'dark'] : ['dark'];
+}
+
+function getPreviewAppearance(entityType, extra = '') {
+  const key = getPreviewAppearanceKey(entityType, extra);
+  if (!key) return 'dark';
+  return previewAppearanceState[key] || DEFAULT_PREVIEW_APPEARANCE[key] || 'dark';
+}
+
+function rerenderPreviewAppearanceTargets(entityType, extra = '') {
+  if (currentInspectorPreview
+    && currentInspectorPreview.entityType === entityType
+    && (entityType !== 'foundation' || currentInspectorPreview.extra === extra)) {
+    renderInspectorPreview();
+  }
+
+  if (entityType === 'component' && currentPage === 'components' && currentComponentDetailId) {
+    renderComponentDetail(currentComponentDetailId);
+    return;
+  }
+
+  if (entityType === 'view' && currentPage === 'viewdetail' && currentViewDetailId) {
+    renderViewDetail(currentViewDetailId);
+    return;
+  }
+
+  if (entityType === 'foundation'
+    && currentPage === 'foundationdetail'
+    && currentFoundationDetail?.kind === extra
+    && currentFoundationDetail?.id) {
+    renderFoundationDetail(extra, currentFoundationDetail.id);
+  }
+}
+
+function setPreviewAppearance(entityType, appearance, extra = '') {
+  const key = getPreviewAppearanceKey(entityType, extra);
+  if (!key) return;
+  const supported = getSupportedPreviewAppearances(entityType, extra);
+  const nextAppearance = supported.includes(appearance) ? appearance : (DEFAULT_PREVIEW_APPEARANCE[key] || 'dark');
+  previewAppearanceState[key] = nextAppearance;
+  rerenderPreviewAppearanceTargets(entityType, extra);
 }
 
 function isEditablePrimitiveValue(value) {
@@ -717,6 +775,7 @@ function applyConfig(data) {
   validationReport = { errors: report.errors, warnings: report.warnings };
   componentEditorState = {};
   viewDetailState = {};
+  previewAppearanceState = { ...DEFAULT_PREVIEW_APPEARANCE };
   globalSearchQuery = '';
   pageFilterState = { tokens: 'all', icons: 'all', components: 'all', views: 'all' };
   buildSidebar();
