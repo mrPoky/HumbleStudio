@@ -213,10 +213,13 @@
   <div class="lightbox-dialog inspector-preview-dialog" onclick="event.stopPropagation()">
     <button class="lightbox-close inspector-preview-open-top" id="inspectorPreviewOpenBtn" onclick="openInspectorPreviewDetail()" title="Open detail" aria-label="Open detail">↗</button>
     <button class="lightbox-close" onclick="closeInspectorPreview()" title="Close preview" aria-label="Close preview">✕</button>
-    <div class="lightbox-meta">
-      <div class="lightbox-title" id="inspectorPreviewTitle">Detail preview</div>
-      <div class="lightbox-sub" id="inspectorPreviewSubtitle"></div>
-      <div class="inspector-preview-meta" id="inspectorPreviewMeta"></div>
+    <div class="lightbox-meta inspector-preview-meta-shell">
+      <div class="inspector-preview-meta-copy">
+        <div class="lightbox-title" id="inspectorPreviewTitle">Detail preview</div>
+        <div class="lightbox-sub" id="inspectorPreviewSubtitle"></div>
+        <div class="inspector-preview-meta" id="inspectorPreviewMeta"></div>
+      </div>
+      <div class="inspector-preview-meta-actions" id="inspectorPreviewControls"></div>
     </div>
     <div class="inspector-preview-body">
       <button class="inspector-preview-nav inspector-preview-nav-left" id="inspectorPreviewPrevBtn" onclick="shiftInspectorPreview(-1)" title="Previous" aria-label="Previous item">

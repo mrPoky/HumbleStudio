@@ -176,7 +176,6 @@ function buildComponentInspectorPreview(comp) {
   const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('component') : 'dark';
   return `
     <div class="inspector-preview-shell inspector-preview-shell-flat">
-      ${buildPreviewAppearanceToggle('component', '', 'preview-appearance-toolbar preview-appearance-toolbar-modal')}
       ${buildPreviewAppearancePanels(appearance, () => `
         <div class="inspector-preview-stage inspector-preview-stage-flat">${preview}</div>
       `, { viewportClass: 'preview-appearance-viewport-flat' })}
@@ -192,7 +191,6 @@ function buildViewInspectorPreview(view) {
   const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('view') : 'dark';
   return `
     <div class="inspector-preview-shell inspector-preview-shell-flat">
-      ${buildPreviewAppearanceToggle('view', '', 'preview-appearance-toolbar preview-appearance-toolbar-modal')}
       ${buildPreviewAppearancePanels(appearance, () => `
         <div class="inspector-preview-stage inspector-preview-stage-flat">${stage}</div>
       `, { viewportClass: 'preview-appearance-viewport-flat' })}
@@ -229,21 +227,18 @@ function buildFoundationInspectorPreview(kind, id) {
     const light = item.light || item.value || item;
     const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('foundation', 'color') : 'both';
     return `
-      <div class="inspector-preview-shell">
-        ${buildPreviewAppearanceToggle('foundation', 'color', 'preview-appearance-toolbar preview-appearance-toolbar-modal')}
-        <div class="inspector-preview-card">
-          <div class="inspector-preview-stage">
-            ${buildFoundationModeCompareLayout(appearance, {
-              dark,
-              light,
-              sameValue: normalizeComparableValue(dark) === normalizeComparableValue(light),
-              containerClass: 'inspector-preview-foundation-compare',
-              singleClass: 'single',
-              panelClass: 'inspector-preview-foundation-panel',
-              labelClass: 'inspector-preview-foundation-label',
-              stageClass: 'foundation-color-stage',
-            })}
-          </div>
+      <div class="inspector-preview-shell inspector-preview-shell-flat">
+        <div class="inspector-preview-stage inspector-preview-stage-flat">
+          ${buildFoundationModeCompareLayout(appearance, {
+            dark,
+            light,
+            sameValue: normalizeComparableValue(dark) === normalizeComparableValue(light),
+            containerClass: 'inspector-preview-foundation-compare',
+            singleClass: 'single',
+            panelClass: 'inspector-preview-foundation-panel',
+            labelClass: 'inspector-preview-foundation-label',
+            stageClass: 'foundation-color-stage',
+          })}
         </div>
       </div>
     `;
@@ -258,21 +253,18 @@ function buildFoundationInspectorPreview(kind, id) {
     const lightGradientCss = lightStops.length ? `linear-gradient(135deg, ${lightStops.join(', ')})` : darkGradientCss;
     const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('foundation', 'gradient') : 'both';
     return `
-      <div class="inspector-preview-shell">
-        ${buildPreviewAppearanceToggle('foundation', 'gradient', 'preview-appearance-toolbar preview-appearance-toolbar-modal')}
-        <div class="inspector-preview-card">
-          <div class="inspector-preview-stage">
-            ${buildFoundationModeCompareLayout(appearance, {
-              dark: darkGradientCss,
-              light: lightGradientCss,
-              sameValue: arraysEqualNormalized(darkStops, lightStops) || normalizeComparableValue(darkGradientCss) === normalizeComparableValue(lightGradientCss),
-              containerClass: 'inspector-preview-foundation-compare',
-              singleClass: 'single',
-              panelClass: 'inspector-preview-foundation-panel',
-              labelClass: 'inspector-preview-foundation-label',
-              stageClass: 'foundation-gradient-stage',
-            })}
-          </div>
+      <div class="inspector-preview-shell inspector-preview-shell-flat">
+        <div class="inspector-preview-stage inspector-preview-stage-flat">
+          ${buildFoundationModeCompareLayout(appearance, {
+            dark: darkGradientCss,
+            light: lightGradientCss,
+            sameValue: arraysEqualNormalized(darkStops, lightStops) || normalizeComparableValue(darkGradientCss) === normalizeComparableValue(lightGradientCss),
+            containerClass: 'inspector-preview-foundation-compare',
+            singleClass: 'single',
+            panelClass: 'inspector-preview-foundation-panel',
+            labelClass: 'inspector-preview-foundation-label',
+            stageClass: 'foundation-gradient-stage',
+          })}
         </div>
       </div>
     `;
@@ -283,14 +275,12 @@ function buildFoundationInspectorPreview(kind, id) {
     if (!item) return '';
     const previewText = item.preview || item.role || 'Typography';
     return `
-      <div class="inspector-preview-shell">
-        <div class="inspector-preview-card">
-          <div class="inspector-preview-stage">
-            <div class="foundation-typography-stage">
-              <div class="foundation-typography-sample-wrap">
-                <div class="foundation-typography-sample" style="font-size:${escapeHtml(Math.min(Number(item.size) || 16, 36))}px;font-weight:${escapeHtml(item.weight || 600)};${item.mono ? 'font-family:var(--mono);' : ''}${item.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${item.secondary ? 'color:var(--t2);' : ''}">
-                  ${escapeHtml(previewText)}
-                </div>
+      <div class="inspector-preview-shell inspector-preview-shell-flat">
+        <div class="inspector-preview-stage inspector-preview-stage-flat">
+          <div class="foundation-typography-stage">
+            <div class="foundation-typography-sample-wrap">
+              <div class="foundation-typography-sample" style="font-size:${escapeHtml(Math.min(Number(item.size) || 16, 36))}px;font-weight:${escapeHtml(item.weight || 600)};${item.mono ? 'font-family:var(--mono);' : ''}${item.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${item.secondary ? 'color:var(--t2);' : ''}">
+                ${escapeHtml(previewText)}
               </div>
             </div>
           </div>
@@ -305,14 +295,12 @@ function buildFoundationInspectorPreview(kind, id) {
     const px = Number.parseInt(item.value || item, 10) || 0;
     const scale = px % 8 === 0 ? `${px / 8}× 8pt grid` : px % 4 === 0 ? `${px / 4}× 4pt step` : 'Custom spacing step';
     return `
-      <div class="inspector-preview-shell">
-        <div class="inspector-preview-card">
-          <div class="inspector-preview-stage">
-            <div class="foundation-metric-stage">
-              <div class="foundation-metric-value">${escapeHtml(px)}px</div>
-              <div class="foundation-spacing-bar" style="width:${Math.max(10, Math.min(px * 2, 260))}px"></div>
-              <div class="foundation-metric-note">${escapeHtml(scale)}</div>
-            </div>
+      <div class="inspector-preview-shell inspector-preview-shell-flat">
+        <div class="inspector-preview-stage inspector-preview-stage-flat">
+          <div class="foundation-metric-stage">
+            <div class="foundation-metric-value">${escapeHtml(px)}px</div>
+            <div class="foundation-spacing-bar" style="width:${Math.max(10, Math.min(px * 2, 260))}px"></div>
+            <div class="foundation-metric-note">${escapeHtml(scale)}</div>
           </div>
         </div>
       </div>
@@ -325,18 +313,16 @@ function buildFoundationInspectorPreview(kind, id) {
     const px = Number.parseInt(item.value || item, 10) || 0;
     const softness = px <= 8 ? 'Subtle rounding' : px <= 16 ? 'Card rounding' : px <= 28 ? 'Strong rounding' : 'Pill / large rounding';
     return `
-      <div class="inspector-preview-shell">
-        <div class="inspector-preview-card">
-          <div class="inspector-preview-stage">
-            <div class="foundation-metric-stage">
-              <div class="foundation-metric-value">${escapeHtml(px)}px</div>
-              <div class="foundation-radius-showcase">
-                <div class="foundation-radius-chip foundation-radius-chip-small" style="border-radius:${escapeHtml(px)}px"></div>
-                <div class="foundation-radius-chip foundation-radius-chip-medium" style="border-radius:${escapeHtml(px)}px"></div>
-                <div class="foundation-radius-chip foundation-radius-chip-large" style="border-radius:${escapeHtml(px)}px"></div>
-              </div>
-              <div class="foundation-metric-note">${escapeHtml(softness)}</div>
+      <div class="inspector-preview-shell inspector-preview-shell-flat">
+        <div class="inspector-preview-stage inspector-preview-stage-flat">
+          <div class="foundation-metric-stage">
+            <div class="foundation-metric-value">${escapeHtml(px)}px</div>
+            <div class="foundation-radius-showcase">
+              <div class="foundation-radius-chip foundation-radius-chip-small" style="border-radius:${escapeHtml(px)}px"></div>
+              <div class="foundation-radius-chip foundation-radius-chip-medium" style="border-radius:${escapeHtml(px)}px"></div>
+              <div class="foundation-radius-chip foundation-radius-chip-large" style="border-radius:${escapeHtml(px)}px"></div>
             </div>
+            <div class="foundation-metric-note">${escapeHtml(softness)}</div>
           </div>
         </div>
       </div>

@@ -512,6 +512,9 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .lightbox-stage img{position:relative;z-index:1;display:block;max-width:100%;max-height:calc(100vh - 180px);object-fit:contain;border-radius:16px;background:var(--snapshot-image-bg);border:1px solid var(--snapshot-image-border)}
 .inspector-preview-dialog{width:min(1180px,100%);background:color-mix(in srgb, var(--surface) 94%, black 6%)}
 .inspector-preview-open-top{right:58px}
+.inspector-preview-meta-shell{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-right:112px}
+.inspector-preview-meta-copy{display:flex;flex-direction:column;min-width:0;flex:1}
+.inspector-preview-meta-actions{display:flex;align-items:flex-start;justify-content:flex-end;min-width:0;flex-shrink:0}
 .inspector-preview-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:104px;border:none;background:transparent;color:color-mix(in srgb, var(--t3) 86%, var(--bg) 14%);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;opacity:.7;transition:opacity .15s,color .15s,transform .15s}
 .inspector-preview-nav:hover{opacity:.98;color:var(--t1);transform:translateY(-50%) scale(1.04)}
 .inspector-preview-nav:focus-visible{outline:none;opacity:1;color:var(--t1)}
@@ -541,6 +544,7 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .inspector-preview-stage .snapshot-label{display:none}
 .preview-appearance-toolbar{display:flex;align-items:center;justify-content:flex-start}
 .preview-appearance-toolbar-modal{padding:0 0 12px}
+.preview-appearance-toolbar-header{padding:0}
 .preview-appearance-toolbar-detail{padding:0;margin-left:auto}
 .preview-appearance-toggle{padding:0;border:none;background:transparent}
 .preview-appearance-compare{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -773,6 +777,8 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 @media (max-width: 900px){
   .lightbox{padding:12px}
   .lightbox-meta{padding:18px 52px 14px 16px}
+  .inspector-preview-meta-shell{flex-direction:column;padding-right:52px}
+  .inspector-preview-meta-actions{width:100%;justify-content:flex-start}
   .lightbox-stage{padding:12px}
   .view-detail.active{grid-template-columns:1fr}
   .foundation-detail-layout{grid-template-columns:1fr}

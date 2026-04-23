@@ -1934,12 +1934,13 @@ function renderInspectorPreview() {
   const titleEl = document.getElementById('inspectorPreviewTitle');
   const subtitleEl = document.getElementById('inspectorPreviewSubtitle');
   const metaEl = document.getElementById('inspectorPreviewMeta');
+  const controlsEl = document.getElementById('inspectorPreviewControls');
   const bodyEl = document.getElementById('inspectorPreviewBody');
   const openBtn = document.getElementById('inspectorPreviewOpenBtn');
   const prevBtn = document.getElementById('inspectorPreviewPrevBtn');
   const nextBtn = document.getElementById('inspectorPreviewNextBtn');
   const modal = document.getElementById('inspectorPreviewModal');
-  if (!titleEl || !subtitleEl || !metaEl || !bodyEl || !openBtn || !prevBtn || !nextBtn || !modal) return;
+  if (!titleEl || !subtitleEl || !metaEl || !controlsEl || !bodyEl || !openBtn || !prevBtn || !nextBtn || !modal) return;
   if (!currentInspectorPreview) return;
 
   const { entityType, id, extra, collectionKey } = currentInspectorPreview;
@@ -1963,6 +1964,9 @@ function renderInspectorPreview() {
       <strong>${escapeHtml(item.value)}</strong>
     </div>
   `).join('');
+  controlsEl.innerHTML = typeof buildPreviewAppearanceToggle === 'function'
+    ? buildPreviewAppearanceToggle(entityType, extra, 'preview-appearance-toolbar preview-appearance-toolbar-header')
+    : '';
   bodyEl.innerHTML = bodyHtml;
   openBtn.setAttribute('title', detail.openLabel || 'Open detail');
   openBtn.setAttribute('aria-label', detail.openLabel || 'Open detail');
