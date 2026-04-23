@@ -318,9 +318,16 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .review-card-subtitle{font-size:11px;color:var(--t3);line-height:1.45}
 .review-card-badge{padding:5px 9px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);font-size:10px;font-weight:700;color:var(--t2);white-space:nowrap}
 .review-card-body{display:flex;flex-direction:column;gap:8px}
+.review-card-section{display:flex;flex-direction:column;gap:8px}
+.review-card-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3)}
 .review-card-summary{font-size:12px;color:var(--t2);line-height:1.6}
 .review-card-next{font-size:11px;color:var(--t1);line-height:1.55}
 .review-card-actions{display:flex;gap:8px;flex-wrap:wrap}
+.truth-evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.truth-evidence-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px;min-width:0}
+.truth-evidence-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3)}
+.truth-evidence-value{margin-top:6px;font-size:11px;font-weight:700;color:var(--t1);line-height:1.45}
+.truth-evidence-detail{margin-top:4px;font-size:11px;color:var(--t2);line-height:1.5}
 .component-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
 .component-card-detail{max-width:1100px}
 .component-card-summary{width:100%;padding:0;text-align:left;cursor:pointer;font-family:var(--font);color:inherit;appearance:none;background:var(--surface);transition:border-color .15s,transform .15s,box-shadow .15s}
@@ -399,6 +406,7 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
 .cc-capability-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3)}
 .cc-capability-value{margin-top:6px;font-size:11px;font-weight:700;color:var(--t1);line-height:1.45}
 .cc-capability-copy{margin-top:6px;font-size:11px;color:var(--t2);line-height:1.55}
+.cc-capability-copy-cta{padding-top:2px}
 .cc-usage-title{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.7px}
 .cc-related-panel{padding:0 12px 12px;display:flex;flex-direction:column;gap:10px}
 .cc-related-section{display:flex;flex-direction:column;gap:8px}
@@ -788,5 +796,6 @@ border:1px solid var(--border);display:flex;align-items:center;justify-content:c
   .nav-map-header{align-items:flex-start;flex-direction:column}
   .cc-capability-grid{grid-template-columns:1fr}
   .cc-compare-stage{grid-template-columns:1fr}
+  .truth-evidence-grid{grid-template-columns:1fr}
   .guided-grid{grid-template-columns:1fr}
 }

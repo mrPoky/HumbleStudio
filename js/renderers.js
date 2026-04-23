@@ -1031,6 +1031,118 @@ function getViewTruthStatus(view) {
   };
 }
 
+function getSnapshotDisplayName(snapshot, fallback = 'snapshot') {
+  if (!snapshot?.path) return `No ${fallback}`;
+  return snapshot.name || snapshot.path.split('/').pop() || `${fallback}.png`;
+}
+
+function getTruthNextStep(type, item) {
+  const truth = type === 'component' ? getComponentTruthStatus(item) : getViewTruthStatus(item);
+  if (type === 'component') {
+    if (truth.kind === 'catalog') {
+      return 'Export a standalone component snapshot so the declared states can be visually validated.';
+    }
+    if (truth.kind === 'approximation') {
+      return 'Export a standalone component snapshot or declare curated states so this preview stops relying on approximation.';
+    }
+    return 'Keep the exported snapshot in sync with the source component as the app evolves.';
+  }
+
+  if (truth.kind === 'approximation') {
+    return 'Export a screen snapshot so this view can use a direct visual source of truth.';
+  }
+  return 'Keep the exported screen snapshot aligned with the live route and layout.';
+}
+
+function getTruthReason(type, item) {
+  const truth = type === 'component' ? getComponentTruthStatus(item) : getViewTruthStatus(item);
+  if (type === 'component') {
+    if (truth.kind === 'reference') {
+      return 'A standalone exported component snapshot exists, so this preview can be checked against app truth directly.';
+    }
+    if (truth.kind === 'catalog') {
+      return 'The component has declared app states, but it still lacks a standalone exported snapshot for visual validation.';
+    }
+    return 'The component currently relies on an approximation because the export includes neither a standalone snapshot nor a curated state catalog.';
+  }
+
+  if (truth.kind === 'reference') {
+    return 'An exported screen snapshot exists, so this view has a direct visual source of truth.';
+  }
+  return 'The screen is synthesized from config and relationships because no exported snapshot exists yet.';
+}
+
+function getComponentTruthEvidence(component) {
+  const states = getComponentStates(component);
+  const usageViews = getComponentUsageViews(component);
+  const sourceHint = component?.sourceSnippet?.symbol || component?.source || component?.swiftui || '';
+  const truth = getComponentTruthStatus(component);
+  return [
+    {
+      label: 'Snapshot',
+      value: component?.snapshot?.path ? 'Exported' : 'Missing',
+      detail: getSnapshotDisplayName(component?.snapshot, 'component snapshot'),
+    },
+    {
+      label: 'States',
+      value: states.length ? `${states.length} declared` : 'None declared',
+      detail: truth.kind === 'catalog' ? 'Curated state catalog' : 'Preview props and mocks',
+    },
+    {
+      label: 'Source',
+      value: sourceHint ? 'Linked' : 'Missing',
+      detail: sourceHint ? sourceHint.split('/').pop() : 'No source metadata exported',
+    },
+    {
+      label: 'Used In',
+      value: `${usageViews.length} view${usageViews.length === 1 ? '' : 's'}`,
+      detail: usageViews.length ? usageViews.slice(0, 2).map(view => view.name).join(', ') : 'No linked views',
+    },
+  ];
+}
+
+function getViewTruthEvidence(view) {
+  const sourceHint = view?.sourceSnippet?.symbol || view?.source || '';
+  const nextSteps = (view?.navigatesTo || []).length;
+  const componentCount = (view?.components || []).length;
+  return [
+    {
+      label: 'Snapshot',
+      value: view?.snapshot?.path ? 'Exported' : 'Missing',
+      detail: getSnapshotDisplayName(view?.snapshot, 'screen snapshot'),
+    },
+    {
+      label: 'Flow',
+      value: `${nextSteps} next step${nextSteps === 1 ? '' : 's'}`,
+      detail: view.root || config?.navigation?.root === view.id ? 'Root route entry' : (view.presentation || 'Push presentation'),
+    },
+    {
+      label: 'Source',
+      value: sourceHint ? 'Linked' : 'Missing',
+      detail: sourceHint ? sourceHint.split('/').pop() : 'No source metadata exported',
+    },
+    {
+      label: 'Components',
+      value: `${componentCount} component${componentCount === 1 ? '' : 's'}`,
+      detail: componentCount ? 'Declared in config' : 'No component list declared',
+    },
+  ];
+}
+
+function buildTruthEvidenceGrid(items) {
+  return `
+    <div class="truth-evidence-grid">
+      ${items.map(item => `
+        <div class="truth-evidence-item">
+          <div class="truth-evidence-label">${escapeHtml(item.label)}</div>
+          <div class="truth-evidence-value">${escapeHtml(item.value)}</div>
+          ${item.detail ? `<div class="truth-evidence-detail">${escapeHtml(item.detail)}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 function getComponentStatusSubtitle(component) {
   return [component?.group || null, getComponentTruthStatus(component).label].filter(Boolean).join(' · ');
 }
@@ -1099,17 +1211,15 @@ function getReviewQueueData() {
 function buildReviewActionCard(type, item) {
   const truth = type === 'component' ? getComponentTruthStatus(item) : getViewTruthStatus(item);
   const collectionKey = type === 'component' ? 'review:component' : 'review:view';
+  const evidence = type === 'component' ? getComponentTruthEvidence(item) : getViewTruthEvidence(item);
   const countLabel = type === 'component'
     ? `${getComponentUsageViews(item).length} view${getComponentUsageViews(item).length === 1 ? '' : 's'}`
     : `${(item.navigatesTo || []).length} next step${(item.navigatesTo || []).length === 1 ? '' : 's'}`;
   const secondaryLabel = type === 'component'
     ? [item.group || null, countLabel].filter(Boolean).join(' · ')
     : [item.root || config?.navigation?.root === item.id ? 'Root screen' : 'Screen', countLabel].filter(Boolean).join(' · ');
-  const nextStep = type === 'component'
-    ? (truth.kind === 'catalog'
-      ? 'Export a standalone component snapshot so the catalog states can be visually validated.'
-      : 'Export a standalone component snapshot so this preview no longer relies on approximation.')
-    : 'Export a screen snapshot so this view can use a visual source of truth.';
+  const nextStep = getTruthNextStep(type, item);
+  const reason = getTruthReason(type, item);
 
   return `
     <div class="review-card review-card-${escapeHtml(truth.tone)}">
@@ -1121,7 +1231,14 @@ function buildReviewActionCard(type, item) {
         <div class="review-card-badge">${escapeHtml(truth.label)}</div>
       </div>
       <div class="review-card-body">
-        <div class="review-card-summary">${escapeHtml(truth.summary)}</div>
+        <div class="review-card-section">
+          <div class="review-card-section-label">Why review</div>
+          <div class="review-card-summary">${escapeHtml(reason)}</div>
+        </div>
+        <div class="review-card-section">
+          <div class="review-card-section-label">Evidence</div>
+          ${buildTruthEvidenceGrid(evidence)}
+        </div>
         <div class="review-card-next">${escapeHtml(nextStep)}</div>
       </div>
       <div class="review-card-actions">
@@ -2199,6 +2316,12 @@ function buildComponentCard(c, options = {}) {
         <div class="cc-capability-value">${escapeHtml(truth.label)}</div>
         <div class="cc-capability-copy">${escapeHtml(truth.summary)}</div>
       </div>
+      <div class="cc-capability-card cc-capability-card-wide">
+        <div class="cc-capability-label">Evidence</div>
+        <div class="cc-capability-copy">${escapeHtml(getTruthReason('component', c))}</div>
+        ${buildTruthEvidenceGrid(getComponentTruthEvidence(c))}
+        ${truth.needsAttention ? `<div class="cc-capability-copy cc-capability-copy-cta">${escapeHtml(getTruthNextStep('component', c))}</div>` : ''}
+      </div>
       <div class="cc-capability-grid">
         <div class="cc-capability-card">
           <div class="cc-capability-label">Renderer</div>
@@ -2602,6 +2725,14 @@ function renderViewDetail(viewId, target = null) {
       </div>
     </div>
   `;
+  const evidencePanel = `
+    <div class="vd-panel">
+      <div class="vd-panel-title">Evidence</div>
+      <div class="vd-body-copy" style="margin-bottom:12px">${escapeHtml(getTruthReason('view', view))}</div>
+      ${buildTruthEvidenceGrid(getViewTruthEvidence(view))}
+      ${truth.needsAttention ? `<div class="vd-body-copy" style="margin-top:12px">${escapeHtml(getTruthNextStep('view', view))}</div>` : ''}
+    </div>
+  `;
   const designGraphPanel = `
     <div class="vd-panel">
       <div class="vd-panel-title">Design Graph</div>
@@ -2615,6 +2746,7 @@ function renderViewDetail(viewId, target = null) {
   `;
   const previewTab = `
     ${truthPanel}
+    ${evidencePanel}
     ${compPills?`<div class="vd-panel"><div class="vd-panel-title">Components</div>${compPills}</div>`:''}
     ${view.description?`<div class="vd-panel"><div class="vd-panel-title">Notes</div><div class="vd-body-copy">${escapeHtml(view.description)}</div></div>`:''}
     ${configPanel}
