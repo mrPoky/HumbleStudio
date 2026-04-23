@@ -970,6 +970,74 @@ function buildPreviewStatusSummary(items, resolver, noun) {
   return `<div class="coverage-summary">${pills}</div>`;
 }
 
+function getReviewQueueCounts() {
+  const components = (config?.components || []).filter(component => getComponentTruthStatus(component).needsAttention);
+  const views = (config?.views || []).filter(view => getViewTruthStatus(view).needsAttention);
+  return {
+    components: components.length,
+    views: views.length,
+    total: components.length + views.length,
+  };
+}
+
+function getReviewQueueData() {
+  const severityRank = status => status.kind === 'approximation' ? 0 : status.kind === 'catalog' ? 1 : 2;
+  const components = (config?.components || [])
+    .filter(component => getComponentTruthStatus(component).needsAttention)
+    .sort((left, right) => {
+      const severity = severityRank(getComponentTruthStatus(left)) - severityRank(getComponentTruthStatus(right));
+      if (severity) return severity;
+      const usageDiff = getComponentUsageViews(right).length - getComponentUsageViews(left).length;
+      if (usageDiff) return usageDiff;
+      return left.name.localeCompare(right.name);
+    });
+
+  const views = (config?.views || [])
+    .filter(view => getViewTruthStatus(view).needsAttention)
+    .sort((left, right) => {
+      const navDiff = (right.navigatesTo || []).length - (left.navigatesTo || []).length;
+      if (navDiff) return navDiff;
+      return left.name.localeCompare(right.name);
+    });
+
+  return { components, views };
+}
+
+function buildReviewActionCard(type, item) {
+  const truth = type === 'component' ? getComponentTruthStatus(item) : getViewTruthStatus(item);
+  const countLabel = type === 'component'
+    ? `${getComponentUsageViews(item).length} view${getComponentUsageViews(item).length === 1 ? '' : 's'}`
+    : `${(item.navigatesTo || []).length} next step${(item.navigatesTo || []).length === 1 ? '' : 's'}`;
+  const secondaryLabel = type === 'component'
+    ? [item.group || null, countLabel].filter(Boolean).join(' · ')
+    : [item.root || config?.navigation?.root === item.id ? 'Root screen' : 'Screen', countLabel].filter(Boolean).join(' · ');
+  const nextStep = type === 'component'
+    ? (truth.kind === 'catalog'
+      ? 'Export a standalone component snapshot so the catalog states can be visually validated.'
+      : 'Export a standalone component snapshot so this preview no longer relies on approximation.')
+    : 'Export a screen snapshot so this view can use a visual source of truth.';
+
+  return `
+    <div class="review-card review-card-${escapeHtml(truth.tone)}">
+      <div class="review-card-head">
+        <div class="review-card-copy">
+          <div class="review-card-title">${escapeHtml(item.name)}</div>
+          <div class="review-card-subtitle">${escapeHtml(secondaryLabel)}</div>
+        </div>
+        <div class="review-card-badge">${escapeHtml(truth.label)}</div>
+      </div>
+      <div class="review-card-body">
+        <div class="review-card-summary">${escapeHtml(truth.summary)}</div>
+        <div class="review-card-next">${escapeHtml(nextStep)}</div>
+      </div>
+      <div class="review-card-actions">
+        <button class="btn-sm" onclick="openInspectorPreview(${escapeHtml(escapeJsString(type))}, ${escapeHtml(escapeJsString(item.id))})">Preview</button>
+        <button class="btn-sm" onclick="${type === 'component' ? `showComponentPage(${escapeHtml(escapeJsString(item.id))})` : `showPage('viewdetail', ${escapeHtml(escapeJsString(item.id))})`}">Open detail</button>
+      </div>
+    </div>
+  `;
+}
+
 function getFilteredComponents() {
   const filter = pageFilterState?.components || 'all';
   return (config?.components || []).filter(component => {
@@ -2220,6 +2288,37 @@ function renderViews() {
     html+=`<div class="view-card" role="button" tabindex="0" onclick="openInspectorPreview('view', ${escapeHtml(escapeJsString(v.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInspectorPreview('view', ${escapeHtml(escapeJsString(v.id))})}"><div class="vc-screen">${buildMiniScreen(v)}</div><div class="vc-info"><div class="vc-name">${escapeHtml(v.name)}</div><div class="vc-summary-subtitle">${escapeHtml(getViewStatusSubtitle(v))}</div></div></div>`;
   });
   document.getElementById('viewsContent').innerHTML = html + '</div>';
+}
+
+function renderReview() {
+  if (!config) return;
+  const { components, views } = getReviewQueueData();
+  const counts = getReviewQueueCounts();
+  const contentEl = document.getElementById('reviewContent');
+  if (!contentEl) return;
+  if (!counts.total) {
+    contentEl.innerHTML = buildEmptyState('✓', 'Nothing needs review', 'All current views and components are backed by exported truth the inspector understands.');
+    return;
+  }
+
+  contentEl.innerHTML = `
+    ${buildPreviewStatusSummary([
+      ...components.map(component => ({ kind: 'component', ...component })),
+      ...views.map(view => ({ kind: 'view', ...view })),
+    ], item => item.kind === 'component' ? getComponentTruthStatus(item) : getViewTruthStatus(item), 'items')}
+    ${components.length ? `
+      <div class="subsection">Components Needing Review</div>
+      <div class="review-grid">
+        ${components.map(component => buildReviewActionCard('component', component)).join('')}
+      </div>
+    ` : ''}
+    ${views.length ? `
+      <div class="subsection" style="margin-top:24px">Views Needing Review</div>
+      <div class="review-grid">
+        ${views.map(view => buildReviewActionCard('view', view)).join('')}
+      </div>
+    ` : ''}
+  `;
 }
 
 function renderViewDetail(viewId, target = null) {
