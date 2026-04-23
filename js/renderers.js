@@ -1827,11 +1827,9 @@ function renderFoundationDetail(kind, id, target = null) {
         <div class="foundation-detail-stage">
           <div class="foundation-typography-stage foundation-typography-stage-large">
             <div class="foundation-typography-spec foundation-typography-spec-large">
-              <div class="foundation-typography-kicker">Style</div>
               <div class="foundation-typography-spec-value">${escapeHtml(item.swiftui || item.role || 'Text style')}</div>
             </div>
             <div class="foundation-typography-sample-wrap foundation-typography-sample-wrap-large">
-              <div class="foundation-typography-kicker">Sample</div>
               <div class="foundation-typography-sample foundation-typography-sample-large" style="font-size:${escapeHtml(Math.min(Number(item.size) || 16, 44))}px;font-weight:${escapeHtml(item.weight || 600)};${item.mono ? 'font-family:var(--mono);' : ''}${item.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${item.secondary ? 'color:var(--t2);' : ''}">
                 ${escapeHtml(previewText)}
               </div>
@@ -1880,7 +1878,6 @@ function renderFoundationDetail(kind, id, target = null) {
       <div class="foundation-detail-layout foundation-detail-layout-metric">
         <div class="foundation-detail-stage">
           <div class="foundation-metric-stage foundation-metric-stage-large">
-            <div class="foundation-typography-kicker">Spacing token</div>
             <div class="foundation-metric-value foundation-metric-value-large">${escapeHtml(px)}px</div>
             <div class="foundation-spacing-bar" style="width:${Math.max(12, Math.min(px * 2.2, 320))}px"></div>
             <div class="foundation-metric-note">${escapeHtml(scale)}</div>
@@ -1913,7 +1910,6 @@ function renderFoundationDetail(kind, id, target = null) {
       <div class="foundation-detail-layout foundation-detail-layout-metric">
         <div class="foundation-detail-stage">
           <div class="foundation-metric-stage foundation-metric-stage-large">
-            <div class="foundation-typography-kicker">Corner radius token</div>
             <div class="foundation-metric-value foundation-metric-value-large">${escapeHtml(px)}px</div>
             <div class="foundation-radius-showcase foundation-radius-showcase-large">
               <div class="foundation-radius-chip foundation-radius-chip-small" style="border-radius:${escapeHtml(px)}px"></div>
