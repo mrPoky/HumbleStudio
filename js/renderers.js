@@ -51,11 +51,36 @@ function resolveAssetPath(path, basePathKey = 'snapshotBasePath') {
   return `${base.replace(/\/$/, '')}/${path.split('/').pop()}`;
 }
 
-function buildSnapshotPreview(snapshot, alt, className = 'snapshot-frame', clickable = true, compact = false) {
-  if (!snapshot?.path) return '';
-  const src = resolveAssetPath(snapshot.path);
-  const title = snapshot.name || alt || 'Snapshot';
-  const subtitle = snapshot.path || '';
+function hasSnapshotAsset(snapshot) {
+  return Boolean(snapshot?.path || snapshot?.dark || snapshot?.light);
+}
+
+function resolveSnapshotAsset(snapshot, appearance = 'dark') {
+  if (!snapshot) return { path: '', variant: 'dark' };
+  const requestedAppearance = appearance === 'light' ? 'light' : 'dark';
+  const fallbackPath = snapshot.path || snapshot.dark || snapshot.light || '';
+  if (requestedAppearance === 'light') {
+    return {
+      path: snapshot.light || snapshot.dark || fallbackPath,
+      variant: snapshot.light ? 'light' : (snapshot.dark ? 'dark' : requestedAppearance),
+    };
+  }
+  return {
+    path: snapshot.dark || snapshot.light || fallbackPath,
+    variant: snapshot.dark ? 'dark' : (snapshot.light ? 'light' : requestedAppearance),
+  };
+}
+
+function buildSnapshotPreview(snapshot, alt, className = 'snapshot-frame', clickable = true, compact = false, options = {}) {
+  if (!hasSnapshotAsset(snapshot)) return '';
+  const appearance = options.appearance === 'light' ? 'light' : 'dark';
+  const resolved = resolveSnapshotAsset(snapshot, appearance);
+  if (!resolved.path) return '';
+  const src = resolveAssetPath(resolved.path);
+  const hasVariants = Boolean(snapshot?.dark || snapshot?.light);
+  const variantSuffix = hasVariants ? ` · ${resolved.variant === 'light' ? 'Light' : 'Dark'}` : '';
+  const title = `${snapshot.name || alt || 'Snapshot'}${variantSuffix}`;
+  const subtitle = resolved.path || snapshot.path || '';
   const clickAttrs = clickable ? `
       class="${className} snapshot-clickable"
       data-lightbox-src="${escapeHtml(src)}"
@@ -68,7 +93,7 @@ function buildSnapshotPreview(snapshot, alt, className = 'snapshot-frame', click
       <img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy"
         onerror="this.closest('.snapshot-frame').classList.add('snapshot-missing')">
       ${clickable ? `<button class="snapshot-zoom" onclick="event.stopPropagation();openSnapshotLightbox(this.parentElement.dataset.lightboxSrc, this.parentElement.dataset.lightboxTitle, this.parentElement.dataset.lightboxSubtitle)">Zoom</button>` : ''}
-      ${compact ? '' : `<div class="snapshot-label">${escapeHtml(snapshot.name || 'Snapshot')}</div>`}
+      ${compact ? '' : `<div class="snapshot-label">${escapeHtml(title)}</div>`}
     </div>
   `;
 }
@@ -172,12 +197,11 @@ function buildPreviewAppearancePanels(appearance, renderMarkup, options = {}) {
 function buildComponentInspectorPreview(comp) {
   if (!comp) return '';
   const state = getComponentEditorState(comp);
-  const preview = buildComponentPreviewStage(comp, state, false);
   const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('component') : 'dark';
   return `
     <div class="inspector-preview-shell inspector-preview-shell-flat">
-      ${buildPreviewAppearancePanels(appearance, () => `
-        <div class="inspector-preview-stage inspector-preview-stage-flat">${preview}</div>
+      ${buildPreviewAppearancePanels(appearance, mode => `
+        <div class="inspector-preview-stage inspector-preview-stage-flat">${buildComponentPreviewStage(comp, state, false, mode)}</div>
       `, { viewportClass: 'preview-appearance-viewport-flat' })}
     </div>
   `;
@@ -185,14 +209,11 @@ function buildComponentInspectorPreview(comp) {
 
 function buildViewInspectorPreview(view) {
   if (!view) return '';
-  const stage = view.snapshot?.path
-    ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame inspector-preview-snapshot', false, true)
-    : buildMiniScreen(view);
   const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('view') : 'dark';
   return `
     <div class="inspector-preview-shell inspector-preview-shell-flat">
-      ${buildPreviewAppearancePanels(appearance, () => `
-        <div class="inspector-preview-stage inspector-preview-stage-flat">${stage}</div>
+      ${buildPreviewAppearancePanels(appearance, mode => `
+        <div class="inspector-preview-stage inspector-preview-stage-flat">${buildMiniScreen(view, mode)}</div>
       `, { viewportClass: 'preview-appearance-viewport-flat' })}
     </div>
   `;
@@ -980,7 +1001,7 @@ function getFilteredIcons() {
 }
 
 function getComponentTruthStatus(component) {
-  if (component?.snapshot?.path) {
+  if (hasSnapshotAsset(component?.snapshot)) {
     return {
       kind: 'reference',
       tag: 'Reference',
@@ -1011,7 +1032,7 @@ function getComponentTruthStatus(component) {
 }
 
 function getViewTruthStatus(view) {
-  if (view?.snapshot?.path) {
+  if (hasSnapshotAsset(view?.snapshot)) {
     return {
       kind: 'reference',
       tag: 'Reference',
@@ -1032,8 +1053,8 @@ function getViewTruthStatus(view) {
 }
 
 function getSnapshotDisplayName(snapshot, fallback = 'snapshot') {
-  if (!snapshot?.path) return `No ${fallback}`;
-  return snapshot.name || snapshot.path.split('/').pop() || `${fallback}.png`;
+  if (!hasSnapshotAsset(snapshot)) return `No ${fallback}`;
+  return snapshot.name || snapshot.path?.split('/').pop() || snapshot.dark?.split('/').pop() || snapshot.light?.split('/').pop() || `${fallback}.png`;
 }
 
 function getTruthNextStep(type, item) {
@@ -1256,7 +1277,7 @@ function getFilteredComponents() {
     if (filter === 'attention' && !truth.needsAttention) return false;
     if (filter === 'used' && !getComponentUsageViews(component).length) return false;
     if (filter === 'catalog' && !isCatalogOnlyComponent(component)) return false;
-    if (filter === 'snapshot' && !component.snapshot?.path) return false;
+    if (filter === 'snapshot' && !hasSnapshotAsset(component?.snapshot)) return false;
     return matchesGlobalSearch(...componentSearchText(component));
   });
 }
@@ -1267,7 +1288,7 @@ function getFilteredViews() {
     const truth = getViewTruthStatus(view);
     if (filter === 'attention' && !truth.needsAttention) return false;
     if (filter === 'root' && !view.root && config.navigation?.root !== view.id) return false;
-    if (filter === 'snapshot' && !view.snapshot?.path) return false;
+    if (filter === 'snapshot' && !hasSnapshotAsset(view?.snapshot)) return false;
     if (filter === 'navigating' && !(view.navigatesTo || []).length) return false;
     return matchesGlobalSearch(...viewSearchText(view));
   });
@@ -1759,11 +1780,11 @@ function buildGuidedEditor(component) {
   `;
 }
 
-function buildComponentPreviewStage(component, state, detailed) {
-  const hasSnapshot = Boolean(component?.snapshot?.path);
+function buildComponentPreviewStage(component, state, detailed, appearance = 'dark') {
+  const hasSnapshot = hasSnapshotAsset(component?.snapshot);
   const shouldShowSnapshotOnly = hasSnapshot && (!detailed || state?.mode === 'snapshot');
   if (shouldShowSnapshotOnly) {
-    return buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame', detailed, !detailed);
+    return buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame', detailed, !detailed, { appearance });
   }
 
   const approximation = renderComponentInteractivePreview(component);
@@ -1776,7 +1797,7 @@ function buildComponentPreviewStage(component, state, detailed) {
         </div>
         <div class="cc-compare-pane">
           <div class="cc-compare-label">Reference Snapshot</div>
-          ${buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame component-snapshot-frame-compare', true, false)}
+          ${buildSnapshotPreview(component.snapshot, `${component.name} snapshot`, 'snapshot-frame component-snapshot-frame component-snapshot-frame-compare', true, false, { appearance })}
         </div>
       </div>
     `;
@@ -2266,17 +2287,17 @@ function buildComponentCard(c, options = {}) {
   const selectedMockId = state?.selectedMockId || mocks[0]?.id || '';
   const catalogOnly = isCatalogOnlyComponent(c);
   const truth = getComponentTruthStatus(c);
-  const previewBase = buildComponentPreviewStage(c, state, detailed);
   const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('component') : 'dark';
+  const singleAppearance = appearance === 'light' ? 'light' : 'dark';
   const preview = detailed
-    ? buildPreviewAppearancePanels(appearance, () => previewBase, { viewportClass: 'preview-appearance-viewport-detail' })
-    : previewBase;
+    ? buildPreviewAppearancePanels(appearance, mode => buildComponentPreviewStage(c, state, detailed, mode), { viewportClass: 'preview-appearance-viewport-detail' })
+    : buildComponentPreviewStage(c, state, detailed, singleAppearance);
   const mockOpts = mocks.map(m=>`<option value="${escapeHtml(m.id)}"${m.id === selectedMockId ? ' selected' : ''}>${escapeHtml(m.label)}</option>`).join('');
   const compactSubtitle = getComponentStatusSubtitle(c);
   const detailControls = !detailed ? '' : `
     <div class="cc-mode-toggle">
       <div class="cc-mode-cluster">
-        ${c.snapshot ? `<button class="cc-mode-btn${state?.mode === 'snapshot' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','snapshot')">Snapshot</button>` : ''}
+        ${hasSnapshotAsset(c?.snapshot) ? `<button class="cc-mode-btn${state?.mode === 'snapshot' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','snapshot')">Snapshot</button>` : ''}
         <button class="cc-mode-btn${state?.mode === 'mock' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','mock')">${catalogOnly ? 'State Preview' : 'Live Approximation'}</button>
       </div>
       ${buildPreviewAppearanceToggle('component', '', 'preview-appearance-toolbar preview-appearance-toolbar-detail')}
@@ -2288,7 +2309,7 @@ function buildComponentCard(c, options = {}) {
       ${catalogOnly ? `<div class="cc-state-badge">Catalog only</div>` : ''}
     </div>
   ` : '';
-  const approximationNote = detailed && c.snapshot && state?.mode === 'mock' ? `
+  const approximationNote = detailed && hasSnapshotAsset(c?.snapshot) && state?.mode === 'mock' ? `
     <div class="cc-approx-note">
       <div class="cc-approx-note-card">
         <div class="cc-approx-note-title">Reference Available</div>
@@ -2333,7 +2354,7 @@ function buildComponentCard(c, options = {}) {
         </div>
         <div class="cc-capability-card">
           <div class="cc-capability-label">Preview Modes</div>
-          <div class="cc-capability-value">${escapeHtml(c.snapshot ? (catalogOnly ? 'snapshot + catalog' : 'snapshot + approximation') : (catalogOnly ? 'catalog only' : 'approximation only'))}</div>
+          <div class="cc-capability-value">${escapeHtml(hasSnapshotAsset(c?.snapshot) ? (catalogOnly ? 'snapshot + catalog' : 'snapshot + approximation') : (catalogOnly ? 'catalog only' : 'approximation only'))}</div>
         </div>
         <div class="cc-capability-card">
           <div class="cc-capability-label">Declared States</div>
@@ -2508,9 +2529,9 @@ function updateMockPreview(compId, mockId) {
   if (el) el.innerHTML = renderComponentPreview(comp, mock?.props||{});
 }
 
-function buildMiniScreen(view) {
-  if (view.snapshot?.path) {
-    return buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame view-snapshot-frame', false, true);
+function buildMiniScreen(view, appearance = 'dark') {
+  if (hasSnapshotAsset(view?.snapshot)) {
+    return buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame view-snapshot-frame', false, true, { appearance });
   }
   const style = view.presentation==='sheet'
     ? 'width:75px;max-height:170px;background:var(--surface);border-radius:10px 10px 6px 6px;border:1px solid var(--border);overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3)'
@@ -2576,7 +2597,6 @@ function renderViewDetail(viewId, target = null) {
   if (!target?.preview) syncViewDetailContextNav(view);
   if (!contentEl) return null;
   let phoneContent = '';
-  const snapshotMarkup = view.snapshot?.path ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame detail-snapshot-frame') : '';
   if (view.navbar) {
     const nb = view.navbar;
     phoneContent+=`<div class="phone-navbar">${nb.back?`<div class="phone-btn">‹</div>`:'<div style="width:28px"></div>'}<div class="phone-title">${nb.title||view.name}</div><div style="display:flex;gap:4px">${(nb.actions||[]).map(a=>`<div class="phone-btn" style="font-size:10px">${a}</div>`).join('')}</div></div>`;
@@ -2698,19 +2718,23 @@ function renderViewDetail(viewId, target = null) {
       </div>
     </div>
   ` : '';
-  const screenMarkup = snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`;
+  const buildScreenMarkup = mode => (
+    hasSnapshotAsset(view?.snapshot)
+      ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame detail-snapshot-frame', true, false, { appearance: mode })
+      : `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`
+  );
   const previewStageMarkup = `
     <div class="vd-stage-toolbar">
       ${buildPreviewAppearanceToggle('view', '', 'preview-appearance-toolbar preview-appearance-toolbar-detail')}
     </div>
-    ${buildPreviewAppearancePanels(appearance, () => screenMarkup, { viewportClass: 'preview-appearance-viewport-detail' })}
+    ${buildPreviewAppearancePanels(appearance, mode => buildScreenMarkup(mode), { viewportClass: 'preview-appearance-viewport-detail' })}
   `;
   const configPanel = `
     <div class="vd-panel">
       <div class="vd-panel-title">Config</div>
       <div class="vd-detail-kv-list">
         <div class="vd-detail-kv"><span>ID</span><strong>${escapeHtml(view.id)}</strong></div>
-        ${view.snapshot?.path ? `<div class="vd-detail-kv"><span>Snapshot</span><strong>${escapeHtml(view.snapshot.name || view.snapshot.path.split('/').pop())}</strong></div>` : ''}
+        ${hasSnapshotAsset(view?.snapshot) ? `<div class="vd-detail-kv"><span>Snapshot</span><strong>${escapeHtml(getSnapshotDisplayName(view.snapshot, 'screen snapshot'))}</strong></div>` : ''}
         <div class="vd-detail-kv"><span>Presentation</span><strong>${escapeHtml(view.presentation || 'push')}</strong></div>
         <div class="vd-detail-kv"><span>Role</span><strong>${view.root ? 'Root' : 'Standard'}</strong></div>
       </div>
