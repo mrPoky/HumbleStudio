@@ -213,7 +213,9 @@ function buildViewInspectorPreview(view) {
   return `
     <div class="inspector-preview-shell inspector-preview-shell-flat">
       ${buildPreviewAppearancePanels(appearance, mode => `
-        <div class="inspector-preview-stage inspector-preview-stage-flat">${buildMiniScreen(view, mode)}</div>
+        <div class="inspector-preview-stage inspector-preview-stage-flat">${hasSnapshotAsset(view?.snapshot)
+          ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame inspector-preview-snapshot inspector-preview-snapshot-view', false, true, { appearance: mode })
+          : buildMiniScreen(view, mode)}</div>
       `, { viewportClass: 'preview-appearance-viewport-flat' })}
     </div>
   `;
