@@ -78,6 +78,23 @@ struct StudioNativeDocument: Equatable {
         let snapshot: SnapshotAsset?
     }
 
+    struct ViewItem: Identifiable, Equatable {
+        let id: String
+        let name: String
+        let summary: String
+        let presentation: String
+        let sourcePath: String
+        let root: Bool
+        let defaultState: String
+        let statesCount: Int
+        let componentsCount: Int
+        let entryPoints: [String]
+        let primaryActions: [String]
+        let secondaryActions: [String]
+        let navigationCount: Int
+        let snapshot: SnapshotAsset?
+    }
+
     let appName: String
     let appVersion: String
     let appDescription: String
@@ -91,6 +108,7 @@ struct StudioNativeDocument: Equatable {
     let radius: [MetricToken]
     let icons: [IconToken]
     let components: [ComponentItem]
+    let views: [ViewItem]
 
     func resolvedIconURL(for icon: IconToken) -> URL? {
         resolvedAssetURL(basePath: iconBasePath, relativePath: icon.assetPath)
@@ -609,6 +627,7 @@ final class StudioShellModel: ObservableObject {
         let radius = parseMetricTokens(tokens["radius"] as? [String: Any] ?? [:], defaultKind: "cornerRadius")
         let icons = parseIconTokens(tokens["icons"] as? [[String: Any]] ?? [])
         let components = parseComponentItems(object["components"] as? [[String: Any]] ?? [])
+        let views = parseViewItems(object["views"] as? [[String: Any]] ?? [])
 
         return StudioNativeDocument(
             appName: (meta["name"] as? String) ?? fileName,
@@ -623,7 +642,8 @@ final class StudioShellModel: ObservableObject {
             spacing: spacing,
             radius: radius,
             icons: icons,
-            components: components
+            components: components,
+            views: views
         )
     }
 
@@ -731,6 +751,33 @@ final class StudioShellModel: ObservableObject {
         }
         .sorted { lhs, rhs in
             lhs.group == rhs.group ? lhs.name < rhs.name : lhs.group < rhs.group
+        }
+    }
+
+    private static func parseViewItems(_ array: [[String: Any]]) -> [StudioNativeDocument.ViewItem] {
+        array.compactMap { value in
+            guard let id = value["id"] as? String else { return nil }
+            let actions = value["actions"] as? [String: Any] ?? [:]
+            return StudioNativeDocument.ViewItem(
+                id: id,
+                name: (value["name"] as? String) ?? humanizedIdentifier(id),
+                summary: (value["description"] as? String) ?? "",
+                presentation: (value["presentation"] as? String) ?? "screen",
+                sourcePath: (value["source"] as? String) ?? "",
+                root: value["root"] as? Bool ?? false,
+                defaultState: (value["defaultState"] as? String) ?? "",
+                statesCount: (value["states"] as? [Any])?.count ?? 0,
+                componentsCount: (value["components"] as? [Any])?.count ?? 0,
+                entryPoints: value["entryPoints"] as? [String] ?? [],
+                primaryActions: actions["primary"] as? [String] ?? [],
+                secondaryActions: actions["secondary"] as? [String] ?? [],
+                navigationCount: (value["navigatesTo"] as? [Any])?.count ?? 0,
+                snapshot: parseSnapshotAsset(value["snapshot"] as? [String: Any])
+            )
+        }
+        .sorted { lhs, rhs in
+            if lhs.root != rhs.root { return lhs.root && !rhs.root }
+            return lhs.name < rhs.name
         }
     }
 
