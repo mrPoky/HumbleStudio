@@ -4,7 +4,7 @@ import SwiftUI
 struct HumbleStudioMacApp: App {
     var body: some Scene {
         WindowGroup("HumbleStudio") {
-            StudioShellView()
+            StudioMacWorkspaceView()
                 .frame(minWidth: 1100, minHeight: 760)
         }
         .defaultSize(width: 1320, height: 860)

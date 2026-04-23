@@ -11,6 +11,7 @@
 		36741C0B293FEE13E3A183C6 /* StudioWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */; };
 		5242C028E7591D57129E09B9 /* HumbleStudioiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC38BC02A4C65C8C269C130 /* HumbleStudioiOSApp.swift */; };
 		738264D6DA33AD355A5B2606 /* StudioShellNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0054C0A8AF25F71DBEC639AC /* StudioShellNotifications.swift */; };
+		8B3AC9824FF9F6F4ECDD0CFC /* StudioMacWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF52437C19A2721436ECDAD /* StudioMacWorkspaceView.swift */; };
 		948B959AD9E8A0C0A904162C /* StudioShellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C13464105FE50E0343800A /* StudioShellModel.swift */; };
 		A817540636AC3DBCF3267431 /* HumbleStudioMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4750EAFF90869AE84E110EF2 /* HumbleStudioMacApp.swift */; };
 		ACE9607ED3E6C4880FB57034 /* StudioWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */; };
@@ -29,6 +30,7 @@
 		4F5B07D498AE97DC178F220C /* StudioShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioShellView.swift; sourceTree = "<group>"; };
 		C75A2EC73C22FE8B86A984AB /* HumbleStudioMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HumbleStudioMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioWebView.swift; sourceTree = "<group>"; };
+		EEF52437C19A2721436ECDAD /* StudioMacWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceView.swift; sourceTree = "<group>"; };
 		EFC38BC02A4C65C8C269C130 /* HumbleStudioiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HumbleStudioiOSApp.swift; sourceTree = "<group>"; };
 		FB7CE41A7E1FDC4B6A9C245C /* HumbleStudioiOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HumbleStudioiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -80,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				4750EAFF90869AE84E110EF2 /* HumbleStudioMacApp.swift */,
+				EEF52437C19A2721436ECDAD /* StudioMacWorkspaceView.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -229,6 +232,7 @@
 			files = (
 				A817540636AC3DBCF3267431 /* HumbleStudioMacApp.swift in Sources */,
 				E14F6A8D9730E2E181F2231D /* StudioBundleLocator.swift in Sources */,
+				8B3AC9824FF9F6F4ECDD0CFC /* StudioMacWorkspaceView.swift in Sources */,
 				948B959AD9E8A0C0A904162C /* StudioShellModel.swift in Sources */,
 				C3C2B5C4B75980A52838EDCB /* StudioShellNotifications.swift in Sources */,
 				FCE41AC494B4670B5D6F476D /* StudioShellView.swift in Sources */,
