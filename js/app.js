@@ -1835,7 +1835,7 @@ function buildInspectorPreviewPayload(entityType, id, extra = '') {
     } else if (extra === 'typography') {
       const token = getTypographyTokenById(id);
       if (token?.role) detail.title = token.role;
-      if (token?.swiftui) detail.subtitle = `${foundationLabels[extra]} · ${token.swiftui}`;
+      detail.subtitle = `${foundationLabels[extra]} preview`;
       detail.metaItems = [
         { label: 'Style', value: token?.swiftui || 'Typography' },
         { label: 'Size', value: `${token?.size || 0} pt` },
