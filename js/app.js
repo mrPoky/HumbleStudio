@@ -1858,18 +1858,12 @@ function buildInspectorPreviewPayload(entityType, id, extra = '') {
         { label: 'Stops', value: `${stopCount} stop${stopCount === 1 ? '' : 's'}` },
       ];
     } else if (extra === 'spacing') {
-      const token = config?.tokens?.spacing?.[id];
-      const px = Number.parseInt(token?.value || token, 10) || 0;
       detail.metaItems = [
         { label: 'Token', value: `tokens.spacing.${id}` },
-        { label: 'Value', value: `${px}px` },
       ];
     } else if (extra === 'radius') {
-      const token = config?.tokens?.radius?.[id];
-      const px = Number.parseInt(token?.value || token, 10) || 0;
       detail.metaItems = [
         { label: 'Token', value: `tokens.radius.${id}` },
-        { label: 'Value', value: `${px}px` },
       ];
     }
   }
