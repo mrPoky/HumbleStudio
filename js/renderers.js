@@ -79,13 +79,69 @@ function buildIconAssetPreview(icon) {
   return `<img class="icon-preview-image" src="${escapeHtml(src)}" alt="${escapeHtml(icon.name || icon.symbol || 'Icon')}" loading="lazy">`;
 }
 
+function getPreviewAppearanceLabel(mode) {
+  return {
+    light: 'Light',
+    both: 'Both',
+    dark: 'Dark',
+  }[mode] || 'Dark';
+}
+
+function buildPreviewAppearanceToggle(entityType, extra = '', toolbarClass = 'preview-appearance-toolbar') {
+  if (typeof getSupportedPreviewAppearances !== 'function' || typeof getPreviewAppearance !== 'function') return '';
+  const options = getSupportedPreviewAppearances(entityType, extra);
+  if (options.length <= 1) return '';
+  const active = getPreviewAppearance(entityType, extra);
+  return `
+    <div class="${escapeHtml(toolbarClass)}">
+      <div class="cc-mode-toggle preview-appearance-toggle">
+        ${options.map(option => `
+          <button
+            class="cc-mode-btn${option === active ? ' active' : ''}"
+            onclick="setPreviewAppearance(${escapeJsString(entityType)}, ${escapeJsString(option)}, ${escapeJsString(extra)})">
+            ${escapeHtml(getPreviewAppearanceLabel(option))}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function buildPreviewAppearancePanels(appearance, renderMarkup, options = {}) {
+  const normalized = appearance === 'light' || appearance === 'both' || appearance === 'dark'
+    ? appearance
+    : 'dark';
+  const modes = normalized === 'both' ? ['dark', 'light'] : [normalized];
+  const containerClass = normalized === 'both'
+    ? 'preview-appearance-compare'
+    : 'preview-appearance-single';
+  const viewportClass = options.viewportClass ? ` ${options.viewportClass}` : '';
+
+  return `
+    <div class="${containerClass}">
+      ${modes.map(mode => `
+        <div class="preview-appearance-panel${modes.length === 1 ? ' preview-appearance-panel-single' : ''}">
+          ${modes.length > 1 ? `<div class="preview-appearance-label">${escapeHtml(getPreviewAppearanceLabel(mode))}</div>` : ''}
+          <div class="preview-appearance-viewport preview-appearance-viewport-${escapeHtml(mode)}${viewportClass}">
+            ${renderMarkup(mode, modes.length > 1)}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 function buildComponentInspectorPreview(comp) {
   if (!comp) return '';
   const state = getComponentEditorState(comp);
   const preview = buildComponentPreviewStage(comp, state, false);
+  const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('component') : 'dark';
   return `
     <div class="inspector-preview-shell inspector-preview-shell-flat">
-      <div class="inspector-preview-stage inspector-preview-stage-flat">${preview}</div>
+      ${buildPreviewAppearanceToggle('component', '', 'preview-appearance-toolbar preview-appearance-toolbar-modal')}
+      ${buildPreviewAppearancePanels(appearance, () => `
+        <div class="inspector-preview-stage inspector-preview-stage-flat">${preview}</div>
+      `, { viewportClass: 'preview-appearance-viewport-flat' })}
     </div>
   `;
 }
@@ -95,9 +151,13 @@ function buildViewInspectorPreview(view) {
   const stage = view.snapshot?.path
     ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame inspector-preview-snapshot', false, true)
     : buildMiniScreen(view);
+  const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('view') : 'dark';
   return `
     <div class="inspector-preview-shell inspector-preview-shell-flat">
-      <div class="inspector-preview-stage inspector-preview-stage-flat">${stage}</div>
+      ${buildPreviewAppearanceToggle('view', '', 'preview-appearance-toolbar preview-appearance-toolbar-modal')}
+      ${buildPreviewAppearancePanels(appearance, () => `
+        <div class="inspector-preview-stage inspector-preview-stage-flat">${stage}</div>
+      `, { viewportClass: 'preview-appearance-viewport-flat' })}
     </div>
   `;
 }
@@ -129,22 +189,16 @@ function buildFoundationInspectorPreview(kind, id) {
     if (!item) return '';
     const dark = item.dark || item.value || item;
     const light = item.light || item.value || item;
-    const sameColor = normalizeComparableValue(dark) === normalizeComparableValue(light);
+    const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('foundation', 'color') : 'both';
     return `
       <div class="inspector-preview-shell">
+        ${buildPreviewAppearanceToggle('foundation', 'color', 'preview-appearance-toolbar preview-appearance-toolbar-modal')}
         <div class="inspector-preview-card">
-          <div class="inspector-preview-stage">
-            <div class="inspector-preview-foundation-compare${sameColor ? ' single' : ''}">
-              <div class="inspector-preview-foundation-panel">
-                <div class="inspector-preview-foundation-label">${sameColor ? 'Dark / Light' : 'Dark'}</div>
-                <div class="foundation-color-stage" style="background:${escapeHtml(dark)}"></div>
-              </div>
-              ${sameColor ? '' : `<div class="inspector-preview-foundation-panel">
-                <div class="inspector-preview-foundation-label">Light</div>
-                <div class="foundation-color-stage" style="background:${escapeHtml(light)}"></div>
-              </div>`}
+          ${buildPreviewAppearancePanels(appearance, mode => `
+            <div class="inspector-preview-stage">
+              <div class="foundation-color-stage" style="background:${escapeHtml(mode === 'light' ? light : dark)}"></div>
             </div>
-          </div>
+          `)}
         </div>
       </div>
     `;
@@ -157,22 +211,16 @@ function buildFoundationInspectorPreview(kind, id) {
     const lightStops = Array.isArray(item.light) ? item.light : (Array.isArray(item.value) ? item.value : []);
     const darkGradientCss = darkStops.length ? `linear-gradient(135deg, ${darkStops.join(', ')})` : 'transparent';
     const lightGradientCss = lightStops.length ? `linear-gradient(135deg, ${lightStops.join(', ')})` : darkGradientCss;
-    const sameGradient = arraysEqualNormalized(darkStops, lightStops) || normalizeComparableValue(darkGradientCss) === normalizeComparableValue(lightGradientCss);
+    const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('foundation', 'gradient') : 'both';
     return `
       <div class="inspector-preview-shell">
+        ${buildPreviewAppearanceToggle('foundation', 'gradient', 'preview-appearance-toolbar preview-appearance-toolbar-modal')}
         <div class="inspector-preview-card">
-          <div class="inspector-preview-stage">
-            <div class="inspector-preview-foundation-compare${sameGradient ? ' single' : ''}">
-              <div class="inspector-preview-foundation-panel">
-                <div class="inspector-preview-foundation-label">${sameGradient ? 'Dark / Light' : 'Dark'}</div>
-                <div class="foundation-gradient-stage" style="background:${escapeHtml(darkGradientCss)}"></div>
-              </div>
-              ${sameGradient ? '' : `<div class="inspector-preview-foundation-panel">
-                <div class="inspector-preview-foundation-label">Light</div>
-                <div class="foundation-gradient-stage" style="background:${escapeHtml(lightGradientCss)}"></div>
-              </div>`}
+          ${buildPreviewAppearancePanels(appearance, mode => `
+            <div class="inspector-preview-stage">
+              <div class="foundation-gradient-stage" style="background:${escapeHtml(mode === 'light' ? lightGradientCss : darkGradientCss)}"></div>
             </div>
-          </div>
+          `)}
         </div>
       </div>
     `;
@@ -1766,21 +1814,17 @@ function renderFoundationDetail(kind, id, target = null) {
   if (kind === 'color') {
     const dark = item.dark || item.value || item;
     const light = item.light || item.value || item;
-    const sameColor = normalizeComparableValue(dark) === normalizeComparableValue(light);
+    const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('foundation', 'color') : 'both';
     const impact = getColorImpactEntities(id, item);
     const usageCount = getReferenceCount(item) || impact.gradients.length + impact.components.length + impact.views.length;
     contentEl.innerHTML = `
       <div class="foundation-detail-layout">
         <div class="foundation-detail-stage">
-          <div class="foundation-mode-compare${sameColor ? ' foundation-mode-compare-single' : ''}">
-            <div class="foundation-mode-panel">
-              <div class="foundation-mode-label">${sameColor ? 'Dark / Light' : 'Dark'}</div>
-              <div class="foundation-color-stage" style="background:${escapeHtml(dark)}"></div>
-            </div>
-            ${sameColor ? '' : `<div class="foundation-mode-panel">
-              <div class="foundation-mode-label">Light</div>
-              <div class="foundation-color-stage" style="background:${escapeHtml(light)}"></div>
-            </div>`}
+          <div class="foundation-preview-stack">
+            ${buildPreviewAppearanceToggle('foundation', 'color', 'preview-appearance-toolbar preview-appearance-toolbar-detail')}
+            ${buildPreviewAppearancePanels(appearance, mode => `
+              <div class="foundation-color-stage" style="background:${escapeHtml(mode === 'light' ? light : dark)}"></div>
+            `, { viewportClass: 'preview-appearance-viewport-detail' })}
           </div>
         </div>
         <div class="foundation-detail-meta">
@@ -1945,7 +1989,7 @@ function renderFoundationDetail(kind, id, target = null) {
   const gradientCss = previewStops.length ? `linear-gradient(135deg, ${previewStops.join(', ')})` : 'transparent';
   const lightGradientCss = lightStops.length ? `linear-gradient(135deg, ${lightStops.join(', ')})` : gradientCss;
   const darkGradientCss = darkStops.length ? `linear-gradient(135deg, ${darkStops.join(', ')})` : gradientCss;
-  const sameGradient = arraysEqualNormalized(darkStops, lightStops) || normalizeComparableValue(darkGradientCss) === normalizeComparableValue(lightGradientCss);
+  const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('foundation', 'gradient') : 'both';
   const direction = [item.startPoint, item.endPoint].filter(Boolean).join(' -> ') || 'custom';
   const linked = getGradientUsageEntities(id, item);
   const linkedColors = getGradientColorTokens(id, item);
@@ -1958,15 +2002,11 @@ function renderFoundationDetail(kind, id, target = null) {
   contentEl.innerHTML = `
     <div class="foundation-detail-layout">
       <div class="foundation-detail-stage">
-        <div class="foundation-mode-compare${sameGradient ? ' foundation-mode-compare-single' : ''}">
-          <div class="foundation-mode-panel">
-            <div class="foundation-mode-label">${sameGradient ? 'Dark / Light' : 'Dark'}</div>
-            <div class="foundation-gradient-stage" style="background:${escapeHtml(darkGradientCss)}"></div>
-          </div>
-          ${sameGradient ? '' : `<div class="foundation-mode-panel">
-            <div class="foundation-mode-label">Light</div>
-            <div class="foundation-gradient-stage" style="background:${escapeHtml(lightGradientCss)}"></div>
-          </div>`}
+        <div class="foundation-preview-stack">
+          ${buildPreviewAppearanceToggle('foundation', 'gradient', 'preview-appearance-toolbar preview-appearance-toolbar-detail')}
+          ${buildPreviewAppearancePanels(appearance, mode => `
+            <div class="foundation-gradient-stage" style="background:${escapeHtml(mode === 'light' ? lightGradientCss : darkGradientCss)}"></div>
+          `, { viewportClass: 'preview-appearance-viewport-detail' })}
         </div>
       </div>
       <div class="foundation-detail-meta">
@@ -2057,13 +2097,20 @@ function buildComponentCard(c, options = {}) {
   const selectedMockId = state?.selectedMockId || mocks[0]?.id || '';
   const catalogOnly = isCatalogOnlyComponent(c);
   const truth = getComponentTruthStatus(c);
-  const preview = buildComponentPreviewStage(c, state, detailed);
+  const previewBase = buildComponentPreviewStage(c, state, detailed);
+  const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('component') : 'dark';
+  const preview = detailed
+    ? buildPreviewAppearancePanels(appearance, () => previewBase, { viewportClass: 'preview-appearance-viewport-detail' })
+    : previewBase;
   const mockOpts = mocks.map(m=>`<option value="${escapeHtml(m.id)}"${m.id === selectedMockId ? ' selected' : ''}>${escapeHtml(m.label)}</option>`).join('');
   const compactSubtitle = getComponentStatusSubtitle(c);
   const detailControls = !detailed ? '' : `
     <div class="cc-mode-toggle">
-      ${c.snapshot ? `<button class="cc-mode-btn${state?.mode === 'snapshot' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','snapshot')">Snapshot</button>` : ''}
-      <button class="cc-mode-btn${state?.mode === 'mock' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','mock')">${catalogOnly ? 'State Preview' : 'Live Approximation'}</button>
+      <div class="cc-mode-cluster">
+        ${c.snapshot ? `<button class="cc-mode-btn${state?.mode === 'snapshot' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','snapshot')">Snapshot</button>` : ''}
+        <button class="cc-mode-btn${state?.mode === 'mock' ? ' active' : ''}" onclick="setComponentPreviewMode('${c.id}','mock')">${catalogOnly ? 'State Preview' : 'Live Approximation'}</button>
+      </div>
+      ${buildPreviewAppearanceToggle('component', '', 'preview-appearance-toolbar preview-appearance-toolbar-detail')}
     </div>
   `;
   const stateMeta = detailed && mocks.length ? `
@@ -2345,6 +2392,7 @@ function renderViewDetail(viewId, target = null) {
   const view = (config?.views||[]).find(v=>v.id===viewId);
   if (!view) return null;
   const truth = getViewTruthStatus(view);
+  const appearance = typeof getPreviewAppearance === 'function' ? getPreviewAppearance('view') : 'dark';
   if (!target?.preview) currentViewDetailId = viewId;
   const state = getViewDetailState(view);
   const titleEl = target?.titleEl || document.getElementById('vdTitle');
@@ -2476,6 +2524,12 @@ function renderViewDetail(viewId, target = null) {
     </div>
   ` : '';
   const screenMarkup = snapshotMarkup || `<div class="vd-phone"><div class="vd-notch">9:41 AM</div><div class="vd-body">${phoneContent}</div></div>`;
+  const previewStageMarkup = `
+    <div class="vd-stage-toolbar">
+      ${buildPreviewAppearanceToggle('view', '', 'preview-appearance-toolbar preview-appearance-toolbar-detail')}
+    </div>
+    ${buildPreviewAppearancePanels(appearance, () => screenMarkup, { viewportClass: 'preview-appearance-viewport-detail' })}
+  `;
   const configPanel = `
     <div class="vd-panel">
       <div class="vd-panel-title">Config</div>
@@ -2538,7 +2592,7 @@ function renderViewDetail(viewId, target = null) {
   }
   const tabButtons = availableTabs.map(tab => `<button class="vd-detail-tab${tab.id === activeDetailTab ? ' active' : ''}" onclick="setViewDetailTab('${view.id}', '${tab.id}')">${escapeHtml(tab.label)}</button>`).join('');
   const activeTabContent = availableTabs.find(tab => tab.id === activeDetailTab)?.content || '';
-  contentEl.innerHTML=`<div class="view-detail active"><div class="vd-stage">${screenMarkup}</div><div class="vd-detail-body"><div class="vd-detail-tabs">${tabButtons}</div><div class="vd-detail-content">${activeTabContent}</div></div></div>`;
+  contentEl.innerHTML=`<div class="view-detail active"><div class="vd-stage">${previewStageMarkup}</div><div class="vd-detail-body"><div class="vd-detail-tabs">${tabButtons}</div><div class="vd-detail-content">${activeTabContent}</div></div></div>`;
   return { title: view.name, subtitle: getViewStatusSubtitle(view), openLabel: 'Open view detail' };
 }
 
