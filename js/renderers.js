@@ -204,13 +204,16 @@ function buildFoundationInspectorPreview(kind, id) {
     const item = spacing[id];
     if (!item) return '';
     const px = Number.parseInt(item.value || item, 10) || 0;
+    const scale = px % 8 === 0 ? `${px / 8}× 8pt grid` : px % 4 === 0 ? `${px / 4}× 4pt step` : 'Custom spacing step';
     return `
       <div class="inspector-preview-shell">
         <div class="inspector-preview-card">
           <div class="inspector-preview-stage">
-            <div class="foundation-spacing-stage">
+            <div class="foundation-metric-stage">
+              <div class="foundation-typography-kicker">Spacing token</div>
+              <div class="foundation-metric-value">${escapeHtml(px)}px</div>
               <div class="foundation-spacing-bar" style="width:${Math.max(10, Math.min(px * 2, 260))}px"></div>
-              <div class="foundation-spacing-value">${escapeHtml(px)}px</div>
+              <div class="foundation-metric-note">${escapeHtml(scale)}</div>
             </div>
           </div>
         </div>
@@ -222,13 +225,20 @@ function buildFoundationInspectorPreview(kind, id) {
     const item = radius[id];
     if (!item) return '';
     const px = Number.parseInt(item.value || item, 10) || 0;
+    const softness = px <= 8 ? 'Subtle rounding' : px <= 16 ? 'Card rounding' : px <= 28 ? 'Strong rounding' : 'Pill / large rounding';
     return `
       <div class="inspector-preview-shell">
         <div class="inspector-preview-card">
           <div class="inspector-preview-stage">
-            <div class="foundation-radius-stage">
-              <div class="foundation-radius-shape" style="border-radius:${escapeHtml(px)}px"></div>
-              <div class="foundation-spacing-value">${escapeHtml(px)}px</div>
+            <div class="foundation-metric-stage">
+              <div class="foundation-typography-kicker">Corner radius token</div>
+              <div class="foundation-metric-value">${escapeHtml(px)}px</div>
+              <div class="foundation-radius-showcase">
+                <div class="foundation-radius-chip foundation-radius-chip-small" style="border-radius:${escapeHtml(px)}px"></div>
+                <div class="foundation-radius-chip foundation-radius-chip-medium" style="border-radius:${escapeHtml(px)}px"></div>
+                <div class="foundation-radius-chip foundation-radius-chip-large" style="border-radius:${escapeHtml(px)}px"></div>
+              </div>
+              <div class="foundation-metric-note">${escapeHtml(softness)}</div>
             </div>
           </div>
         </div>
@@ -1005,6 +1015,7 @@ function getReviewQueueData() {
 
 function buildReviewActionCard(type, item) {
   const truth = type === 'component' ? getComponentTruthStatus(item) : getViewTruthStatus(item);
+  const collectionKey = type === 'component' ? 'review:component' : 'review:view';
   const countLabel = type === 'component'
     ? `${getComponentUsageViews(item).length} view${getComponentUsageViews(item).length === 1 ? '' : 's'}`
     : `${(item.navigatesTo || []).length} next step${(item.navigatesTo || []).length === 1 ? '' : 's'}`;
@@ -1031,8 +1042,8 @@ function buildReviewActionCard(type, item) {
         <div class="review-card-next">${escapeHtml(nextStep)}</div>
       </div>
       <div class="review-card-actions">
-        <button class="btn-sm" onclick="openInspectorPreview(${escapeHtml(escapeJsString(type))}, ${escapeHtml(escapeJsString(item.id))})">Preview</button>
-        <button class="btn-sm" onclick="${type === 'component' ? `showComponentPage(${escapeHtml(escapeJsString(item.id))})` : `showPage('viewdetail', ${escapeHtml(escapeJsString(item.id))})`}">Open detail</button>
+        <button class="btn-sm" onclick="openInspectorPreview(${escapeHtml(escapeJsString(type))}, ${escapeHtml(escapeJsString(item.id))}, '', ${escapeHtml(escapeJsString(collectionKey))})">Preview</button>
+        <button class="btn-sm" onclick="${type === 'component' ? `showComponentPage(${escapeHtml(escapeJsString(item.id))}, { collectionKey: ${escapeHtml(escapeJsString(collectionKey))} })` : `showViewPage(${escapeHtml(escapeJsString(item.id))}, { collectionKey: ${escapeHtml(escapeJsString(collectionKey))} })`}">Open detail</button>
       </div>
     </div>
   `;
@@ -1861,22 +1872,25 @@ function renderFoundationDetail(kind, id, target = null) {
 
   if (kind === 'spacing') {
     const px = Number.parseInt(item.value || item, 10) || 0;
+    const scale = px % 8 === 0 ? `${px / 8}× 8pt grid` : px % 4 === 0 ? `${px / 4}× 4pt step` : 'Custom spacing step';
     contentEl.innerHTML = `
-      <div class="foundation-detail-layout">
+      <div class="foundation-detail-layout foundation-detail-layout-metric">
         <div class="foundation-detail-stage">
-          <div class="foundation-spacing-stage foundation-spacing-stage-large">
+          <div class="foundation-metric-stage foundation-metric-stage-large">
+            <div class="foundation-typography-kicker">Spacing token</div>
+            <div class="foundation-metric-value foundation-metric-value-large">${escapeHtml(px)}px</div>
             <div class="foundation-spacing-bar" style="width:${Math.max(12, Math.min(px * 2.2, 320))}px"></div>
-            <div class="foundation-spacing-value">${escapeHtml(px)}px</div>
+            <div class="foundation-metric-note">${escapeHtml(scale)}</div>
           </div>
         </div>
-        <div class="foundation-detail-meta">
-          <div class="foundation-meta-card">
-            <div class="foundation-meta-label">Type</div>
-            <div class="foundation-meta-value">Spacing</div>
-          </div>
+        <div class="foundation-detail-meta foundation-detail-meta-metric">
           <div class="foundation-meta-card">
             <div class="foundation-meta-label">Value</div>
             <div class="foundation-meta-value foundation-meta-mono">${escapeHtml(px)}px</div>
+          </div>
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Scale</div>
+            <div class="foundation-meta-copy">${escapeHtml(scale)}</div>
           </div>
           <div class="foundation-meta-card foundation-meta-card-wide">
             <div class="foundation-meta-label">Token Path</div>
@@ -1891,22 +1905,29 @@ function renderFoundationDetail(kind, id, target = null) {
 
   if (kind === 'radius') {
     const px = Number.parseInt(item.value || item, 10) || 0;
+    const softness = px <= 8 ? 'Subtle rounding' : px <= 16 ? 'Card rounding' : px <= 28 ? 'Strong rounding' : 'Pill / large rounding';
     contentEl.innerHTML = `
-      <div class="foundation-detail-layout">
+      <div class="foundation-detail-layout foundation-detail-layout-metric">
         <div class="foundation-detail-stage">
-          <div class="foundation-radius-stage foundation-radius-stage-large">
-            <div class="foundation-radius-shape foundation-radius-shape-large" style="border-radius:${escapeHtml(px)}px"></div>
-            <div class="foundation-spacing-value">${escapeHtml(px)}px</div>
+          <div class="foundation-metric-stage foundation-metric-stage-large">
+            <div class="foundation-typography-kicker">Corner radius token</div>
+            <div class="foundation-metric-value foundation-metric-value-large">${escapeHtml(px)}px</div>
+            <div class="foundation-radius-showcase foundation-radius-showcase-large">
+              <div class="foundation-radius-chip foundation-radius-chip-small" style="border-radius:${escapeHtml(px)}px"></div>
+              <div class="foundation-radius-chip foundation-radius-chip-medium" style="border-radius:${escapeHtml(px)}px"></div>
+              <div class="foundation-radius-chip foundation-radius-chip-large" style="border-radius:${escapeHtml(px)}px"></div>
+            </div>
+            <div class="foundation-metric-note">${escapeHtml(softness)}</div>
           </div>
         </div>
-        <div class="foundation-detail-meta">
-          <div class="foundation-meta-card">
-            <div class="foundation-meta-label">Type</div>
-            <div class="foundation-meta-value">Corner Radius</div>
-          </div>
+        <div class="foundation-detail-meta foundation-detail-meta-metric">
           <div class="foundation-meta-card">
             <div class="foundation-meta-label">Value</div>
             <div class="foundation-meta-value foundation-meta-mono">${escapeHtml(px)}px</div>
+          </div>
+          <div class="foundation-meta-card">
+            <div class="foundation-meta-label">Profile</div>
+            <div class="foundation-meta-copy">${escapeHtml(softness)}</div>
           </div>
           <div class="foundation-meta-card foundation-meta-card-wide">
             <div class="foundation-meta-label">Token Path</div>
@@ -2330,6 +2351,7 @@ function renderViewDetail(viewId, target = null) {
   const titleEl = target?.titleEl || document.getElementById('vdTitle');
   const contentEl = target?.contentEl || document.getElementById('viewDetailContent');
   if (titleEl) titleEl.textContent = view.name;
+  if (!target?.preview) syncViewDetailContextNav(view);
   if (!contentEl) return null;
   let phoneContent = '';
   const snapshotMarkup = view.snapshot?.path ? buildSnapshotPreview(view.snapshot, `${view.name} snapshot`, 'snapshot-frame detail-snapshot-frame') : '';
