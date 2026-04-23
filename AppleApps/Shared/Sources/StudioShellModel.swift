@@ -1,7 +1,22 @@
 import Foundation
 import Combine
 
+enum StudioNativeAppearance: String, CaseIterable, Identifiable {
+    case dark
+    case light
+    case both
+
+    var id: String { rawValue }
+}
+
 struct StudioNativeDocument: Equatable {
+    struct SnapshotAsset: Equatable {
+        let name: String
+        let defaultPath: String?
+        let lightPath: String?
+        let darkPath: String?
+    }
+
     struct ColorToken: Identifiable, Equatable {
         let id: String
         let name: String
@@ -50,20 +65,50 @@ struct StudioNativeDocument: Equatable {
         let referenceCount: Int
     }
 
+    struct ComponentItem: Identifiable, Equatable {
+        let id: String
+        let name: String
+        let group: String
+        let renderer: String
+        let summary: String
+        let swiftUI: String
+        let sourcePath: String
+        let defaultState: String
+        let statesCount: Int
+        let snapshot: SnapshotAsset?
+    }
+
     let appName: String
     let appVersion: String
     let appDescription: String
     let assetRootURL: URL?
     let iconBasePath: String?
+    let snapshotBasePath: String?
     let colors: [ColorToken]
     let gradients: [GradientToken]
     let typography: [TypographyToken]
     let spacing: [MetricToken]
     let radius: [MetricToken]
     let icons: [IconToken]
+    let components: [ComponentItem]
 
     func resolvedIconURL(for icon: IconToken) -> URL? {
         resolvedAssetURL(basePath: iconBasePath, relativePath: icon.assetPath)
+    }
+
+    func resolvedSnapshotURL(for snapshot: SnapshotAsset?, appearance: StudioNativeAppearance = .dark) -> URL? {
+        guard let snapshot else { return nil }
+        let relativePath: String?
+        switch appearance {
+        case .light:
+            relativePath = snapshot.lightPath ?? snapshot.defaultPath ?? snapshot.darkPath
+        case .dark:
+            relativePath = snapshot.darkPath ?? snapshot.defaultPath ?? snapshot.lightPath
+        case .both:
+            relativePath = snapshot.darkPath ?? snapshot.defaultPath ?? snapshot.lightPath
+        }
+        guard let relativePath else { return nil }
+        return resolvedAssetURL(basePath: snapshotBasePath, relativePath: relativePath)
     }
 
     private func resolvedAssetURL(basePath: String?, relativePath: String) -> URL? {
@@ -563,6 +608,7 @@ final class StudioShellModel: ObservableObject {
         let spacing = parseMetricTokens(tokens["spacing"] as? [String: Any] ?? [:], defaultKind: "padding")
         let radius = parseMetricTokens(tokens["radius"] as? [String: Any] ?? [:], defaultKind: "cornerRadius")
         let icons = parseIconTokens(tokens["icons"] as? [[String: Any]] ?? [])
+        let components = parseComponentItems(object["components"] as? [[String: Any]] ?? [])
 
         return StudioNativeDocument(
             appName: (meta["name"] as? String) ?? fileName,
@@ -570,12 +616,14 @@ final class StudioShellModel: ObservableObject {
             appDescription: (meta["description"] as? String) ?? "",
             assetRootURL: assetRootURL,
             iconBasePath: assets["iconBasePath"] as? String,
+            snapshotBasePath: assets["snapshotBasePath"] as? String,
             colors: colors,
             gradients: gradients,
             typography: typography,
             spacing: spacing,
             radius: radius,
-            icons: icons
+            icons: icons,
+            components: components
         )
     }
 
@@ -663,6 +711,43 @@ final class StudioShellModel: ObservableObject {
             )
         }
         .sorted { lhs, rhs in lhs.name < rhs.name }
+    }
+
+    private static func parseComponentItems(_ array: [[String: Any]]) -> [StudioNativeDocument.ComponentItem] {
+        array.compactMap { value in
+            guard let id = value["id"] as? String else { return nil }
+            return StudioNativeDocument.ComponentItem(
+                id: id,
+                name: (value["name"] as? String) ?? humanizedIdentifier(id),
+                group: (value["group"] as? String) ?? "Ungrouped",
+                renderer: (value["renderer"] as? String) ?? "component",
+                summary: (value["description"] as? String) ?? "",
+                swiftUI: (value["swiftui"] as? String) ?? "",
+                sourcePath: (value["source"] as? String) ?? "",
+                defaultState: (value["defaultState"] as? String) ?? "",
+                statesCount: (value["states"] as? [[String: Any]])?.count ?? 0,
+                snapshot: parseSnapshotAsset(value["snapshot"] as? [String: Any])
+            )
+        }
+        .sorted { lhs, rhs in
+            lhs.group == rhs.group ? lhs.name < rhs.name : lhs.group < rhs.group
+        }
+    }
+
+    private static func parseSnapshotAsset(_ value: [String: Any]?) -> StudioNativeDocument.SnapshotAsset? {
+        guard let value else { return nil }
+        let defaultPath = value["path"] as? String
+        let darkPath = value["dark"] as? String
+        let lightPath = value["light"] as? String
+        if [defaultPath, darkPath, lightPath].allSatisfy({ $0 == nil || $0?.isEmpty == true }) {
+            return nil
+        }
+        return StudioNativeDocument.SnapshotAsset(
+            name: (value["name"] as? String) ?? "Snapshot",
+            defaultPath: defaultPath,
+            lightPath: lightPath,
+            darkPath: darkPath
+        )
     }
 
     private static func parseReferenceCount(from references: [String: Any]?) -> Int {

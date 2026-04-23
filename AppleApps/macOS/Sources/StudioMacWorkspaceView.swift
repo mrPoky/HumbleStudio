@@ -6,6 +6,7 @@ struct StudioMacWorkspaceView: View {
     private enum Destination: String, Hashable, CaseIterable {
         case overview
         case tokens
+        case components
         case icons
         case typography
         case spacing
@@ -15,6 +16,7 @@ struct StudioMacWorkspaceView: View {
             switch self {
             case .overview: return "Overview"
             case .tokens: return "Tokens"
+            case .components: return "Components"
             case .icons: return "Icons"
             case .typography: return "Typography"
             case .spacing: return "Spacing & Radius"
@@ -28,6 +30,8 @@ struct StudioMacWorkspaceView: View {
                 return "Native foundations workspace for imported design exports."
             case .tokens:
                 return "Colors and gradients rendered directly in SwiftUI."
+            case .components:
+                return "Snapshot-first component catalog rendered natively."
             case .icons:
                 return "Native icon catalog sourced from the imported bundle."
             case .typography:
@@ -43,6 +47,7 @@ struct StudioMacWorkspaceView: View {
             switch self {
             case .overview: return "square.grid.2x2"
             case .tokens: return "paintpalette"
+            case .components: return "square.grid.3x2"
             case .icons: return "app.gift"
             case .typography: return "textformat"
             case .spacing: return "square.on.square"
@@ -57,6 +62,7 @@ struct StudioMacWorkspaceView: View {
     @State private var isImportingRemoteURL = false
     @State private var isDropTargeted = false
     @State private var remoteURLDraft = ""
+    @State private var componentAppearance: StudioNativeAppearance = .dark
 
     private static var supportedImportTypes: [UTType] {
         [UTType(filenameExtension: "humblebundle") ?? .zip, .zip, .json]
@@ -145,6 +151,7 @@ struct StudioMacWorkspaceView: View {
             Section("Native") {
                 sidebarRow(.overview)
                 sidebarRow(.tokens, count: model.nativeDocument.map { $0.colors.count + $0.gradients.count })
+                sidebarRow(.components, count: model.nativeDocument?.components.count)
                 sidebarRow(.icons, count: model.nativeDocument?.icons.count)
                 sidebarRow(.typography, count: model.nativeDocument?.typography.count)
                 sidebarRow(.spacing, count: model.nativeDocument.map { $0.spacing.count + $0.radius.count })
@@ -260,6 +267,12 @@ struct StudioMacWorkspaceView: View {
             StudioMacOverviewPage(model: model)
         case .tokens:
             StudioMacTokensPage(document: model.nativeDocument, nativeErrorMessage: model.nativeErrorMessage)
+        case .components:
+            StudioMacComponentsPage(
+                document: model.nativeDocument,
+                nativeErrorMessage: model.nativeErrorMessage,
+                appearance: $componentAppearance
+            )
         case .icons:
             StudioMacIconsPage(document: model.nativeDocument, nativeErrorMessage: model.nativeErrorMessage)
         case .typography:
@@ -532,6 +545,7 @@ private struct StudioMacOverviewPage: View {
 
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 180), spacing: 16)], spacing: 16) {
                         StudioCountCard(title: "Tokens", value: "\(document.colors.count + document.gradients.count)", caption: "Colors and gradients")
+                        StudioCountCard(title: "Components", value: "\(document.components.count)", caption: "Native dashboard now reads snapshots from the bundle")
                         StudioCountCard(title: "Icons", value: "\(document.icons.count)", caption: "Resolved from the bundle")
                         StudioCountCard(title: "Typography", value: "\(document.typography.count)", caption: "Type roles")
                         StudioCountCard(title: "Spacing & Radius", value: "\(document.spacing.count + document.radius.count)", caption: "Spatial tokens")
@@ -539,7 +553,7 @@ private struct StudioMacOverviewPage: View {
 
                     StudioMigrationCard(
                         title: "Migration status",
-                        message: "The macOS app now reads bundle truth natively for foundations. Components, views, review, and navigation still live in the legacy web inspector until their SwiftUI versions catch up."
+                        message: "The macOS app now reads bundle truth natively for foundations and the component dashboard. Views, review, and navigation still live in the legacy web inspector until their SwiftUI versions catch up."
                     )
                 } else if let nativeErrorMessage = model.nativeErrorMessage {
                     ContentUnavailableView(
@@ -576,6 +590,44 @@ private struct StudioMacTokensPage: View {
 
                     StudioGroupedSection(title: "Gradients", groups: grouped(document.gradients, by: \.group)) { item in
                         StudioGradientCard(token: item)
+                    }
+                }
+                .padding(24)
+            }
+        }
+    }
+}
+
+private struct StudioMacComponentsPage: View {
+    let document: StudioNativeDocument?
+    let nativeErrorMessage: String?
+    @Binding var appearance: StudioNativeAppearance
+
+    var body: some View {
+        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    HStack(alignment: .center) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Components")
+                                .font(.system(size: 26, weight: .bold))
+                            Text("First native component pass: snapshot-first cards over the exported contract, with the legacy web inspector still available for deeper interaction.")
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+
+                        Spacer(minLength: 16)
+
+                        Picker("Appearance", selection: $appearance) {
+                            Text("Dark").tag(StudioNativeAppearance.dark)
+                            Text("Light").tag(StudioNativeAppearance.light)
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(width: 180)
+                    }
+
+                    StudioGroupedSection(title: "Component Catalog", groups: grouped(document.components, by: \.group)) { item in
+                        StudioComponentCard(token: item, document: document, appearance: appearance)
                     }
                 }
                 .padding(24)
@@ -833,6 +885,72 @@ private struct StudioGradientCard: View {
     }
 }
 
+private struct StudioComponentCard: View {
+    let token: StudioNativeDocument.ComponentItem
+    let document: StudioNativeDocument
+    let appearance: StudioNativeAppearance
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            StudioComponentSnapshotThumbnail(
+                url: document.resolvedSnapshotURL(for: token.snapshot, appearance: appearance),
+                appearance: appearance
+            )
+            .frame(maxWidth: .infinity)
+            .frame(height: 190)
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .top, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(token.name)
+                            .font(.headline)
+                            .lineLimit(2)
+                        Text(token.renderer.capitalized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 8)
+                    Text(token.snapshot == nil ? "Catalog" : "Snapshot")
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background((token.snapshot == nil ? Color.orange : Color.green).opacity(0.14), in: Capsule())
+                        .foregroundStyle(token.snapshot == nil ? .orange : .green)
+                }
+
+                if !token.summary.isEmpty {
+                    Text(token.summary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
+
+                HStack(spacing: 8) {
+                    if token.statesCount > 0 {
+                        StudioPillLabel(text: "\(token.statesCount) states")
+                    }
+                    if !token.defaultState.isEmpty {
+                        StudioPillLabel(text: "Default: \(token.defaultState)")
+                    }
+                }
+
+                if !token.swiftUI.isEmpty {
+                    Text(token.swiftUI)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+        }
+        .padding(16)
+        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(.quaternary.opacity(0.8), lineWidth: 1)
+        )
+    }
+}
+
 private struct StudioMetricCard: View {
     let token: StudioNativeDocument.MetricToken
 
@@ -884,6 +1002,19 @@ private struct StudioMetricCard: View {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .stroke(.quaternary.opacity(0.8), lineWidth: 1)
         )
+    }
+}
+
+private struct StudioPillLabel: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(.caption.weight(.medium))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(.quaternary.opacity(0.55), in: Capsule())
+            .foregroundStyle(.secondary)
     }
 }
 
@@ -972,6 +1103,53 @@ private struct StudioMacIconThumbnail: View {
             .scaledToFit()
             .foregroundStyle(.secondary)
             .padding(28)
+    }
+}
+
+private struct StudioComponentSnapshotThumbnail: View {
+    let url: URL?
+    let appearance: StudioNativeAppearance
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(appearance == .light ? Color.white : Color(hex: "#11182B"))
+
+            if let url, url.isFileURL, let image = NSImage(contentsOf: url) {
+                Image(nsImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(14)
+            } else if let url {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .padding(14)
+                    default:
+                        fallback
+                    }
+                }
+            } else {
+                fallback
+            }
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(.quaternary.opacity(0.7), lineWidth: 1)
+        )
+    }
+
+    private var fallback: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "photo")
+                .font(.system(size: 28, weight: .semibold))
+            Text("No snapshot")
+                .font(.caption.weight(.medium))
+        }
+        .foregroundStyle(.secondary)
     }
 }
 
