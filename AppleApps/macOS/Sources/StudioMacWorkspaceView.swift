@@ -616,37 +616,70 @@ private struct StudioMacComponentsPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
     @Binding var appearance: StudioNativeAppearance
+    @State private var selectedComponentID: String?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    HStack(alignment: .center) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Components")
-                                .font(.system(size: 26, weight: .bold))
-                            Text("First native component pass: snapshot-first cards over the exported contract, with the legacy web inspector still available for deeper interaction.")
-                                .foregroundStyle(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 22) {
+                        HStack(alignment: .center) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Components")
+                                    .font(.system(size: 26, weight: .bold))
+                                Text("First native component pass: snapshot-first cards over the exported contract, now with a real native inspector instead of a jump straight back to the web.")
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+
+                            Spacer(minLength: 16)
+
+                            Picker("Appearance", selection: $appearance) {
+                                Text("Dark").tag(StudioNativeAppearance.dark)
+                                Text("Light").tag(StudioNativeAppearance.light)
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 180)
                         }
 
-                        Spacer(minLength: 16)
-
-                        Picker("Appearance", selection: $appearance) {
-                            Text("Dark").tag(StudioNativeAppearance.dark)
-                            Text("Light").tag(StudioNativeAppearance.light)
+                        StudioGroupedSection(title: "Component Catalog", groups: grouped(document.components, by: \.group)) { item in
+                            StudioComponentCard(
+                                token: item,
+                                document: document,
+                                appearance: appearance,
+                                isSelected: item.id == (selectedComponentID ?? document.components.first?.id)
+                            )
+                            .onTapGesture {
+                                selectedComponentID = item.id
+                            }
                         }
-                        .pickerStyle(.segmented)
-                        .frame(width: 180)
                     }
-
-                    StudioGroupedSection(title: "Component Catalog", groups: grouped(document.components, by: \.group)) { item in
-                        StudioComponentCard(token: item, document: document, appearance: appearance)
-                    }
+                    .padding(24)
                 }
-                .padding(24)
+
+                Divider()
+                    .opacity(0.35)
+
+                StudioComponentDetailInspector(
+                    token: selectedComponent(in: document),
+                    document: document,
+                    appearance: appearance
+                )
+                .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
+            }
+            .onAppear {
+                if selectedComponentID == nil {
+                    selectedComponentID = document.components.first?.id
+                }
             }
         }
+    }
+
+    private func selectedComponent(in document: StudioNativeDocument) -> StudioNativeDocument.ComponentItem? {
+        if let selectedComponentID, let selected = document.components.first(where: { $0.id == selectedComponentID }) {
+            return selected
+        }
+        return document.components.first
     }
 }
 
@@ -943,6 +976,7 @@ private struct StudioComponentCard: View {
     let token: StudioNativeDocument.ComponentItem
     let document: StudioNativeDocument
     let appearance: StudioNativeAppearance
+    let isSelected: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -1000,8 +1034,122 @@ private struct StudioComponentCard: View {
         .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(.quaternary.opacity(0.8), lineWidth: 1)
+                .stroke(isSelected ? Color.accentColor.opacity(0.65) : Color.secondary.opacity(0.18), lineWidth: isSelected ? 1.5 : 1)
         )
+    }
+}
+
+private struct StudioComponentDetailInspector: View {
+    let token: StudioNativeDocument.ComponentItem?
+    let document: StudioNativeDocument
+    let appearance: StudioNativeAppearance
+
+    var body: some View {
+        Group {
+            if let token {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        Text("Component Detail")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(token.name)
+                                .font(.system(size: 28, weight: .bold))
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text(token.group)
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(.quaternary.opacity(0.55), in: Capsule())
+                                .foregroundStyle(.secondary)
+                            if !token.summary.isEmpty {
+                                Text(token.summary)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+
+                        StudioComponentSnapshotThumbnail(
+                            url: document.resolvedSnapshotURL(for: token.snapshot, appearance: appearance),
+                            appearance: appearance
+                        )
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 240)
+
+                        StudioInspectorSection(title: "Contract") {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioKeyValueRow(label: "Renderer", value: token.renderer)
+                                StudioKeyValueRow(label: "SwiftUI", value: token.swiftUI)
+                                StudioKeyValueRow(label: "Default state", value: token.defaultState.isEmpty ? "—" : token.defaultState)
+                                StudioKeyValueRow(label: "States", value: "\(token.statesCount)")
+                                StudioKeyValueRow(label: "Truth", value: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
+                            }
+                        }
+
+                        if !token.states.isEmpty {
+                            StudioInspectorSection(title: "States") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(token.states.prefix(6)) { state in
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(state.label)
+                                                .font(.subheadline.weight(.semibold))
+                                            if !state.detail.isEmpty {
+                                                Text(state.detail)
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+                                                    .fixedSize(horizontal: false, vertical: true)
+                                            }
+                                        }
+                                        if state.id != token.states.prefix(6).last?.id {
+                                            Divider()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        StudioInspectorSection(title: "Evidence") {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioKeyValueRow(label: "Design tokens", value: "\(token.designTokenCount)")
+                                StudioKeyValueRow(label: "Source tokens", value: "\(token.sourceTokenCount)")
+                                if !token.designTokenCategories.isEmpty {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("Categories")
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(.secondary)
+                                        FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                                    }
+                                }
+                            }
+                        }
+
+                        StudioInspectorSection(title: "Source") {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioKeyValueRow(label: "File", value: token.sourcePath)
+                                if !token.sourceSnippetSymbol.isEmpty {
+                                    StudioKeyValueRow(
+                                        label: "Symbol",
+                                        value: token.sourceSnippetRange.isEmpty
+                                            ? token.sourceSnippetSymbol
+                                            : "\(token.sourceSnippetSymbol) · \(token.sourceSnippetRange)"
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    .padding(20)
+                }
+            } else {
+                ContentUnavailableView(
+                    "Select a component",
+                    systemImage: "square.grid.3x2",
+                    description: Text("Choose a component card to inspect its snapshot truth, state catalog, and source metadata.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .background(.thinMaterial)
     }
 }
 
@@ -1136,6 +1284,61 @@ private struct StudioPillLabel: View {
             .padding(.vertical, 6)
             .background(.quaternary.opacity(0.55), in: Capsule())
             .foregroundStyle(.secondary)
+    }
+}
+
+private struct StudioInspectorSection<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.headline)
+            content
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(.quaternary.opacity(0.75), lineWidth: 1)
+        )
+    }
+}
+
+private struct StudioKeyValueRow: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.body)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+private struct FlexiblePillStack: View {
+    let items: [String]
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 8)], alignment: .leading, spacing: 8) {
+            ForEach(items, id: \.self) { item in
+                Text(item)
+                    .font(.caption.weight(.medium))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(.quaternary.opacity(0.55), in: Capsule())
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

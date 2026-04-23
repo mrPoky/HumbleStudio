@@ -66,6 +66,12 @@ struct StudioNativeDocument: Equatable {
     }
 
     struct ComponentItem: Identifiable, Equatable {
+        struct StateSummary: Equatable, Identifiable {
+            let id: String
+            let label: String
+            let detail: String
+        }
+
         let id: String
         let name: String
         let group: String
@@ -75,6 +81,12 @@ struct StudioNativeDocument: Equatable {
         let sourcePath: String
         let defaultState: String
         let statesCount: Int
+        let states: [StateSummary]
+        let designTokenCategories: [String]
+        let designTokenCount: Int
+        let sourceTokenCount: Int
+        let sourceSnippetSymbol: String
+        let sourceSnippetRange: String
         let snapshot: SnapshotAsset?
     }
 
@@ -736,6 +748,8 @@ final class StudioShellModel: ObservableObject {
     private static func parseComponentItems(_ array: [[String: Any]]) -> [StudioNativeDocument.ComponentItem] {
         array.compactMap { value in
             guard let id = value["id"] as? String else { return nil }
+            let tokenSummary = (value["tokenDependencies"] as? [String: Any])?["summary"] as? [String: Any] ?? [:]
+            let sourceSnippet = value["sourceSnippet"] as? [String: Any] ?? [:]
             return StudioNativeDocument.ComponentItem(
                 id: id,
                 name: (value["name"] as? String) ?? humanizedIdentifier(id),
@@ -746,6 +760,12 @@ final class StudioShellModel: ObservableObject {
                 sourcePath: (value["source"] as? String) ?? "",
                 defaultState: (value["defaultState"] as? String) ?? "",
                 statesCount: (value["states"] as? [[String: Any]])?.count ?? 0,
+                states: parseStateSummaries(value["states"] as? [[String: Any]] ?? []),
+                designTokenCategories: tokenSummary["categories"] as? [String] ?? [],
+                designTokenCount: tokenSummary["designTokenCount"] as? Int ?? 0,
+                sourceTokenCount: tokenSummary["sourceTokenCount"] as? Int ?? 0,
+                sourceSnippetSymbol: (sourceSnippet["symbol"] as? String) ?? "",
+                sourceSnippetRange: sourceSnippetRange(sourceSnippet),
                 snapshot: parseSnapshotAsset(value["snapshot"] as? [String: Any])
             )
         }
@@ -795,6 +815,30 @@ final class StudioShellModel: ObservableObject {
             lightPath: lightPath,
             darkPath: darkPath
         )
+    }
+
+    private static func parseStateSummaries(_ array: [[String: Any]]) -> [StudioNativeDocument.ComponentItem.StateSummary] {
+        array.compactMap { value in
+            guard let id = value["id"] as? String else { return nil }
+            return StudioNativeDocument.ComponentItem.StateSummary(
+                id: id,
+                label: (value["label"] as? String) ?? humanizedIdentifier(id),
+                detail: (value["description"] as? String) ?? ""
+            )
+        }
+    }
+
+    private static func sourceSnippetRange(_ value: [String: Any]) -> String {
+        let startLine = value["startLine"] as? Int
+        let endLine = value["endLine"] as? Int
+        switch (startLine, endLine) {
+        case let (.some(start), .some(end)):
+            return "lines \(start)-\(end)"
+        case let (.some(start), .none):
+            return "line \(start)"
+        default:
+            return ""
+        }
     }
 
     private static func parseReferenceCount(from references: [String: Any]?) -> Int {
