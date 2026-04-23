@@ -8,6 +8,7 @@ struct StudioMacWorkspaceView: View {
         case tokens
         case components
         case views
+        case review
         case icons
         case typography
         case spacing
@@ -19,6 +20,7 @@ struct StudioMacWorkspaceView: View {
             case .tokens: return "Tokens"
             case .components: return "Components"
             case .views: return "Views"
+            case .review: return "Review Queue"
             case .icons: return "Icons"
             case .typography: return "Typography"
             case .spacing: return "Spacing & Radius"
@@ -36,6 +38,8 @@ struct StudioMacWorkspaceView: View {
                 return "Snapshot-first component catalog rendered natively."
             case .views:
                 return "Screen catalog with snapshot and flow truth, rendered natively."
+            case .review:
+                return "Native queue for components and views whose exported truth still needs attention."
             case .icons:
                 return "Native icon catalog sourced from the imported bundle."
             case .typography:
@@ -53,6 +57,7 @@ struct StudioMacWorkspaceView: View {
             case .tokens: return "paintpalette"
             case .components: return "square.grid.3x2"
             case .views: return "rectangle.on.rectangle"
+            case .review: return "exclamationmark.circle"
             case .icons: return "app.gift"
             case .typography: return "textformat"
             case .spacing: return "square.on.square"
@@ -69,6 +74,8 @@ struct StudioMacWorkspaceView: View {
     @State private var remoteURLDraft = ""
     @State private var componentAppearance: StudioNativeAppearance = .dark
     @State private var viewAppearance: StudioNativeAppearance = .dark
+    @State private var selectedComponentID: String?
+    @State private var selectedViewID: String?
 
     private static var supportedImportTypes: [UTType] {
         [UTType(filenameExtension: "humblebundle") ?? .zip, .zip, .json]
@@ -159,6 +166,7 @@ struct StudioMacWorkspaceView: View {
                 sidebarRow(.tokens, count: model.nativeDocument.map { $0.colors.count + $0.gradients.count })
                 sidebarRow(.components, count: model.nativeDocument?.components.count)
                 sidebarRow(.views, count: model.nativeDocument?.views.count)
+                sidebarRow(.review, count: model.nativeDocument.map { reviewQueueCounts(for: $0).total })
                 sidebarRow(.icons, count: model.nativeDocument?.icons.count)
                 sidebarRow(.typography, count: model.nativeDocument?.typography.count)
                 sidebarRow(.spacing, count: model.nativeDocument.map { $0.spacing.count + $0.radius.count })
@@ -278,13 +286,22 @@ struct StudioMacWorkspaceView: View {
             StudioMacComponentsPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
-                appearance: $componentAppearance
+                appearance: $componentAppearance,
+                selectedComponentID: $selectedComponentID
             )
         case .views:
             StudioMacViewsPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
-                appearance: $viewAppearance
+                appearance: $viewAppearance,
+                selectedViewID: $selectedViewID
+            )
+        case .review:
+            StudioMacReviewPage(
+                document: model.nativeDocument,
+                nativeErrorMessage: model.nativeErrorMessage,
+                inspectComponent: inspectComponent,
+                inspectView: inspectView
             )
         case .icons:
             StudioMacIconsPage(document: model.nativeDocument, nativeErrorMessage: model.nativeErrorMessage)
@@ -531,6 +548,22 @@ struct StudioMacWorkspaceView: View {
 
         return true
     }
+
+    private func inspectComponent(_ componentID: String) {
+        selectedComponentID = componentID
+        selection = .components
+    }
+
+    private func inspectView(_ viewID: String) {
+        selectedViewID = viewID
+        selection = .views
+    }
+
+    private func reviewQueueCounts(for document: StudioNativeDocument) -> (components: Int, views: Int, total: Int) {
+        let components = document.components.filter { nativeComponentTruthStatus(for: $0).needsAttention }.count
+        let views = document.views.filter { nativeViewTruthStatus(for: $0).needsAttention }.count
+        return (components, views, components + views)
+    }
 }
 
 private struct StudioMacOverviewPage: View {
@@ -616,7 +649,7 @@ private struct StudioMacComponentsPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
     @Binding var appearance: StudioNativeAppearance
-    @State private var selectedComponentID: String?
+    @Binding var selectedComponentID: String?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
@@ -647,7 +680,7 @@ private struct StudioMacComponentsPage: View {
                                 token: item,
                                 document: document,
                                 appearance: appearance,
-                                isSelected: item.id == (selectedComponentID ?? document.components.first?.id)
+                                isSelected: item.id == selectedComponent(in: document)?.id
                             )
                             .onTapGesture {
                                 selectedComponentID = item.id
@@ -687,7 +720,7 @@ private struct StudioMacViewsPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
     @Binding var appearance: StudioNativeAppearance
-    @State private var selectedViewID: String?
+    @Binding var selectedViewID: String?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
@@ -719,7 +752,7 @@ private struct StudioMacViewsPage: View {
                                     token: item,
                                     document: document,
                                     appearance: appearance,
-                                    isSelected: item.id == (selectedViewID ?? document.views.first?.id)
+                                    isSelected: item.id == selectedView(in: document)?.id
                                 )
                                 .onTapGesture {
                                     selectedViewID = item.id
@@ -753,6 +786,94 @@ private struct StudioMacViewsPage: View {
             return selected
         }
         return document.views.first
+    }
+}
+
+private struct StudioMacReviewPage: View {
+    let document: StudioNativeDocument?
+    let nativeErrorMessage: String?
+    let inspectComponent: (String) -> Void
+    let inspectView: (String) -> Void
+
+    var body: some View {
+        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+            let components = document.components.filter { nativeComponentTruthStatus(for: $0).needsAttention }
+            let views = document.views.filter { nativeViewTruthStatus(for: $0).needsAttention }
+
+            if components.isEmpty && views.isEmpty {
+                ContentUnavailableView(
+                    "Nothing needs review",
+                    systemImage: "checkmark.circle",
+                    description: Text("All currently imported components and views have reference snapshots or enough exported truth for the native inspector.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Review Queue")
+                                .font(.system(size: 28, weight: .bold))
+                            Text("Start with items where exported truth is weakest, then jump straight into the matching native inspector.")
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+
+                        HStack(spacing: 16) {
+                            StudioCountCard(title: "Needs Review", value: "\(components.count + views.count)", caption: "Total native truth gaps surfaced from the current import")
+                            StudioCountCard(title: "Components", value: "\(components.count)", caption: "Reusable pieces missing snapshot or strong state truth")
+                            StudioCountCard(title: "Views", value: "\(views.count)", caption: "Screens whose visual or flow evidence still needs attention")
+                        }
+
+                        if !components.isEmpty {
+                            StudioInspectorSection(title: "Components") {
+                                VStack(alignment: .leading, spacing: 14) {
+                                    ForEach(components) { component in
+                                        StudioNativeReviewCard(
+                                            title: component.name,
+                                            subtitle: [component.group, "\(getComponentUsageCount(component, in: document)) views"].filter { !$0.isEmpty }.joined(separator: " · "),
+                                            status: nativeComponentTruthStatus(for: component),
+                                            reason: nativeComponentReviewReason(for: component),
+                                            evidence: [
+                                                ("Snapshot", component.snapshot == nil ? "Missing" : "Present"),
+                                                ("States", "\(component.statesCount)"),
+                                                ("Source", component.sourcePath.isEmpty ? "Missing" : "Present"),
+                                            ],
+                                            actionTitle: "Inspect Component"
+                                        ) {
+                                            inspectComponent(component.id)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if !views.isEmpty {
+                            StudioInspectorSection(title: "Views") {
+                                VStack(alignment: .leading, spacing: 14) {
+                                    ForEach(views) { view in
+                                        StudioNativeReviewCard(
+                                            title: view.name,
+                                            subtitle: [view.root ? "Root screen" : view.presentation.capitalized, "\(view.navigationCount) links"].joined(separator: " · "),
+                                            status: nativeViewTruthStatus(for: view),
+                                            reason: nativeViewReviewReason(for: view),
+                                            evidence: [
+                                                ("Snapshot", view.snapshot == nil ? "Missing" : "Present"),
+                                                ("Components", "\(view.componentsCount)"),
+                                                ("Source", view.sourcePath.isEmpty ? "Missing" : "Present"),
+                                            ],
+                                            actionTitle: "Inspect View"
+                                        ) {
+                                            inspectView(view.id)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(24)
+                }
+            }
+        }
     }
 }
 
@@ -1532,6 +1653,63 @@ private struct StudioInspectorSection<Content: View>: View {
     }
 }
 
+private struct StudioNativeReviewCard: View {
+    let title: String
+    let subtitle: String
+    let status: StudioNativeTruthStatus
+    let reason: String
+    let evidence: [(String, String)]
+    let actionTitle: String
+    let action: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                    if !subtitle.isEmpty {
+                        Text(subtitle)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Spacer(minLength: 12)
+
+                Text(status.label)
+                    .font(.caption.weight(.semibold))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(status.color.opacity(0.14), in: Capsule())
+                    .foregroundStyle(status.color)
+            }
+
+            Text(reason)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: 16) {
+                ForEach(evidence, id: \.0) { item in
+                    StudioKeyValueRow(label: item.0, value: item.1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+
+            Button(actionTitle, action: action)
+                .buttonStyle(.borderedProminent)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(status.color.opacity(0.22), lineWidth: 1)
+        )
+    }
+}
+
 private struct StudioKeyValueRow: View {
     let label: String
     let value: String
@@ -1547,6 +1725,50 @@ private struct StudioKeyValueRow: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
+}
+
+private struct StudioNativeTruthStatus {
+    let label: String
+    let color: Color
+    let needsAttention: Bool
+}
+
+private func nativeComponentTruthStatus(for component: StudioNativeDocument.ComponentItem) -> StudioNativeTruthStatus {
+    if component.snapshot != nil {
+        return StudioNativeTruthStatus(label: "Reference snapshot", color: .green, needsAttention: false)
+    }
+    if component.statesCount > 0 {
+        return StudioNativeTruthStatus(label: "Catalog only", color: .orange, needsAttention: true)
+    }
+    return StudioNativeTruthStatus(label: "Approximation only", color: .red, needsAttention: true)
+}
+
+private func nativeViewTruthStatus(for view: StudioNativeDocument.ViewItem) -> StudioNativeTruthStatus {
+    if view.snapshot != nil {
+        return StudioNativeTruthStatus(label: "Reference snapshot", color: .green, needsAttention: false)
+    }
+    return StudioNativeTruthStatus(label: "Catalog only", color: .orange, needsAttention: true)
+}
+
+private func nativeComponentReviewReason(for component: StudioNativeDocument.ComponentItem) -> String {
+    if component.snapshot == nil && component.statesCount == 0 {
+        return "No reference snapshot is exported and the native inspector also has no declared state catalog to lean on yet."
+    }
+    if component.snapshot == nil {
+        return "The component has declared states, but there is still no exported reference snapshot to confirm visual truth."
+    }
+    return "This component is fully backed by exported truth."
+}
+
+private func nativeViewReviewReason(for view: StudioNativeDocument.ViewItem) -> String {
+    if view.snapshot == nil {
+        return "The screen has flow and component metadata, but no exported reference snapshot yet, so visual truth still needs review."
+    }
+    return "This view is fully backed by exported truth."
+}
+
+private func getComponentUsageCount(_ component: StudioNativeDocument.ComponentItem, in document: StudioNativeDocument) -> Int {
+    document.views.filter { $0.components.contains(component.id) }.count
 }
 
 private struct FlexiblePillStack: View {
