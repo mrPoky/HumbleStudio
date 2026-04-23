@@ -114,12 +114,10 @@ function buildFoundationInspectorPreview(kind, id) {
     const item = icons.find(icon => (icon.id || icon.name || icon.symbol) === id);
     if (!item) return '';
     return `
-      <div class="inspector-preview-shell">
-        <div class="inspector-preview-card">
-          <div class="inspector-preview-stage">
-            <div class="foundation-icon-canvas">
-              ${item.path ? buildIconAssetPreview(item) : `<div class="icon-preview-glyph icon-preview-glyph-large">${escapeHtml(item.symbol || '?')}</div>`}
-            </div>
+      <div class="inspector-preview-shell inspector-preview-shell-flat">
+        <div class="inspector-preview-stage inspector-preview-stage-flat">
+          <div class="foundation-icon-canvas foundation-icon-canvas-flat">
+            ${item.path ? buildIconAssetPreview(item) : `<div class="icon-preview-glyph icon-preview-glyph-large">${escapeHtml(item.symbol || '?')}</div>`}
           </div>
         </div>
       </div>
@@ -189,9 +187,15 @@ function buildFoundationInspectorPreview(kind, id) {
         <div class="inspector-preview-card">
           <div class="inspector-preview-stage">
             <div class="foundation-typography-stage">
-              <div class="foundation-typography-kicker">${escapeHtml(item.swiftui || 'Text style')}</div>
-              <div class="foundation-typography-sample" style="font-size:${escapeHtml(Math.min(Number(item.size) || 16, 36))}px;font-weight:${escapeHtml(item.weight || 600)};${item.mono ? 'font-family:var(--mono);' : ''}${item.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${item.secondary ? 'color:var(--t2);' : ''}">
-                ${escapeHtml(previewText)}
+              <div class="foundation-typography-spec">
+                <div class="foundation-typography-kicker">Style</div>
+                <div class="foundation-typography-spec-value">${escapeHtml(item.swiftui || item.role || 'Text style')}</div>
+              </div>
+              <div class="foundation-typography-sample-wrap">
+                <div class="foundation-typography-kicker">Sample</div>
+                <div class="foundation-typography-sample" style="font-size:${escapeHtml(Math.min(Number(item.size) || 16, 36))}px;font-weight:${escapeHtml(item.weight || 600)};${item.mono ? 'font-family:var(--mono);' : ''}${item.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${item.secondary ? 'color:var(--t2);' : ''}">
+                  ${escapeHtml(previewText)}
+                </div>
               </div>
             </div>
           </div>
@@ -1829,9 +1833,15 @@ function renderFoundationDetail(kind, id, target = null) {
       <div class="foundation-detail-layout">
         <div class="foundation-detail-stage">
           <div class="foundation-typography-stage foundation-typography-stage-large">
-            <div class="foundation-typography-kicker">${escapeHtml(item.swiftui || 'Text style')}</div>
-            <div class="foundation-typography-sample foundation-typography-sample-large" style="font-size:${escapeHtml(Math.min(Number(item.size) || 16, 44))}px;font-weight:${escapeHtml(item.weight || 600)};${item.mono ? 'font-family:var(--mono);' : ''}${item.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${item.secondary ? 'color:var(--t2);' : ''}">
-              ${escapeHtml(previewText)}
+            <div class="foundation-typography-spec foundation-typography-spec-large">
+              <div class="foundation-typography-kicker">Style</div>
+              <div class="foundation-typography-spec-value">${escapeHtml(item.swiftui || item.role || 'Text style')}</div>
+            </div>
+            <div class="foundation-typography-sample-wrap foundation-typography-sample-wrap-large">
+              <div class="foundation-typography-kicker">Sample</div>
+              <div class="foundation-typography-sample foundation-typography-sample-large" style="font-size:${escapeHtml(Math.min(Number(item.size) || 16, 44))}px;font-weight:${escapeHtml(item.weight || 600)};${item.mono ? 'font-family:var(--mono);' : ''}${item.caps ? 'text-transform:uppercase;letter-spacing:1px;' : ''}${item.secondary ? 'color:var(--t2);' : ''}">
+                ${escapeHtml(previewText)}
+              </div>
             </div>
           </div>
         </div>
