@@ -1,6 +1,7 @@
 import Foundation
 
 extension Notification.Name {
+    static let studioOpenQuickOpen = Notification.Name("StudioShell.openQuickOpen")
     static let studioOpenImport = Notification.Name("StudioShell.openImport")
     static let studioReopenRecentImport = Notification.Name("StudioShell.reopenRecentImport")
     static let studioOpenRemoteURL = Notification.Name("StudioShell.openRemoteURL")
