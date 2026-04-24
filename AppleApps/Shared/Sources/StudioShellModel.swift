@@ -24,6 +24,8 @@ struct StudioNativeDocument: Equatable {
         let lightHex: String
         let darkHex: String
         let referenceCount: Int
+        let sourcePaths: [String]
+        let derivedGradientIDs: [String]
     }
 
     struct GradientToken: Identifiable, Equatable {
@@ -34,6 +36,11 @@ struct StudioNativeDocument: Equatable {
         let darkColors: [String]
         let kind: String
         let referenceCount: Int
+        let usage: String
+        let swiftUI: String
+        let tokenColors: [String]
+        let sourcePaths: [String]
+        let designComponentIDs: [String]
     }
 
     struct TypographyToken: Identifiable, Equatable {
@@ -684,13 +691,16 @@ final class StudioShellModel: ObservableObject {
     private static func parseColorTokens(_ object: [String: Any]) -> [StudioNativeDocument.ColorToken] {
         object.compactMap { key, rawValue in
             guard let value = rawValue as? [String: Any] else { return nil }
+            let references = value["references"] as? [String: Any] ?? [:]
             return StudioNativeDocument.ColorToken(
                 id: key,
                 name: humanizedIdentifier(key),
                 group: (value["group"] as? String) ?? "Ungrouped",
                 lightHex: (value["light"] as? String) ?? "#000000",
                 darkHex: (value["dark"] as? String) ?? ((value["light"] as? String) ?? "#000000"),
-                referenceCount: parseReferenceCount(from: value["references"] as? [String: Any])
+                referenceCount: parseReferenceCount(from: references),
+                sourcePaths: parseReferencePaths(references["source"] as? [[String: Any]] ?? []),
+                derivedGradientIDs: parseReferenceIDs(references["derived"] as? [[String: Any]] ?? [], matching: "gradient")
             )
         }
         .sorted { lhs, rhs in
@@ -701,6 +711,7 @@ final class StudioShellModel: ObservableObject {
     private static func parseGradientTokens(_ object: [String: Any]) -> [StudioNativeDocument.GradientToken] {
         object.compactMap { key, rawValue in
             guard let value = rawValue as? [String: Any] else { return nil }
+            let references = value["references"] as? [String: Any] ?? [:]
             return StudioNativeDocument.GradientToken(
                 id: key,
                 name: humanizedIdentifier(key),
@@ -708,7 +719,12 @@ final class StudioShellModel: ObservableObject {
                 lightColors: (value["light"] as? [String]) ?? [],
                 darkColors: (value["dark"] as? [String]) ?? ((value["light"] as? [String]) ?? []),
                 kind: (value["type"] as? String) ?? "gradient",
-                referenceCount: parseReferenceCount(from: value["references"] as? [String: Any])
+                referenceCount: parseReferenceCount(from: references),
+                usage: (value["usage"] as? String) ?? "",
+                swiftUI: (value["swiftui"] as? String) ?? "",
+                tokenColors: value["tokenColors"] as? [String] ?? [],
+                sourcePaths: parseReferencePaths(references["source"] as? [[String: Any]] ?? []),
+                designComponentIDs: parseReferenceIDs(references["design"] as? [[String: Any]] ?? [], matching: "component")
             )
         }
         .sorted { lhs, rhs in
@@ -894,6 +910,17 @@ final class StudioShellModel: ObservableObject {
             return count
         }
         return 0
+    }
+
+    private static func parseReferencePaths(_ array: [[String: Any]]) -> [String] {
+        array.compactMap { $0["path"] as? String }
+    }
+
+    private static func parseReferenceIDs(_ array: [[String: Any]], matching type: String) -> [String] {
+        array.compactMap { value in
+            guard value["type"] as? String == type else { return nil }
+            return value["id"] as? String
+        }
     }
 
     private static func humanizedIdentifier(_ value: String) -> String {
