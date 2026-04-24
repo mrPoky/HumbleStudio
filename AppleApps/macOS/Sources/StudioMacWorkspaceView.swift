@@ -315,14 +315,17 @@ struct StudioMacWorkspaceView: View {
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
                 appearance: $componentAppearance,
-                selectedComponentID: $selectedComponentID
+                selectedComponentID: $selectedComponentID,
+                inspectView: inspectView
             )
         case .views:
             StudioMacViewsPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
                 appearance: $viewAppearance,
-                selectedViewID: $selectedViewID
+                selectedViewID: $selectedViewID,
+                inspectComponent: inspectComponent,
+                inspectView: inspectView
             )
         case .review:
             StudioMacReviewPage(
@@ -911,6 +914,7 @@ private struct StudioMacComponentsPage: View {
     let nativeErrorMessage: String?
     @Binding var appearance: StudioNativeAppearance
     @Binding var selectedComponentID: String?
+    let inspectView: (String) -> Void
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
@@ -957,7 +961,8 @@ private struct StudioMacComponentsPage: View {
                 StudioComponentDetailInspector(
                     token: selectedComponent(in: document),
                     document: document,
-                    appearance: appearance
+                    appearance: appearance,
+                    inspectView: inspectView
                 )
                 .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
             }
@@ -982,6 +987,8 @@ private struct StudioMacViewsPage: View {
     let nativeErrorMessage: String?
     @Binding var appearance: StudioNativeAppearance
     @Binding var selectedViewID: String?
+    let inspectComponent: (String) -> Void
+    let inspectView: (String) -> Void
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
@@ -1030,7 +1037,9 @@ private struct StudioMacViewsPage: View {
                 StudioViewDetailInspector(
                     token: selectedView(in: document),
                     document: document,
-                    appearance: appearance
+                    appearance: appearance,
+                    inspectComponent: inspectComponent,
+                    inspectView: inspectView
                 )
                 .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
             }
@@ -2411,9 +2420,20 @@ private struct StudioComponentCard: View {
 }
 
 private struct StudioComponentDetailInspector: View {
+    private enum Tab: String, CaseIterable, Identifiable {
+        case preview = "Preview"
+        case relationships = "Relationships"
+        case contract = "Contract"
+        case source = "Source"
+
+        var id: String { rawValue }
+    }
+
     let token: StudioNativeDocument.ComponentItem?
     let document: StudioNativeDocument
     let appearance: StudioNativeAppearance
+    let inspectView: (String) -> Void
+    @State private var selectedTab: Tab = .preview
 
     var body: some View {
         Group {
@@ -2439,72 +2459,131 @@ private struct StudioComponentDetailInspector: View {
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
-                        }
 
-                        StudioComponentSnapshotThumbnail(
-                            url: document.resolvedSnapshotURL(for: token.snapshot, appearance: appearance),
-                            appearance: appearance
-                        )
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 240)
-
-                        StudioInspectorSection(title: "Contract") {
-                            VStack(alignment: .leading, spacing: 10) {
-                                StudioKeyValueRow(label: "Renderer", value: token.renderer)
-                                StudioKeyValueRow(label: "SwiftUI", value: token.swiftUI)
-                                StudioKeyValueRow(label: "Default state", value: token.defaultState.isEmpty ? "—" : token.defaultState)
-                                StudioKeyValueRow(label: "States", value: "\(token.statesCount)")
-                                StudioKeyValueRow(label: "Truth", value: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
+                            HStack(spacing: 8) {
+                                StudioPillLabel(text: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
+                                if token.statesCount > 0 {
+                                    StudioPillLabel(text: "\(token.statesCount) states")
+                                }
+                                let usedInViewsCount = relatedViews(for: token).count
+                                if usedInViewsCount > 0 {
+                                    StudioPillLabel(text: "\(usedInViewsCount) views")
+                                }
                             }
                         }
 
-                        if !token.states.isEmpty {
-                            StudioInspectorSection(title: "States") {
+                        Picker("Inspector section", selection: $selectedTab) {
+                            ForEach(Tab.allCases) { tab in
+                                Text(tab.rawValue).tag(tab)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+
+                        switch selectedTab {
+                        case .preview:
+                            StudioComponentSnapshotThumbnail(
+                                url: document.resolvedSnapshotURL(for: token.snapshot, appearance: appearance),
+                                appearance: appearance
+                            )
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 240)
+
+                            StudioInspectorSection(title: "What This Is") {
                                 VStack(alignment: .leading, spacing: 10) {
-                                    ForEach(token.states.prefix(6)) { state in
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(state.label)
-                                                .font(.subheadline.weight(.semibold))
-                                            if !state.detail.isEmpty {
-                                                Text(state.detail)
-                                                    .font(.caption)
+                                    StudioKeyValueRow(label: "Truth", value: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
+                                    StudioKeyValueRow(label: "Group", value: token.group)
+                                    StudioKeyValueRow(label: "Renderer", value: token.renderer)
+                                    StudioKeyValueRow(label: "Default state", value: token.defaultState.isEmpty ? "—" : token.defaultState)
+                                }
+                            }
+
+                        case .relationships:
+                            if !relatedViews(for: token).isEmpty || !token.designTokenCategories.isEmpty {
+                                StudioInspectorSection(title: "Where It Appears") {
+                                    VStack(alignment: .leading, spacing: 14) {
+                                        if !relatedViews(for: token).isEmpty {
+                                            StudioInspectorLinkGroup(
+                                                title: "Used In Views",
+                                                linkItems: relatedViews(for: token).map {
+                                                    StudioInspectorLinkItem(id: $0.id, title: $0.name, subtitle: $0.presentation.capitalized)
+                                                },
+                                                actionTitle: "Inspect View",
+                                                action: inspectView
+                                            )
+                                        }
+                                        if !token.designTokenCategories.isEmpty {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("Foundation categories")
+                                                    .font(.caption.weight(.semibold))
                                                     .foregroundStyle(.secondary)
-                                                    .fixedSize(horizontal: false, vertical: true)
+                                                FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
                                             }
                                         }
-                                        if state.id != token.states.prefix(6).last?.id {
-                                            Divider()
+                                    }
+                                }
+                            }
+
+                        case .contract:
+                            StudioInspectorSection(title: "Contract") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    StudioKeyValueRow(label: "Renderer", value: token.renderer)
+                                    StudioKeyValueRow(label: "SwiftUI", value: token.swiftUI)
+                                    StudioKeyValueRow(label: "Default state", value: token.defaultState.isEmpty ? "—" : token.defaultState)
+                                    StudioKeyValueRow(label: "States", value: "\(token.statesCount)")
+                                    StudioKeyValueRow(label: "Design tokens", value: "\(token.designTokenCount)")
+                                    StudioKeyValueRow(label: "Source tokens", value: "\(token.sourceTokenCount)")
+                                }
+                            }
+
+                            if !token.states.isEmpty {
+                                StudioInspectorSection(title: "State Catalog") {
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        ForEach(token.states.prefix(6)) { state in
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(state.label)
+                                                    .font(.subheadline.weight(.semibold))
+                                                if !state.detail.isEmpty {
+                                                    Text(state.detail)
+                                                        .font(.caption)
+                                                        .foregroundStyle(.secondary)
+                                                        .fixedSize(horizontal: false, vertical: true)
+                                                }
+                                            }
+                                            if state.id != token.states.prefix(6).last?.id {
+                                                Divider()
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        StudioInspectorSection(title: "Evidence") {
-                            VStack(alignment: .leading, spacing: 10) {
-                                StudioKeyValueRow(label: "Design tokens", value: "\(token.designTokenCount)")
-                                StudioKeyValueRow(label: "Source tokens", value: "\(token.sourceTokenCount)")
-                                if !token.designTokenCategories.isEmpty {
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text("Categories")
-                                            .font(.caption.weight(.semibold))
-                                            .foregroundStyle(.secondary)
-                                        FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                        case .source:
+                            StudioInspectorSection(title: "Source") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    StudioKeyValueRow(label: "File", value: token.sourcePath)
+                                    if !token.sourceSnippetSymbol.isEmpty {
+                                        StudioKeyValueRow(
+                                            label: "Symbol",
+                                            value: token.sourceSnippetRange.isEmpty
+                                                ? token.sourceSnippetSymbol
+                                                : "\(token.sourceSnippetSymbol) · \(token.sourceSnippetRange)"
+                                        )
                                     }
                                 }
                             }
-                        }
 
-                        StudioInspectorSection(title: "Source") {
-                            VStack(alignment: .leading, spacing: 10) {
-                                StudioKeyValueRow(label: "File", value: token.sourcePath)
-                                if !token.sourceSnippetSymbol.isEmpty {
-                                    StudioKeyValueRow(
-                                        label: "Symbol",
-                                        value: token.sourceSnippetRange.isEmpty
-                                            ? token.sourceSnippetSymbol
-                                            : "\(token.sourceSnippetSymbol) · \(token.sourceSnippetRange)"
-                                    )
+                            StudioInspectorSection(title: "Evidence") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    StudioKeyValueRow(label: "Design tokens", value: "\(token.designTokenCount)")
+                                    StudioKeyValueRow(label: "Source tokens", value: "\(token.sourceTokenCount)")
+                                    if !token.designTokenCategories.isEmpty {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text("Categories")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                            FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -2521,6 +2600,13 @@ private struct StudioComponentDetailInspector: View {
             }
         }
         .background(.thinMaterial)
+        .onChange(of: token?.id) { _, _ in
+            selectedTab = .preview
+        }
+    }
+
+    private func relatedViews(for token: StudioNativeDocument.ComponentItem) -> [StudioNativeDocument.ViewItem] {
+        document.views.filter { $0.components.contains(token.id) }
     }
 }
 
@@ -2593,9 +2679,21 @@ private struct StudioViewCard: View {
 }
 
 private struct StudioViewDetailInspector: View {
+    private enum Tab: String, CaseIterable, Identifiable {
+        case preview = "Preview"
+        case flow = "Flow"
+        case relationships = "Relationships"
+        case source = "Source"
+
+        var id: String { rawValue }
+    }
+
     let token: StudioNativeDocument.ViewItem?
     let document: StudioNativeDocument
     let appearance: StudioNativeAppearance
+    let inspectComponent: (String) -> Void
+    let inspectView: (String) -> Void
+    @State private var selectedTab: Tab = .preview
 
     var body: some View {
         Group {
@@ -2631,124 +2729,151 @@ private struct StudioViewDetailInspector: View {
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
-                        }
 
-                        StudioViewSnapshotThumbnail(
-                            url: document.resolvedSnapshotURL(for: token.snapshot, appearance: appearance),
-                            appearance: appearance
-                        )
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 280)
-
-                        StudioInspectorSection(title: "Contract") {
-                            VStack(alignment: .leading, spacing: 10) {
-                                StudioKeyValueRow(label: "Presentation", value: token.presentation)
-                                StudioKeyValueRow(label: "Default state", value: token.defaultState.isEmpty ? "—" : token.defaultState)
-                                StudioKeyValueRow(label: "States", value: "\(token.statesCount)")
-                                StudioKeyValueRow(label: "Linked components", value: "\(token.componentsCount)")
-                                StudioKeyValueRow(label: "Truth", value: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
+                            HStack(spacing: 8) {
+                                StudioPillLabel(text: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
+                                if token.componentsCount > 0 {
+                                    StudioPillLabel(text: "\(token.componentsCount) components")
+                                }
+                                if token.navigationCount > 0 {
+                                    StudioPillLabel(text: "\(token.navigationCount) links")
+                                }
                             }
                         }
 
-                        if !token.entryPoints.isEmpty || !token.primaryActions.isEmpty || !token.secondaryActions.isEmpty || !token.navigatesTo.isEmpty {
-                            StudioInspectorSection(title: "Flow") {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    if !token.entryPoints.isEmpty {
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text("Entry points")
-                                                .font(.caption.weight(.semibold))
-                                                .foregroundStyle(.secondary)
-                                            FlexiblePillStack(items: token.entryPoints.map(humanizedLabel))
-                                        }
-                                    }
+                        Picker("Inspector section", selection: $selectedTab) {
+                            ForEach(Tab.allCases) { tab in
+                                Text(tab.rawValue).tag(tab)
+                            }
+                        }
+                        .pickerStyle(.segmented)
 
-                                    if !token.primaryActions.isEmpty {
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text("Primary actions")
-                                                .font(.caption.weight(.semibold))
-                                                .foregroundStyle(.secondary)
-                                            FlexiblePillStack(items: token.primaryActions)
-                                        }
-                                    }
+                        switch selectedTab {
+                        case .preview:
+                            StudioViewSnapshotThumbnail(
+                                url: document.resolvedSnapshotURL(for: token.snapshot, appearance: appearance),
+                                appearance: appearance
+                            )
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 280)
 
-                                    if !token.secondaryActions.isEmpty {
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text("Secondary actions")
-                                                .font(.caption.weight(.semibold))
-                                                .foregroundStyle(.secondary)
-                                            FlexiblePillStack(items: token.secondaryActions)
-                                        }
-                                    }
+                            StudioInspectorSection(title: "What This Is") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    StudioKeyValueRow(label: "Truth", value: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
+                                    StudioKeyValueRow(label: "Presentation", value: token.presentation)
+                                    StudioKeyValueRow(label: "Default state", value: token.defaultState.isEmpty ? "—" : token.defaultState)
+                                    StudioKeyValueRow(label: "Linked components", value: "\(token.componentsCount)")
+                                }
+                            }
 
-                                    if !token.navigatesTo.isEmpty {
-                                        VStack(alignment: .leading, spacing: 10) {
-                                            Text("Navigation")
-                                                .font(.caption.weight(.semibold))
-                                                .foregroundStyle(.secondary)
-                                            ForEach(token.navigatesTo.prefix(5)) { navigation in
-                                                VStack(alignment: .leading, spacing: 4) {
-                                                    Text(resolvedViewName(for: navigation.targetID))
-                                                        .font(.subheadline.weight(.semibold))
-                                                    Text(navigation.trigger.isEmpty ? navigation.type.capitalized : "\(navigation.type.capitalized) via \(navigation.trigger)")
-                                                        .font(.caption)
-                                                        .foregroundStyle(.secondary)
-                                                }
-                                                if navigation.id != token.navigatesTo.prefix(5).last?.id {
-                                                    Divider()
-                                                }
+                        case .flow:
+                            if !token.entryPoints.isEmpty || !token.primaryActions.isEmpty || !token.secondaryActions.isEmpty || !token.navigatesTo.isEmpty {
+                                StudioInspectorSection(title: "Flow") {
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        if !token.entryPoints.isEmpty {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("Entry points")
+                                                    .font(.caption.weight(.semibold))
+                                                    .foregroundStyle(.secondary)
+                                                FlexiblePillStack(items: token.entryPoints.map(humanizedLabel))
                                             }
                                         }
+
+                                        if !token.primaryActions.isEmpty {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("Primary actions")
+                                                    .font(.caption.weight(.semibold))
+                                                    .foregroundStyle(.secondary)
+                                                FlexiblePillStack(items: token.primaryActions)
+                                            }
+                                        }
+
+                                        if !token.secondaryActions.isEmpty {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("Secondary actions")
+                                                    .font(.caption.weight(.semibold))
+                                                    .foregroundStyle(.secondary)
+                                                FlexiblePillStack(items: token.secondaryActions)
+                                            }
+                                        }
+
+                                        if !token.navigatesTo.isEmpty {
+                                            StudioInspectorLinkGroup(
+                                                title: "What Users Can Do Next",
+                                                linkItems: token.navigatesTo.prefix(5).map { navigation in
+                                                    StudioInspectorLinkItem(
+                                                        id: navigation.targetID,
+                                                        title: resolvedViewName(for: navigation.targetID),
+                                                        subtitle: navigation.trigger.isEmpty ? navigation.type.capitalized : "\(navigation.type.capitalized) via \(navigation.trigger)"
+                                                    )
+                                                },
+                                                actionTitle: "Inspect View",
+                                                action: inspectView
+                                            )
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        StudioInspectorSection(title: "Evidence") {
-                            VStack(alignment: .leading, spacing: 10) {
-                                StudioKeyValueRow(label: "Design tokens", value: "\(token.designTokenCount)")
-                                StudioKeyValueRow(label: "Source tokens", value: "\(token.sourceTokenCount)")
-                                StudioKeyValueRow(label: "Sheets", value: "\(token.sheetPatternsCount)")
-                                StudioKeyValueRow(label: "Overlays", value: "\(token.overlayPatternsCount)")
-
-                                if !token.states.isEmpty {
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text("States")
-                                            .font(.caption.weight(.semibold))
-                                            .foregroundStyle(.secondary)
-                                        FlexiblePillStack(items: token.states.map(humanizedLabel))
+                        case .relationships:
+                            StudioInspectorSection(title: "Relationships") {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    if !token.components.isEmpty {
+                                        StudioInspectorLinkGroup(
+                                            title: "Linked Components",
+                                            linkItems: token.components.map { componentID in
+                                                StudioInspectorLinkItem(
+                                                    id: componentID,
+                                                    title: resolvedComponentName(for: componentID),
+                                                    subtitle: resolvedComponentSubtitle(for: componentID)
+                                                )
+                                            },
+                                            actionTitle: "Inspect Component",
+                                            action: inspectComponent
+                                        )
                                     }
-                                }
 
-                                if !token.components.isEmpty {
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text("Components")
-                                            .font(.caption.weight(.semibold))
-                                            .foregroundStyle(.secondary)
-                                        FlexiblePillStack(items: token.components.map(resolvedComponentName(for:)))
+                                    if !token.states.isEmpty {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text("States")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                            FlexiblePillStack(items: token.states.map(humanizedLabel))
+                                        }
                                     }
-                                }
 
-                                if !token.designTokenCategories.isEmpty {
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text("Categories")
-                                            .font(.caption.weight(.semibold))
-                                            .foregroundStyle(.secondary)
-                                        FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                                    if !token.designTokenCategories.isEmpty {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text("Foundation categories")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                            FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        StudioInspectorSection(title: "Source") {
-                            VStack(alignment: .leading, spacing: 10) {
-                                StudioKeyValueRow(label: "File", value: token.sourcePath)
-                                if !token.sourceSnippetSymbol.isEmpty {
-                                    StudioKeyValueRow(
-                                        label: "Symbol",
-                                        value: token.sourceSnippetRange.isEmpty
-                                            ? token.sourceSnippetSymbol
-                                            : "\(token.sourceSnippetSymbol) · \(token.sourceSnippetRange)"
-                                    )
+                        case .source:
+                            StudioInspectorSection(title: "Source") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    StudioKeyValueRow(label: "File", value: token.sourcePath)
+                                    if !token.sourceSnippetSymbol.isEmpty {
+                                        StudioKeyValueRow(
+                                            label: "Symbol",
+                                            value: token.sourceSnippetRange.isEmpty
+                                                ? token.sourceSnippetSymbol
+                                                : "\(token.sourceSnippetSymbol) · \(token.sourceSnippetRange)"
+                                        )
+                                    }
+                                }
+                            }
+
+                            StudioInspectorSection(title: "Evidence") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    StudioKeyValueRow(label: "Design tokens", value: "\(token.designTokenCount)")
+                                    StudioKeyValueRow(label: "Source tokens", value: "\(token.sourceTokenCount)")
+                                    StudioKeyValueRow(label: "Sheets", value: "\(token.sheetPatternsCount)")
+                                    StudioKeyValueRow(label: "Overlays", value: "\(token.overlayPatternsCount)")
                                 }
                             }
                         }
@@ -2765,10 +2890,17 @@ private struct StudioViewDetailInspector: View {
             }
         }
         .background(.thinMaterial)
+        .onChange(of: token?.id) { _, _ in
+            selectedTab = .preview
+        }
     }
 
     private func resolvedComponentName(for componentID: String) -> String {
         document.components.first(where: { $0.id == componentID })?.name ?? humanizedLabel(componentID)
+    }
+
+    private func resolvedComponentSubtitle(for componentID: String) -> String {
+        document.components.first(where: { $0.id == componentID })?.group ?? "Component"
     }
 
     private func resolvedViewName(for viewID: String) -> String {
