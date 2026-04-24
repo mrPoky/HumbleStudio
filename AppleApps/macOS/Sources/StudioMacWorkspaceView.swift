@@ -9,6 +9,7 @@ struct StudioMacWorkspaceView: View {
         case components
         case views
         case review
+        case navigation
         case icons
         case typography
         case spacing
@@ -21,6 +22,7 @@ struct StudioMacWorkspaceView: View {
             case .components: return "Components"
             case .views: return "Views"
             case .review: return "Review Queue"
+            case .navigation: return "Navigation Map"
             case .icons: return "Icons"
             case .typography: return "Typography"
             case .spacing: return "Spacing & Radius"
@@ -40,6 +42,8 @@ struct StudioMacWorkspaceView: View {
                 return "Screen catalog with snapshot and flow truth, rendered natively."
             case .review:
                 return "Native queue for components and views whose exported truth still needs attention."
+            case .navigation:
+                return "Native flow map over exported navigation edges and root routing."
             case .icons:
                 return "Native icon catalog sourced from the imported bundle."
             case .typography:
@@ -47,7 +51,7 @@ struct StudioMacWorkspaceView: View {
             case .spacing:
                 return "Padding and corner radius tokens rendered natively."
             case .legacyWeb:
-                return "Components, views, review queue, and navigation map stay here until they are migrated."
+                return "Fallback web inspector for any parity gaps that are not native yet."
             }
         }
 
@@ -58,6 +62,7 @@ struct StudioMacWorkspaceView: View {
             case .components: return "square.grid.3x2"
             case .views: return "rectangle.on.rectangle"
             case .review: return "exclamationmark.circle"
+            case .navigation: return "arrow.triangle.branch"
             case .icons: return "app.gift"
             case .typography: return "textformat"
             case .spacing: return "square.on.square"
@@ -76,6 +81,7 @@ struct StudioMacWorkspaceView: View {
     @State private var viewAppearance: StudioNativeAppearance = .dark
     @State private var selectedComponentID: String?
     @State private var selectedViewID: String?
+    @State private var selectedNavigationViewID: String?
 
     private static var supportedImportTypes: [UTType] {
         [UTType(filenameExtension: "humblebundle") ?? .zip, .zip, .json]
@@ -167,6 +173,7 @@ struct StudioMacWorkspaceView: View {
                 sidebarRow(.components, count: model.nativeDocument?.components.count)
                 sidebarRow(.views, count: model.nativeDocument?.views.count)
                 sidebarRow(.review, count: model.nativeDocument.map { reviewQueueCounts(for: $0).total })
+                sidebarRow(.navigation, count: model.nativeDocument.map(navigationEdgeCount(for:)))
                 sidebarRow(.icons, count: model.nativeDocument?.icons.count)
                 sidebarRow(.typography, count: model.nativeDocument?.typography.count)
                 sidebarRow(.spacing, count: model.nativeDocument.map { $0.spacing.count + $0.radius.count })
@@ -301,6 +308,13 @@ struct StudioMacWorkspaceView: View {
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
                 inspectComponent: inspectComponent,
+                inspectView: inspectView
+            )
+        case .navigation:
+            StudioMacNavigationPage(
+                document: model.nativeDocument,
+                nativeErrorMessage: model.nativeErrorMessage,
+                selectedViewID: $selectedNavigationViewID,
                 inspectView: inspectView
             )
         case .icons:
@@ -556,6 +570,7 @@ struct StudioMacWorkspaceView: View {
 
     private func inspectView(_ viewID: String) {
         selectedViewID = viewID
+        selectedNavigationViewID = viewID
         selection = .views
     }
 
@@ -563,6 +578,10 @@ struct StudioMacWorkspaceView: View {
         let components = document.components.filter { nativeComponentTruthStatus(for: $0).needsAttention }.count
         let views = document.views.filter { nativeViewTruthStatus(for: $0).needsAttention }.count
         return (components, views, components + views)
+    }
+
+    private func navigationEdgeCount(for document: StudioNativeDocument) -> Int {
+        document.views.reduce(0) { $0 + $1.navigatesTo.count }
     }
 }
 
@@ -593,6 +612,7 @@ private struct StudioMacOverviewPage: View {
                         StudioCountCard(title: "Tokens", value: "\(document.colors.count + document.gradients.count)", caption: "Colors and gradients")
                         StudioCountCard(title: "Components", value: "\(document.components.count)", caption: "Native dashboard now reads snapshots from the bundle")
                         StudioCountCard(title: "Views", value: "\(document.views.count)", caption: "Native screen catalog with snapshot-first previews")
+                        StudioCountCard(title: "Navigation", value: "\(document.views.reduce(0) { $0 + $1.navigatesTo.count })", caption: "Flow edges derived from the exported contract")
                         StudioCountCard(title: "Icons", value: "\(document.icons.count)", caption: "Resolved from the bundle")
                         StudioCountCard(title: "Typography", value: "\(document.typography.count)", caption: "Type roles")
                         StudioCountCard(title: "Spacing & Radius", value: "\(document.spacing.count + document.radius.count)", caption: "Spatial tokens")
@@ -600,7 +620,7 @@ private struct StudioMacOverviewPage: View {
 
                     StudioMigrationCard(
                         title: "Migration status",
-                        message: "The macOS app now reads bundle truth natively for foundations, components, and views. Review and navigation still live in the legacy web inspector until their SwiftUI versions catch up."
+                        message: "The macOS app now reads bundle truth natively for foundations, components, views, review, and navigation. The legacy web inspector remains as a fallback for any parity gaps while the SwiftUI rewrite catches up."
                     )
                 } else if let nativeErrorMessage = model.nativeErrorMessage {
                     ContentUnavailableView(
@@ -874,6 +894,97 @@ private struct StudioMacReviewPage: View {
                 }
             }
         }
+    }
+}
+
+private struct StudioMacNavigationPage: View {
+    let document: StudioNativeDocument?
+    let nativeErrorMessage: String?
+    @Binding var selectedViewID: String?
+    let inspectView: (String) -> Void
+
+    var body: some View {
+        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+            let graph = makeNativeNavigationGraph(document: document)
+
+            HStack(spacing: 0) {
+                ScrollView([.horizontal, .vertical]) {
+                    VStack(alignment: .leading, spacing: 22) {
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Navigation Map")
+                                    .font(.system(size: 26, weight: .bold))
+                                Text("Native flow map derived from exported navigation edges, rooted at the app entry route.")
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+
+                            Spacer(minLength: 24)
+
+                            HStack(spacing: 16) {
+                                StudioCountCard(title: "Views", value: "\(document.views.count)", caption: "Nodes currently in the exported flow graph")
+                                StudioCountCard(title: "Edges", value: "\(graph.edgeCount)", caption: "Push, sheet, replace, and pop transitions")
+                                StudioCountCard(title: "Root", value: graph.rootViewName, caption: "Primary entry route for the current bundle")
+                            }
+                            .frame(maxWidth: 680)
+                        }
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(alignment: .top, spacing: 22) {
+                                ForEach(graph.levels, id: \.depth) { level in
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        Text("Depth \(level.depth)")
+                                            .font(.headline)
+                                        Text("\(level.views.count) view\(level.views.count == 1 ? "" : "s")")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+
+                                        VStack(alignment: .leading, spacing: 12) {
+                                            ForEach(level.views) { view in
+                                                StudioNativeNavigationNodeCard(
+                                                    view: view,
+                                                    isSelected: view.id == selectedView(in: graph)?.id,
+                                                    isRoot: view.id == graph.rootViewID,
+                                                    incomingCount: graph.incoming[view.id]?.count ?? 0
+                                                )
+                                                .onTapGesture {
+                                                    selectedViewID = view.id
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .frame(width: 260, alignment: .topLeading)
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                    .padding(24)
+                }
+
+                Divider()
+                    .opacity(0.35)
+
+                StudioNavigationDetailInspector(
+                    graph: graph,
+                    selectedView: selectedView(in: graph),
+                    inspectView: inspectView
+                )
+                .frame(minWidth: 350, idealWidth: 390, maxWidth: 430, maxHeight: .infinity)
+            }
+            .onAppear {
+                if selectedViewID == nil {
+                    selectedViewID = graph.rootViewID
+                }
+            }
+        }
+    }
+
+    private func selectedView(in graph: NativeNavigationGraph) -> StudioNativeDocument.ViewItem? {
+        if let selectedViewID, let selected = graph.viewByID[selectedViewID] {
+            return selected
+        }
+        return graph.viewByID[graph.rootViewID]
     }
 }
 
@@ -1566,6 +1677,159 @@ private struct StudioViewDetailInspector: View {
     }
 }
 
+private struct StudioNavigationDetailInspector: View {
+    let graph: NativeNavigationGraph
+    let selectedView: StudioNativeDocument.ViewItem?
+    let inspectView: (String) -> Void
+
+    var body: some View {
+        Group {
+            if let selectedView {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        Text("Flow Detail")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(selectedView.name)
+                                .font(.system(size: 28, weight: .bold))
+                                .fixedSize(horizontal: false, vertical: true)
+                            HStack(spacing: 8) {
+                                Text(selectedView.presentation.capitalized)
+                                    .font(.caption.weight(.semibold))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(.quaternary.opacity(0.55), in: Capsule())
+                                    .foregroundStyle(.secondary)
+                                if selectedView.id == graph.rootViewID {
+                                    Text("Root")
+                                        .font(.caption.weight(.semibold))
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(Color.blue.opacity(0.14), in: Capsule())
+                                        .foregroundStyle(.blue)
+                                }
+                            }
+                            if !selectedView.summary.isEmpty {
+                                Text(selectedView.summary)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+
+                        StudioInspectorSection(title: "Route") {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioKeyValueRow(label: "Depth", value: "\(graph.depths[selectedView.id] ?? 0)")
+                                StudioKeyValueRow(label: "Incoming", value: "\(graph.incoming[selectedView.id]?.count ?? 0)")
+                                StudioKeyValueRow(label: "Outgoing", value: "\(selectedView.navigatesTo.count)")
+                                if !graph.pathToRoot(selectedView.id).isEmpty {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("Path from root")
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(.secondary)
+                                        FlexiblePillStack(items: graph.pathToRoot(selectedView.id).map { graph.viewByID[$0]?.name ?? $0 })
+                                    }
+                                }
+                            }
+                        }
+
+                        if let incoming = graph.incoming[selectedView.id], !incoming.isEmpty {
+                            StudioInspectorSection(title: "How Users Get Here") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(incoming) { edge in
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(graph.viewByID[edge.sourceID]?.name ?? edge.sourceID)
+                                                .font(.subheadline.weight(.semibold))
+                                            Text(edge.trigger.isEmpty ? edge.type.capitalized : "\(edge.type.capitalized) via \(edge.trigger)")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        if edge.id != incoming.last?.id {
+                                            Divider()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if !selectedView.navigatesTo.isEmpty {
+                            StudioInspectorSection(title: "What Users Can Do Next") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(selectedView.navigatesTo) { edge in
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(graph.viewByID[edge.targetID]?.name ?? edge.targetID)
+                                                .font(.subheadline.weight(.semibold))
+                                            Text(edge.trigger.isEmpty ? edge.type.capitalized : "\(edge.type.capitalized) via \(edge.trigger)")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        if edge.id != selectedView.navigatesTo.last?.id {
+                                            Divider()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if !selectedView.entryPoints.isEmpty || !selectedView.primaryActions.isEmpty || !selectedView.secondaryActions.isEmpty {
+                            StudioInspectorSection(title: "Interaction Model") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    if !selectedView.entryPoints.isEmpty {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text("Entry points")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                            FlexiblePillStack(items: selectedView.entryPoints.map(humanizedFlowLabel))
+                                        }
+                                    }
+                                    if !selectedView.primaryActions.isEmpty {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text("Primary actions")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                            FlexiblePillStack(items: selectedView.primaryActions)
+                                        }
+                                    }
+                                    if !selectedView.secondaryActions.isEmpty {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text("Secondary actions")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                            FlexiblePillStack(items: selectedView.secondaryActions)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Button("Open View Detail") {
+                            inspectView(selectedView.id)
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .padding(20)
+                }
+            } else {
+                ContentUnavailableView(
+                    "Select a route node",
+                    systemImage: "arrow.triangle.branch",
+                    description: Text("Choose a view in the navigation map to inspect how users reach it and where they can go next.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .background(.thinMaterial)
+    }
+
+    private func humanizedFlowLabel(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "-", with: " ")
+            .replacingOccurrences(of: "_", with: " ")
+            .capitalized
+    }
+}
+
 private struct StudioMetricCard: View {
     let token: StudioNativeDocument.MetricToken
 
@@ -1710,6 +1974,61 @@ private struct StudioNativeReviewCard: View {
     }
 }
 
+private struct StudioNativeNavigationNodeCard: View {
+    let view: StudioNativeDocument.ViewItem
+    let isSelected: Bool
+    let isRoot: Bool
+    let incomingCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(view.name)
+                        .font(.headline)
+                        .lineLimit(2)
+                    Text(view.presentation.capitalized)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer(minLength: 8)
+
+                if isRoot {
+                    Text("Root")
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(Color.blue.opacity(0.14), in: Capsule())
+                        .foregroundStyle(.blue)
+                }
+            }
+
+            if !view.summary.isEmpty {
+                Text(view.summary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(3)
+            }
+
+            HStack(spacing: 8) {
+                StudioPillLabel(text: "\(incomingCount) in")
+                StudioPillLabel(text: "\(view.navigatesTo.count) out")
+                if view.componentsCount > 0 {
+                    StudioPillLabel(text: "\(view.componentsCount) comps")
+                }
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(isSelected ? Color.accentColor.opacity(0.65) : Color.secondary.opacity(0.18), lineWidth: isSelected ? 1.5 : 1)
+        )
+    }
+}
+
 private struct StudioKeyValueRow: View {
     let label: String
     let value: String
@@ -1731,6 +2050,122 @@ private struct StudioNativeTruthStatus {
     let label: String
     let color: Color
     let needsAttention: Bool
+}
+
+private struct NativeNavigationIncomingEdge: Identifiable {
+    let id: String
+    let sourceID: String
+    let targetID: String
+    let trigger: String
+    let type: String
+}
+
+private struct NativeNavigationLevel: Identifiable {
+    let depth: Int
+    let views: [StudioNativeDocument.ViewItem]
+
+    var id: Int { depth }
+}
+
+private struct NativeNavigationGraph {
+    let rootViewID: String
+    let rootViewName: String
+    let levels: [NativeNavigationLevel]
+    let depths: [String: Int]
+    let incoming: [String: [NativeNavigationIncomingEdge]]
+    let viewByID: [String: StudioNativeDocument.ViewItem]
+    let edgeCount: Int
+
+    func pathToRoot(_ viewID: String) -> [String] {
+        guard let currentDepth = depths[viewID] else { return [] }
+        if viewID == rootViewID { return [rootViewID] }
+        var currentID = viewID
+        var path = [currentID]
+        var remainingDepth = currentDepth
+        while remainingDepth > 0 {
+            guard
+                let parent = incoming[currentID]?.first(where: { depths[$0.sourceID] == remainingDepth - 1 })
+            else { break }
+            currentID = parent.sourceID
+            path.insert(currentID, at: 0)
+            remainingDepth -= 1
+        }
+        if path.first != rootViewID {
+            path.insert(rootViewID, at: 0)
+        }
+        return Array(NSOrderedSet(array: path)) as? [String] ?? path
+    }
+}
+
+private func makeNativeNavigationGraph(document: StudioNativeDocument) -> NativeNavigationGraph {
+    let viewByID = Dictionary(uniqueKeysWithValues: document.views.map { ($0.id, $0) })
+    let rootViewID = document.navigationRootID
+        ?? document.views.first(where: \.root)?.id
+        ?? document.views.first?.id
+        ?? ""
+
+    var depths: [String: Int] = rootViewID.isEmpty ? [:] : [rootViewID: 0]
+    var queue = rootViewID.isEmpty ? [String]() : [rootViewID]
+
+    while let currentID = queue.first {
+        queue.removeFirst()
+        let currentDepth = depths[currentID] ?? 0
+        let edges = viewByID[currentID]?.navigatesTo ?? []
+        for edge in edges where edge.type != "pop" {
+            guard viewByID[edge.targetID] != nil, depths[edge.targetID] == nil else { continue }
+            depths[edge.targetID] = currentDepth + 1
+            queue.append(edge.targetID)
+        }
+    }
+
+    let fallbackDepth = (depths.values.max() ?? -1) + 1
+    var unattachedIndex = 0
+    for view in document.views where depths[view.id] == nil {
+        depths[view.id] = fallbackDepth + unattachedIndex
+        unattachedIndex += 1
+    }
+
+    var incoming: [String: [NativeNavigationIncomingEdge]] = [:]
+    for view in document.views {
+        for edge in view.navigatesTo {
+            guard viewByID[edge.targetID] != nil else { continue }
+            let item = NativeNavigationIncomingEdge(
+                id: "\(view.id)->\(edge.targetID)-\(edge.type)-\(edge.trigger)",
+                sourceID: view.id,
+                targetID: edge.targetID,
+                trigger: edge.trigger,
+                type: edge.type
+            )
+            incoming[edge.targetID, default: []].append(item)
+        }
+    }
+
+    let grouped = Dictionary(grouping: document.views) { depths[$0.id] ?? 0 }
+    let levels = grouped.keys.sorted().map { depth in
+        NativeNavigationLevel(
+            depth: depth,
+            views: (grouped[depth] ?? []).sorted { lhs, rhs in
+                if lhs.id == rootViewID { return true }
+                if rhs.id == rootViewID { return false }
+                if lhs.root != rhs.root { return lhs.root && !rhs.root }
+                if lhs.navigationCount != rhs.navigationCount { return lhs.navigationCount > rhs.navigationCount }
+                return lhs.name < rhs.name
+            }
+        )
+    }
+
+    let edgeCount = document.views.reduce(0) { $0 + $1.navigatesTo.count }
+    let rootViewName = viewByID[rootViewID]?.name ?? "Unknown"
+
+    return NativeNavigationGraph(
+        rootViewID: rootViewID,
+        rootViewName: rootViewName,
+        levels: levels,
+        depths: depths,
+        incoming: incoming,
+        viewByID: viewByID,
+        edgeCount: edgeCount
+    )
 }
 
 private func nativeComponentTruthStatus(for component: StudioNativeDocument.ComponentItem) -> StudioNativeTruthStatus {
