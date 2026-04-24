@@ -646,21 +646,82 @@ private struct StudioMacOverviewPage: View {
 private struct StudioMacTokensPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    @State private var selection: StudioNativeTokenSelection?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    StudioGroupedSection(title: "Colors", groups: grouped(document.colors, by: \.group)) { item in
-                        StudioColorCard(token: item)
-                    }
+            HStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 28) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Tokens")
+                                .font(.system(size: 26, weight: .bold))
+                            Text("Native foundation inspector for colors and gradients, backed directly by the exported token contract.")
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
 
-                    StudioGroupedSection(title: "Gradients", groups: grouped(document.gradients, by: \.group)) { item in
-                        StudioGradientCard(token: item)
+                        StudioGroupedSection(title: "Colors", groups: grouped(document.colors, by: \.group)) { item in
+                            StudioColorCard(
+                                token: item,
+                                isSelected: selection == .color(item.id)
+                            )
+                            .onTapGesture {
+                                selection = .color(item.id)
+                            }
+                        }
+
+                        StudioGroupedSection(title: "Gradients", groups: grouped(document.gradients, by: \.group)) { item in
+                            StudioGradientCard(
+                                token: item,
+                                isSelected: selection == .gradient(item.id)
+                            )
+                            .onTapGesture {
+                                selection = .gradient(item.id)
+                            }
+                        }
                     }
+                    .padding(24)
                 }
-                .padding(24)
+
+                Divider()
+                    .opacity(0.35)
+
+                StudioTokenDetailInspector(
+                    selection: selectedToken(in: document),
+                    document: document
+                )
+                .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
             }
+            .onAppear {
+                if selection == nil {
+                    selection = defaultSelection(in: document)
+                }
+            }
+        }
+    }
+
+    private func defaultSelection(in document: StudioNativeDocument) -> StudioNativeTokenSelection? {
+        if let firstColor = document.colors.first {
+            return .color(firstColor.id)
+        }
+        if let firstGradient = document.gradients.first {
+            return .gradient(firstGradient.id)
+        }
+        return nil
+    }
+
+    private func selectedToken(in document: StudioNativeDocument) -> StudioNativeTokenSelection.ResolvedSelection? {
+        let currentSelection = selection ?? defaultSelection(in: document)
+        switch currentSelection {
+        case let .color(id):
+            guard let token = document.colors.first(where: { $0.id == id }) else { return nil }
+            return .color(token)
+        case let .gradient(id):
+            guard let token = document.gradients.first(where: { $0.id == id }) else { return nil }
+            return .gradient(token)
+        case .none:
+            return nil
         }
     }
 }
@@ -1158,6 +1219,7 @@ private struct StudioGroupedSection<Item: Identifiable, Card: View>: View {
 
 private struct StudioColorCard: View {
     let token: StudioNativeDocument.ColorToken
+    let isSelected: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -1189,13 +1251,14 @@ private struct StudioColorCard: View {
         .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(.quaternary.opacity(0.8), lineWidth: 1)
+                .stroke(isSelected ? Color.accentColor.opacity(0.65) : Color.secondary.opacity(0.18), lineWidth: isSelected ? 1.5 : 1)
         )
     }
 }
 
 private struct StudioGradientCard: View {
     let token: StudioNativeDocument.GradientToken
+    let isSelected: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -1222,7 +1285,7 @@ private struct StudioGradientCard: View {
         .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(.quaternary.opacity(0.8), lineWidth: 1)
+                .stroke(isSelected ? Color.accentColor.opacity(0.65) : Color.secondary.opacity(0.18), lineWidth: isSelected ? 1.5 : 1)
         )
     }
 
@@ -1234,6 +1297,240 @@ private struct StudioGradientCard: View {
         )
         .frame(height: 54)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+}
+
+private enum StudioNativeTokenSelection: Equatable {
+    case color(String)
+    case gradient(String)
+
+    enum ResolvedSelection {
+        case color(StudioNativeDocument.ColorToken)
+        case gradient(StudioNativeDocument.GradientToken)
+    }
+}
+
+private struct StudioTokenDetailInspector: View {
+    let selection: StudioNativeTokenSelection.ResolvedSelection?
+    let document: StudioNativeDocument
+
+    var body: some View {
+        Group {
+            switch selection {
+            case let .color(token):
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        Text("Color Detail")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(token.name)
+                                .font(.system(size: 28, weight: .bold))
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text(token.group)
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(.quaternary.opacity(0.55), in: Capsule())
+                                .foregroundStyle(.secondary)
+                        }
+
+                        HStack(spacing: 12) {
+                            StudioTonePreviewCard(title: "Light", fill: Color(hex: token.lightHex), value: token.lightHex)
+                            StudioTonePreviewCard(title: "Dark", fill: Color(hex: token.darkHex), value: token.darkHex)
+                        }
+
+                        StudioInspectorSection(title: "Contract") {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioKeyValueRow(label: "Token", value: token.id)
+                                StudioKeyValueRow(label: "References", value: "\(token.referenceCount)")
+                                StudioKeyValueRow(label: "Variants", value: token.lightHex == token.darkHex ? "Shared light/dark value" : "Distinct light and dark values")
+                            }
+                        }
+
+                        if !token.derivedGradientIDs.isEmpty {
+                            StudioInspectorSection(title: "Relationships") {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Derived gradients")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(.secondary)
+                                    FlexiblePillStack(items: token.derivedGradientIDs.map(resolvedGradientName(for:)))
+                                }
+                            }
+                        }
+
+                        if !token.sourcePaths.isEmpty {
+                            StudioInspectorSection(title: "Evidence") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(Array(token.sourcePaths.prefix(6)), id: \.self) { path in
+                                        StudioKeyValueRow(label: "Source", value: path)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(20)
+                }
+
+            case let .gradient(token):
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        Text("Gradient Detail")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(token.name)
+                                .font(.system(size: 28, weight: .bold))
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text(token.group)
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(.quaternary.opacity(0.55), in: Capsule())
+                                .foregroundStyle(.secondary)
+                            if !token.usage.isEmpty {
+                                Text(token.usage)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+
+                        VStack(spacing: 12) {
+                            StudioGradientTonePreviewCard(title: "Light", colors: token.lightColors)
+                            StudioGradientTonePreviewCard(title: "Dark", colors: token.darkColors)
+                        }
+
+                        StudioInspectorSection(title: "Contract") {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioKeyValueRow(label: "Token", value: token.id)
+                                StudioKeyValueRow(label: "Type", value: token.kind.capitalized)
+                                StudioKeyValueRow(label: "References", value: "\(token.referenceCount)")
+                                if !token.swiftUI.isEmpty {
+                                    StudioKeyValueRow(label: "SwiftUI", value: token.swiftUI)
+                                }
+                            }
+                        }
+
+                        if !token.tokenColors.isEmpty || !token.designComponentIDs.isEmpty {
+                            StudioInspectorSection(title: "Relationships") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    if !token.tokenColors.isEmpty {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text("Token colors")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                            FlexiblePillStack(items: token.tokenColors.map(resolvedColorName(for:)))
+                                        }
+                                    }
+                                    if !token.designComponentIDs.isEmpty {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text("Linked components")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                            FlexiblePillStack(items: token.designComponentIDs.map(resolvedComponentName(for:)))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if !token.sourcePaths.isEmpty {
+                            StudioInspectorSection(title: "Evidence") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(Array(token.sourcePaths.prefix(6)), id: \.self) { path in
+                                        StudioKeyValueRow(label: "Source", value: path)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(20)
+                }
+
+            case .none:
+                ContentUnavailableView(
+                    "Select a token",
+                    systemImage: "paintpalette",
+                    description: Text("Choose a color or gradient card to inspect its variants, references, and relationships.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .background(.thinMaterial)
+    }
+
+    private func resolvedGradientName(for gradientID: String) -> String {
+        document.gradients.first(where: { $0.id == gradientID })?.name ?? humanizedFoundationLabel(gradientID)
+    }
+
+    private func resolvedColorName(for colorID: String) -> String {
+        document.colors.first(where: { $0.id == colorID })?.name ?? humanizedFoundationLabel(colorID)
+    }
+
+    private func resolvedComponentName(for componentID: String) -> String {
+        document.components.first(where: { $0.id == componentID })?.name ?? humanizedFoundationLabel(componentID)
+    }
+
+    private func humanizedFoundationLabel(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "-", with: " ")
+            .replacingOccurrences(of: "_", with: " ")
+            .capitalized
+    }
+}
+
+private struct StudioTonePreviewCard: View {
+    let title: String
+    let fill: Color
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(fill)
+                .frame(height: 120)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+                )
+
+            Text(value)
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct StudioGradientTonePreviewCard: View {
+    let title: String
+    let colors: [String]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            LinearGradient(
+                colors: colors.isEmpty ? [.secondary.opacity(0.2), .secondary.opacity(0.4)] : colors.map(Color.init(hex:)),
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(height: 96)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+
+            Text(colors.joined(separator: " → "))
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
     }
 }
 
