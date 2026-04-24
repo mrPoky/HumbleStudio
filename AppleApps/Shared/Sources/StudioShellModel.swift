@@ -130,6 +130,8 @@ struct StudioNativeDocument: Equatable {
     let assetRootURL: URL?
     let iconBasePath: String?
     let snapshotBasePath: String?
+    let navigationRootID: String?
+    let navigationType: String
     let colors: [ColorToken]
     let gradients: [GradientToken]
     let typography: [TypographyToken]
@@ -647,6 +649,7 @@ final class StudioShellModel: ObservableObject {
     private static func parseNativeDocument(fileName: String, object: [String: Any], assetRootURL: URL?) throws -> StudioNativeDocument {
         let meta = object["meta"] as? [String: Any] ?? [:]
         let assets = object["assets"] as? [String: Any] ?? [:]
+        let navigation = object["navigation"] as? [String: Any] ?? [:]
         let tokens = object["tokens"] as? [String: Any] ?? [:]
 
         let colors = parseColorTokens(tokens["colors"] as? [String: Any] ?? [:])
@@ -665,6 +668,8 @@ final class StudioShellModel: ObservableObject {
             assetRootURL: assetRootURL,
             iconBasePath: assets["iconBasePath"] as? String,
             snapshotBasePath: assets["snapshotBasePath"] as? String,
+            navigationRootID: navigation["root"] as? String,
+            navigationType: (navigation["type"] as? String) ?? "stack",
             colors: colors,
             gradients: gradients,
             typography: typography,
