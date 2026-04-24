@@ -75,10 +75,15 @@ struct StudioMacWorkspaceView: View {
     @State private var selection: Destination? = .overview
     @State private var isImportingFile = false
     @State private var isImportingRemoteURL = false
+    @State private var isQuickOpenPresented = false
     @State private var isDropTargeted = false
     @State private var remoteURLDraft = ""
     @State private var componentAppearance: StudioNativeAppearance = .dark
     @State private var viewAppearance: StudioNativeAppearance = .dark
+    @State private var selectedTokenSelection: StudioNativeTokenSelection?
+    @State private var selectedIconID: String?
+    @State private var selectedTypographyID: String?
+    @State private var selectedMetricSelection: StudioNativeMetricSelection?
     @State private var selectedComponentID: String?
     @State private var selectedViewID: String?
     @State private var selectedNavigationViewID: String?
@@ -125,6 +130,12 @@ struct StudioMacWorkspaceView: View {
         }
         .sheet(isPresented: $isImportingRemoteURL) {
             remoteURLSheet
+        }
+        .sheet(isPresented: $isQuickOpenPresented) {
+            quickOpenSheet
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .studioOpenQuickOpen)) { _ in
+            isQuickOpenPresented = true
         }
         .onReceive(NotificationCenter.default.publisher(for: .studioOpenImport)) { _ in
             isImportingFile = true
@@ -231,6 +242,12 @@ struct StudioMacWorkspaceView: View {
             .disabled(selection != .legacyWeb || !model.canGoForward)
 
             Button {
+                isQuickOpenPresented = true
+            } label: {
+                Label("Quick Open", systemImage: "magnifyingglass")
+            }
+
+            Button {
                 isImportingFile = true
             } label: {
                 Label("Open", systemImage: "folder")
@@ -288,7 +305,11 @@ struct StudioMacWorkspaceView: View {
         case .overview:
             StudioMacOverviewPage(model: model)
         case .tokens:
-            StudioMacTokensPage(document: model.nativeDocument, nativeErrorMessage: model.nativeErrorMessage)
+            StudioMacTokensPage(
+                document: model.nativeDocument,
+                nativeErrorMessage: model.nativeErrorMessage,
+                selection: $selectedTokenSelection
+            )
         case .components:
             StudioMacComponentsPage(
                 document: model.nativeDocument,
@@ -321,21 +342,24 @@ struct StudioMacWorkspaceView: View {
             StudioMacIconsPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
-                inspectComponent: inspectComponent
+                inspectComponent: inspectComponent,
+                selection: $selectedIconID
             )
         case .typography:
             StudioMacTypographyPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
                 inspectComponent: inspectComponent,
-                inspectView: inspectView
+                inspectView: inspectView,
+                selection: $selectedTypographyID
             )
         case .spacing:
             StudioMacSpacingPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
                 inspectComponent: inspectComponent,
-                inspectView: inspectView
+                inspectView: inspectView,
+                selection: $selectedMetricSelection
             )
         case .legacyWeb:
             legacyWebContent
@@ -408,6 +432,17 @@ struct StudioMacWorkspaceView: View {
             }
         }
         .frame(minWidth: 540, minHeight: 250)
+    }
+
+    private var quickOpenSheet: some View {
+        StudioNativeQuickOpenSheet(
+            items: quickOpenItems(),
+            onSelect: { item in
+                item.activate()
+                isQuickOpenPresented = false
+            }
+        )
+        .frame(minWidth: 640, minHeight: 520)
     }
 
     private var nativeContextBar: some View {
@@ -588,6 +623,26 @@ struct StudioMacWorkspaceView: View {
         selection = .views
     }
 
+    private func inspectToken(_ tokenSelection: StudioNativeTokenSelection) {
+        selectedTokenSelection = tokenSelection
+        selection = .tokens
+    }
+
+    private func inspectIcon(_ iconID: String) {
+        selectedIconID = iconID
+        selection = .icons
+    }
+
+    private func inspectTypography(_ typographyID: String) {
+        selectedTypographyID = typographyID
+        selection = .typography
+    }
+
+    private func inspectMetric(_ metricSelection: StudioNativeMetricSelection) {
+        selectedMetricSelection = metricSelection
+        selection = .spacing
+    }
+
     private func reviewQueueCounts(for document: StudioNativeDocument) -> (components: Int, views: Int, total: Int) {
         let components = document.components.filter { nativeComponentTruthStatus(for: $0).needsAttention }.count
         let views = document.views.filter { nativeViewTruthStatus(for: $0).needsAttention }.count
@@ -596,6 +651,117 @@ struct StudioMacWorkspaceView: View {
 
     private func navigationEdgeCount(for document: StudioNativeDocument) -> Int {
         document.views.reduce(0) { $0 + $1.navigatesTo.count }
+    }
+
+    private func quickOpenItems() -> [StudioQuickOpenItem] {
+        var items: [StudioQuickOpenItem] = [
+            quickOpenPageItem(.overview, subtitle: "Native app overview and migration status"),
+            quickOpenPageItem(.tokens, subtitle: "Colors and gradients"),
+            quickOpenPageItem(.components, subtitle: "Snapshot-first component catalog"),
+            quickOpenPageItem(.views, subtitle: "Screen catalog and flow truth"),
+            quickOpenPageItem(.review, subtitle: "Truth gaps and review queue"),
+            quickOpenPageItem(.navigation, subtitle: "Native navigation graph"),
+            quickOpenPageItem(.icons, subtitle: "Bundled icon catalog"),
+            quickOpenPageItem(.typography, subtitle: "Typography roles"),
+            quickOpenPageItem(.spacing, subtitle: "Spacing and corner radius"),
+            quickOpenPageItem(.legacyWeb, subtitle: "Fallback web inspector")
+        ]
+
+        if let document = model.nativeDocument {
+            items.append(contentsOf: document.colors.map { token in
+                StudioQuickOpenItem(
+                    title: token.name,
+                    subtitle: "Color token · \(token.group)",
+                    symbolName: "paintpalette",
+                    section: "Colors",
+                    keywords: [token.id, token.group, token.lightHex, token.darkHex],
+                    activate: { inspectToken(.color(token.id)) }
+                )
+            })
+            items.append(contentsOf: document.gradients.map { token in
+                StudioQuickOpenItem(
+                    title: token.name,
+                    subtitle: "Gradient token · \(token.group)",
+                    symbolName: "sparkles",
+                    section: "Gradients",
+                    keywords: [token.id, token.group, token.swiftUI, token.usage],
+                    activate: { inspectToken(.gradient(token.id)) }
+                )
+            })
+            items.append(contentsOf: document.icons.map { token in
+                StudioQuickOpenItem(
+                    title: token.name,
+                    subtitle: "Icon · \(token.symbol)",
+                    symbolName: "app.gift",
+                    section: "Icons",
+                    keywords: [token.id, token.symbol, token.description],
+                    activate: { inspectIcon(token.id) }
+                )
+            })
+            items.append(contentsOf: document.typography.map { token in
+                StudioQuickOpenItem(
+                    title: token.role,
+                    subtitle: "Typography · \(Int(token.size)) pt",
+                    symbolName: "textformat",
+                    section: "Typography",
+                    keywords: [token.id, token.swiftUI, token.preview],
+                    activate: { inspectTypography(token.id) }
+                )
+            })
+            items.append(contentsOf: document.spacing.map { token in
+                StudioQuickOpenItem(
+                    title: token.name,
+                    subtitle: "Spacing · \(token.value)",
+                    symbolName: "rectangle.inset.filled",
+                    section: "Spacing",
+                    keywords: [token.id, token.group, token.usage],
+                    activate: { inspectMetric(.spacing(token.id)) }
+                )
+            })
+            items.append(contentsOf: document.radius.map { token in
+                StudioQuickOpenItem(
+                    title: token.name,
+                    subtitle: "Corner radius · \(token.value)",
+                    symbolName: "roundedcorner",
+                    section: "Corner Radius",
+                    keywords: [token.id, token.group, token.usage],
+                    activate: { inspectMetric(.radius(token.id)) }
+                )
+            })
+            items.append(contentsOf: document.components.map { component in
+                StudioQuickOpenItem(
+                    title: component.name,
+                    subtitle: "Component · \(component.group)",
+                    symbolName: "square.grid.3x2",
+                    section: "Components",
+                    keywords: [component.id, component.renderer, component.swiftUI, component.summary],
+                    activate: { inspectComponent(component.id) }
+                )
+            })
+            items.append(contentsOf: document.views.map { view in
+                StudioQuickOpenItem(
+                    title: view.name,
+                    subtitle: "View · \(view.presentation.capitalized)",
+                    symbolName: "rectangle.on.rectangle",
+                    section: "Views",
+                    keywords: [view.id, view.presentation, view.summary],
+                    activate: { inspectView(view.id) }
+                )
+            })
+        }
+
+        return items
+    }
+
+    private func quickOpenPageItem(_ destination: Destination, subtitle: String) -> StudioQuickOpenItem {
+        StudioQuickOpenItem(
+            title: destination.title,
+            subtitle: subtitle,
+            symbolName: destination.symbolName,
+            section: "Pages",
+            keywords: [destination.rawValue, destination.subtitle],
+            activate: { selection = destination }
+        )
     }
 }
 
@@ -660,7 +826,7 @@ private struct StudioMacOverviewPage: View {
 private struct StudioMacTokensPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
-    @State private var selection: StudioNativeTokenSelection?
+    @Binding var selection: StudioNativeTokenSelection?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
@@ -1067,7 +1233,7 @@ private struct StudioMacIconsPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
     let inspectComponent: (String) -> Void
-    @State private var selection: String?
+    @Binding var selection: String?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
@@ -1129,7 +1295,7 @@ private struct StudioMacTypographyPage: View {
     let nativeErrorMessage: String?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
-    @State private var selection: String?
+    @Binding var selection: String?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
@@ -1191,7 +1357,7 @@ private struct StudioMacSpacingPage: View {
     let nativeErrorMessage: String?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
-    @State private var selection: StudioNativeMetricSelection?
+    @Binding var selection: StudioNativeMetricSelection?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
@@ -1294,6 +1460,144 @@ private struct StudioNativePageContainer<Content: View>: View {
                 description: Text("Open a `.humblebundle`, `.zip`, or `design.json` to populate this native page.")
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}
+
+private struct StudioQuickOpenItem: Identifiable {
+    let id = UUID()
+    let title: String
+    let subtitle: String
+    let symbolName: String
+    let section: String
+    let keywords: [String]
+    let activate: () -> Void
+
+    func matches(_ query: String) -> Bool {
+        let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if normalizedQuery.isEmpty { return true }
+        let haystack = ([title, subtitle, section] + keywords).joined(separator: " ").lowercased()
+        return haystack.contains(normalizedQuery)
+    }
+
+    func score(for query: String) -> Int {
+        let normalizedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if normalizedQuery.isEmpty { return 0 }
+        let titleValue = title.lowercased()
+        let subtitleValue = subtitle.lowercased()
+        if titleValue == normalizedQuery { return 0 }
+        if titleValue.hasPrefix(normalizedQuery) { return 1 }
+        if titleValue.contains(normalizedQuery) { return 2 }
+        if subtitleValue.contains(normalizedQuery) { return 3 }
+        return 4
+    }
+}
+
+private struct StudioNativeQuickOpenSheet: View {
+    let items: [StudioQuickOpenItem]
+    let onSelect: (StudioQuickOpenItem) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @FocusState private var isSearchFocused: Bool
+    @State private var query = ""
+
+    private var filteredItems: [StudioQuickOpenItem] {
+        items
+            .filter { $0.matches(query) }
+            .sorted { lhs, rhs in
+                let lhsScore = lhs.score(for: query)
+                let rhsScore = rhs.score(for: query)
+                if lhsScore != rhsScore { return lhsScore < rhsScore }
+                if lhs.section != rhs.section { return lhs.section < rhs.section }
+                return lhs.title < rhs.title
+            }
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack {
+                        Text("Quick Open")
+                            .font(.system(size: 24, weight: .bold))
+                        Spacer()
+                        Text("\(filteredItems.count) results")
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.quaternary.opacity(0.45), in: Capsule())
+                            .foregroundStyle(.secondary)
+                    }
+
+                    TextField("Search pages, foundations, components, and views…", text: $query)
+                        .textFieldStyle(.roundedBorder)
+                        .focused($isSearchFocused)
+                        .onSubmit {
+                            guard let first = filteredItems.first else { return }
+                            onSelect(first)
+                            dismiss()
+                        }
+                }
+                .padding(20)
+
+                Divider()
+                    .opacity(0.35)
+
+                if filteredItems.isEmpty {
+                    ContentUnavailableView(
+                        "No matches",
+                        systemImage: "magnifyingglass",
+                        description: Text("Try searching by token name, component, view, or page.")
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List {
+                        ForEach(groupedQuickOpenItems(filteredItems), id: \.0) { section, sectionItems in
+                            Section(section) {
+                                ForEach(sectionItems) { item in
+                                    Button {
+                                        onSelect(item)
+                                        dismiss()
+                                    } label: {
+                                        HStack(spacing: 12) {
+                                            Image(systemName: item.symbolName)
+                                                .foregroundStyle(.secondary)
+                                                .frame(width: 18)
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(item.title)
+                                                    .foregroundStyle(.primary)
+                                                Text(item.subtitle)
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                        }
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                    }
+                    .listStyle(.inset)
+                }
+            }
+            .navigationTitle("Quick Open")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .onAppear {
+            isSearchFocused = true
+        }
+    }
+
+    private func groupedQuickOpenItems(_ items: [StudioQuickOpenItem]) -> [(String, [StudioQuickOpenItem])] {
+        let grouped = Dictionary(grouping: items, by: \.section)
+        return grouped.keys.sorted().map { key in
+            (key, grouped[key] ?? [])
         }
     }
 }
