@@ -51,6 +51,7 @@ struct StudioNativeDocument: Equatable {
         let size: Double
         let weight: Int
         let referenceCount: Int
+        let sourcePaths: [String]
     }
 
     struct MetricToken: Identifiable, Equatable {
@@ -61,6 +62,7 @@ struct StudioNativeDocument: Equatable {
         let usage: String
         let kind: String
         let referenceCount: Int
+        let sourcePaths: [String]
     }
 
     struct IconToken: Identifiable, Equatable {
@@ -70,6 +72,7 @@ struct StudioNativeDocument: Equatable {
         let assetPath: String
         let description: String
         let referenceCount: Int
+        let sourcePaths: [String]
     }
 
     struct ComponentItem: Identifiable, Equatable {
@@ -735,6 +738,7 @@ final class StudioShellModel: ObservableObject {
     private static func parseTypographyTokens(_ array: [[String: Any]]) -> [StudioNativeDocument.TypographyToken] {
         array.enumerated().compactMap { index, value in
             guard let role = value["role"] as? String else { return nil }
+            let references = value["references"] as? [String: Any] ?? [:]
             return StudioNativeDocument.TypographyToken(
                 id: role,
                 role: role,
@@ -742,7 +746,8 @@ final class StudioShellModel: ObservableObject {
                 swiftUI: (value["swiftui"] as? String) ?? "",
                 size: (value["size"] as? NSNumber)?.doubleValue ?? Double(value["size"] as? Int ?? 0),
                 weight: value["weight"] as? Int ?? 400,
-                referenceCount: parseReferenceCount(from: value["references"] as? [String: Any])
+                referenceCount: parseReferenceCount(from: references),
+                sourcePaths: parseReferencePaths(references["source"] as? [[String: Any]] ?? [])
             )
         }
         .sorted { lhs, rhs in
@@ -753,6 +758,7 @@ final class StudioShellModel: ObservableObject {
     private static func parseMetricTokens(_ object: [String: Any], defaultKind: String) -> [StudioNativeDocument.MetricToken] {
         object.compactMap { key, rawValue in
             guard let value = rawValue as? [String: Any] else { return nil }
+            let references = value["references"] as? [String: Any] ?? [:]
             return StudioNativeDocument.MetricToken(
                 id: key,
                 name: humanizedIdentifier(key),
@@ -760,7 +766,8 @@ final class StudioShellModel: ObservableObject {
                 value: (value["value"] as? String) ?? String(describing: value["value"] ?? "—"),
                 usage: (value["usage"] as? String) ?? "",
                 kind: (value["kind"] as? String) ?? defaultKind,
-                referenceCount: parseReferenceCount(from: value["references"] as? [String: Any])
+                referenceCount: parseReferenceCount(from: references),
+                sourcePaths: parseReferencePaths(references["source"] as? [[String: Any]] ?? [])
             )
         }
         .sorted { lhs, rhs in
@@ -771,13 +778,15 @@ final class StudioShellModel: ObservableObject {
     private static func parseIconTokens(_ array: [[String: Any]]) -> [StudioNativeDocument.IconToken] {
         array.compactMap { value in
             guard let id = value["id"] as? String else { return nil }
+            let references = value["references"] as? [String: Any] ?? [:]
             return StudioNativeDocument.IconToken(
                 id: id,
                 name: (value["name"] as? String) ?? humanizedIdentifier(id),
                 symbol: (value["symbol"] as? String) ?? "",
                 assetPath: (value["path"] as? String) ?? "",
                 description: (value["description"] as? String) ?? "",
-                referenceCount: parseReferenceCount(from: value["references"] as? [String: Any])
+                referenceCount: parseReferenceCount(from: references),
+                sourcePaths: parseReferencePaths(references["source"] as? [[String: Any]] ?? [])
             )
         }
         .sorted { lhs, rhs in lhs.name < rhs.name }

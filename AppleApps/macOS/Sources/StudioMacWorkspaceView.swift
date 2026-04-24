@@ -1685,6 +1685,16 @@ private struct StudioIconDetailInspector: View {
                                 StudioKeyValueRow(label: "Identifier", value: token.id)
                             }
                         }
+
+                        if !token.sourcePaths.isEmpty {
+                            StudioInspectorSection(title: "Evidence") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(token.sourcePaths, id: \.self) { path in
+                                        StudioKeyValueRow(label: "Source", value: path)
+                                    }
+                                }
+                            }
+                        }
                     }
                     .padding(20)
                 }
@@ -1755,6 +1765,16 @@ private struct StudioTypographyDetailInspector: View {
                                 }
                             }
                         }
+
+                        if !token.sourcePaths.isEmpty {
+                            StudioInspectorSection(title: "Evidence") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(token.sourcePaths, id: \.self) { path in
+                                        StudioKeyValueRow(label: "Source", value: path)
+                                    }
+                                }
+                            }
+                        }
                     }
                     .padding(20)
                 }
@@ -1817,6 +1837,16 @@ private struct StudioMetricDetailInspector: View {
                                 Text(token.usage)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+
+                        if !token.sourcePaths.isEmpty {
+                            StudioInspectorSection(title: "Evidence") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(token.sourcePaths, id: \.self) { path in
+                                        StudioKeyValueRow(label: "Source", value: path)
+                                    }
+                                }
                             }
                         }
                     }
