@@ -17,6 +17,34 @@ struct StudioNativeDocument: Equatable {
         let darkPath: String?
     }
 
+    struct TokenDependencySet: Equatable {
+        let colors: [String]
+        let gradients: [String]
+        let spacing: [String]
+        let radius: [String]
+        let typography: [String]
+        let textTones: [String]
+        let surfaces: [String]
+        let preferredIcons: [String]
+        let primitives: [String]
+        let actionRoles: [String]
+        let frames: [String]
+
+        static let empty = TokenDependencySet(
+            colors: [],
+            gradients: [],
+            spacing: [],
+            radius: [],
+            typography: [],
+            textTones: [],
+            surfaces: [],
+            preferredIcons: [],
+            primitives: [],
+            actionRoles: [],
+            frames: []
+        )
+    }
+
     struct ColorToken: Identifiable, Equatable {
         let id: String
         let name: String
@@ -92,6 +120,8 @@ struct StudioNativeDocument: Equatable {
         let defaultState: String
         let statesCount: Int
         let states: [StateSummary]
+        let designDependencies: TokenDependencySet
+        let sourceDependencies: TokenDependencySet
         let designTokenCategories: [String]
         let designTokenCount: Int
         let sourceTokenCount: Int
@@ -124,6 +154,8 @@ struct StudioNativeDocument: Equatable {
         let secondaryActions: [String]
         let navigationCount: Int
         let navigatesTo: [NavigationSummary]
+        let designDependencies: TokenDependencySet
+        let sourceDependencies: TokenDependencySet
         let designTokenCategories: [String]
         let designTokenCount: Int
         let sourceTokenCount: Int
@@ -795,7 +827,8 @@ final class StudioShellModel: ObservableObject {
     private static func parseComponentItems(_ array: [[String: Any]]) -> [StudioNativeDocument.ComponentItem] {
         array.compactMap { value in
             guard let id = value["id"] as? String else { return nil }
-            let tokenSummary = (value["tokenDependencies"] as? [String: Any])?["summary"] as? [String: Any] ?? [:]
+            let tokenDependencies = value["tokenDependencies"] as? [String: Any] ?? [:]
+            let tokenSummary = tokenDependencies["summary"] as? [String: Any] ?? [:]
             let sourceSnippet = value["sourceSnippet"] as? [String: Any] ?? [:]
             return StudioNativeDocument.ComponentItem(
                 id: id,
@@ -808,6 +841,8 @@ final class StudioShellModel: ObservableObject {
                 defaultState: (value["defaultState"] as? String) ?? "",
                 statesCount: (value["states"] as? [[String: Any]])?.count ?? 0,
                 states: parseStateSummaries(value["states"] as? [[String: Any]] ?? []),
+                designDependencies: parseTokenDependencySet(tokenDependencies["design"] as? [String: Any] ?? [:]),
+                sourceDependencies: parseTokenDependencySet(tokenDependencies["source"] as? [String: Any] ?? [:]),
                 designTokenCategories: tokenSummary["categories"] as? [String] ?? [],
                 designTokenCount: tokenSummary["designTokenCount"] as? Int ?? 0,
                 sourceTokenCount: tokenSummary["sourceTokenCount"] as? Int ?? 0,
@@ -825,7 +860,8 @@ final class StudioShellModel: ObservableObject {
         array.compactMap { value in
             guard let id = value["id"] as? String else { return nil }
             let actions = value["actions"] as? [String: Any] ?? [:]
-            let tokenSummary = (value["tokenDependencies"] as? [String: Any])?["summary"] as? [String: Any] ?? [:]
+            let tokenDependencies = value["tokenDependencies"] as? [String: Any] ?? [:]
+            let tokenSummary = tokenDependencies["summary"] as? [String: Any] ?? [:]
             let sourceSnippet = value["sourceSnippet"] as? [String: Any] ?? [:]
             return StudioNativeDocument.ViewItem(
                 id: id,
@@ -844,6 +880,8 @@ final class StudioShellModel: ObservableObject {
                 secondaryActions: actions["secondary"] as? [String] ?? [],
                 navigationCount: (value["navigatesTo"] as? [Any])?.count ?? 0,
                 navigatesTo: parseNavigationSummaries(value["navigatesTo"] as? [[String: Any]] ?? []),
+                designDependencies: parseTokenDependencySet(tokenDependencies["design"] as? [String: Any] ?? [:]),
+                sourceDependencies: parseTokenDependencySet(tokenDependencies["source"] as? [String: Any] ?? [:]),
                 designTokenCategories: tokenSummary["categories"] as? [String] ?? [],
                 designTokenCount: tokenSummary["designTokenCount"] as? Int ?? 0,
                 sourceTokenCount: tokenSummary["sourceTokenCount"] as? Int ?? 0,
@@ -930,6 +968,26 @@ final class StudioShellModel: ObservableObject {
             guard value["type"] as? String == type else { return nil }
             return value["id"] as? String
         }
+    }
+
+    private static func parseTokenDependencySet(_ value: [String: Any]) -> StudioNativeDocument.TokenDependencySet {
+        StudioNativeDocument.TokenDependencySet(
+            colors: parseDependencyIDs(value["colors"] as? [[String: Any]] ?? []),
+            gradients: parseDependencyIDs(value["gradients"] as? [[String: Any]] ?? []),
+            spacing: parseDependencyIDs(value["spacing"] as? [[String: Any]] ?? []),
+            radius: parseDependencyIDs(value["radius"] as? [[String: Any]] ?? []),
+            typography: parseDependencyIDs(value["typography"] as? [[String: Any]] ?? []),
+            textTones: parseDependencyIDs(value["textTones"] as? [[String: Any]] ?? []),
+            surfaces: parseDependencyIDs(value["surfaces"] as? [[String: Any]] ?? []),
+            preferredIcons: parseDependencyIDs(value["preferredIcons"] as? [[String: Any]] ?? []),
+            primitives: parseDependencyIDs(value["primitives"] as? [[String: Any]] ?? []),
+            actionRoles: parseDependencyIDs(value["actionRoles"] as? [[String: Any]] ?? []),
+            frames: parseDependencyIDs(value["frames"] as? [[String: Any]] ?? [])
+        )
+    }
+
+    private static func parseDependencyIDs(_ array: [[String: Any]]) -> [String] {
+        array.compactMap { $0["id"] as? String }
     }
 
     private static func humanizedIdentifier(_ value: String) -> String {

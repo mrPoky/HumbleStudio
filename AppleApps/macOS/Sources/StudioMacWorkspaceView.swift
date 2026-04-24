@@ -318,11 +318,25 @@ struct StudioMacWorkspaceView: View {
                 inspectView: inspectView
             )
         case .icons:
-            StudioMacIconsPage(document: model.nativeDocument, nativeErrorMessage: model.nativeErrorMessage)
+            StudioMacIconsPage(
+                document: model.nativeDocument,
+                nativeErrorMessage: model.nativeErrorMessage,
+                inspectComponent: inspectComponent
+            )
         case .typography:
-            StudioMacTypographyPage(document: model.nativeDocument, nativeErrorMessage: model.nativeErrorMessage)
+            StudioMacTypographyPage(
+                document: model.nativeDocument,
+                nativeErrorMessage: model.nativeErrorMessage,
+                inspectComponent: inspectComponent,
+                inspectView: inspectView
+            )
         case .spacing:
-            StudioMacSpacingPage(document: model.nativeDocument, nativeErrorMessage: model.nativeErrorMessage)
+            StudioMacSpacingPage(
+                document: model.nativeDocument,
+                nativeErrorMessage: model.nativeErrorMessage,
+                inspectComponent: inspectComponent,
+                inspectView: inspectView
+            )
         case .legacyWeb:
             legacyWebContent
         }
@@ -1052,6 +1066,7 @@ private struct StudioMacNavigationPage: View {
 private struct StudioMacIconsPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let inspectComponent: (String) -> Void
     @State private var selection: String?
 
     var body: some View {
@@ -1088,7 +1103,8 @@ private struct StudioMacIconsPage: View {
 
                 StudioIconDetailInspector(
                     token: selectedIcon(in: document),
-                    document: document
+                    document: document,
+                    inspectComponent: inspectComponent
                 )
                 .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
             }
@@ -1111,6 +1127,8 @@ private struct StudioMacIconsPage: View {
 private struct StudioMacTypographyPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let inspectComponent: (String) -> Void
+    let inspectView: (String) -> Void
     @State private var selection: String?
 
     var body: some View {
@@ -1144,7 +1162,12 @@ private struct StudioMacTypographyPage: View {
                 Divider()
                     .opacity(0.35)
 
-                StudioTypographyDetailInspector(token: selectedTypography(in: document))
+                StudioTypographyDetailInspector(
+                    token: selectedTypography(in: document),
+                    document: document,
+                    inspectComponent: inspectComponent,
+                    inspectView: inspectView
+                )
                     .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
             }
             .onAppear {
@@ -1166,6 +1189,8 @@ private struct StudioMacTypographyPage: View {
 private struct StudioMacSpacingPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let inspectComponent: (String) -> Void
+    let inspectView: (String) -> Void
     @State private var selection: StudioNativeMetricSelection?
 
     var body: some View {
@@ -1207,7 +1232,12 @@ private struct StudioMacSpacingPage: View {
                 Divider()
                     .opacity(0.35)
 
-                StudioMetricDetailInspector(token: selectedMetric(in: document))
+                StudioMetricDetailInspector(
+                    token: selectedMetric(in: document),
+                    document: document,
+                    inspectComponent: inspectComponent,
+                    inspectView: inspectView
+                )
                     .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
             }
             .onAppear {
@@ -1642,6 +1672,7 @@ private struct StudioTokenDetailInspector: View {
 private struct StudioIconDetailInspector: View {
     let token: StudioNativeDocument.IconToken?
     let document: StudioNativeDocument
+    let inspectComponent: (String) -> Void
 
     var body: some View {
         Group {
@@ -1695,6 +1726,16 @@ private struct StudioIconDetailInspector: View {
                                 }
                             }
                         }
+
+                        if !relatedComponents(for: token).isEmpty {
+                            StudioInspectorSection(title: "Used By") {
+                                StudioInspectorLinkList(
+                                    linkItems: relatedComponents(for: token).map { StudioInspectorLinkItem(id: $0.id, title: $0.name, subtitle: $0.group) },
+                                    actionTitle: "Inspect Component",
+                                    action: inspectComponent
+                                )
+                            }
+                        }
                     }
                     .padding(20)
                 }
@@ -1709,10 +1750,17 @@ private struct StudioIconDetailInspector: View {
         }
         .background(.thinMaterial)
     }
+
+    private func relatedComponents(for token: StudioNativeDocument.IconToken) -> [StudioNativeDocument.ComponentItem] {
+        document.components.filter { $0.designDependencies.preferredIcons.contains(token.id) }
+    }
 }
 
 private struct StudioTypographyDetailInspector: View {
     let token: StudioNativeDocument.TypographyToken?
+    let document: StudioNativeDocument
+    let inspectComponent: (String) -> Void
+    let inspectView: (String) -> Void
 
     var body: some View {
         Group {
@@ -1775,6 +1823,29 @@ private struct StudioTypographyDetailInspector: View {
                                 }
                             }
                         }
+
+                        if !relatedComponents(for: token).isEmpty || !relatedViews(for: token).isEmpty {
+                            StudioInspectorSection(title: "Used By") {
+                                VStack(alignment: .leading, spacing: 14) {
+                                    if !relatedComponents(for: token).isEmpty {
+                                        StudioInspectorLinkGroup(
+                                            title: "Components",
+                                            linkItems: relatedComponents(for: token).map { StudioInspectorLinkItem(id: $0.id, title: $0.name, subtitle: $0.group) },
+                                            actionTitle: "Inspect Component",
+                                            action: inspectComponent
+                                        )
+                                    }
+                                    if !relatedViews(for: token).isEmpty {
+                                        StudioInspectorLinkGroup(
+                                            title: "Views",
+                                            linkItems: relatedViews(for: token).map { StudioInspectorLinkItem(id: $0.id, title: $0.name, subtitle: $0.presentation.capitalized) },
+                                            actionTitle: "Inspect View",
+                                            action: inspectView
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                     .padding(20)
                 }
@@ -1789,10 +1860,21 @@ private struct StudioTypographyDetailInspector: View {
         }
         .background(.thinMaterial)
     }
+
+    private func relatedComponents(for token: StudioNativeDocument.TypographyToken) -> [StudioNativeDocument.ComponentItem] {
+        document.components.filter { $0.sourceDependencies.typography.contains(token.id) }
+    }
+
+    private func relatedViews(for token: StudioNativeDocument.TypographyToken) -> [StudioNativeDocument.ViewItem] {
+        document.views.filter { $0.sourceDependencies.typography.contains(token.id) }
+    }
 }
 
 private struct StudioMetricDetailInspector: View {
     let token: StudioNativeDocument.MetricToken?
+    let document: StudioNativeDocument
+    let inspectComponent: (String) -> Void
+    let inspectView: (String) -> Void
 
     var body: some View {
         Group {
@@ -1849,6 +1931,29 @@ private struct StudioMetricDetailInspector: View {
                                 }
                             }
                         }
+
+                        if !relatedComponents(for: token).isEmpty || !relatedViews(for: token).isEmpty {
+                            StudioInspectorSection(title: "Used By") {
+                                VStack(alignment: .leading, spacing: 14) {
+                                    if !relatedComponents(for: token).isEmpty {
+                                        StudioInspectorLinkGroup(
+                                            title: "Components",
+                                            linkItems: relatedComponents(for: token).map { StudioInspectorLinkItem(id: $0.id, title: $0.name, subtitle: $0.group) },
+                                            actionTitle: "Inspect Component",
+                                            action: inspectComponent
+                                        )
+                                    }
+                                    if !relatedViews(for: token).isEmpty {
+                                        StudioInspectorLinkGroup(
+                                            title: "Views",
+                                            linkItems: relatedViews(for: token).map { StudioInspectorLinkItem(id: $0.id, title: $0.name, subtitle: $0.presentation.capitalized) },
+                                            actionTitle: "Inspect View",
+                                            action: inspectView
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                     .padding(20)
                 }
@@ -1862,6 +1967,22 @@ private struct StudioMetricDetailInspector: View {
             }
         }
         .background(.thinMaterial)
+    }
+
+    private func relatedComponents(for token: StudioNativeDocument.MetricToken) -> [StudioNativeDocument.ComponentItem] {
+        document.components.filter { component in
+            metricDependencyIDs(from: component.sourceDependencies, kind: token.kind).contains(token.id)
+        }
+    }
+
+    private func relatedViews(for token: StudioNativeDocument.MetricToken) -> [StudioNativeDocument.ViewItem] {
+        document.views.filter { view in
+            metricDependencyIDs(from: view.sourceDependencies, kind: token.kind).contains(token.id)
+        }
+    }
+
+    private func metricDependencyIDs(from dependencies: StudioNativeDocument.TokenDependencySet, kind: String) -> [String] {
+        kind == "cornerRadius" ? dependencies.radius : dependencies.spacing
     }
 }
 
@@ -2642,6 +2763,71 @@ private struct StudioInspectorSection<Content: View>: View {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(.quaternary.opacity(0.75), lineWidth: 1)
         )
+    }
+}
+
+private struct StudioInspectorLinkItem: Identifiable {
+    let id: String
+    let title: String
+    let subtitle: String
+}
+
+private struct StudioInspectorLinkGroup: View {
+    let title: String
+    let linkItems: [StudioInspectorLinkItem]
+    let actionTitle: String
+    let action: (String) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            StudioInspectorLinkList(linkItems: linkItems, actionTitle: actionTitle, action: action)
+        }
+    }
+}
+
+private struct StudioInspectorLinkList: View {
+    let linkItems: [StudioInspectorLinkItem]
+    let actionTitle: String
+    let action: (String) -> Void
+
+    var body: some View {
+        let items = linkItems
+        VStack(alignment: .leading, spacing: 10) {
+            SwiftUI.ForEach(items, id: \StudioInspectorLinkItem.id) { (item: StudioInspectorLinkItem) in
+                Button {
+                    action(item.id)
+                } label: {
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(item.title)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                            Text(item.subtitle)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                        Spacer(minLength: 12)
+                        Text(actionTitle)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color.accentColor)
+                        Image(systemName: "arrow.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color.accentColor)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.quaternary.opacity(0.32), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 }
 
