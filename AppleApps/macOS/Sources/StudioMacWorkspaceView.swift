@@ -1052,113 +1052,191 @@ private struct StudioMacNavigationPage: View {
 private struct StudioMacIconsPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    @State private var selection: String?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
-            ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 170), spacing: 16)], spacing: 16) {
-                    ForEach(document.icons) { icon in
-                        VStack(alignment: .leading, spacing: 14) {
-                            StudioMacIconThumbnail(url: document.resolvedIconURL(for: icon), symbol: icon.symbol)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 140)
-                                .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            HStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 22) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Icons")
+                                .font(.system(size: 26, weight: .bold))
+                            Text("Native icon browser over the exported asset bundle, with a real inspector for symbol, asset path, and usage metadata.")
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
 
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(icon.name)
-                                    .font(.headline)
-                                    .lineLimit(2)
-                                Text(icon.symbol)
-                                    .font(.caption.monospaced())
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
-                                if !icon.description.isEmpty {
-                                    Text(icon.description)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(2)
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 170), spacing: 16)], spacing: 16) {
+                            ForEach(document.icons) { icon in
+                                StudioIconCard(
+                                    token: icon,
+                                    document: document,
+                                    isSelected: icon.id == selectedIcon(in: document)?.id
+                                )
+                                .onTapGesture {
+                                    selection = icon.id
                                 }
                             }
                         }
-                        .padding(16)
-                        .background(.background, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .stroke(.quaternary.opacity(0.8), lineWidth: 1)
-                        )
                     }
+                    .padding(24)
                 }
-                .padding(24)
+
+                Divider()
+                    .opacity(0.35)
+
+                StudioIconDetailInspector(
+                    token: selectedIcon(in: document),
+                    document: document
+                )
+                .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
+            }
+            .onAppear {
+                if selection == nil {
+                    selection = document.icons.first?.id
+                }
             }
         }
+    }
+
+    private func selectedIcon(in document: StudioNativeDocument) -> StudioNativeDocument.IconToken? {
+        if let selection, let selected = document.icons.first(where: { $0.id == selection }) {
+            return selected
+        }
+        return document.icons.first
     }
 }
 
 private struct StudioMacTypographyPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    @State private var selection: String?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    ForEach(document.typography) { token in
-                        VStack(alignment: .leading, spacing: 14) {
-                            HStack(alignment: .top) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(token.role)
-                                        .font(.headline)
-                                    if !token.swiftUI.isEmpty {
-                                        Text(token.swiftUI)
-                                            .font(.caption.monospaced())
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                Spacer()
-                                Text("\(Int(token.size)) pt · \(token.weight)")
-                                    .font(.caption.weight(.semibold))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(.quaternary.opacity(0.55), in: Capsule())
-                            }
-
-                            Text(token.preview)
-                                .font(.system(size: max(15, min(token.size, 40)), weight: token.fontWeight))
-                                .lineLimit(2)
+            HStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 22) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Typography")
+                                .font(.system(size: 26, weight: .bold))
+                            Text("Native type role inspector for preview copy, SwiftUI mapping, and scale metadata exported from the design contract.")
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                        .padding(20)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                .stroke(.quaternary.opacity(0.8), lineWidth: 1)
-                        )
+
+                        VStack(alignment: .leading, spacing: 16) {
+                            ForEach(document.typography) { token in
+                                StudioTypographyCard(
+                                    token: token,
+                                    isSelected: token.id == selectedTypography(in: document)?.id
+                                )
+                                .onTapGesture {
+                                    selection = token.id
+                                }
+                            }
+                        }
                     }
+                    .padding(24)
                 }
-                .padding(24)
+
+                Divider()
+                    .opacity(0.35)
+
+                StudioTypographyDetailInspector(token: selectedTypography(in: document))
+                    .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
+            }
+            .onAppear {
+                if selection == nil {
+                    selection = document.typography.first?.id
+                }
             }
         }
+    }
+
+    private func selectedTypography(in document: StudioNativeDocument) -> StudioNativeDocument.TypographyToken? {
+        if let selection, let selected = document.typography.first(where: { $0.id == selection }) {
+            return selected
+        }
+        return document.typography.first
     }
 }
 
 private struct StudioMacSpacingPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    @State private var selection: StudioNativeMetricSelection?
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    StudioGroupedSection(title: "Spacing", groups: grouped(document.spacing, by: \.group)) { item in
-                        StudioMetricCard(token: item)
-                    }
+            HStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 28) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Spacing & Radius")
+                                .font(.system(size: 26, weight: .bold))
+                            Text("Native spatial token inspector for spacing and corner radius values, with larger previews and contract context instead of dashboard-only cards.")
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
 
-                    StudioGroupedSection(title: "Corner Radius", groups: grouped(document.radius, by: \.group)) { item in
-                        StudioMetricCard(token: item)
+                        StudioGroupedSection(title: "Spacing", groups: grouped(document.spacing, by: \.group)) { item in
+                            StudioMetricCard(
+                                token: item,
+                                isSelected: selectedMetric(in: document)?.id == item.id && selectedMetric(in: document)?.kind == item.kind
+                            )
+                            .onTapGesture {
+                                selection = .spacing(item.id)
+                            }
+                        }
+
+                        StudioGroupedSection(title: "Corner Radius", groups: grouped(document.radius, by: \.group)) { item in
+                            StudioMetricCard(
+                                token: item,
+                                isSelected: selectedMetric(in: document)?.id == item.id && selectedMetric(in: document)?.kind == item.kind
+                            )
+                            .onTapGesture {
+                                selection = .radius(item.id)
+                            }
+                        }
                     }
+                    .padding(24)
                 }
-                .padding(24)
+
+                Divider()
+                    .opacity(0.35)
+
+                StudioMetricDetailInspector(token: selectedMetric(in: document))
+                    .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
             }
+            .onAppear {
+                if selection == nil {
+                    selection = defaultMetricSelection(in: document)
+                }
+            }
+        }
+    }
+
+    private func defaultMetricSelection(in document: StudioNativeDocument) -> StudioNativeMetricSelection? {
+        if let firstSpacing = document.spacing.first {
+            return .spacing(firstSpacing.id)
+        }
+        if let firstRadius = document.radius.first {
+            return .radius(firstRadius.id)
+        }
+        return nil
+    }
+
+    private func selectedMetric(in document: StudioNativeDocument) -> StudioNativeDocument.MetricToken? {
+        let currentSelection = selection ?? defaultMetricSelection(in: document)
+        switch currentSelection {
+        case let .spacing(id):
+            return document.spacing.first(where: { $0.id == id }) ?? document.spacing.first ?? document.radius.first
+        case let .radius(id):
+            return document.radius.first(where: { $0.id == id }) ?? document.radius.first ?? document.spacing.first
+        case .none:
+            return nil
         }
     }
 }
@@ -1214,6 +1292,81 @@ private struct StudioGroupedSection<Item: Identifiable, Card: View>: View {
                 }
             }
         }
+    }
+}
+
+private struct StudioIconCard: View {
+    let token: StudioNativeDocument.IconToken
+    let document: StudioNativeDocument
+    let isSelected: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            StudioMacIconThumbnail(url: document.resolvedIconURL(for: token), symbol: token.symbol)
+                .frame(maxWidth: .infinity)
+                .frame(height: 140)
+                .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(token.name)
+                    .font(.headline)
+                    .lineLimit(2)
+                Text(token.symbol)
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                if !token.description.isEmpty {
+                    Text(token.description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            }
+        }
+        .padding(16)
+        .background(.background, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(isSelected ? Color.accentColor.opacity(0.65) : Color.secondary.opacity(0.18), lineWidth: isSelected ? 1.5 : 1)
+        )
+    }
+}
+
+private struct StudioTypographyCard: View {
+    let token: StudioNativeDocument.TypographyToken
+    let isSelected: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(token.role)
+                        .font(.headline)
+                    if !token.swiftUI.isEmpty {
+                        Text(token.swiftUI)
+                            .font(.caption.monospaced())
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+                Text("\(Int(token.size)) pt · \(token.weight)")
+                    .font(.caption.weight(.semibold))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(.quaternary.opacity(0.55), in: Capsule())
+            }
+
+            Text(token.preview)
+                .font(.system(size: max(15, min(token.size, 40)), weight: token.fontWeight))
+                .lineLimit(2)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(isSelected ? Color.accentColor.opacity(0.65) : Color.secondary.opacity(0.18), lineWidth: isSelected ? 1.5 : 1)
+        )
     }
 }
 
@@ -1308,6 +1461,11 @@ private enum StudioNativeTokenSelection: Equatable {
         case color(StudioNativeDocument.ColorToken)
         case gradient(StudioNativeDocument.GradientToken)
     }
+}
+
+private enum StudioNativeMetricSelection: Equatable {
+    case spacing(String)
+    case radius(String)
 }
 
 private struct StudioTokenDetailInspector: View {
@@ -1478,6 +1636,202 @@ private struct StudioTokenDetailInspector: View {
             .replacingOccurrences(of: "-", with: " ")
             .replacingOccurrences(of: "_", with: " ")
             .capitalized
+    }
+}
+
+private struct StudioIconDetailInspector: View {
+    let token: StudioNativeDocument.IconToken?
+    let document: StudioNativeDocument
+
+    var body: some View {
+        Group {
+            if let token {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        Text("Icon Detail")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(token.name)
+                                .font(.system(size: 28, weight: .bold))
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text(token.symbol)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.secondary)
+                            if !token.description.isEmpty {
+                                Text(token.description)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+
+                        StudioMacIconThumbnail(url: document.resolvedIconURL(for: token), symbol: token.symbol)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 220)
+                            .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+
+                        StudioInspectorSection(title: "Contract") {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioKeyValueRow(label: "Symbol", value: token.symbol)
+                                StudioKeyValueRow(label: "References", value: "\(token.referenceCount)")
+                                StudioKeyValueRow(label: "Truth", value: "Bundled asset")
+                            }
+                        }
+
+                        StudioInspectorSection(title: "Asset") {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioKeyValueRow(label: "Path", value: token.assetPath.isEmpty ? "—" : token.assetPath)
+                                StudioKeyValueRow(label: "Identifier", value: token.id)
+                            }
+                        }
+                    }
+                    .padding(20)
+                }
+            } else {
+                ContentUnavailableView(
+                    "Select an icon",
+                    systemImage: "app.dashed",
+                    description: Text("Choose an icon card to inspect its symbol, bundled asset path, and exported usage metadata.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .background(.thinMaterial)
+    }
+}
+
+private struct StudioTypographyDetailInspector: View {
+    let token: StudioNativeDocument.TypographyToken?
+
+    var body: some View {
+        Group {
+            if let token {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        Text("Typography Detail")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(token.role)
+                                .font(.system(size: 28, weight: .bold))
+                                .fixedSize(horizontal: false, vertical: true)
+                            if !token.swiftUI.isEmpty {
+                                Text(token.swiftUI)
+                                    .font(.caption.monospaced())
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+
+                        VStack(alignment: .leading, spacing: 14) {
+                            Text(token.preview)
+                                .font(.system(size: max(24, min(token.size, 52)), weight: token.fontWeight))
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            Divider()
+                                .opacity(0.35)
+
+                            Text("The quick brown fox jumps over the lazy dog.")
+                                .font(.system(size: max(15, min(token.size * 0.72, 28)), weight: token.fontWeight))
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                .stroke(.quaternary.opacity(0.75), lineWidth: 1)
+                        )
+
+                        StudioInspectorSection(title: "Contract") {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioKeyValueRow(label: "Size", value: "\(Int(token.size)) pt")
+                                StudioKeyValueRow(label: "Weight", value: "\(token.weight)")
+                                StudioKeyValueRow(label: "References", value: "\(token.referenceCount)")
+                                if !token.swiftUI.isEmpty {
+                                    StudioKeyValueRow(label: "SwiftUI", value: token.swiftUI)
+                                }
+                            }
+                        }
+                    }
+                    .padding(20)
+                }
+            } else {
+                ContentUnavailableView(
+                    "Select a typography role",
+                    systemImage: "textformat",
+                    description: Text("Choose a type card to inspect its preview copy, scale, and SwiftUI mapping.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .background(.thinMaterial)
+    }
+}
+
+private struct StudioMetricDetailInspector: View {
+    let token: StudioNativeDocument.MetricToken?
+
+    var body: some View {
+        Group {
+            if let token {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        Text(token.kind == "cornerRadius" ? "Corner Radius Detail" : "Spacing Detail")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(token.name)
+                                .font(.system(size: 28, weight: .bold))
+                                .fixedSize(horizontal: false, vertical: true)
+                            HStack(spacing: 8) {
+                                Text(token.kindLabel)
+                                    .font(.caption.weight(.semibold))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(.quaternary.opacity(0.55), in: Capsule())
+                                Text(token.value)
+                                    .font(.caption.monospaced())
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(.quaternary.opacity(0.55), in: Capsule())
+                            }
+                        }
+
+                        StudioMetricPreviewSurface(token: token)
+
+                        StudioInspectorSection(title: "Contract") {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioKeyValueRow(label: "Group", value: token.group)
+                                StudioKeyValueRow(label: "Value", value: token.value)
+                                StudioKeyValueRow(label: "Type", value: token.kindLabel)
+                                StudioKeyValueRow(label: "References", value: "\(token.referenceCount)")
+                            }
+                        }
+
+                        if !token.usage.isEmpty {
+                            StudioInspectorSection(title: "Usage") {
+                                Text(token.usage)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                    }
+                    .padding(20)
+                }
+            } else {
+                ContentUnavailableView(
+                    "Select a spatial token",
+                    systemImage: "rectangle.inset.filled",
+                    description: Text("Choose a spacing or radius token to inspect its value, preview scale, and usage guidance.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .background(.thinMaterial)
     }
 }
 
@@ -2129,6 +2483,7 @@ private struct StudioNavigationDetailInspector: View {
 
 private struct StudioMetricCard: View {
     let token: StudioNativeDocument.MetricToken
+    let isSelected: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -2176,7 +2531,53 @@ private struct StudioMetricCard: View {
         .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(.quaternary.opacity(0.8), lineWidth: 1)
+                .stroke(isSelected ? Color.accentColor.opacity(0.65) : Color.secondary.opacity(0.18), lineWidth: isSelected ? 1.5 : 1)
+        )
+    }
+}
+
+private struct StudioMetricPreviewSurface: View {
+    let token: StudioNativeDocument.MetricToken
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if token.kind == "cornerRadius" {
+                RoundedRectangle(cornerRadius: token.scalarValue, style: .continuous)
+                    .fill(.quaternary.opacity(0.55))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: token.scalarValue, style: .continuous)
+                            .stroke(.secondary.opacity(0.28), lineWidth: 1)
+                    )
+                    .frame(height: 170)
+            } else {
+                VStack(alignment: .leading, spacing: 18) {
+                    HStack(alignment: .center, spacing: max(16, min(token.scalarValue * 4, 80))) {
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(Color.accentColor.opacity(0.85))
+                            .frame(width: 90, height: 90)
+
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(.quaternary.opacity(0.8))
+                            .frame(width: 90, height: 90)
+                    }
+
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(.quaternary.opacity(0.25))
+                        .frame(height: 26)
+                        .overlay(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(Color.accentColor.opacity(0.72))
+                                .frame(width: max(32, min(token.scalarValue * 10, 260)), height: 26)
+                        }
+                }
+            }
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(.quaternary.opacity(0.75), lineWidth: 1)
         )
     }
 }
@@ -2735,6 +3136,10 @@ private extension Color {
 }
 
 private extension StudioNativeDocument.MetricToken {
+    var kindLabel: String {
+        kind == "cornerRadius" ? "Corner Radius" : "Spacing"
+    }
+
     var scalarValue: CGFloat {
         let digits = value
             .filter { $0.isNumber || $0 == "." }
