@@ -71,6 +71,34 @@ struct StudioMacWorkspaceView: View {
         }
     }
 
+    private enum NativeRoute: Equatable {
+        case overview
+        case tokens(StudioNativeTokenSelection?)
+        case components(String?)
+        case views(String?)
+        case review
+        case navigation(String?)
+        case icons(String?)
+        case typography(String?)
+        case spacing(StudioNativeMetricSelection?)
+        case legacyWeb
+
+        var destination: Destination {
+            switch self {
+            case .overview: return .overview
+            case .tokens: return .tokens
+            case .components: return .components
+            case .views: return .views
+            case .review: return .review
+            case .navigation: return .navigation
+            case .icons: return .icons
+            case .typography: return .typography
+            case .spacing: return .spacing
+            case .legacyWeb: return .legacyWeb
+            }
+        }
+    }
+
     @StateObject private var model = StudioShellModel()
     @State private var selection: Destination? = .overview
     @State private var isImportingFile = false
@@ -87,97 +115,149 @@ struct StudioMacWorkspaceView: View {
     @State private var selectedComponentID: String?
     @State private var selectedViewID: String?
     @State private var selectedNavigationViewID: String?
+    @State private var nativeHistory: [NativeRoute] = [.overview]
+    @State private var nativeHistoryIndex = 0
+    @State private var isApplyingNativeRoute = false
 
     private static var supportedImportTypes: [UTType] {
         [UTType(filenameExtension: "humblebundle") ?? .zip, .zip, .json]
     }
 
     var body: some View {
-        NavigationSplitView {
-            sidebar
-        } detail: {
-            VStack(spacing: 0) {
-                nativeContextBar
+        observedWorkspaceView
+    }
 
-                ZStack {
-                    detailContent
-
-                    if isDropTargeted {
-                        dropOverlay
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .background(Color(nsColor: .windowBackgroundColor))
-            .onDrop(of: [UTType.fileURL], isTargeted: $isDropTargeted, perform: handleFileDrop)
-        }
+    private var baseWorkspaceView: some View {
+        workspaceSplitView
         .navigationTitle("HumbleStudio")
         .toolbar {
             shellToolbar
         }
+    }
+
+    private var importerWorkspaceView: some View {
+        baseWorkspaceView
         .fileImporter(
             isPresented: $isImportingFile,
             allowedContentTypes: Self.supportedImportTypes,
             allowsMultipleSelection: false
         ) { result in
-            switch result {
-            case .success(let urls):
-                guard let url = urls.first else { return }
-                model.importFile(at: url)
-            case .failure(let error):
-                model.report(error: error)
-            }
+            handleImportResult(result)
         }
+    }
+
+    private var modalWorkspaceView: some View {
+        importerWorkspaceView
         .sheet(isPresented: $isImportingRemoteURL) {
             remoteURLSheet
         }
         .sheet(isPresented: $isQuickOpenPresented) {
             quickOpenSheet
         }
-        .onReceive(NotificationCenter.default.publisher(for: .studioOpenQuickOpen)) { _ in
+    }
+
+    private var observedWorkspaceView: some View {
+        var view = AnyView(modalWorkspaceView)
+        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioOpenQuickOpen)) { _ in
             isQuickOpenPresented = true
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .studioOpenImport)) { _ in
+        })
+        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioOpenImport)) { _ in
             isImportingFile = true
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .studioReopenRecentImport)) { _ in
+        })
+        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioReopenRecentImport)) { _ in
             model.reopenRecentImport()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .studioOpenRemoteURL)) { _ in
+        })
+        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioOpenRemoteURL)) { _ in
             remoteURLDraft = model.recentRemoteURL ?? ""
             isImportingRemoteURL = true
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .studioReopenRecentRemoteURL)) { _ in
+        })
+        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioReopenRecentRemoteURL)) { _ in
             model.reopenRecentRemoteURL()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .studioNavigateBack)) { _ in
-            if selection == .legacyWeb {
-                model.navigateBack()
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .studioNavigateForward)) { _ in
-            if selection == .legacyWeb {
-                model.navigateForward()
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .studioLoadDemo)) { _ in
-            selection = .overview
+        })
+        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioNavigateBack)) { _ in
+            navigateBack()
+        })
+        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioNavigateForward)) { _ in
+            navigateForward()
+        })
+        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioLoadDemo)) { _ in
+            navigateToDestination(.overview)
             model.loadDemo()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .studioLoadHome)) { _ in
-            selection = .overview
+        })
+        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioLoadHome)) { _ in
+            navigateToDestination(.overview)
             model.loadBundledStudio()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .studioReload)) { _ in
+        })
+        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioReload)) { _ in
             reloadCurrentSelection()
-        }
-        .onOpenURL { url in
+        })
+        view = AnyView(view.onOpenURL { url in
             model.handleIncomingURL(url)
+        })
+        view = AnyView(view.onChange(of: selection) { _, _ in
+            syncRouteFromState()
+        })
+        view = AnyView(view.onChange(of: selectedTokenSelection) { _, _ in
+            syncRouteFromState()
+        })
+        view = AnyView(view.onChange(of: selectedIconID) { _, _ in
+            syncRouteFromState()
+        })
+        view = AnyView(view.onChange(of: selectedTypographyID) { _, _ in
+            syncRouteFromState()
+        })
+        view = AnyView(view.onChange(of: selectedMetricSelection) { _, _ in
+            syncRouteFromState()
+        })
+        view = AnyView(view.onChange(of: selectedComponentID) { _, _ in
+            syncRouteFromState()
+        })
+        view = AnyView(view.onChange(of: selectedViewID) { _, _ in
+            syncRouteFromState()
+        })
+        view = AnyView(view.onChange(of: selectedNavigationViewID) { _, _ in
+            syncRouteFromState()
+        })
+        return view
+    }
+
+    private var workspaceSplitView: some View {
+        NavigationSplitView {
+            sidebar
+        } detail: {
+            detailPane
+        }
+    }
+
+    private var detailPane: some View {
+        VStack(spacing: 0) {
+            nativeContextBar
+
+            ZStack {
+                detailContent
+
+                if isDropTargeted {
+                    dropOverlay
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .background(Color(nsColor: .windowBackgroundColor))
+        .onDrop(of: [UTType.fileURL], isTargeted: $isDropTargeted, perform: handleFileDrop)
+    }
+
+    private func handleImportResult(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            model.importFile(at: url)
+        case .failure(let error):
+            model.report(error: error)
         }
     }
 
     private var sidebar: some View {
-        List(selection: $selection) {
+        List(selection: sidebarSelection) {
             Section("Native") {
                 sidebarRow(.overview)
                 sidebarRow(.tokens, count: model.nativeDocument.map { $0.colors.count + $0.gradients.count })
@@ -228,18 +308,18 @@ struct StudioMacWorkspaceView: View {
     private var shellToolbar: some ToolbarContent {
         ToolbarItemGroup {
             Button {
-                model.navigateBack()
+                navigateBack()
             } label: {
                 Label("Back", systemImage: "chevron.backward")
             }
-            .disabled(selection != .legacyWeb || !model.canGoBack)
+            .disabled(!canNavigateBack)
 
             Button {
-                model.navigateForward()
+                navigateForward()
             } label: {
                 Label("Forward", systemImage: "chevron.forward")
             }
-            .disabled(selection != .legacyWeb || !model.canGoForward)
+            .disabled(!canNavigateForward)
 
             Button {
                 isQuickOpenPresented = true
@@ -279,7 +359,7 @@ struct StudioMacWorkspaceView: View {
             }
 
             Button {
-                selection = .overview
+                navigateToDestination(.overview)
                 model.loadBundledStudio()
             } label: {
                 Label("Home", systemImage: "house")
@@ -292,7 +372,7 @@ struct StudioMacWorkspaceView: View {
             }
 
             Button {
-                selection = .legacyWeb
+                navigateToDestination(.legacyWeb)
             } label: {
                 Label("Legacy Web", systemImage: "globe")
             }
@@ -586,6 +666,30 @@ struct StudioMacWorkspaceView: View {
         }
     }
 
+    private var sidebarSelection: Binding<Destination?> {
+        Binding(
+            get: { selection },
+            set: { newValue in
+                guard let newValue else { return }
+                navigateToDestination(newValue)
+            }
+        )
+    }
+
+    private var canNavigateBack: Bool {
+        if selection == .legacyWeb {
+            return model.canGoBack
+        }
+        return nativeHistoryIndex > 0
+    }
+
+    private var canNavigateForward: Bool {
+        if selection == .legacyWeb {
+            return model.canGoForward
+        }
+        return nativeHistoryIndex < nativeHistory.count - 1
+    }
+
     private func handleFileDrop(_ providers: [NSItemProvider]) -> Bool {
         guard let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) }) else {
             return false
@@ -618,34 +722,207 @@ struct StudioMacWorkspaceView: View {
     }
 
     private func inspectComponent(_ componentID: String) {
-        selectedComponentID = componentID
-        selection = .components
+        applyNativeRoute(.components(componentID))
     }
 
     private func inspectView(_ viewID: String) {
-        selectedViewID = viewID
-        selectedNavigationViewID = viewID
-        selection = .views
+        applyNativeRoute(.views(viewID))
     }
 
     private func inspectToken(_ tokenSelection: StudioNativeTokenSelection) {
-        selectedTokenSelection = tokenSelection
-        selection = .tokens
+        applyNativeRoute(.tokens(tokenSelection))
     }
 
     private func inspectIcon(_ iconID: String) {
-        selectedIconID = iconID
-        selection = .icons
+        applyNativeRoute(.icons(iconID))
     }
 
     private func inspectTypography(_ typographyID: String) {
-        selectedTypographyID = typographyID
-        selection = .typography
+        applyNativeRoute(.typography(typographyID))
     }
 
     private func inspectMetric(_ metricSelection: StudioNativeMetricSelection) {
-        selectedMetricSelection = metricSelection
-        selection = .spacing
+        applyNativeRoute(.spacing(metricSelection))
+    }
+
+    private func navigateToDestination(_ destination: Destination) {
+        switch destination {
+        case .overview:
+            applyNativeRoute(.overview)
+        case .tokens:
+            applyNativeRoute(.tokens(resolvedTokenSelectionForRoute()))
+        case .components:
+            applyNativeRoute(.components(resolvedComponentIDForRoute()))
+        case .views:
+            applyNativeRoute(.views(resolvedViewIDForRoute()))
+        case .review:
+            applyNativeRoute(.review)
+        case .navigation:
+            applyNativeRoute(.navigation(resolvedNavigationViewIDForRoute()))
+        case .icons:
+            applyNativeRoute(.icons(resolvedIconIDForRoute()))
+        case .typography:
+            applyNativeRoute(.typography(resolvedTypographyIDForRoute()))
+        case .spacing:
+            applyNativeRoute(.spacing(resolvedMetricSelectionForRoute()))
+        case .legacyWeb:
+            applyNativeRoute(.legacyWeb)
+        }
+    }
+
+    private func navigateBack() {
+        if selection == .legacyWeb {
+            model.navigateBack()
+            return
+        }
+        guard nativeHistoryIndex > 0 else { return }
+        nativeHistoryIndex -= 1
+        applyNativeRoute(nativeHistory[nativeHistoryIndex], addToHistory: false)
+    }
+
+    private func navigateForward() {
+        if selection == .legacyWeb {
+            model.navigateForward()
+            return
+        }
+        guard nativeHistoryIndex < nativeHistory.count - 1 else { return }
+        nativeHistoryIndex += 1
+        applyNativeRoute(nativeHistory[nativeHistoryIndex], addToHistory: false)
+    }
+
+    private func syncRouteFromState() {
+        guard !isApplyingNativeRoute else { return }
+        recordRoute(currentNativeRoute())
+    }
+
+    private func recordRoute(_ route: NativeRoute) {
+        if nativeHistory.isEmpty {
+            nativeHistory = [route]
+            nativeHistoryIndex = 0
+            return
+        }
+
+        if nativeHistory[nativeHistoryIndex] == route {
+            return
+        }
+
+        if nativeHistoryIndex < nativeHistory.count - 1 {
+            nativeHistory = Array(nativeHistory.prefix(nativeHistoryIndex + 1))
+        }
+        nativeHistory.append(route)
+        nativeHistoryIndex = nativeHistory.count - 1
+    }
+
+    private func applyNativeRoute(_ route: NativeRoute, addToHistory: Bool = true) {
+        isApplyingNativeRoute = true
+        switch route {
+        case .overview:
+            selection = .overview
+        case let .tokens(tokenSelection):
+            selectedTokenSelection = tokenSelection ?? resolvedTokenSelectionForRoute()
+            selection = .tokens
+        case let .components(componentID):
+            selectedComponentID = componentID ?? resolvedComponentIDForRoute()
+            selection = .components
+        case let .views(viewID):
+            let resolvedViewID = viewID ?? resolvedViewIDForRoute()
+            selectedViewID = resolvedViewID
+            selectedNavigationViewID = resolvedViewID
+            selection = .views
+        case .review:
+            selection = .review
+        case let .navigation(viewID):
+            selectedNavigationViewID = viewID ?? resolvedNavigationViewIDForRoute()
+            selection = .navigation
+        case let .icons(iconID):
+            selectedIconID = iconID ?? resolvedIconIDForRoute()
+            selection = .icons
+        case let .typography(typographyID):
+            selectedTypographyID = typographyID ?? resolvedTypographyIDForRoute()
+            selection = .typography
+        case let .spacing(metricSelection):
+            selectedMetricSelection = metricSelection ?? resolvedMetricSelectionForRoute()
+            selection = .spacing
+        case .legacyWeb:
+            selection = .legacyWeb
+        }
+        isApplyingNativeRoute = false
+        if addToHistory {
+            recordRoute(currentNativeRoute())
+        }
+    }
+
+    private func currentNativeRoute() -> NativeRoute {
+        switch selection ?? .overview {
+        case .overview:
+            return .overview
+        case .tokens:
+            return .tokens(resolvedTokenSelectionForRoute())
+        case .components:
+            return .components(resolvedComponentIDForRoute())
+        case .views:
+            return .views(resolvedViewIDForRoute())
+        case .review:
+            return .review
+        case .navigation:
+            return .navigation(resolvedNavigationViewIDForRoute())
+        case .icons:
+            return .icons(resolvedIconIDForRoute())
+        case .typography:
+            return .typography(resolvedTypographyIDForRoute())
+        case .spacing:
+            return .spacing(resolvedMetricSelectionForRoute())
+        case .legacyWeb:
+            return .legacyWeb
+        }
+    }
+
+    private func resolvedTokenSelectionForRoute() -> StudioNativeTokenSelection? {
+        if let selectedTokenSelection {
+            return selectedTokenSelection
+        }
+        if let firstColor = model.nativeDocument?.colors.first {
+            return .color(firstColor.id)
+        }
+        if let firstGradient = model.nativeDocument?.gradients.first {
+            return .gradient(firstGradient.id)
+        }
+        return nil
+    }
+
+    private func resolvedComponentIDForRoute() -> String? {
+        selectedComponentID ?? model.nativeDocument?.components.first?.id
+    }
+
+    private func resolvedViewIDForRoute() -> String? {
+        selectedViewID ?? model.nativeDocument?.views.first?.id
+    }
+
+    private func resolvedNavigationViewIDForRoute() -> String? {
+        selectedNavigationViewID
+            ?? model.nativeDocument?.navigationRootID
+            ?? model.nativeDocument?.views.first?.id
+    }
+
+    private func resolvedIconIDForRoute() -> String? {
+        selectedIconID ?? model.nativeDocument?.icons.first?.id
+    }
+
+    private func resolvedTypographyIDForRoute() -> String? {
+        selectedTypographyID ?? model.nativeDocument?.typography.first?.id
+    }
+
+    private func resolvedMetricSelectionForRoute() -> StudioNativeMetricSelection? {
+        if let selectedMetricSelection {
+            return selectedMetricSelection
+        }
+        if let firstSpacing = model.nativeDocument?.spacing.first {
+            return .spacing(firstSpacing.id)
+        }
+        if let firstRadius = model.nativeDocument?.radius.first {
+            return .radius(firstRadius.id)
+        }
+        return nil
     }
 
     private func reviewQueueCounts(for document: StudioNativeDocument) -> (components: Int, views: Int, total: Int) {
@@ -765,7 +1042,7 @@ struct StudioMacWorkspaceView: View {
             symbolName: destination.symbolName,
             section: "Pages",
             keywords: [destination.rawValue, destination.subtitle],
-            activate: { selection = destination }
+            activate: { navigateToDestination(destination) }
         )
     }
 }
