@@ -308,7 +308,9 @@ struct StudioMacWorkspaceView: View {
             StudioMacTokensPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
-                selection: $selectedTokenSelection
+                selection: $selectedTokenSelection,
+                inspectComponent: inspectComponent,
+                inspectView: inspectView
             )
         case .components:
             StudioMacComponentsPage(
@@ -830,6 +832,8 @@ private struct StudioMacTokensPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
     @Binding var selection: StudioNativeTokenSelection?
+    let inspectComponent: (String) -> Void
+    let inspectView: (String) -> Void
 
     var body: some View {
         StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
@@ -872,7 +876,9 @@ private struct StudioMacTokensPage: View {
 
                 StudioTokenDetailInspector(
                     selection: selectedToken(in: document),
-                    document: document
+                    document: document,
+                    inspectComponent: inspectComponent,
+                    inspectView: inspectView
                 )
                 .frame(minWidth: 340, idealWidth: 380, maxWidth: 420, maxHeight: .infinity)
             }
@@ -1812,8 +1818,19 @@ private enum StudioNativeMetricSelection: Equatable {
 }
 
 private struct StudioTokenDetailInspector: View {
+    private enum Tab: String, CaseIterable, Identifiable {
+        case preview = "Preview"
+        case relationships = "Relationships"
+        case source = "Source"
+
+        var id: String { rawValue }
+    }
+
     let selection: StudioNativeTokenSelection.ResolvedSelection?
     let document: StudioNativeDocument
+    let inspectComponent: (String) -> Void
+    let inspectView: (String) -> Void
+    @State private var selectedTab: Tab = .preview
 
     var body: some View {
         Group {
@@ -1835,35 +1852,79 @@ private struct StudioTokenDetailInspector: View {
                                 .padding(.vertical, 6)
                                 .background(.quaternary.opacity(0.55), in: Capsule())
                                 .foregroundStyle(.secondary)
-                        }
 
-                        HStack(spacing: 12) {
-                            StudioTonePreviewCard(title: "Light", fill: Color(hex: token.lightHex), value: token.lightHex)
-                            StudioTonePreviewCard(title: "Dark", fill: Color(hex: token.darkHex), value: token.darkHex)
-                        }
-
-                        StudioInspectorSection(title: "Contract") {
-                            VStack(alignment: .leading, spacing: 10) {
-                                StudioKeyValueRow(label: "Token", value: token.id)
-                                StudioKeyValueRow(label: "References", value: "\(token.referenceCount)")
-                                StudioKeyValueRow(label: "Variants", value: token.lightHex == token.darkHex ? "Shared light/dark value" : "Distinct light and dark values")
-                            }
-                        }
-
-                        if !token.derivedGradientIDs.isEmpty {
-                            StudioInspectorSection(title: "Relationships") {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("Derived gradients")
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(.secondary)
-                                    FlexiblePillStack(items: token.derivedGradientIDs.map(resolvedGradientName(for:)))
+                            HStack(spacing: 8) {
+                                StudioPillLabel(text: "\(token.referenceCount) references")
+                                if token.lightHex == token.darkHex {
+                                    StudioPillLabel(text: "Shared light/dark")
+                                } else {
+                                    StudioPillLabel(text: "Distinct variants")
                                 }
                             }
                         }
 
-                        if !token.sourcePaths.isEmpty {
+                        Picker("Inspector section", selection: $selectedTab) {
+                            ForEach(Tab.allCases) { tab in
+                                Text(tab.rawValue).tag(tab)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+
+                        switch selectedTab {
+                        case .preview:
+                            HStack(spacing: 12) {
+                                StudioTonePreviewCard(title: "Light", fill: Color(hex: token.lightHex), value: token.lightHex)
+                                StudioTonePreviewCard(title: "Dark", fill: Color(hex: token.darkHex), value: token.darkHex)
+                            }
+
+                            StudioInspectorSection(title: "What This Is") {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    StudioKeyValueRow(label: "Token", value: token.id)
+                                    StudioKeyValueRow(label: "Group", value: token.group)
+                                    StudioKeyValueRow(label: "Variants", value: token.lightHex == token.darkHex ? "Shared light/dark value" : "Distinct light and dark values")
+                                }
+                            }
+
+                        case .relationships:
+                            StudioInspectorSection(title: "Relationships") {
+                                VStack(alignment: .leading, spacing: 14) {
+                                    if !token.derivedGradientIDs.isEmpty {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text("Derived gradients")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                            FlexiblePillStack(items: token.derivedGradientIDs.map(resolvedGradientName(for:)))
+                                        }
+                                    }
+
+                                    if !relatedComponents(for: token).isEmpty {
+                                        StudioInspectorLinkGroup(
+                                            title: "Used By Components",
+                                            linkItems: relatedComponents(for: token).map { component in
+                                                StudioInspectorLinkItem(id: component.id, title: component.name, subtitle: component.group)
+                                            },
+                                            actionTitle: "Inspect Component",
+                                            action: inspectComponent
+                                        )
+                                    }
+
+                                    if !relatedViews(for: token).isEmpty {
+                                        StudioInspectorLinkGroup(
+                                            title: "Used By Views",
+                                            linkItems: relatedViews(for: token).map { view in
+                                                StudioInspectorLinkItem(id: view.id, title: view.name, subtitle: view.presentation.capitalized)
+                                            },
+                                            actionTitle: "Inspect View",
+                                            action: inspectView
+                                        )
+                                    }
+                                }
+                            }
+
+                        case .source:
                             StudioInspectorSection(title: "Evidence") {
                                 VStack(alignment: .leading, spacing: 10) {
+                                    StudioKeyValueRow(label: "References", value: "\(token.referenceCount)")
                                     ForEach(Array(token.sourcePaths.prefix(6)), id: \.self) { path in
                                         StudioKeyValueRow(label: "Source", value: path)
                                     }
@@ -1896,27 +1957,43 @@ private struct StudioTokenDetailInspector: View {
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
-                        }
 
-                        VStack(spacing: 12) {
-                            StudioGradientTonePreviewCard(title: "Light", colors: token.lightColors)
-                            StudioGradientTonePreviewCard(title: "Dark", colors: token.darkColors)
-                        }
-
-                        StudioInspectorSection(title: "Contract") {
-                            VStack(alignment: .leading, spacing: 10) {
-                                StudioKeyValueRow(label: "Token", value: token.id)
-                                StudioKeyValueRow(label: "Type", value: token.kind.capitalized)
-                                StudioKeyValueRow(label: "References", value: "\(token.referenceCount)")
-                                if !token.swiftUI.isEmpty {
-                                    StudioKeyValueRow(label: "SwiftUI", value: token.swiftUI)
+                            HStack(spacing: 8) {
+                                StudioPillLabel(text: "\(token.referenceCount) references")
+                                StudioPillLabel(text: token.kind.capitalized)
+                                if !token.designComponentIDs.isEmpty {
+                                    StudioPillLabel(text: "\(token.designComponentIDs.count) components")
                                 }
                             }
                         }
 
-                        if !token.tokenColors.isEmpty || !token.designComponentIDs.isEmpty {
-                            StudioInspectorSection(title: "Relationships") {
+                        Picker("Inspector section", selection: $selectedTab) {
+                            ForEach(Tab.allCases) { tab in
+                                Text(tab.rawValue).tag(tab)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+
+                        switch selectedTab {
+                        case .preview:
+                            VStack(spacing: 12) {
+                                StudioGradientTonePreviewCard(title: "Light", colors: token.lightColors)
+                                StudioGradientTonePreviewCard(title: "Dark", colors: token.darkColors)
+                            }
+
+                            StudioInspectorSection(title: "What This Is") {
                                 VStack(alignment: .leading, spacing: 10) {
+                                    StudioKeyValueRow(label: "Token", value: token.id)
+                                    StudioKeyValueRow(label: "Type", value: token.kind.capitalized)
+                                    if !token.swiftUI.isEmpty {
+                                        StudioKeyValueRow(label: "SwiftUI", value: token.swiftUI)
+                                    }
+                                }
+                            }
+
+                        case .relationships:
+                            StudioInspectorSection(title: "Relationships") {
+                                VStack(alignment: .leading, spacing: 14) {
                                     if !token.tokenColors.isEmpty {
                                         VStack(alignment: .leading, spacing: 8) {
                                             Text("Token colors")
@@ -1925,21 +2002,35 @@ private struct StudioTokenDetailInspector: View {
                                             FlexiblePillStack(items: token.tokenColors.map(resolvedColorName(for:)))
                                         }
                                     }
-                                    if !token.designComponentIDs.isEmpty {
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text("Linked components")
-                                                .font(.caption.weight(.semibold))
-                                                .foregroundStyle(.secondary)
-                                            FlexiblePillStack(items: token.designComponentIDs.map(resolvedComponentName(for:)))
-                                        }
+
+                                    if !relatedComponents(for: token).isEmpty {
+                                        StudioInspectorLinkGroup(
+                                            title: "Used By Components",
+                                            linkItems: relatedComponents(for: token).map { component in
+                                                StudioInspectorLinkItem(id: component.id, title: component.name, subtitle: component.group)
+                                            },
+                                            actionTitle: "Inspect Component",
+                                            action: inspectComponent
+                                        )
+                                    }
+
+                                    if !relatedViews(for: token).isEmpty {
+                                        StudioInspectorLinkGroup(
+                                            title: "Used By Views",
+                                            linkItems: relatedViews(for: token).map { view in
+                                                StudioInspectorLinkItem(id: view.id, title: view.name, subtitle: view.presentation.capitalized)
+                                            },
+                                            actionTitle: "Inspect View",
+                                            action: inspectView
+                                        )
                                     }
                                 }
                             }
-                        }
 
-                        if !token.sourcePaths.isEmpty {
+                        case .source:
                             StudioInspectorSection(title: "Evidence") {
                                 VStack(alignment: .leading, spacing: 10) {
+                                    StudioKeyValueRow(label: "References", value: "\(token.referenceCount)")
                                     ForEach(Array(token.sourcePaths.prefix(6)), id: \.self) { path in
                                         StudioKeyValueRow(label: "Source", value: path)
                                     }
@@ -1960,6 +2051,9 @@ private struct StudioTokenDetailInspector: View {
             }
         }
         .background(.thinMaterial)
+        .onChange(of: selectionID) { _, _ in
+            selectedTab = .preview
+        }
     }
 
     private func resolvedGradientName(for gradientID: String) -> String {
@@ -1972,6 +2066,52 @@ private struct StudioTokenDetailInspector: View {
 
     private func resolvedComponentName(for componentID: String) -> String {
         document.components.first(where: { $0.id == componentID })?.name ?? humanizedFoundationLabel(componentID)
+    }
+
+    private func relatedComponents(for token: StudioNativeDocument.ColorToken) -> [StudioNativeDocument.ComponentItem] {
+        let derivedGradientIDs = Set(token.derivedGradientIDs)
+        return document.components.filter { component in
+            component.designDependencies.colors.contains(token.id)
+                || component.sourceDependencies.colors.contains(token.id)
+                || !derivedGradientIDs.isDisjoint(with: component.designDependencies.gradients)
+                || !derivedGradientIDs.isDisjoint(with: component.sourceDependencies.gradients)
+        }
+    }
+
+    private func relatedViews(for token: StudioNativeDocument.ColorToken) -> [StudioNativeDocument.ViewItem] {
+        let derivedGradientIDs = Set(token.derivedGradientIDs)
+        return document.views.filter { view in
+            view.designDependencies.colors.contains(token.id)
+                || view.sourceDependencies.colors.contains(token.id)
+                || !derivedGradientIDs.isDisjoint(with: view.designDependencies.gradients)
+                || !derivedGradientIDs.isDisjoint(with: view.sourceDependencies.gradients)
+        }
+    }
+
+    private func relatedComponents(for token: StudioNativeDocument.GradientToken) -> [StudioNativeDocument.ComponentItem] {
+        document.components.filter { component in
+            component.designDependencies.gradients.contains(token.id)
+                || component.sourceDependencies.gradients.contains(token.id)
+                || token.designComponentIDs.contains(component.id)
+        }
+    }
+
+    private func relatedViews(for token: StudioNativeDocument.GradientToken) -> [StudioNativeDocument.ViewItem] {
+        document.views.filter { view in
+            view.designDependencies.gradients.contains(token.id)
+                || view.sourceDependencies.gradients.contains(token.id)
+        }
+    }
+
+    private var selectionID: String? {
+        switch selection {
+        case let .color(token):
+            return "color:\(token.id)"
+        case let .gradient(token):
+            return "gradient:\(token.id)"
+        case .none:
+            return nil
+        }
     }
 
     private func humanizedFoundationLabel(_ value: String) -> String {
