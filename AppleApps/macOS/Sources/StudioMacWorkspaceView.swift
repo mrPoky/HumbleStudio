@@ -679,113 +679,17 @@ struct StudioMacWorkspaceView: View {
     }
 
     private func quickOpenItems() -> [StudioQuickOpenItem] {
-        var items: [StudioQuickOpenItem] = [
-            quickOpenPageItem(.overview, subtitle: "Native app overview and migration status"),
-            quickOpenPageItem(.tokens, subtitle: "Colors and gradients"),
-            quickOpenPageItem(.components, subtitle: "Snapshot-first component catalog"),
-            quickOpenPageItem(.views, subtitle: "Screen catalog and flow truth"),
-            quickOpenPageItem(.review, subtitle: "Truth gaps and review queue"),
-            quickOpenPageItem(.navigation, subtitle: "Native navigation graph"),
-            quickOpenPageItem(.icons, subtitle: "Bundled icon catalog"),
-            quickOpenPageItem(.typography, subtitle: "Typography roles"),
-            quickOpenPageItem(.spacing, subtitle: "Spacing and corner radius"),
-            quickOpenPageItem(.legacyWeb, subtitle: "Fallback web inspector")
-        ]
-
-        if let document = model.nativeDocument {
-            items.append(contentsOf: document.colors.map { token in
-                StudioQuickOpenItem(
-                    title: token.name,
-                    subtitle: "Color token · \(token.group)",
-                    symbolName: "paintpalette",
-                    section: "Colors",
-                    keywords: [token.id, token.group, token.lightHex, token.darkHex],
-                    activate: { inspectToken(.color(token.id)) }
-                )
-            })
-            items.append(contentsOf: document.gradients.map { token in
-                StudioQuickOpenItem(
-                    title: token.name,
-                    subtitle: "Gradient token · \(token.group)",
-                    symbolName: "sparkles",
-                    section: "Gradients",
-                    keywords: [token.id, token.group, token.swiftUI, token.usage],
-                    activate: { inspectToken(.gradient(token.id)) }
-                )
-            })
-            items.append(contentsOf: document.icons.map { token in
-                StudioQuickOpenItem(
-                    title: token.name,
-                    subtitle: "Icon · \(token.symbol)",
-                    symbolName: "app.gift",
-                    section: "Icons",
-                    keywords: [token.id, token.symbol, token.description],
-                    activate: { inspectIcon(token.id) }
-                )
-            })
-            items.append(contentsOf: document.typography.map { token in
-                StudioQuickOpenItem(
-                    title: token.role,
-                    subtitle: "Typography · \(Int(token.size)) pt",
-                    symbolName: "textformat",
-                    section: "Typography",
-                    keywords: [token.id, token.swiftUI, token.preview],
-                    activate: { inspectTypography(token.id) }
-                )
-            })
-            items.append(contentsOf: document.spacing.map { token in
-                StudioQuickOpenItem(
-                    title: token.name,
-                    subtitle: "Spacing · \(token.value)",
-                    symbolName: "rectangle.inset.filled",
-                    section: "Spacing",
-                    keywords: [token.id, token.group, token.usage],
-                    activate: { inspectMetric(.spacing(token.id)) }
-                )
-            })
-            items.append(contentsOf: document.radius.map { token in
-                StudioQuickOpenItem(
-                    title: token.name,
-                    subtitle: "Corner radius · \(token.value)",
-                    symbolName: "roundedcorner",
-                    section: "Corner Radius",
-                    keywords: [token.id, token.group, token.usage],
-                    activate: { inspectMetric(.radius(token.id)) }
-                )
-            })
-            items.append(contentsOf: document.components.map { component in
-                StudioQuickOpenItem(
-                    title: component.name,
-                    subtitle: "Component · \(component.group)",
-                    symbolName: "square.grid.3x2",
-                    section: "Components",
-                    keywords: [component.id, component.renderer, component.swiftUI, component.summary],
-                    activate: { inspectComponent(component.id) }
-                )
-            })
-            items.append(contentsOf: document.views.map { view in
-                StudioQuickOpenItem(
-                    title: view.name,
-                    subtitle: "View · \(view.presentation.capitalized)",
-                    symbolName: "rectangle.on.rectangle",
-                    section: "Views",
-                    keywords: [view.id, view.presentation, view.summary],
-                    activate: { inspectView(view.id) }
-                )
-            })
-        }
-
-        return items
-    }
-
-    private func quickOpenPageItem(_ destination: StudioNativeDestination, subtitle: String) -> StudioQuickOpenItem {
-        StudioQuickOpenItem(
-            title: destination.title,
-            subtitle: subtitle,
-            symbolName: destination.symbolName,
-            section: "Pages",
-            keywords: [destination.rawValue, destination.subtitle],
-            activate: { navigateToDestination(destination) }
+        StudioMacQuickOpenFactory.makeItems(
+            context: StudioMacQuickOpenContext(
+                document: model.nativeDocument,
+                navigateToDestination: navigateToDestination,
+                inspectToken: inspectToken,
+                inspectIcon: inspectIcon,
+                inspectTypography: inspectTypography,
+                inspectMetric: inspectMetric,
+                inspectComponent: inspectComponent,
+                inspectView: inspectView
+            )
         )
     }
 }
