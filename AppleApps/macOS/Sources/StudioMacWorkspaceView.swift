@@ -686,7 +686,10 @@ struct StudioMacWorkspaceView: View {
             model.navigateBack()
             return
         }
-        guard let route = nativeHistory.stepBackward() else { return }
+        guard let route = StudioNativeRouteController.navigateBack(
+            selection: selection,
+            history: &nativeHistory
+        ) else { return }
         applyNativeRoute(route, addToHistory: false)
     }
 
@@ -695,60 +698,41 @@ struct StudioMacWorkspaceView: View {
             model.navigateForward()
             return
         }
-        guard let route = nativeHistory.stepForward() else { return }
+        guard let route = StudioNativeRouteController.navigateForward(
+            selection: selection,
+            history: &nativeHistory
+        ) else { return }
         applyNativeRoute(route, addToHistory: false)
     }
 
     private func syncRouteFromState() {
-        guard !isApplyingNativeRoute else { return }
-        nativeHistory.record(currentNativeRoute())
+        StudioNativeRouteController.syncRoute(
+            selection: selection,
+            selectionState: nativeSelectionState,
+            document: model.nativeDocument,
+            history: &nativeHistory,
+            isApplyingRoute: isApplyingNativeRoute
+        )
     }
 
     private func applyNativeRoute(_ route: StudioNativeRoute, addToHistory: Bool = true) {
-        isApplyingNativeRoute = true
-        switch route {
-        case .overview:
-            selection = .overview
-        case let .tokens(tokenSelection):
-            selectedTokenSelection = tokenSelection ?? StudioNativeRouteResolver.resolvedTokenSelection(state: nativeSelectionState, document: model.nativeDocument)
-            selection = .tokens
-        case let .components(componentID):
-            selectedComponentID = componentID ?? StudioNativeRouteResolver.resolvedComponentID(state: nativeSelectionState, document: model.nativeDocument)
-            selection = .components
-        case let .views(viewID):
-            let resolvedViewID = viewID ?? StudioNativeRouteResolver.resolvedViewID(state: nativeSelectionState, document: model.nativeDocument)
-            selectedViewID = resolvedViewID
-            selectedNavigationViewID = resolvedViewID
-            selection = .views
-        case .review:
-            selection = .review
-        case let .navigation(viewID):
-            selectedNavigationViewID = viewID ?? StudioNativeRouteResolver.resolvedNavigationViewID(state: nativeSelectionState, document: model.nativeDocument)
-            selection = .navigation
-        case let .icons(iconID):
-            selectedIconID = iconID ?? StudioNativeRouteResolver.resolvedIconID(state: nativeSelectionState, document: model.nativeDocument)
-            selection = .icons
-        case let .typography(typographyID):
-            selectedTypographyID = typographyID ?? StudioNativeRouteResolver.resolvedTypographyID(state: nativeSelectionState, document: model.nativeDocument)
-            selection = .typography
-        case let .spacing(metricSelection):
-            selectedMetricSelection = metricSelection ?? StudioNativeRouteResolver.resolvedMetricSelection(state: nativeSelectionState, document: model.nativeDocument)
-            selection = .spacing
-        case .legacyWeb:
-            selection = .legacyWeb
-        }
-        isApplyingNativeRoute = false
-        if addToHistory {
-            nativeHistory.record(currentNativeRoute())
-        }
-    }
-
-    private func currentNativeRoute() -> StudioNativeRoute {
-        StudioNativeRouteResolver.currentRoute(
-            for: selection,
-            state: nativeSelectionState,
-            document: model.nativeDocument
+        var selectionState = nativeSelectionState
+        StudioNativeRouteController.apply(
+            route: route,
+            selection: &selection,
+            selectionState: &selectionState,
+            document: model.nativeDocument,
+            history: &nativeHistory,
+            isApplyingRoute: &isApplyingNativeRoute,
+            addToHistory: addToHistory
         )
+        selectedTokenSelection = selectionState.tokenSelection
+        selectedIconID = selectionState.iconID
+        selectedTypographyID = selectionState.typographyID
+        selectedMetricSelection = selectionState.metricSelection
+        selectedComponentID = selectionState.componentID
+        selectedViewID = selectionState.viewID
+        selectedNavigationViewID = selectionState.navigationViewID
     }
 
     private func reviewQueueCounts(for document: StudioNativeDocument) -> (components: Int, views: Int, total: Int) {

@@ -145,6 +145,132 @@ struct StudioNativeHistoryState: Equatable {
     }
 }
 
+enum StudioNativeRouteController {
+    static func syncRoute(
+        selection: StudioNativeDestination?,
+        selectionState: StudioNativeSelectionState,
+        document: StudioNativeDocument?,
+        history: inout StudioNativeHistoryState,
+        isApplyingRoute: Bool
+    ) {
+        guard !isApplyingRoute else { return }
+        history.record(
+            StudioNativeRouteResolver.currentRoute(
+                for: selection,
+                state: selectionState,
+                document: document
+            )
+        )
+    }
+
+    static func navigateBack(
+        selection: StudioNativeDestination?,
+        history: inout StudioNativeHistoryState
+    ) -> StudioNativeRoute? {
+        guard selection != .legacyWeb else { return nil }
+        return history.stepBackward()
+    }
+
+    static func navigateForward(
+        selection: StudioNativeDestination?,
+        history: inout StudioNativeHistoryState
+    ) -> StudioNativeRoute? {
+        guard selection != .legacyWeb else { return nil }
+        return history.stepForward()
+    }
+
+    static func apply(
+        route: StudioNativeRoute,
+        selection: inout StudioNativeDestination?,
+        selectionState: inout StudioNativeSelectionState,
+        document: StudioNativeDocument?,
+        history: inout StudioNativeHistoryState,
+        isApplyingRoute: inout Bool,
+        addToHistory: Bool = true
+    ) {
+        isApplyingRoute = true
+
+        switch route {
+        case .overview:
+            selection = .overview
+        case let .tokens(tokenSelection):
+            selectionState.tokenSelection =
+                tokenSelection
+                ?? StudioNativeRouteResolver.resolvedTokenSelection(
+                    state: selectionState,
+                    document: document
+                )
+            selection = .tokens
+        case let .components(componentID):
+            selectionState.componentID =
+                componentID
+                ?? StudioNativeRouteResolver.resolvedComponentID(
+                    state: selectionState,
+                    document: document
+                )
+            selection = .components
+        case let .views(viewID):
+            let resolvedViewID =
+                viewID
+                ?? StudioNativeRouteResolver.resolvedViewID(
+                    state: selectionState,
+                    document: document
+                )
+            selectionState.viewID = resolvedViewID
+            selectionState.navigationViewID = resolvedViewID
+            selection = .views
+        case .review:
+            selection = .review
+        case let .navigation(viewID):
+            selectionState.navigationViewID =
+                viewID
+                ?? StudioNativeRouteResolver.resolvedNavigationViewID(
+                    state: selectionState,
+                    document: document
+                )
+            selection = .navigation
+        case let .icons(iconID):
+            selectionState.iconID =
+                iconID
+                ?? StudioNativeRouteResolver.resolvedIconID(
+                    state: selectionState,
+                    document: document
+                )
+            selection = .icons
+        case let .typography(typographyID):
+            selectionState.typographyID =
+                typographyID
+                ?? StudioNativeRouteResolver.resolvedTypographyID(
+                    state: selectionState,
+                    document: document
+                )
+            selection = .typography
+        case let .spacing(metricSelection):
+            selectionState.metricSelection =
+                metricSelection
+                ?? StudioNativeRouteResolver.resolvedMetricSelection(
+                    state: selectionState,
+                    document: document
+                )
+            selection = .spacing
+        case .legacyWeb:
+            selection = .legacyWeb
+        }
+
+        isApplyingRoute = false
+
+        if addToHistory {
+            history.record(
+                StudioNativeRouteResolver.currentRoute(
+                    for: selection,
+                    state: selectionState,
+                    document: document
+                )
+            )
+        }
+    }
+}
+
 enum StudioNativeRouteResolver {
     static func route(
         for destination: StudioNativeDestination,
