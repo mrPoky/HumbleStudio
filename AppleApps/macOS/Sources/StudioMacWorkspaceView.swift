@@ -138,7 +138,7 @@ struct StudioMacWorkspaceView: View {
                 sidebarRow(.spacing, count: model.nativeDocument.map { $0.spacing.count + $0.radius.count })
             }
 
-            Section("Migration") {
+            Section("Fallback") {
                 sidebarRow(.legacyWeb)
             }
         }
@@ -402,6 +402,13 @@ struct StudioMacWorkspaceView: View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 2) {
+                    if let contextEyebrow {
+                        Text(contextEyebrow)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .textCase(.uppercase)
+                            .lineLimit(1)
+                    }
                     Text(contextTitle)
                         .font(.headline)
                         .lineLimit(1)
@@ -412,6 +419,19 @@ struct StudioMacWorkspaceView: View {
                 }
 
                 Spacer(minLength: 12)
+
+                if let previousContextLabel {
+                    Button {
+                        navigateBack()
+                    } label: {
+                        Label(previousContextLabel, systemImage: "chevron.backward")
+                            .labelStyle(.titleAndIcon)
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .help("Back to \(previousContextLabel)")
+                }
 
                 Label(model.sourceSummary, systemImage: "shippingbox")
                     .font(.caption.weight(.medium))
@@ -431,18 +451,154 @@ struct StudioMacWorkspaceView: View {
         .background(.thinMaterial)
     }
 
+    private var contextEyebrow: String? {
+        if selection == .legacyWeb {
+            return "Web fallback"
+        }
+        guard currentNativeItemName != nil else { return nil }
+        return (selection ?? .overview).title
+    }
+
     private var contextTitle: String {
         if selection == .legacyWeb {
             return model.pageTitle
         }
-        return (selection ?? .overview).title
+        return currentNativeItemName ?? (selection ?? .overview).title
     }
 
     private var contextSubtitle: String {
         if selection == .legacyWeb {
             return model.breadcrumb
         }
-        return (selection ?? .overview).subtitle
+        return currentNativeItemSummary ?? (selection ?? .overview).subtitle
+    }
+
+    private var previousContextLabel: String? {
+        guard selection != .legacyWeb else { return nil }
+        guard nativeHistory.canNavigateBack, nativeHistory.index > 0 else { return nil }
+        return label(for: nativeHistory.routes[nativeHistory.index - 1])
+    }
+
+    private var currentNativeItemName: String? {
+        guard let document = model.nativeDocument else { return nil }
+        switch selection {
+        case .tokens:
+            switch selectedTokenSelection {
+            case let .color(id):
+                return document.colors.first(where: { $0.id == id })?.name
+            case let .gradient(id):
+                return document.gradients.first(where: { $0.id == id })?.name
+            case nil:
+                return nil
+            }
+        case .components:
+            return document.components.first(where: { $0.id == selectedComponentID })?.name
+        case .views:
+            return document.views.first(where: { $0.id == selectedViewID })?.name
+        case .icons:
+            return document.icons.first(where: { $0.id == selectedIconID })?.name
+        case .typography:
+            return document.typography.first(where: { $0.id == selectedTypographyID })?.role
+        case .spacing:
+            switch selectedMetricSelection {
+            case let .spacing(id):
+                return document.spacing.first(where: { $0.id == id })?.name
+            case let .radius(id):
+                return document.radius.first(where: { $0.id == id })?.name
+            case nil:
+                return nil
+            }
+        case .navigation:
+            return document.views.first(where: { $0.id == selectedNavigationViewID })?.name
+        default:
+            return nil
+        }
+    }
+
+    private var currentNativeItemSummary: String? {
+        guard let document = model.nativeDocument else { return nil }
+        switch selection {
+        case .tokens:
+            switch selectedTokenSelection {
+            case let .color(id):
+                guard let token = document.colors.first(where: { $0.id == id }) else { return nil }
+                return "Color token · \(token.group)"
+            case let .gradient(id):
+                guard let token = document.gradients.first(where: { $0.id == id }) else { return nil }
+                return "Gradient token · \(token.group)"
+            case nil:
+                return nil
+            }
+        case .components:
+            guard let component = document.components.first(where: { $0.id == selectedComponentID }) else { return nil }
+            return component.summary.isEmpty ? "Component · \(component.group)" : component.summary
+        case .views:
+            guard let view = document.views.first(where: { $0.id == selectedViewID }) else { return nil }
+            return view.summary.isEmpty ? "View · \(view.presentation.capitalized)" : view.summary
+        case .icons:
+            guard let icon = document.icons.first(where: { $0.id == selectedIconID }) else { return nil }
+            return "Icon · \(icon.symbol)"
+        case .typography:
+            guard let token = document.typography.first(where: { $0.id == selectedTypographyID }) else { return nil }
+            return "\(Int(token.size)) pt · \(token.swiftUI)"
+        case .spacing:
+            switch selectedMetricSelection {
+            case let .spacing(id):
+                guard let token = document.spacing.first(where: { $0.id == id }) else { return nil }
+                return "Spacing · \(token.value)"
+            case let .radius(id):
+                guard let token = document.radius.first(where: { $0.id == id }) else { return nil }
+                return "Corner radius · \(token.value)"
+            case nil:
+                return nil
+            }
+        case .navigation:
+            guard let view = document.views.first(where: { $0.id == selectedNavigationViewID }) else { return nil }
+            return "Navigation flow · \(view.navigatesTo.count) outgoing edges"
+        default:
+            return nil
+        }
+    }
+
+    private func label(for route: StudioNativeRoute) -> String {
+        guard let document = model.nativeDocument else { return route.destination.title }
+        switch route {
+        case .overview, .review, .legacyWeb:
+            return route.destination.title
+        case let .tokens(tokenSelection):
+            switch tokenSelection {
+            case let .color(id):
+                return document.colors.first(where: { $0.id == id })?.name ?? route.destination.title
+            case let .gradient(id):
+                return document.gradients.first(where: { $0.id == id })?.name ?? route.destination.title
+            case nil:
+                return route.destination.title
+            }
+        case let .components(componentID):
+            guard let componentID else { return route.destination.title }
+            return document.components.first(where: { $0.id == componentID })?.name ?? route.destination.title
+        case let .views(viewID):
+            guard let viewID else { return route.destination.title }
+            return document.views.first(where: { $0.id == viewID })?.name ?? route.destination.title
+        case let .navigation(viewID):
+            guard let viewID else { return route.destination.title }
+            return document.views.first(where: { $0.id == viewID })?.name ?? route.destination.title
+        case let .icons(iconID):
+            guard let iconID else { return route.destination.title }
+            return document.icons.first(where: { $0.id == iconID })?.name ?? route.destination.title
+        case let .typography(typographyID):
+            guard let typographyID else { return route.destination.title }
+            return document.typography.first(where: { $0.id == typographyID })?.role ?? route.destination.title
+        case let .spacing(metricSelection):
+            switch metricSelection {
+            case let .spacing(id):
+                return document.spacing.first(where: { $0.id == id })?.name ?? route.destination.title
+            case let .radius(id):
+                return document.radius.first(where: { $0.id == id })?.name ?? route.destination.title
+            case nil:
+                return route.destination.title
+            }
+        }
     }
 
     private var statusChip: some View {
