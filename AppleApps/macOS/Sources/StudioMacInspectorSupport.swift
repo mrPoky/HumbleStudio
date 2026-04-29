@@ -27,6 +27,54 @@ struct StudioNativePageContainer<Content: View>: View {
     }
 }
 
+struct StudioCountCard: View {
+    let title: String
+    let value: String
+    let caption: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(value)
+                .font(.system(size: 32, weight: .bold))
+            Text(title)
+                .font(.headline)
+            Text(caption)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(18)
+        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(.quaternary.opacity(0.8), lineWidth: 1)
+        )
+    }
+}
+
+struct StudioMigrationCard: View {
+    let title: String
+    let message: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(title, systemImage: "arrow.triangle.branch")
+                .font(.headline)
+            Text(message)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(18)
+        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(.quaternary.opacity(0.8), lineWidth: 1)
+        )
+    }
+}
+
 struct StudioPillLabel: View {
     let text: String
 
