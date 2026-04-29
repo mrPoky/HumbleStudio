@@ -22,10 +22,6 @@ struct StudioMacWorkspaceView: View {
     @State private var nativeHistory = StudioNativeHistoryState()
     @State private var isApplyingNativeRoute = false
 
-    private static var supportedImportTypes: [UTType] {
-        [UTType(filenameExtension: "humblebundle") ?? .zip, .zip, .json]
-    }
-
     var body: some View {
         observedWorkspaceView
     }
@@ -42,10 +38,14 @@ struct StudioMacWorkspaceView: View {
         baseWorkspaceView
         .fileImporter(
             isPresented: $isImportingFile,
-            allowedContentTypes: Self.supportedImportTypes,
+            allowedContentTypes: StudioMacWorkspaceImportSupport.supportedImportTypes,
             allowsMultipleSelection: false
         ) { result in
-            handleImportResult(result)
+            StudioMacWorkspaceImportSupport.handleImportResult(
+                result,
+                importFile: model.importFile(at:),
+                reportError: model.report(error:)
+            )
         }
     }
 
@@ -60,68 +60,36 @@ struct StudioMacWorkspaceView: View {
     }
 
     private var observedWorkspaceView: some View {
-        var view = AnyView(modalWorkspaceView)
-        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioOpenQuickOpen)) { _ in
-            isQuickOpenPresented = true
-        })
-        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioOpenImport)) { _ in
-            isImportingFile = true
-        })
-        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioReopenRecentImport)) { _ in
-            model.reopenRecentImport()
-        })
-        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioOpenRemoteURL)) { _ in
-            remoteURLDraft = model.recentRemoteURL ?? ""
-            isImportingRemoteURL = true
-        })
-        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioReopenRecentRemoteURL)) { _ in
-            model.reopenRecentRemoteURL()
-        })
-        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioNavigateBack)) { _ in
-            navigateBack()
-        })
-        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioNavigateForward)) { _ in
-            navigateForward()
-        })
-        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioLoadDemo)) { _ in
-            navigateToDestination(.overview)
-            model.loadDemo()
-        })
-        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioLoadHome)) { _ in
-            navigateToDestination(.overview)
-            model.loadBundledStudio()
-        })
-        view = AnyView(view.onReceive(NotificationCenter.default.publisher(for: .studioReload)) { _ in
-            reloadCurrentSelection()
-        })
-        view = AnyView(view.onOpenURL { url in
-            model.handleIncomingURL(url)
-        })
-        view = AnyView(view.onChange(of: selection) { _, _ in
-            syncRouteFromState()
-        })
-        view = AnyView(view.onChange(of: selectedTokenSelection) { _, _ in
-            syncRouteFromState()
-        })
-        view = AnyView(view.onChange(of: selectedIconID) { _, _ in
-            syncRouteFromState()
-        })
-        view = AnyView(view.onChange(of: selectedTypographyID) { _, _ in
-            syncRouteFromState()
-        })
-        view = AnyView(view.onChange(of: selectedMetricSelection) { _, _ in
-            syncRouteFromState()
-        })
-        view = AnyView(view.onChange(of: selectedComponentID) { _, _ in
-            syncRouteFromState()
-        })
-        view = AnyView(view.onChange(of: selectedViewID) { _, _ in
-            syncRouteFromState()
-        })
-        view = AnyView(view.onChange(of: selectedNavigationViewID) { _, _ in
-            syncRouteFromState()
-        })
-        return view
+        modalWorkspaceView.studioMacWorkspaceEventBridge(
+            isQuickOpenPresented: $isQuickOpenPresented,
+            isImportingFile: $isImportingFile,
+            isImportingRemoteURL: $isImportingRemoteURL,
+            remoteURLDraft: $remoteURLDraft,
+            recentRemoteURL: model.recentRemoteURL,
+            selection: selection,
+            tokenSelection: selectedTokenSelection,
+            iconID: selectedIconID,
+            typographyID: selectedTypographyID,
+            metricSelection: selectedMetricSelection,
+            componentID: selectedComponentID,
+            viewID: selectedViewID,
+            navigationViewID: selectedNavigationViewID,
+            reopenRecentImport: model.reopenRecentImport,
+            reopenRecentRemoteURL: model.reopenRecentRemoteURL,
+            navigateBack: navigateBack,
+            navigateForward: navigateForward,
+            loadDemo: {
+                navigateToDestination(.overview)
+                model.loadDemo()
+            },
+            loadHome: {
+                navigateToDestination(.overview)
+                model.loadBundledStudio()
+            },
+            reloadCurrentSelection: reloadCurrentSelection,
+            handleIncomingURL: model.handleIncomingURL,
+            syncRouteFromState: syncRouteFromState
+        )
     }
 
     private var workspaceSplitView: some View {
@@ -146,16 +114,12 @@ struct StudioMacWorkspaceView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(Color(nsColor: .windowBackgroundColor))
-        .onDrop(of: [UTType.fileURL], isTargeted: $isDropTargeted, perform: handleFileDrop)
-    }
-
-    private func handleImportResult(_ result: Result<[URL], Error>) {
-        switch result {
-        case .success(let urls):
-            guard let url = urls.first else { return }
-            model.importFile(at: url)
-        case .failure(let error):
-            model.report(error: error)
+        .onDrop(of: [UTType.fileURL], isTargeted: $isDropTargeted) { providers in
+            StudioMacWorkspaceImportSupport.handleFileDrop(
+                providers,
+                importFile: model.importFile(at:),
+                reportError: model.report(error:)
+            )
         }
     }
 
@@ -614,37 +578,6 @@ struct StudioMacWorkspaceView: View {
             return model.canGoForward
         }
         return nativeHistory.canNavigateForward
-    }
-
-    private func handleFileDrop(_ providers: [NSItemProvider]) -> Bool {
-        guard let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) }) else {
-            return false
-        }
-
-        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
-            if let error {
-                Task { @MainActor in
-                    model.report(error: error)
-                }
-                return
-            }
-
-            let resolvedURL: URL?
-            if let url = item as? URL {
-                resolvedURL = url
-            } else if let data = item as? Data {
-                resolvedURL = URL(dataRepresentation: data, relativeTo: nil)
-            } else {
-                resolvedURL = nil
-            }
-
-            guard let resolvedURL else { return }
-            Task { @MainActor in
-                model.importFile(at: resolvedURL)
-            }
-        }
-
-        return true
     }
 
     private func inspectComponent(_ componentID: String) {
