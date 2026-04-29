@@ -271,6 +271,29 @@ private struct StudioComponentDetailInspector: View {
                             }
                         }
 
+                        StudioInspectorSummaryGrid(items: [
+                            StudioInspectorSummaryItem(
+                                label: "Truth",
+                                value: token.snapshot == nil ? "Catalog only" : "Reference snapshot",
+                                tone: token.snapshot == nil ? .warning : .success
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Renderer",
+                                value: token.renderer.capitalized,
+                                tone: .neutral
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Default state",
+                                value: token.defaultState.isEmpty ? "—" : token.defaultState,
+                                tone: .accent
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Used in",
+                                value: "\(relatedViews(for: token).count) views",
+                                tone: .neutral
+                            )
+                        ])
+
                         Picker("Inspector section", selection: $selectedTab) {
                             ForEach(Tab.allCases) { tab in
                                 Text(tab.rawValue).tag(tab)
@@ -539,6 +562,29 @@ private struct StudioViewDetailInspector: View {
                                 }
                             }
                         }
+
+                        StudioInspectorSummaryGrid(items: [
+                            StudioInspectorSummaryItem(
+                                label: "Truth",
+                                value: token.snapshot == nil ? "Catalog only" : "Reference snapshot",
+                                tone: token.snapshot == nil ? .warning : .success
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Presentation",
+                                value: token.presentation.capitalized,
+                                tone: .neutral
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Linked components",
+                                value: "\(token.componentsCount)",
+                                tone: .accent
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Next steps",
+                                value: "\(token.navigationCount) links",
+                                tone: .neutral
+                            )
+                        ])
 
                         Picker("Inspector section", selection: $selectedTab) {
                             ForEach(Tab.allCases) { tab in

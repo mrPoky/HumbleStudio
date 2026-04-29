@@ -88,6 +88,70 @@ struct StudioPillLabel: View {
     }
 }
 
+struct StudioInspectorSummaryItem: Identifiable {
+    let id = UUID()
+    let label: String
+    let value: String
+    let tone: StudioInspectorSummaryTone
+}
+
+enum StudioInspectorSummaryTone {
+    case neutral
+    case success
+    case warning
+    case accent
+
+    var foreground: Color {
+        switch self {
+        case .neutral:
+            return .primary
+        case .success:
+            return .green
+        case .warning:
+            return .orange
+        case .accent:
+            return .accentColor
+        }
+    }
+
+    var background: Color {
+        switch self {
+        case .neutral:
+            return .secondary.opacity(0.10)
+        case .success:
+            return .green.opacity(0.12)
+        case .warning:
+            return .orange.opacity(0.12)
+        case .accent:
+            return Color.accentColor.opacity(0.12)
+        }
+    }
+}
+
+struct StudioInspectorSummaryGrid: View {
+    let items: [StudioInspectorSummaryItem]
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 10)], spacing: 10) {
+            ForEach(items) { item in
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(item.label)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(item.value)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(item.tone.foreground)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(item.tone.background, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+        }
+    }
+}
+
 struct StudioInspectorSection<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
