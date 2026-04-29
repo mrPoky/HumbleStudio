@@ -19,6 +19,7 @@ struct StudioMacWorkspaceView: View {
     @State private var selectedComponentID: String?
     @State private var selectedViewID: String?
     @State private var selectedNavigationViewID: String?
+    @State private var recentQuickOpenKeys: [String] = []
     @State private var nativeHistory = StudioNativeHistoryState()
     @State private var isApplyingNativeRoute = false
 
@@ -581,30 +582,37 @@ struct StudioMacWorkspaceView: View {
     }
 
     private func inspectComponent(_ componentID: String) {
+        recordRecentQuickOpenKey("component:\(componentID)")
         applyNativeRoute(.components(componentID))
     }
 
     private func inspectView(_ viewID: String) {
+        recordRecentQuickOpenKey("view:\(viewID)")
         applyNativeRoute(.views(viewID))
     }
 
     private func inspectToken(_ tokenSelection: StudioNativeTokenSelection) {
+        recordRecentQuickOpenKey(quickOpenKey(for: tokenSelection))
         applyNativeRoute(.tokens(tokenSelection))
     }
 
     private func inspectIcon(_ iconID: String) {
+        recordRecentQuickOpenKey("icon:\(iconID)")
         applyNativeRoute(.icons(iconID))
     }
 
     private func inspectTypography(_ typographyID: String) {
+        recordRecentQuickOpenKey("typography:\(typographyID)")
         applyNativeRoute(.typography(typographyID))
     }
 
     private func inspectMetric(_ metricSelection: StudioNativeMetricSelection) {
+        recordRecentQuickOpenKey(quickOpenKey(for: metricSelection))
         applyNativeRoute(.spacing(metricSelection))
     }
 
     private func navigateToDestination(_ destination: StudioNativeDestination) {
+        recordRecentQuickOpenKey("page:\(destination.rawValue)")
         applyNativeRoute(
             StudioNativeRouteResolver.route(
                 for: destination,
@@ -682,6 +690,8 @@ struct StudioMacWorkspaceView: View {
         StudioMacQuickOpenFactory.makeItems(
             context: StudioMacQuickOpenContext(
                 document: model.nativeDocument,
+                recentKeys: recentQuickOpenKeys,
+                currentKey: currentQuickOpenKey,
                 navigateToDestination: navigateToDestination,
                 inspectToken: inspectToken,
                 inspectIcon: inspectIcon,
@@ -691,6 +701,66 @@ struct StudioMacWorkspaceView: View {
                 inspectView: inspectView
             )
         )
+    }
+
+    private var currentQuickOpenKey: String? {
+        switch selection {
+        case .overview:
+            return "page:overview"
+        case .tokens:
+            guard let selectedTokenSelection else { return "page:tokens" }
+            return quickOpenKey(for: selectedTokenSelection)
+        case .components:
+            guard let selectedComponentID else { return "page:components" }
+            return "component:\(selectedComponentID)"
+        case .views:
+            guard let selectedViewID else { return "page:views" }
+            return "view:\(selectedViewID)"
+        case .review:
+            return "page:review"
+        case .navigation:
+            if let selectedNavigationViewID {
+                return "view:\(selectedNavigationViewID)"
+            }
+            return "page:navigation"
+        case .icons:
+            guard let selectedIconID else { return "page:icons" }
+            return "icon:\(selectedIconID)"
+        case .typography:
+            guard let selectedTypographyID else { return "page:typography" }
+            return "typography:\(selectedTypographyID)"
+        case .spacing:
+            guard let selectedMetricSelection else { return "page:spacing" }
+            return quickOpenKey(for: selectedMetricSelection)
+        case .legacyWeb:
+            return "page:legacyWeb"
+        case nil:
+            return nil
+        }
+    }
+
+    private func recordRecentQuickOpenKey(_ key: String) {
+        recentQuickOpenKeys.removeAll(where: { $0 == key })
+        recentQuickOpenKeys.insert(key, at: 0)
+        recentQuickOpenKeys = Array(recentQuickOpenKeys.prefix(12))
+    }
+
+    private func quickOpenKey(for tokenSelection: StudioNativeTokenSelection) -> String {
+        switch tokenSelection {
+        case let .color(id):
+            return "color:\(id)"
+        case let .gradient(id):
+            return "gradient:\(id)"
+        }
+    }
+
+    private func quickOpenKey(for metricSelection: StudioNativeMetricSelection) -> String {
+        switch metricSelection {
+        case let .spacing(id):
+            return "spacing:\(id)"
+        case let .radius(id):
+            return "radius:\(id)"
+        }
     }
 }
 
