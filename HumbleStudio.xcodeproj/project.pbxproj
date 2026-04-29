@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F993A0A240BCADE9816CFEB /* StudioMacQuickOpenSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16530D78C8E532F120F4D9F3 /* StudioMacQuickOpenSupport.swift */; };
 		101B6D3E4055A66EFE9444B6 /* StudioShellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C13464105FE50E0343800A /* StudioShellModel.swift */; };
 		15B721987348ED2EF06949AE /* StudioMacContentWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87907AE1843232106A2FEB0C /* StudioMacContentWorkspace.swift */; };
 		168E34340DEDFACB25072A5F /* StudioMacReviewNavigationWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */; };
@@ -28,6 +29,7 @@
 
 /* Begin PBXFileReference section */
 		0054C0A8AF25F71DBEC639AC /* StudioShellNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioShellNotifications.swift; sourceTree = "<group>"; };
+		16530D78C8E532F120F4D9F3 /* StudioMacQuickOpenSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacQuickOpenSupport.swift; sourceTree = "<group>"; };
 		2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioBundleLocator.swift; sourceTree = "<group>"; };
 		22C13464105FE50E0343800A /* StudioShellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioShellModel.swift; sourceTree = "<group>"; };
 		4750EAFF90869AE84E110EF2 /* HumbleStudioMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HumbleStudioMacApp.swift; sourceTree = "<group>"; };
@@ -93,6 +95,7 @@
 				87907AE1843232106A2FEB0C /* StudioMacContentWorkspace.swift */,
 				AD7E6E9EDD4D4F2F399A8299 /* StudioMacFoundationWorkspace.swift */,
 				676AC0ADE7216ACD24C594C6 /* StudioMacInspectorSupport.swift */,
+				16530D78C8E532F120F4D9F3 /* StudioMacQuickOpenSupport.swift */,
 				8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */,
 				EEF52437C19A2721436ECDAD /* StudioMacWorkspaceView.swift */,
 			);
@@ -247,6 +250,7 @@
 				15B721987348ED2EF06949AE /* StudioMacContentWorkspace.swift in Sources */,
 				62813E07B96E427BDCBDBC98 /* StudioMacFoundationWorkspace.swift in Sources */,
 				D0D11E40F9C37988F17FD5DF /* StudioMacInspectorSupport.swift in Sources */,
+				0F993A0A240BCADE9816CFEB /* StudioMacQuickOpenSupport.swift in Sources */,
 				168E34340DEDFACB25072A5F /* StudioMacReviewNavigationWorkspace.swift in Sources */,
 				8B3AC9824FF9F6F4ECDD0CFC /* StudioMacWorkspaceView.swift in Sources */,
 				948B959AD9E8A0C0A904162C /* StudioShellModel.swift in Sources */,
