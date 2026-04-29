@@ -13,6 +13,7 @@
 		168E34340DEDFACB25072A5F /* StudioMacReviewNavigationWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */; };
 		36741C0B293FEE13E3A183C6 /* StudioWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */; };
 		5242C028E7591D57129E09B9 /* HumbleStudioiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC38BC02A4C65C8C269C130 /* HumbleStudioiOSApp.swift */; };
+		590FFE95529CC72059CC52B6 /* StudioMacWorkspaceRoutingSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0958D3EF729B09DC0785D633 /* StudioMacWorkspaceRoutingSupport.swift */; };
 		62813E07B96E427BDCBDBC98 /* StudioMacFoundationWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7E6E9EDD4D4F2F399A8299 /* StudioMacFoundationWorkspace.swift */; };
 		738264D6DA33AD355A5B2606 /* StudioShellNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0054C0A8AF25F71DBEC639AC /* StudioShellNotifications.swift */; };
 		8B3AC9824FF9F6F4ECDD0CFC /* StudioMacWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF52437C19A2721436ECDAD /* StudioMacWorkspaceView.swift */; };
@@ -29,6 +30,7 @@
 
 /* Begin PBXFileReference section */
 		0054C0A8AF25F71DBEC639AC /* StudioShellNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioShellNotifications.swift; sourceTree = "<group>"; };
+		0958D3EF729B09DC0785D633 /* StudioMacWorkspaceRoutingSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceRoutingSupport.swift; sourceTree = "<group>"; };
 		16530D78C8E532F120F4D9F3 /* StudioMacQuickOpenSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacQuickOpenSupport.swift; sourceTree = "<group>"; };
 		2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioBundleLocator.swift; sourceTree = "<group>"; };
 		22C13464105FE50E0343800A /* StudioShellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioShellModel.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 				676AC0ADE7216ACD24C594C6 /* StudioMacInspectorSupport.swift */,
 				16530D78C8E532F120F4D9F3 /* StudioMacQuickOpenSupport.swift */,
 				8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */,
+				0958D3EF729B09DC0785D633 /* StudioMacWorkspaceRoutingSupport.swift */,
 				EEF52437C19A2721436ECDAD /* StudioMacWorkspaceView.swift */,
 			);
 			path = Sources;
@@ -252,6 +255,7 @@
 				D0D11E40F9C37988F17FD5DF /* StudioMacInspectorSupport.swift in Sources */,
 				0F993A0A240BCADE9816CFEB /* StudioMacQuickOpenSupport.swift in Sources */,
 				168E34340DEDFACB25072A5F /* StudioMacReviewNavigationWorkspace.swift in Sources */,
+				590FFE95529CC72059CC52B6 /* StudioMacWorkspaceRoutingSupport.swift in Sources */,
 				8B3AC9824FF9F6F4ECDD0CFC /* StudioMacWorkspaceView.swift in Sources */,
 				948B959AD9E8A0C0A904162C /* StudioShellModel.swift in Sources */,
 				C3C2B5C4B75980A52838EDCB /* StudioShellNotifications.swift in Sources */,

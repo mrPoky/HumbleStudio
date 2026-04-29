@@ -3,104 +3,8 @@ import UniformTypeIdentifiers
 import AppKit
 
 struct StudioMacWorkspaceView: View {
-    private enum Destination: String, Hashable, CaseIterable {
-        case overview
-        case tokens
-        case components
-        case views
-        case review
-        case navigation
-        case icons
-        case typography
-        case spacing
-        case legacyWeb
-
-        var title: String {
-            switch self {
-            case .overview: return "Overview"
-            case .tokens: return "Tokens"
-            case .components: return "Components"
-            case .views: return "Views"
-            case .review: return "Review Queue"
-            case .navigation: return "Navigation Map"
-            case .icons: return "Icons"
-            case .typography: return "Typography"
-            case .spacing: return "Spacing & Radius"
-            case .legacyWeb: return "Legacy Web Inspector"
-            }
-        }
-
-        var subtitle: String {
-            switch self {
-            case .overview:
-                return "Native foundations workspace for imported design exports."
-            case .tokens:
-                return "Colors and gradients rendered directly in SwiftUI."
-            case .components:
-                return "Snapshot-first component catalog rendered natively."
-            case .views:
-                return "Screen catalog with snapshot and flow truth, rendered natively."
-            case .review:
-                return "Native queue for components and views whose exported truth still needs attention."
-            case .navigation:
-                return "Native flow map over exported navigation edges and root routing."
-            case .icons:
-                return "Native icon catalog sourced from the imported bundle."
-            case .typography:
-                return "Type styles decoded from the export contract."
-            case .spacing:
-                return "Padding and corner radius tokens rendered natively."
-            case .legacyWeb:
-                return "Fallback web inspector for any parity gaps that are not native yet."
-            }
-        }
-
-        var symbolName: String {
-            switch self {
-            case .overview: return "square.grid.2x2"
-            case .tokens: return "paintpalette"
-            case .components: return "square.grid.3x2"
-            case .views: return "rectangle.on.rectangle"
-            case .review: return "exclamationmark.circle"
-            case .navigation: return "arrow.triangle.branch"
-            case .icons: return "app.gift"
-            case .typography: return "textformat"
-            case .spacing: return "square.on.square"
-            case .legacyWeb: return "globe"
-            }
-        }
-    }
-
-    private enum NativeRoute: Equatable {
-        case overview
-        case tokens(StudioNativeTokenSelection?)
-        case components(String?)
-        case views(String?)
-        case review
-        case navigation(String?)
-        case icons(String?)
-        case typography(String?)
-        case spacing(StudioNativeMetricSelection?)
-        case legacyWeb
-
-        var destination: Destination {
-            switch self {
-            case .overview: return .overview
-            case .tokens: return .tokens
-            case .components: return .components
-            case .views: return .views
-            case .review: return .review
-            case .navigation: return .navigation
-            case .icons: return .icons
-            case .typography: return .typography
-            case .spacing: return .spacing
-            case .legacyWeb: return .legacyWeb
-            }
-        }
-    }
-
     @StateObject private var model = StudioShellModel()
-    @State private var selection: Destination? = .overview
+    @State private var selection: StudioNativeDestination? = .overview
     @State private var isImportingFile = false
     @State private var isImportingRemoteURL = false
     @State private var isQuickOpenPresented = false
@@ -115,8 +19,7 @@ struct StudioMacWorkspaceView: View {
     @State private var selectedComponentID: String?
     @State private var selectedViewID: String?
     @State private var selectedNavigationViewID: String?
-    @State private var nativeHistory: [NativeRoute] = [.overview]
-    @State private var nativeHistoryIndex = 0
+    @State private var nativeHistory = StudioNativeHistoryState()
     @State private var isApplyingNativeRoute = false
 
     private static var supportedImportTypes: [UTType] {
@@ -278,7 +181,7 @@ struct StudioMacWorkspaceView: View {
         .navigationSplitViewColumnWidth(min: 230, ideal: 250)
     }
 
-    private func sidebarRow(_ destination: Destination, count: Int? = nil) -> some View {
+    private func sidebarRow(_ destination: StudioNativeDestination, count: Int? = nil) -> some View {
         HStack(spacing: 10) {
             Image(systemName: destination.symbolName)
                 .foregroundStyle(.secondary)
@@ -666,7 +569,30 @@ struct StudioMacWorkspaceView: View {
         }
     }
 
-    private var sidebarSelection: Binding<Destination?> {
+    private var nativeSelectionState: StudioNativeSelectionState {
+        get {
+            StudioNativeSelectionState(
+                tokenSelection: selectedTokenSelection,
+                iconID: selectedIconID,
+                typographyID: selectedTypographyID,
+                metricSelection: selectedMetricSelection,
+                componentID: selectedComponentID,
+                viewID: selectedViewID,
+                navigationViewID: selectedNavigationViewID
+            )
+        }
+        set {
+            selectedTokenSelection = newValue.tokenSelection
+            selectedIconID = newValue.iconID
+            selectedTypographyID = newValue.typographyID
+            selectedMetricSelection = newValue.metricSelection
+            selectedComponentID = newValue.componentID
+            selectedViewID = newValue.viewID
+            selectedNavigationViewID = newValue.navigationViewID
+        }
+    }
+
+    private var sidebarSelection: Binding<StudioNativeDestination?> {
         Binding(
             get: { selection },
             set: { newValue in
@@ -680,14 +606,14 @@ struct StudioMacWorkspaceView: View {
         if selection == .legacyWeb {
             return model.canGoBack
         }
-        return nativeHistoryIndex > 0
+        return nativeHistory.canNavigateBack
     }
 
     private var canNavigateForward: Bool {
         if selection == .legacyWeb {
             return model.canGoForward
         }
-        return nativeHistoryIndex < nativeHistory.count - 1
+        return nativeHistory.canNavigateForward
     }
 
     private func handleFileDrop(_ providers: [NSItemProvider]) -> Bool {
@@ -745,29 +671,14 @@ struct StudioMacWorkspaceView: View {
         applyNativeRoute(.spacing(metricSelection))
     }
 
-    private func navigateToDestination(_ destination: Destination) {
-        switch destination {
-        case .overview:
-            applyNativeRoute(.overview)
-        case .tokens:
-            applyNativeRoute(.tokens(resolvedTokenSelectionForRoute()))
-        case .components:
-            applyNativeRoute(.components(resolvedComponentIDForRoute()))
-        case .views:
-            applyNativeRoute(.views(resolvedViewIDForRoute()))
-        case .review:
-            applyNativeRoute(.review)
-        case .navigation:
-            applyNativeRoute(.navigation(resolvedNavigationViewIDForRoute()))
-        case .icons:
-            applyNativeRoute(.icons(resolvedIconIDForRoute()))
-        case .typography:
-            applyNativeRoute(.typography(resolvedTypographyIDForRoute()))
-        case .spacing:
-            applyNativeRoute(.spacing(resolvedMetricSelectionForRoute()))
-        case .legacyWeb:
-            applyNativeRoute(.legacyWeb)
-        }
+    private func navigateToDestination(_ destination: StudioNativeDestination) {
+        applyNativeRoute(
+            StudioNativeRouteResolver.route(
+                for: destination,
+                state: nativeSelectionState,
+                document: model.nativeDocument
+            )
+        )
     }
 
     private func navigateBack() {
@@ -775,9 +686,8 @@ struct StudioMacWorkspaceView: View {
             model.navigateBack()
             return
         }
-        guard nativeHistoryIndex > 0 else { return }
-        nativeHistoryIndex -= 1
-        applyNativeRoute(nativeHistory[nativeHistoryIndex], addToHistory: false)
+        guard let route = nativeHistory.stepBackward() else { return }
+        applyNativeRoute(route, addToHistory: false)
     }
 
     private func navigateForward() {
@@ -785,144 +695,60 @@ struct StudioMacWorkspaceView: View {
             model.navigateForward()
             return
         }
-        guard nativeHistoryIndex < nativeHistory.count - 1 else { return }
-        nativeHistoryIndex += 1
-        applyNativeRoute(nativeHistory[nativeHistoryIndex], addToHistory: false)
+        guard let route = nativeHistory.stepForward() else { return }
+        applyNativeRoute(route, addToHistory: false)
     }
 
     private func syncRouteFromState() {
         guard !isApplyingNativeRoute else { return }
-        recordRoute(currentNativeRoute())
+        nativeHistory.record(currentNativeRoute())
     }
 
-    private func recordRoute(_ route: NativeRoute) {
-        if nativeHistory.isEmpty {
-            nativeHistory = [route]
-            nativeHistoryIndex = 0
-            return
-        }
-
-        if nativeHistory[nativeHistoryIndex] == route {
-            return
-        }
-
-        if nativeHistoryIndex < nativeHistory.count - 1 {
-            nativeHistory = Array(nativeHistory.prefix(nativeHistoryIndex + 1))
-        }
-        nativeHistory.append(route)
-        nativeHistoryIndex = nativeHistory.count - 1
-    }
-
-    private func applyNativeRoute(_ route: NativeRoute, addToHistory: Bool = true) {
+    private func applyNativeRoute(_ route: StudioNativeRoute, addToHistory: Bool = true) {
         isApplyingNativeRoute = true
         switch route {
         case .overview:
             selection = .overview
         case let .tokens(tokenSelection):
-            selectedTokenSelection = tokenSelection ?? resolvedTokenSelectionForRoute()
+            selectedTokenSelection = tokenSelection ?? StudioNativeRouteResolver.resolvedTokenSelection(state: nativeSelectionState, document: model.nativeDocument)
             selection = .tokens
         case let .components(componentID):
-            selectedComponentID = componentID ?? resolvedComponentIDForRoute()
+            selectedComponentID = componentID ?? StudioNativeRouteResolver.resolvedComponentID(state: nativeSelectionState, document: model.nativeDocument)
             selection = .components
         case let .views(viewID):
-            let resolvedViewID = viewID ?? resolvedViewIDForRoute()
+            let resolvedViewID = viewID ?? StudioNativeRouteResolver.resolvedViewID(state: nativeSelectionState, document: model.nativeDocument)
             selectedViewID = resolvedViewID
             selectedNavigationViewID = resolvedViewID
             selection = .views
         case .review:
             selection = .review
         case let .navigation(viewID):
-            selectedNavigationViewID = viewID ?? resolvedNavigationViewIDForRoute()
+            selectedNavigationViewID = viewID ?? StudioNativeRouteResolver.resolvedNavigationViewID(state: nativeSelectionState, document: model.nativeDocument)
             selection = .navigation
         case let .icons(iconID):
-            selectedIconID = iconID ?? resolvedIconIDForRoute()
+            selectedIconID = iconID ?? StudioNativeRouteResolver.resolvedIconID(state: nativeSelectionState, document: model.nativeDocument)
             selection = .icons
         case let .typography(typographyID):
-            selectedTypographyID = typographyID ?? resolvedTypographyIDForRoute()
+            selectedTypographyID = typographyID ?? StudioNativeRouteResolver.resolvedTypographyID(state: nativeSelectionState, document: model.nativeDocument)
             selection = .typography
         case let .spacing(metricSelection):
-            selectedMetricSelection = metricSelection ?? resolvedMetricSelectionForRoute()
+            selectedMetricSelection = metricSelection ?? StudioNativeRouteResolver.resolvedMetricSelection(state: nativeSelectionState, document: model.nativeDocument)
             selection = .spacing
         case .legacyWeb:
             selection = .legacyWeb
         }
         isApplyingNativeRoute = false
         if addToHistory {
-            recordRoute(currentNativeRoute())
+            nativeHistory.record(currentNativeRoute())
         }
     }
 
-    private func currentNativeRoute() -> NativeRoute {
-        switch selection ?? .overview {
-        case .overview:
-            return .overview
-        case .tokens:
-            return .tokens(resolvedTokenSelectionForRoute())
-        case .components:
-            return .components(resolvedComponentIDForRoute())
-        case .views:
-            return .views(resolvedViewIDForRoute())
-        case .review:
-            return .review
-        case .navigation:
-            return .navigation(resolvedNavigationViewIDForRoute())
-        case .icons:
-            return .icons(resolvedIconIDForRoute())
-        case .typography:
-            return .typography(resolvedTypographyIDForRoute())
-        case .spacing:
-            return .spacing(resolvedMetricSelectionForRoute())
-        case .legacyWeb:
-            return .legacyWeb
-        }
-    }
-
-    private func resolvedTokenSelectionForRoute() -> StudioNativeTokenSelection? {
-        if let selectedTokenSelection {
-            return selectedTokenSelection
-        }
-        if let firstColor = model.nativeDocument?.colors.first {
-            return .color(firstColor.id)
-        }
-        if let firstGradient = model.nativeDocument?.gradients.first {
-            return .gradient(firstGradient.id)
-        }
-        return nil
-    }
-
-    private func resolvedComponentIDForRoute() -> String? {
-        selectedComponentID ?? model.nativeDocument?.components.first?.id
-    }
-
-    private func resolvedViewIDForRoute() -> String? {
-        selectedViewID ?? model.nativeDocument?.views.first?.id
-    }
-
-    private func resolvedNavigationViewIDForRoute() -> String? {
-        selectedNavigationViewID
-            ?? model.nativeDocument?.navigationRootID
-            ?? model.nativeDocument?.views.first?.id
-    }
-
-    private func resolvedIconIDForRoute() -> String? {
-        selectedIconID ?? model.nativeDocument?.icons.first?.id
-    }
-
-    private func resolvedTypographyIDForRoute() -> String? {
-        selectedTypographyID ?? model.nativeDocument?.typography.first?.id
-    }
-
-    private func resolvedMetricSelectionForRoute() -> StudioNativeMetricSelection? {
-        if let selectedMetricSelection {
-            return selectedMetricSelection
-        }
-        if let firstSpacing = model.nativeDocument?.spacing.first {
-            return .spacing(firstSpacing.id)
-        }
-        if let firstRadius = model.nativeDocument?.radius.first {
-            return .radius(firstRadius.id)
-        }
-        return nil
+    private func currentNativeRoute() -> StudioNativeRoute {
+        StudioNativeRouteResolver.currentRoute(
+            for: selection,
+            state: nativeSelectionState,
+            document: model.nativeDocument
+        )
     }
 
     private func reviewQueueCounts(for document: StudioNativeDocument) -> (components: Int, views: Int, total: Int) {
@@ -1035,7 +861,7 @@ struct StudioMacWorkspaceView: View {
         return items
     }
 
-    private func quickOpenPageItem(_ destination: Destination, subtitle: String) -> StudioQuickOpenItem {
+    private func quickOpenPageItem(_ destination: StudioNativeDestination, subtitle: String) -> StudioQuickOpenItem {
         StudioQuickOpenItem(
             title: destination.title,
             subtitle: subtitle,
