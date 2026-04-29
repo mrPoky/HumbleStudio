@@ -542,6 +542,29 @@ private struct StudioTokenDetailInspector: View {
                             }
                         }
 
+                        StudioInspectorSummaryGrid(items: [
+                            StudioInspectorSummaryItem(
+                                label: "Group",
+                                value: token.group.capitalized,
+                                tone: .neutral
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "References",
+                                value: "\(token.referenceCount)",
+                                tone: .accent
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Variants",
+                                value: token.lightHex == token.darkHex ? "Shared light/dark" : "Distinct light and dark",
+                                tone: token.lightHex == token.darkHex ? .neutral : .success
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Derived gradients",
+                                value: "\(token.derivedGradientIDs.count)",
+                                tone: .neutral
+                            )
+                        ])
+
                         Picker("Inspector section", selection: $selectedTab) {
                             ForEach(Tab.allCases) { tab in
                                 Text(tab.rawValue).tag(tab)
@@ -645,6 +668,29 @@ private struct StudioTokenDetailInspector: View {
                                 }
                             }
                         }
+
+                        StudioInspectorSummaryGrid(items: [
+                            StudioInspectorSummaryItem(
+                                label: "Group",
+                                value: token.group.capitalized,
+                                tone: .neutral
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Type",
+                                value: token.kind.capitalized,
+                                tone: .accent
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "References",
+                                value: "\(token.referenceCount)",
+                                tone: .neutral
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Components",
+                                value: "\(token.designComponentIDs.count)",
+                                tone: .success
+                            )
+                        ])
 
                         Picker("Inspector section", selection: $selectedTab) {
                             ForEach(Tab.allCases) { tab in
@@ -825,6 +871,29 @@ private struct StudioIconDetailInspector: View {
                             }
                         }
 
+                        StudioInspectorSummaryGrid(items: [
+                            StudioInspectorSummaryItem(
+                                label: "Symbol",
+                                value: token.symbol,
+                                tone: .accent
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "References",
+                                value: "\(token.referenceCount)",
+                                tone: .neutral
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Truth",
+                                value: "Bundled asset",
+                                tone: .success
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Used by",
+                                value: "\(relatedComponents(for: token).count) components",
+                                tone: .neutral
+                            )
+                        ])
+
                         StudioMacIconThumbnail(url: document.resolvedIconURL(for: token), symbol: token.symbol)
                             .frame(maxWidth: .infinity)
                             .frame(height: 220)
@@ -909,6 +978,29 @@ private struct StudioTypographyDetailInspector: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
+
+                        StudioInspectorSummaryGrid(items: [
+                            StudioInspectorSummaryItem(
+                                label: "Size",
+                                value: "\(Int(token.size)) pt",
+                                tone: .accent
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Weight",
+                                value: "\(token.weight)",
+                                tone: .neutral
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "References",
+                                value: "\(token.referenceCount)",
+                                tone: .neutral
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Used by",
+                                value: "\(relatedComponents(for: token).count + relatedViews(for: token).count) items",
+                                tone: .success
+                            )
+                        ])
 
                         VStack(alignment: .leading, spacing: 14) {
                             Text(token.preview)
@@ -1030,6 +1122,29 @@ private struct StudioMetricDetailInspector: View {
                                     .background(.quaternary.opacity(0.55), in: Capsule())
                             }
                         }
+
+                        StudioInspectorSummaryGrid(items: [
+                            StudioInspectorSummaryItem(
+                                label: "Type",
+                                value: token.kindLabel,
+                                tone: .accent
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Value",
+                                value: token.value,
+                                tone: .neutral
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "References",
+                                value: "\(token.referenceCount)",
+                                tone: .neutral
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: "Used by",
+                                value: "\(relatedComponents(for: token).count + relatedViews(for: token).count) items",
+                                tone: .success
+                            )
+                        ])
 
                         StudioMetricPreviewSurface(token: token)
 
