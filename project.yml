@@ -33,7 +33,7 @@ targets:
         - base
       base:
         CODE_SIGNING_ALLOWED: NO
-        PRODUCT_BUNDLE_IDENTIFIER: com.mrpoky.HumbleStudio.ios
+        PRODUCT_BUNDLE_IDENTIFIER: eu.humbleplatform.humblestudio.ios
         SUPPORTS_MACCATALYST: NO
         TARGETED_DEVICE_FAMILY: "1,2"
     sources:
@@ -59,7 +59,7 @@ targets:
         - base
       base:
         CODE_SIGNING_ALLOWED: NO
-        PRODUCT_BUNDLE_IDENTIFIER: com.mrpoky.HumbleStudio.mac
+        PRODUCT_BUNDLE_IDENTIFIER: eu.humbleplatform.humblestudio.mac
     sources:
       - path: AppleApps/Shared/Sources
       - path: AppleApps/macOS/Sources
