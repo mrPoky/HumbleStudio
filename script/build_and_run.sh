@@ -3,7 +3,7 @@ set -euo pipefail
 
 MODE="${1:-run}"
 APP_NAME="HumbleStudio"
-BUNDLE_ID="com.mrpoky.HumbleStudio.mac"
+BUNDLE_ID="eu.humbleplatform.humblestudio.mac"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_PATH="$ROOT_DIR/HumbleStudio.xcodeproj"
 DERIVED_DATA_PATH="$ROOT_DIR/.build/XcodeDerivedData"
