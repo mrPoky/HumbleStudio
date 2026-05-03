@@ -8,28 +8,30 @@
 
 /* Begin PBXBuildFile section */
 		0F993A0A240BCADE9816CFEB /* StudioMacQuickOpenSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16530D78C8E532F120F4D9F3 /* StudioMacQuickOpenSupport.swift */; };
+		0F994833D7126324E651EEE0 /* StudioMacWorkspaceQuickOpenState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C198B968614918D540E3456C /* StudioMacWorkspaceQuickOpenState.swift */; };
 		101B6D3E4055A66EFE9444B6 /* StudioShellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C13464105FE50E0343800A /* StudioShellModel.swift */; };
 		15B721987348ED2EF06949AE /* StudioMacContentWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87907AE1843232106A2FEB0C /* StudioMacContentWorkspace.swift */; };
 		168E34340DEDFACB25072A5F /* StudioMacReviewNavigationWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */; };
+		195566F1067AB02DAB2CC384 /* StudioStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F9A4B07E7ED4171D0D81C6 /* StudioStrings.swift */; };
 		36741C0B293FEE13E3A183C6 /* StudioWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */; };
 		4458CB1A5F16E5D6080FDD3B /* StudioMacWorkspaceShellSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3683DF4303AF2F5E91C5039C /* StudioMacWorkspaceShellSupport.swift */; };
 		5242C028E7591D57129E09B9 /* HumbleStudioiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC38BC02A4C65C8C269C130 /* HumbleStudioiOSApp.swift */; };
 		590FFE95529CC72059CC52B6 /* StudioMacWorkspaceRoutingSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0958D3EF729B09DC0785D633 /* StudioMacWorkspaceRoutingSupport.swift */; };
 		62813E07B96E427BDCBDBC98 /* StudioMacFoundationWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7E6E9EDD4D4F2F399A8299 /* StudioMacFoundationWorkspace.swift */; };
 		738264D6DA33AD355A5B2606 /* StudioShellNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0054C0A8AF25F71DBEC639AC /* StudioShellNotifications.swift */; };
+		76B02EC9E2CE1CB98F5119AE /* StudioMacPreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFAED34B7F05CBCFDFDA23D /* StudioMacPreviewSupport.swift */; };
 		8B3AC9824FF9F6F4ECDD0CFC /* StudioMacWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF52437C19A2721436ECDAD /* StudioMacWorkspaceView.swift */; };
 		948B959AD9E8A0C0A904162C /* StudioShellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C13464105FE50E0343800A /* StudioShellModel.swift */; };
 		A817540636AC3DBCF3267431 /* HumbleStudioMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4750EAFF90869AE84E110EF2 /* HumbleStudioMacApp.swift */; };
 		ACE9607ED3E6C4880FB57034 /* StudioWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */; };
 		B49A8565DD03097D7BCD2E85 /* StudioMacWorkspaceContextSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77DB27EA2B9D22F27F288D98 /* StudioMacWorkspaceContextSupport.swift */; };
-		BD6B0862ED64B3E08D3D7B71 /* StudioMacWorkspaceQuickOpenState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3505C862D1681BE7DAD5B03 /* StudioMacWorkspaceQuickOpenState.swift */; };
 		BB189871D6EA8502C2E15FCA /* StudioBundleLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */; };
 		C3C2B5C4B75980A52838EDCB /* StudioShellNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0054C0A8AF25F71DBEC639AC /* StudioShellNotifications.swift */; };
 		D0D11E40F9C37988F17FD5DF /* StudioMacInspectorSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676AC0ADE7216ACD24C594C6 /* StudioMacInspectorSupport.swift */; };
 		D12C1C2B0560D7F44B00D13C /* StudioMacWorkspaceChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88AAC605FD7F7C78BEF12324 /* StudioMacWorkspaceChrome.swift */; };
 		D3B4FB992647FF3A47C89B71 /* StudioShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B07D498AE97DC178F220C /* StudioShellView.swift */; };
 		E14F6A8D9730E2E181F2231D /* StudioBundleLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */; };
-		EB4B83649BA06D8EA4D4FB87 /* StudioMacPreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C2DF84B507131DDE8F50E4 /* StudioMacPreviewSupport.swift */; };
+		EEC848FDA342530E527B3629 /* StudioStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F9A4B07E7ED4171D0D81C6 /* StudioStrings.swift */; };
 		FCE41AC494B4670B5D6F476D /* StudioShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B07D498AE97DC178F220C /* StudioShellView.swift */; };
 /* End PBXBuildFile section */
 
@@ -42,18 +44,19 @@
 		3683DF4303AF2F5E91C5039C /* StudioMacWorkspaceShellSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceShellSupport.swift; sourceTree = "<group>"; };
 		4750EAFF90869AE84E110EF2 /* HumbleStudioMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HumbleStudioMacApp.swift; sourceTree = "<group>"; };
 		4F5B07D498AE97DC178F220C /* StudioShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioShellView.swift; sourceTree = "<group>"; };
+		5DFAED34B7F05CBCFDFDA23D /* StudioMacPreviewSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacPreviewSupport.swift; sourceTree = "<group>"; };
 		676AC0ADE7216ACD24C594C6 /* StudioMacInspectorSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacInspectorSupport.swift; sourceTree = "<group>"; };
 		77DB27EA2B9D22F27F288D98 /* StudioMacWorkspaceContextSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceContextSupport.swift; sourceTree = "<group>"; };
 		87907AE1843232106A2FEB0C /* StudioMacContentWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacContentWorkspace.swift; sourceTree = "<group>"; };
 		88AAC605FD7F7C78BEF12324 /* StudioMacWorkspaceChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceChrome.swift; sourceTree = "<group>"; };
 		8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacReviewNavigationWorkspace.swift; sourceTree = "<group>"; };
 		AD7E6E9EDD4D4F2F399A8299 /* StudioMacFoundationWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacFoundationWorkspace.swift; sourceTree = "<group>"; };
+		C198B968614918D540E3456C /* StudioMacWorkspaceQuickOpenState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceQuickOpenState.swift; sourceTree = "<group>"; };
 		C75A2EC73C22FE8B86A984AB /* HumbleStudioMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HumbleStudioMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioWebView.swift; sourceTree = "<group>"; };
 		EEF52437C19A2721436ECDAD /* StudioMacWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceView.swift; sourceTree = "<group>"; };
-		E1C2DF84B507131DDE8F50E4 /* StudioMacPreviewSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacPreviewSupport.swift; sourceTree = "<group>"; };
 		EFC38BC02A4C65C8C269C130 /* HumbleStudioiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HumbleStudioiOSApp.swift; sourceTree = "<group>"; };
-		F3505C862D1681BE7DAD5B03 /* StudioMacWorkspaceQuickOpenState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceQuickOpenState.swift; sourceTree = "<group>"; };
+		F0F9A4B07E7ED4171D0D81C6 /* StudioStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioStrings.swift; sourceTree = "<group>"; };
 		FB7CE41A7E1FDC4B6A9C245C /* HumbleStudioiOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HumbleStudioiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -107,12 +110,12 @@
 				87907AE1843232106A2FEB0C /* StudioMacContentWorkspace.swift */,
 				AD7E6E9EDD4D4F2F399A8299 /* StudioMacFoundationWorkspace.swift */,
 				676AC0ADE7216ACD24C594C6 /* StudioMacInspectorSupport.swift */,
-				E1C2DF84B507131DDE8F50E4 /* StudioMacPreviewSupport.swift */,
+				5DFAED34B7F05CBCFDFDA23D /* StudioMacPreviewSupport.swift */,
 				16530D78C8E532F120F4D9F3 /* StudioMacQuickOpenSupport.swift */,
 				8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */,
 				77DB27EA2B9D22F27F288D98 /* StudioMacWorkspaceContextSupport.swift */,
 				88AAC605FD7F7C78BEF12324 /* StudioMacWorkspaceChrome.swift */,
-				F3505C862D1681BE7DAD5B03 /* StudioMacWorkspaceQuickOpenState.swift */,
+				C198B968614918D540E3456C /* StudioMacWorkspaceQuickOpenState.swift */,
 				0958D3EF729B09DC0785D633 /* StudioMacWorkspaceRoutingSupport.swift */,
 				3683DF4303AF2F5E91C5039C /* StudioMacWorkspaceShellSupport.swift */,
 				EEF52437C19A2721436ECDAD /* StudioMacWorkspaceView.swift */,
@@ -135,6 +138,7 @@
 				22C13464105FE50E0343800A /* StudioShellModel.swift */,
 				0054C0A8AF25F71DBEC639AC /* StudioShellNotifications.swift */,
 				4F5B07D498AE97DC178F220C /* StudioShellView.swift */,
+				F0F9A4B07E7ED4171D0D81C6 /* StudioStrings.swift */,
 				CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */,
 			);
 			path = Sources;
@@ -268,18 +272,19 @@
 				15B721987348ED2EF06949AE /* StudioMacContentWorkspace.swift in Sources */,
 				62813E07B96E427BDCBDBC98 /* StudioMacFoundationWorkspace.swift in Sources */,
 				D0D11E40F9C37988F17FD5DF /* StudioMacInspectorSupport.swift in Sources */,
-				EB4B83649BA06D8EA4D4FB87 /* StudioMacPreviewSupport.swift in Sources */,
+				76B02EC9E2CE1CB98F5119AE /* StudioMacPreviewSupport.swift in Sources */,
 				0F993A0A240BCADE9816CFEB /* StudioMacQuickOpenSupport.swift in Sources */,
 				168E34340DEDFACB25072A5F /* StudioMacReviewNavigationWorkspace.swift in Sources */,
 				D12C1C2B0560D7F44B00D13C /* StudioMacWorkspaceChrome.swift in Sources */,
 				B49A8565DD03097D7BCD2E85 /* StudioMacWorkspaceContextSupport.swift in Sources */,
-				BD6B0862ED64B3E08D3D7B71 /* StudioMacWorkspaceQuickOpenState.swift in Sources */,
+				0F994833D7126324E651EEE0 /* StudioMacWorkspaceQuickOpenState.swift in Sources */,
 				590FFE95529CC72059CC52B6 /* StudioMacWorkspaceRoutingSupport.swift in Sources */,
 				4458CB1A5F16E5D6080FDD3B /* StudioMacWorkspaceShellSupport.swift in Sources */,
 				8B3AC9824FF9F6F4ECDD0CFC /* StudioMacWorkspaceView.swift in Sources */,
 				948B959AD9E8A0C0A904162C /* StudioShellModel.swift in Sources */,
 				C3C2B5C4B75980A52838EDCB /* StudioShellNotifications.swift in Sources */,
 				FCE41AC494B4670B5D6F476D /* StudioShellView.swift in Sources */,
+				EEC848FDA342530E527B3629 /* StudioStrings.swift in Sources */,
 				36741C0B293FEE13E3A183C6 /* StudioWebView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -293,6 +298,7 @@
 				101B6D3E4055A66EFE9444B6 /* StudioShellModel.swift in Sources */,
 				738264D6DA33AD355A5B2606 /* StudioShellNotifications.swift in Sources */,
 				D3B4FB992647FF3A47C89B71 /* StudioShellView.swift in Sources */,
+				195566F1067AB02DAB2CC384 /* StudioStrings.swift in Sources */,
 				ACE9607ED3E6C4880FB57034 /* StudioWebView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

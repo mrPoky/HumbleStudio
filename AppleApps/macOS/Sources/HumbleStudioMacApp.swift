@@ -3,65 +3,65 @@ import SwiftUI
 @main
 struct HumbleStudioMacApp: App {
     var body: some Scene {
-        WindowGroup("HumbleStudio") {
+        WindowGroup(StudioStrings.appTitle) {
             StudioMacWorkspaceView()
                 .frame(minWidth: 1100, minHeight: 760)
         }
         .defaultSize(width: 1320, height: 860)
         .commands {
-            CommandMenu("Studio") {
-                Button("Quick Open…") {
+            CommandMenu(StudioStrings.appTitle) {
+                Button("\(StudioStrings.quickOpen)…") {
                     post(.studioOpenQuickOpen)
                 }
                 .keyboardShortcut("k", modifiers: [.command])
 
                 Divider()
 
-                Button("Back") {
+                Button(StudioStrings.back) {
                     post(.studioNavigateBack)
                 }
                 .keyboardShortcut("[", modifiers: [.command])
 
-                Button("Forward") {
+                Button(StudioStrings.forward) {
                     post(.studioNavigateForward)
                 }
                 .keyboardShortcut("]", modifiers: [.command])
 
                 Divider()
 
-                Button("Open Bundle…") {
+                Button(StudioStrings.openBundle) {
                     post(.studioOpenImport)
                 }
                 .keyboardShortcut("o", modifiers: [.command])
 
-                Button("Open Remote URL…") {
+                Button(StudioStrings.openRemoteURL) {
                     post(.studioOpenRemoteURL)
                 }
                 .keyboardShortcut("u", modifiers: [.command, .shift])
 
-                Button("Reopen Recent Import") {
+                Button(StudioStrings.reopenRecentImport) {
                     post(.studioReopenRecentImport)
                 }
                 .keyboardShortcut("o", modifiers: [.command, .shift])
 
-                Button("Reopen Recent Remote URL") {
+                Button(StudioStrings.reopenRecentRemoteURL) {
                     post(.studioReopenRecentRemoteURL)
                 }
                 .keyboardShortcut("u", modifiers: [.command, .option])
 
-                Button("Reload") {
+                Button(StudioStrings.reload) {
                     post(.studioReload)
                 }
                 .keyboardShortcut("r", modifiers: [.command])
 
                 Divider()
 
-                Button("Show Home") {
+                Button(StudioStrings.showHome) {
                     post(.studioLoadHome)
                 }
                 .keyboardShortcut("h", modifiers: [.command, .shift])
 
-                Button("Load Demo") {
+                Button(StudioStrings.loadDemo) {
                     post(.studioLoadDemo)
                 }
                 .keyboardShortcut("d", modifiers: [.command, .shift])

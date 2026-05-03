@@ -63,23 +63,24 @@ struct StudioQuickOpenItem: Identifiable {
     }
 
     var isPage: Bool {
-        section == "Pages"
+        section == StudioStrings.pages
     }
 }
 
 enum StudioMacQuickOpenFactory {
     static func makeItems(context: StudioMacQuickOpenContext) -> [StudioQuickOpenItem] {
         var items: [StudioQuickOpenItem] = [
-            pageItem(.overview, subtitle: "Native app overview and migration status", context: context),
-            pageItem(.tokens, subtitle: "Colors and gradients", context: context),
-            pageItem(.components, subtitle: "Snapshot-first component catalog", context: context),
-            pageItem(.views, subtitle: "Screen catalog and flow truth", context: context),
-            pageItem(.review, subtitle: "Truth gaps and review queue", context: context),
-            pageItem(.navigation, subtitle: "Native navigation graph", context: context),
-            pageItem(.icons, subtitle: "Bundled icon catalog", context: context),
-            pageItem(.typography, subtitle: "Typography roles", context: context),
-            pageItem(.spacing, subtitle: "Spacing and corner radius", context: context),
-            pageItem(.legacyWeb, subtitle: "Fallback web inspector", context: context)
+            pageItem(.overview, subtitle: StudioStrings.destinationSubtitle(.overview), context: context),
+            pageItem(.tokens, subtitle: StudioStrings.destinationSubtitle(.tokens), context: context),
+            pageItem(.components, subtitle: StudioStrings.destinationSubtitle(.components), context: context),
+            pageItem(.views, subtitle: StudioStrings.destinationSubtitle(.views), context: context),
+            pageItem(.review, subtitle: StudioStrings.destinationSubtitle(.review), context: context),
+            pageItem(.navigation, subtitle: StudioStrings.destinationSubtitle(.navigation), context: context),
+            pageItem(.proposals, subtitle: StudioStrings.destinationSubtitle(.proposals), context: context),
+            pageItem(.icons, subtitle: StudioStrings.destinationSubtitle(.icons), context: context),
+            pageItem(.typography, subtitle: StudioStrings.destinationSubtitle(.typography), context: context),
+            pageItem(.spacing, subtitle: StudioStrings.destinationSubtitle(.spacing), context: context),
+            pageItem(.legacyWeb, subtitle: StudioStrings.destinationSubtitle(.legacyWeb), context: context)
         ]
 
         guard let document = context.document else { return items }
@@ -88,9 +89,9 @@ enum StudioMacQuickOpenFactory {
             StudioQuickOpenItem(
                 id: "color:\(token.id)",
                 title: token.name,
-                subtitle: "Color token · \(token.group)",
+                subtitle: StudioStrings.colorTokenSummary(token.group),
                 symbolName: "paintpalette",
-                section: "Colors",
+                section: StudioStrings.colors,
                 keywords: [token.id, token.group, token.lightHex, token.darkHex],
                 isCurrent: context.currentKey == "color:\(token.id)",
                 isRecent: context.recentKeys.contains("color:\(token.id)"),
@@ -101,9 +102,9 @@ enum StudioMacQuickOpenFactory {
             StudioQuickOpenItem(
                 id: "gradient:\(token.id)",
                 title: token.name,
-                subtitle: "Gradient token · \(token.group)",
+                subtitle: StudioStrings.gradientTokenSummary(token.group),
                 symbolName: "sparkles",
-                section: "Gradients",
+                section: StudioStrings.gradients,
                 keywords: [token.id, token.group, token.swiftUI, token.usage],
                 isCurrent: context.currentKey == "gradient:\(token.id)",
                 isRecent: context.recentKeys.contains("gradient:\(token.id)"),
@@ -114,9 +115,9 @@ enum StudioMacQuickOpenFactory {
             StudioQuickOpenItem(
                 id: "icon:\(token.id)",
                 title: token.name,
-                subtitle: "Icon · \(token.symbol)",
+                subtitle: StudioStrings.iconSummary(token.symbol),
                 symbolName: "app.gift",
-                section: "Icons",
+                section: StudioStrings.iconsPageTitle,
                 keywords: [token.id, token.symbol, token.description],
                 isCurrent: context.currentKey == "icon:\(token.id)",
                 isRecent: context.recentKeys.contains("icon:\(token.id)"),
@@ -127,9 +128,9 @@ enum StudioMacQuickOpenFactory {
             StudioQuickOpenItem(
                 id: "typography:\(token.id)",
                 title: token.role,
-                subtitle: "Typography · \(Int(token.size)) pt",
+                subtitle: StudioStrings.typographySummary(points: Int(token.size)),
                 symbolName: "textformat",
-                section: "Typography",
+                section: StudioStrings.typographyPageTitle,
                 keywords: [token.id, token.swiftUI, token.preview],
                 isCurrent: context.currentKey == "typography:\(token.id)",
                 isRecent: context.recentKeys.contains("typography:\(token.id)"),
@@ -140,9 +141,9 @@ enum StudioMacQuickOpenFactory {
             StudioQuickOpenItem(
                 id: "spacing:\(token.id)",
                 title: token.name,
-                subtitle: "Spacing · \(token.value)",
+                subtitle: StudioStrings.spacingSummary(token.value),
                 symbolName: "rectangle.inset.filled",
-                section: "Spacing",
+                section: StudioStrings.spacing,
                 keywords: [token.id, token.group, token.usage],
                 isCurrent: context.currentKey == "spacing:\(token.id)",
                 isRecent: context.recentKeys.contains("spacing:\(token.id)"),
@@ -153,9 +154,9 @@ enum StudioMacQuickOpenFactory {
             StudioQuickOpenItem(
                 id: "radius:\(token.id)",
                 title: token.name,
-                subtitle: "Corner radius · \(token.value)",
+                subtitle: StudioStrings.cornerRadiusSummary(token.value),
                 symbolName: "roundedcorner",
-                section: "Corner Radius",
+                section: StudioStrings.cornerRadius,
                 keywords: [token.id, token.group, token.usage],
                 isCurrent: context.currentKey == "radius:\(token.id)",
                 isRecent: context.recentKeys.contains("radius:\(token.id)"),
@@ -166,9 +167,9 @@ enum StudioMacQuickOpenFactory {
             StudioQuickOpenItem(
                 id: "component:\(component.id)",
                 title: component.name,
-                subtitle: "Component · \(component.group)",
+                subtitle: StudioStrings.componentSummary(component.group),
                 symbolName: "square.grid.3x2",
-                section: "Components",
+                section: StudioStrings.components,
                 keywords: [component.id, component.renderer, component.swiftUI, component.summary],
                 isCurrent: context.currentKey == "component:\(component.id)",
                 isRecent: context.recentKeys.contains("component:\(component.id)"),
@@ -179,9 +180,9 @@ enum StudioMacQuickOpenFactory {
             StudioQuickOpenItem(
                 id: "view:\(view.id)",
                 title: view.name,
-                subtitle: "View · \(view.presentation.capitalized)",
+                subtitle: StudioStrings.viewSummary(view.presentation),
                 symbolName: "rectangle.on.rectangle",
-                section: "Views",
+                section: StudioStrings.views,
                 keywords: [view.id, view.presentation, view.summary],
                 isCurrent: context.currentKey == "view:\(view.id)",
                 isRecent: context.recentKeys.contains("view:\(view.id)"),
@@ -202,7 +203,7 @@ enum StudioMacQuickOpenFactory {
             title: destination.title,
             subtitle: subtitle,
             symbolName: destination.symbolName,
-            section: "Pages",
+            section: StudioStrings.pages,
             keywords: [destination.rawValue, destination.subtitle],
             isCurrent: context.currentKey == "page:\(destination.rawValue)",
             isRecent: context.recentKeys.contains("page:\(destination.rawValue)"),
@@ -252,10 +253,10 @@ struct StudioNativeQuickOpenSheet: View {
             VStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
-                        Text("Quick Open")
+                        Text(StudioStrings.quickOpen)
                             .font(.system(size: 24, weight: .bold))
                         Spacer()
-                        Text("\(filteredItems.count) results")
+                        Text(StudioStrings.resultsCount(filteredItems.count))
                             .font(.caption.weight(.semibold))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
@@ -263,7 +264,7 @@ struct StudioNativeQuickOpenSheet: View {
                             .foregroundStyle(.secondary)
                     }
 
-                        TextField("Search pages, foundations, components, and views…", text: $query)
+                        TextField(StudioStrings.quickOpenSearchPlaceholder, text: $query)
                         .textFieldStyle(.roundedBorder)
                         .focused($isSearchFocused)
                         .onSubmit {
@@ -279,9 +280,9 @@ struct StudioNativeQuickOpenSheet: View {
 
                 if filteredItems.isEmpty {
                     ContentUnavailableView(
-                        "No matches",
+                        StudioStrings.quickOpenNoMatches,
                         systemImage: "magnifyingglass",
-                        description: Text("Try searching by token name, component, view, or page.")
+                        description: Text(StudioStrings.quickOpenNoMatchesDescription)
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -302,9 +303,9 @@ struct StudioNativeQuickOpenSheet: View {
                                                     Text(item.title)
                                                         .foregroundStyle(.primary)
                                                     if item.isCurrent {
-                                                        quickOpenBadge("Current")
+                                                        quickOpenBadge(StudioStrings.current)
                                                     } else if item.isRecent {
-                                                        quickOpenBadge("Recent")
+                                                        quickOpenBadge(StudioStrings.recent)
                                                     }
                                                 }
                                                 Text(item.subtitle)
@@ -322,10 +323,10 @@ struct StudioNativeQuickOpenSheet: View {
                     .listStyle(.inset)
                 }
             }
-            .navigationTitle("Quick Open")
+            .navigationTitle(StudioStrings.quickOpen)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
+                    Button(StudioStrings.close) {
                         dismiss()
                     }
                 }

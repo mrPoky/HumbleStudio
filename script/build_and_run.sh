@@ -34,6 +34,10 @@ case "$MODE" in
   run)
     open_app
     ;;
+  --build-only|build-only)
+    ;;
+  --native-ci|native-ci)
+    ;;
   --debug|debug)
     lldb -- "$APP_EXECUTABLE"
     ;;
@@ -51,7 +55,7 @@ case "$MODE" in
     pgrep -x "$APP_NAME" >/dev/null
     ;;
   *)
-    echo "usage: $0 [run|--debug|--logs|--telemetry|--verify]" >&2
+    echo "usage: $0 [run|--build-only|--native-ci|--debug|--logs|--telemetry|--verify]" >&2
     exit 2
     ;;
 esac

@@ -23,7 +23,7 @@ struct StudioShellView: View {
 
                     if let errorMessage = model.errorMessage {
                         ContentUnavailableView(
-                            "Unable to load studio",
+                            StudioStrings.unableToLoadStudio,
                             systemImage: "exclamationmark.triangle",
                             description: Text(errorMessage)
                         )
@@ -33,7 +33,7 @@ struct StudioShellView: View {
                     }
                 }
             }
-            .navigationTitle("HumbleStudio")
+            .navigationTitle(StudioStrings.appTitle)
             .toolbar {
                 shellToolbar
             }
@@ -115,14 +115,14 @@ struct StudioShellView: View {
         Button {
             model.navigateBack()
         } label: {
-            Label("Back", systemImage: "chevron.backward")
+            Label(StudioStrings.back, systemImage: "chevron.backward")
         }
         .disabled(!model.canGoBack)
 
         Button {
             model.navigateForward()
         } label: {
-            Label("Forward", systemImage: "chevron.forward")
+            Label(StudioStrings.forward, systemImage: "chevron.forward")
         }
         .disabled(!model.canGoForward)
     }
@@ -132,7 +132,7 @@ struct StudioShellView: View {
         Button {
             isImportingFile = true
         } label: {
-            Label("Open", systemImage: "folder")
+            Label(StudioStrings.open, systemImage: "folder")
         }
         .disabled(!model.isPageReady)
 
@@ -140,7 +140,7 @@ struct StudioShellView: View {
             remoteURLDraft = model.recentRemoteURL ?? ""
             isImportingRemoteURL = true
         } label: {
-            Label("URL", systemImage: "link")
+            Label(StudioStrings.url, systemImage: "link")
         }
         .disabled(!model.isPageReady)
 
@@ -148,30 +148,30 @@ struct StudioShellView: View {
             Button {
                 model.reopenRecentImport()
             } label: {
-                Label("Recent", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                Label(StudioStrings.recent, systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
             }
-            .help(model.recentImportName ?? "Reopen recent import")
+            .help(model.recentImportName ?? StudioStrings.reopenRecentImportHelp)
             .disabled(!model.isPageReady)
         }
 
         Button {
             model.loadDemo()
         } label: {
-            Label("Demo", systemImage: "sparkles")
+            Label(StudioStrings.demo, systemImage: "sparkles")
         }
         .disabled(!model.isPageReady)
 
         Button {
             model.loadBundledStudio()
         } label: {
-            Label("Home", systemImage: "house")
+            Label(StudioStrings.home, systemImage: "house")
         }
         .disabled(!model.isConnected)
 
         Button {
             model.reload()
         } label: {
-            Label("Reload", systemImage: "arrow.clockwise")
+            Label(StudioStrings.reload, systemImage: "arrow.clockwise")
         }
         .disabled(!model.isPageReady)
     }
@@ -181,7 +181,7 @@ struct StudioShellView: View {
             Button {
                 isImportingFile = true
             } label: {
-                Label("Open Bundle…", systemImage: "folder")
+                Label(StudioStrings.openBundle, systemImage: "folder")
             }
             .disabled(!model.isPageReady)
 
@@ -189,7 +189,7 @@ struct StudioShellView: View {
                 remoteURLDraft = model.recentRemoteURL ?? ""
                 isImportingRemoteURL = true
             } label: {
-                Label("Open URL…", systemImage: "link")
+                Label(StudioStrings.openRemoteURL, systemImage: "link")
             }
             .disabled(!model.isPageReady)
 
@@ -197,7 +197,7 @@ struct StudioShellView: View {
                 Button {
                     model.reopenRecentImport()
                 } label: {
-                    Label("Reopen Recent File", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                    Label(StudioStrings.reopenRecentImport, systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                 }
                 .disabled(!model.isPageReady)
             }
@@ -206,7 +206,7 @@ struct StudioShellView: View {
                 Button {
                     model.reopenRecentRemoteURL()
                 } label: {
-                    Label("Reopen Recent URL", systemImage: "clock.badge.checkmark")
+                    Label(StudioStrings.reopenRecentRemoteURL, systemImage: "clock.badge.checkmark")
                 }
                 .disabled(!model.isPageReady)
             }
@@ -216,32 +216,32 @@ struct StudioShellView: View {
             Button {
                 model.loadDemo()
             } label: {
-                Label("Load Demo", systemImage: "sparkles")
+                Label(StudioStrings.loadDemo, systemImage: "sparkles")
             }
             .disabled(!model.isPageReady)
 
             Button {
                 model.loadBundledStudio()
             } label: {
-                Label("Show Home", systemImage: "house")
+                Label(StudioStrings.showHome, systemImage: "house")
             }
             .disabled(!model.isConnected)
 
             Button {
                 model.reload()
             } label: {
-                Label("Reload", systemImage: "arrow.clockwise")
+                Label(StudioStrings.reload, systemImage: "arrow.clockwise")
             }
             .disabled(!model.isPageReady)
         } label: {
-            Label("Sources", systemImage: "ellipsis.circle")
+            Label(StudioStrings.sources, systemImage: "ellipsis.circle")
         }
     }
 
     private var remoteURLSheet: some View {
         NavigationStack {
             Form {
-                Section("Remote source") {
+                Section(StudioStrings.remoteSource) {
                     TextField(
                         "https://raw.githubusercontent.com/user/repo/main/.humble/HumbleSudoku.humblebundle",
                         text: $remoteURLDraft,
@@ -253,7 +253,7 @@ struct StudioShellView: View {
                     .keyboardType(.URL)
                     #endif
 
-                    Text("Use a raw http/https URL to a `.humblebundle`, `.zip`, or `design.json`.")
+                    Text(StudioStrings.remoteSourcePrompt)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
 
@@ -262,7 +262,7 @@ struct StudioShellView: View {
                             remoteURLDraft = recentRemoteURL
                         } label: {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Use recent URL")
+                                Text(StudioStrings.useRecentURL)
                                 Text(recentRemoteURL)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
@@ -272,19 +272,19 @@ struct StudioShellView: View {
                     }
                 }
             }
-            .navigationTitle("Open Remote URL")
+            .navigationTitle(StudioStrings.openRemoteSourceTitle)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(StudioStrings.cancel) {
                         isImportingRemoteURL = false
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Load") {
+                    Button(StudioStrings.load) {
                         let url = remoteURLDraft
                         isImportingRemoteURL = false
                         model.loadRemoteURL(url)
@@ -424,9 +424,9 @@ struct StudioShellView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "square.and.arrow.down.on.square")
                         .font(.system(size: 28, weight: .semibold))
-                    Text("Drop a Humble bundle to import")
+                    Text(StudioStrings.dropBundleTitle)
                         .font(.headline)
-                    Text(".humblebundle, .zip or .json")
+                    Text(StudioStrings.dropBundleSubtitle)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

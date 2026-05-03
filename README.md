@@ -2,13 +2,17 @@
 
 Live design system viewer for iOS apps under the [HumblePlatform](https://github.com/humbleplatform) brand.
 
-**No dependencies. No build step. Open `index.html` in a browser.**
+HumbleStudio currently ships in two surfaces:
+- a zero-build web viewer opened via `index.html`
+- a native Apple app workspace inside `AppleApps/` focused on macOS inspection, modular native tooling, and preview fidelity work
 
 Load a single `.humblebundle` or a plain `.humble/design.json` from any HumblePlatform repo and instantly see the full design system — color tokens, typography, spacing, components with interactive mocks, phone mockups of every screen, and a clickable navigation map.
 
 ---
 
 ## Quick start
+
+### Web viewer
 
 ```
 open index.html
@@ -26,6 +30,25 @@ Hosted niceties included:
 - drag & drop onto the upload card
 - remembers the last URL or demo source in `localStorage`
 - supports URL bootstrap via `?bundle=https://...` or `?config=https://...`
+
+### Native macOS app
+
+Open `HumbleStudio.xcodeproj` in Xcode and run the `HumbleStudioMac` scheme.
+
+Fast local workflow:
+- `./script/build_and_run.sh run` builds and opens the macOS app
+- `./script/build_and_run.sh --verify` rebuilds and checks that the app launches
+- `./script/build_and_run.sh --native-ci` regenerates the project and runs a build-only native sanity pass
+- `xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build` is the targeted CI-style sanity check
+
+Current native priorities:
+- modular macOS inspector architecture
+- larger native detail views for tokens, components, views, and navigation
+- preview fidelity work for device framing, orientation, safe-area modeling, and contract-driven behavior such as navigation depth, stack context, and modal layering
+- explicit parity truth with `1:1`, `degraded`, and `fallback-only` states instead of a binary native/fallback story
+- read-only change-marking contracts that can later grow into safe write-back workflows
+- repo-aware change proposals stored in `docs/change-proposals/` and readable back from the native review inspector
+- keeping the legacy web inspector available only as fallback
 
 ---
 
@@ -69,6 +92,14 @@ See [`configs/humble-sudoku.json`](configs/humble-sudoku.json) for a full real-w
 ---
 
 ## What you get
+
+### Native macOS workspace
+- native sidebar, quick open, review queue, and detail inspectors
+- snapshot-first component and view inspection backed by exported bundle truth
+- evolving device preview surface with explicit preview configuration for orientation, behavior depth, stack context, modal layering, and device framing
+- review and navigation surfaces that now expose contract-driven preview coverage instead of hiding all uncertainty behind the fallback
+- source and recovery workflow surfaces that now expose recommended actions instead of passive diagnostics only
+- routing and inspector flows designed to replace legacy web fallback over time
 
 ### Foundation
 - **Tokens** — color swatches with dark/light values, grouped by category
@@ -118,12 +149,15 @@ Interactive SVG diagram generated from `views[].navigatesTo`. Click any node to 
 HumbleStudio/
 ├── index.html              ← app shell (HTML only)
 ├── studio.css              ← all styles, CSS variables, dark/light theme
+├── AppleApps/              ← native iOS/macOS workspace and shared shell model
+├── docs/                   ← future-facing product and authoring contracts
 ├── js/
 │   ├── app.js              ← state, routing, config loaders, sidebar, export
 │   ├── renderers.js        ← component + page renderers
 │   └── demo.js             ← DEMO_CONFIG (HumbleSudoku)
 ├── configs/
 │   └── humble-sudoku.json  ← full HumbleSudoku design config
+├── .codex/skills/          ← local workflow and iteration skills for Codex
 └── design.template.json    ← minimal starter for new apps
 ```
 
