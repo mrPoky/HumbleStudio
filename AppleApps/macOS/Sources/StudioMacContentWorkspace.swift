@@ -15,24 +15,24 @@ struct StudioMacComponentsPage: View {
                     VStack(alignment: .leading, spacing: 22) {
                         HStack(alignment: .center) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Components")
+                                Text(StudioStrings.componentsPageTitle)
                                     .font(.system(size: 26, weight: .bold))
-                                Text("First native component pass: snapshot-first cards over the exported contract, now with a real native inspector instead of a jump straight back to the web.")
+                                Text(StudioStrings.componentsPageSubtitle)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
 
                             Spacer(minLength: 16)
 
-                            Picker("Appearance", selection: $appearance) {
-                                Text("Dark").tag(StudioNativeAppearance.dark)
-                                Text("Light").tag(StudioNativeAppearance.light)
+                            Picker(StudioStrings.appearance, selection: $appearance) {
+                                Text(StudioStrings.dark).tag(StudioNativeAppearance.dark)
+                                Text(StudioStrings.light).tag(StudioNativeAppearance.light)
                             }
                             .pickerStyle(.segmented)
                             .frame(width: 180)
                         }
 
-                        StudioGroupedSection(title: "Component Catalog", groups: grouped(document.components, by: \.group)) { item in
+                        StudioGroupedSection(title: StudioStrings.componentCatalog, groups: grouped(document.components, by: \.group)) { item in
                             StudioComponentCard(
                                 token: item,
                                 document: document,
@@ -89,18 +89,18 @@ struct StudioMacViewsPage: View {
                     VStack(alignment: .leading, spacing: 22) {
                         HStack(alignment: .center) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Views")
+                                Text(StudioStrings.viewsPageTitle)
                                     .font(.system(size: 26, weight: .bold))
-                                Text("Native screen catalog over the exported truth, now with a native detail inspector for flow, linked components, and source evidence.")
+                                Text(StudioStrings.viewsPageSubtitle)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
 
                             Spacer(minLength: 16)
 
-                            Picker("Appearance", selection: $appearance) {
-                                Text("Dark").tag(StudioNativeAppearance.dark)
-                                Text("Light").tag(StudioNativeAppearance.light)
+                            Picker(StudioStrings.appearance, selection: $appearance) {
+                                Text(StudioStrings.dark).tag(StudioNativeAppearance.dark)
+                                Text(StudioStrings.light).tag(StudioNativeAppearance.light)
                             }
                             .pickerStyle(.segmented)
                             .frame(width: 180)
@@ -177,7 +177,7 @@ private struct StudioComponentCard: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer(minLength: 8)
-                    Text(token.snapshot == nil ? "Catalog" : "Snapshot")
+                    Text(token.snapshot == nil ? StudioStrings.catalog : StudioStrings.snapshot)
                         .font(.caption.weight(.semibold))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
@@ -194,10 +194,10 @@ private struct StudioComponentCard: View {
 
                 HStack(spacing: 8) {
                     if token.statesCount > 0 {
-                        StudioPillLabel(text: "\(token.statesCount) states")
+                        StudioPillLabel(text: StudioStrings.statesCount(token.statesCount))
                     }
                     if !token.defaultState.isEmpty {
-                        StudioPillLabel(text: "Default: \(token.defaultState)")
+                        StudioPillLabel(text: StudioStrings.defaultStateValue(token.defaultState))
                     }
                 }
 
@@ -219,13 +219,22 @@ private struct StudioComponentCard: View {
 }
 
 private struct StudioComponentDetailInspector: View {
-    private enum Tab: String, CaseIterable, Identifiable {
-        case preview = "Preview"
-        case relationships = "Relationships"
-        case contract = "Contract"
-        case source = "Source"
+    private enum Tab: CaseIterable, Identifiable {
+        case preview
+        case relationships
+        case contract
+        case source
 
-        var id: String { rawValue }
+        var id: Self { self }
+
+        var title: String {
+            switch self {
+            case .preview: return StudioStrings.preview
+            case .relationships: return StudioStrings.relationships
+            case .contract: return StudioStrings.contract
+            case .source: return StudioStrings.source
+            }
+        }
     }
 
     let token: StudioNativeDocument.ComponentItem?
@@ -233,190 +242,20 @@ private struct StudioComponentDetailInspector: View {
     let appearance: StudioNativeAppearance
     let inspectView: (String) -> Void
     @State private var selectedTab: Tab = .preview
+    @State private var previewConfiguration = StudioPreviewConfiguration()
+    @State private var previewLayoutMode: StudioPreviewLayoutMode = .regular
+    @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
+    @State private var proposalArtifactIssue: StudioProposalArtifactLoadIssue?
 
     var body: some View {
         Group {
             if let token {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
-                        Text("Component Detail")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(token.name)
-                                .font(.system(size: 28, weight: .bold))
-                                .fixedSize(horizontal: false, vertical: true)
-                            Text(token.group)
-                                .font(.caption.weight(.semibold))
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(.quaternary.opacity(0.55), in: Capsule())
-                                .foregroundStyle(.secondary)
-                            if !token.summary.isEmpty {
-                                Text(token.summary)
-                                    .foregroundStyle(.secondary)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-
-                            HStack(spacing: 8) {
-                                StudioPillLabel(text: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
-                                if token.statesCount > 0 {
-                                    StudioPillLabel(text: "\(token.statesCount) states")
-                                }
-                                let usedInViewsCount = relatedViews(for: token).count
-                                if usedInViewsCount > 0 {
-                                    StudioPillLabel(text: "\(usedInViewsCount) views")
-                                }
-                            }
-                        }
-
-                        StudioInspectorSummaryGrid(items: [
-                            StudioInspectorSummaryItem(
-                                label: "Truth",
-                                value: token.snapshot == nil ? "Catalog only" : "Reference snapshot",
-                                tone: token.snapshot == nil ? .warning : .success
-                            ),
-                            StudioInspectorSummaryItem(
-                                label: "Renderer",
-                                value: token.renderer.capitalized,
-                                tone: .neutral
-                            ),
-                            StudioInspectorSummaryItem(
-                                label: "Default state",
-                                value: token.defaultState.isEmpty ? "—" : token.defaultState,
-                                tone: .accent
-                            ),
-                            StudioInspectorSummaryItem(
-                                label: "Used in",
-                                value: "\(relatedViews(for: token).count) views",
-                                tone: .neutral
-                            )
-                        ])
-
-                        Picker("Inspector section", selection: $selectedTab) {
-                            ForEach(Tab.allCases) { tab in
-                                Text(tab.rawValue).tag(tab)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-
-                        switch selectedTab {
-                        case .preview:
-                            StudioComponentSnapshotThumbnail(
-                                url: document.resolvedSnapshotURL(for: token.snapshot, appearance: appearance),
-                                appearance: appearance
-                            )
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 240)
-
-                            StudioInspectorSection(title: "What This Is") {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    StudioKeyValueRow(label: "Truth", value: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
-                                    StudioKeyValueRow(label: "Group", value: token.group)
-                                    StudioKeyValueRow(label: "Renderer", value: token.renderer)
-                                    StudioKeyValueRow(label: "Default state", value: token.defaultState.isEmpty ? "—" : token.defaultState)
-                                }
-                            }
-
-                        case .relationships:
-                            if !relatedViews(for: token).isEmpty || !token.designTokenCategories.isEmpty {
-                                StudioInspectorSection(title: "Where It Appears") {
-                                    VStack(alignment: .leading, spacing: 14) {
-                                        if !relatedViews(for: token).isEmpty {
-                                            StudioInspectorLinkGroup(
-                                                title: "Used In Views",
-                                                linkItems: relatedViews(for: token).map {
-                                                    StudioInspectorLinkItem(id: $0.id, title: $0.name, subtitle: $0.presentation.capitalized)
-                                                },
-                                                actionTitle: "Inspect View",
-                                                action: inspectView
-                                            )
-                                        }
-                                        if !token.designTokenCategories.isEmpty {
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                Text("Foundation categories")
-                                                    .font(.caption.weight(.semibold))
-                                                    .foregroundStyle(.secondary)
-                                                FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                        case .contract:
-                            StudioInspectorSection(title: "Contract") {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    StudioKeyValueRow(label: "Renderer", value: token.renderer)
-                                    StudioKeyValueRow(label: "SwiftUI", value: token.swiftUI)
-                                    StudioKeyValueRow(label: "Default state", value: token.defaultState.isEmpty ? "—" : token.defaultState)
-                                    StudioKeyValueRow(label: "States", value: "\(token.statesCount)")
-                                    StudioKeyValueRow(label: "Design tokens", value: "\(token.designTokenCount)")
-                                    StudioKeyValueRow(label: "Source tokens", value: "\(token.sourceTokenCount)")
-                                }
-                            }
-
-                            if !token.states.isEmpty {
-                                StudioInspectorSection(title: "State Catalog") {
-                                    VStack(alignment: .leading, spacing: 10) {
-                                        ForEach(token.states.prefix(6)) { state in
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text(state.label)
-                                                    .font(.subheadline.weight(.semibold))
-                                                if !state.detail.isEmpty {
-                                                    Text(state.detail)
-                                                        .font(.caption)
-                                                        .foregroundStyle(.secondary)
-                                                        .fixedSize(horizontal: false, vertical: true)
-                                                }
-                                            }
-                                            if state.id != token.states.prefix(6).last?.id {
-                                                Divider()
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                        case .source:
-                            StudioInspectorSection(title: "Source") {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    StudioKeyValueRow(label: "File", value: token.sourcePath)
-                                    if !token.sourceSnippetSymbol.isEmpty {
-                                        StudioKeyValueRow(
-                                            label: "Symbol",
-                                            value: token.sourceSnippetRange.isEmpty
-                                                ? token.sourceSnippetSymbol
-                                                : "\(token.sourceSnippetSymbol) · \(token.sourceSnippetRange)"
-                                        )
-                                    }
-                                }
-                            }
-
-                            StudioInspectorSection(title: "Evidence") {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    StudioKeyValueRow(label: "Design tokens", value: "\(token.designTokenCount)")
-                                    StudioKeyValueRow(label: "Source tokens", value: "\(token.sourceTokenCount)")
-                                    if !token.designTokenCategories.isEmpty {
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text("Categories")
-                                                .font(.caption.weight(.semibold))
-                                                .foregroundStyle(.secondary)
-                                            FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .padding(20)
-                }
+                componentScrollView(token)
             } else {
                 ContentUnavailableView(
-                    "Select a component",
+                    StudioStrings.selectComponent,
                     systemImage: "square.grid.3x2",
-                    description: Text("Choose a component card to inspect its snapshot truth, state catalog, and source metadata.")
+                    description: Text(StudioStrings.selectComponentDescription)
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -424,11 +263,234 @@ private struct StudioComponentDetailInspector: View {
         .background(.thinMaterial)
         .onChange(of: token?.id) { _, _ in
             selectedTab = .preview
+            previewConfiguration = StudioPreviewConfiguration()
+            if let token {
+                previewConfiguration.coverageLevel = nativeComponentPreviewCoverage(for: token)
+            }
+            previewLayoutMode = .regular
+            reloadProposals()
+        }
+        .onAppear(perform: reloadProposals)
+    }
+
+    @ViewBuilder
+    private func componentScrollView(_ token: StudioNativeDocument.ComponentItem) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                Text(StudioStrings.componentDetail)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(token.name)
+                        .font(.system(size: 28, weight: .bold))
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(token.group)
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(.quaternary.opacity(0.55), in: Capsule())
+                        .foregroundStyle(.secondary)
+                    if !token.summary.isEmpty {
+                        Text(token.summary)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    HStack(spacing: 8) {
+                        StudioPillLabel(text: token.snapshot == nil ? StudioStrings.catalogOnly : StudioStrings.referenceSnapshot)
+                        if token.statesCount > 0 {
+                            StudioPillLabel(text: StudioStrings.statesCount(token.statesCount))
+                        }
+                        let usedInViewsCount = relatedViews(for: token).count
+                        if usedInViewsCount > 0 {
+                            StudioPillLabel(text: StudioStrings.viewsCount(usedInViewsCount))
+                        }
+                    }
+                }
+
+                StudioInspectorSummaryGrid(items: [
+                    StudioInspectorSummaryItem(
+                        label: StudioStrings.truth,
+                        value: token.snapshot == nil ? StudioStrings.catalogOnly : StudioStrings.referenceSnapshot,
+                        tone: token.snapshot == nil ? .warning : .success
+                    ),
+                    StudioInspectorSummaryItem(
+                        label: StudioStrings.renderer,
+                        value: token.renderer.capitalized,
+                        tone: .neutral
+                    ),
+                    StudioInspectorSummaryItem(
+                        label: StudioStrings.defaultState,
+                        value: token.defaultState.isEmpty ? "—" : token.defaultState,
+                        tone: .accent
+                    ),
+                    StudioInspectorSummaryItem(
+                        label: StudioStrings.usedIn,
+                        value: StudioStrings.viewsCount(relatedViews(for: token).count),
+                        tone: .neutral
+                    )
+                ])
+
+                Picker(StudioStrings.inspectorSection, selection: $selectedTab) {
+                    ForEach(Tab.allCases) { tab in
+                        Text(tab.title).tag(tab)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                switch selectedTab {
+                case .preview:
+                    StudioInspectorSection(title: StudioStrings.previewSurface) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            StudioPreviewControls(configuration: $previewConfiguration)
+                            StudioPreviewLayoutPicker(layoutMode: $previewLayoutMode)
+
+                            StudioPreviewHero(
+                                url: document.resolvedSnapshotURL(for: token.snapshot, appearance: appearance),
+                                appearance: appearance,
+                                configuration: previewConfiguration,
+                                layoutMode: previewLayoutMode,
+                                emptyTitle: StudioStrings.noSnapshot,
+                                emptySymbolName: "photo"
+                            )
+                        }
+                    }
+
+                    StudioInspectorSection(title: StudioStrings.whatThisIs) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            StudioKeyValueRow(label: StudioStrings.truth, value: token.snapshot == nil ? StudioStrings.catalogOnly : StudioStrings.referenceSnapshot)
+                            StudioKeyValueRow(label: StudioStrings.group, value: token.group)
+                            StudioKeyValueRow(label: StudioStrings.renderer, value: token.renderer)
+                            StudioKeyValueRow(label: StudioStrings.defaultState, value: token.defaultState.isEmpty ? "—" : token.defaultState)
+                            StudioPreviewContractPanel(configuration: previewConfiguration)
+                        }
+                    }
+
+                case .relationships:
+                    if !relatedViews(for: token).isEmpty || !token.designTokenCategories.isEmpty {
+                        StudioInspectorSection(title: StudioStrings.whereItAppears) {
+                            VStack(alignment: .leading, spacing: 14) {
+                                if !relatedViews(for: token).isEmpty {
+                                    StudioInspectorLinkGroup(
+                                        title: StudioStrings.usedInViews,
+                                        linkItems: relatedViews(for: token).map {
+                                            StudioInspectorLinkItem(id: $0.id, title: $0.name, subtitle: StudioStrings.navigationKindLabel($0.presentation))
+                                        },
+                                        actionTitle: StudioStrings.inspectView,
+                                        action: inspectView
+                                    )
+                                }
+                                if !token.designTokenCategories.isEmpty {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text(StudioStrings.foundationCategories)
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(.secondary)
+                                        FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                case .contract:
+                    StudioInspectorSection(title: StudioStrings.contract) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            StudioKeyValueRow(label: StudioStrings.renderer, value: token.renderer)
+                            StudioKeyValueRow(label: StudioStrings.swiftUILabel, value: token.swiftUI)
+                            StudioKeyValueRow(label: StudioStrings.defaultState, value: token.defaultState.isEmpty ? "—" : token.defaultState)
+                            StudioKeyValueRow(label: StudioStrings.states, value: "\(token.statesCount)")
+                            StudioKeyValueRow(label: StudioStrings.designTokens, value: "\(token.designTokenCount)")
+                            StudioKeyValueRow(label: StudioStrings.sourceTokens, value: "\(token.sourceTokenCount)")
+                        }
+                    }
+
+                    StudioMacProposalArtifactSection(
+                        artifacts: proposalArtifacts,
+                        preferredScope: "component:\(token.id)",
+                        preferredEvidencePath: token.sourcePath,
+                        loadIssue: proposalArtifactIssue,
+                        reloadProposals: reloadProposals,
+                        inspectComponent: nil,
+                        inspectView: inspectView,
+                        artifactLimit: 6,
+                        selectedArtifactID: nil,
+                        selectArtifact: nil
+                    )
+
+                    if !token.states.isEmpty {
+                        StudioInspectorSection(title: StudioStrings.stateCatalog) {
+                            VStack(alignment: .leading, spacing: 10) {
+                                ForEach(token.states.prefix(6)) { state in
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(state.label)
+                                            .font(.subheadline.weight(.semibold))
+                                        if !state.detail.isEmpty {
+                                            Text(state.detail)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                        }
+                                    }
+                                    if state.id != token.states.prefix(6).last?.id {
+                                        Divider()
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                case .source:
+                    StudioInspectorSection(title: StudioStrings.source) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            StudioKeyValueRow(label: StudioStrings.file, value: token.sourcePath)
+                            if !token.sourceSnippetSymbol.isEmpty {
+                                StudioKeyValueRow(
+                                    label: StudioStrings.symbol,
+                                    value: token.sourceSnippetRange.isEmpty
+                                        ? token.sourceSnippetSymbol
+                                        : "\(token.sourceSnippetSymbol) · \(token.sourceSnippetRange)"
+                                )
+                            }
+                        }
+                    }
+
+                    StudioInspectorSection(title: StudioStrings.evidence) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            StudioKeyValueRow(label: StudioStrings.designTokens, value: "\(token.designTokenCount)")
+                            StudioKeyValueRow(label: StudioStrings.sourceTokens, value: "\(token.sourceTokenCount)")
+                            if !token.designTokenCategories.isEmpty {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(StudioStrings.categories)
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(.secondary)
+                                    FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(20)
         }
     }
 
     private func relatedViews(for token: StudioNativeDocument.ComponentItem) -> [StudioNativeDocument.ViewItem] {
         document.views.filter { $0.components.contains(token.id) }
+    }
+
+    private func reloadProposals() {
+        let result = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL)
+        proposalArtifacts = result.artifacts
+        proposalArtifactIssue = result.issue
+    }
+
+    private var repositoryRootURL: URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
     }
 }
 
@@ -453,13 +515,13 @@ private struct StudioViewCard: View {
                         Text(token.name)
                             .font(.headline)
                             .lineLimit(2)
-                        Text(token.presentation.capitalized)
+                        Text(StudioStrings.navigationKindLabel(token.presentation))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer(minLength: 8)
                     if token.root {
-                        Text("Root")
+                        Text(StudioStrings.root)
                             .font(.caption.weight(.semibold))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
@@ -476,10 +538,10 @@ private struct StudioViewCard: View {
                 }
 
                 HStack(spacing: 8) {
-                    StudioPillLabel(text: "\(token.componentsCount) components")
-                    StudioPillLabel(text: "\(token.navigationCount) links")
+                    StudioPillLabel(text: StudioStrings.componentsCount(token.componentsCount))
+                    StudioPillLabel(text: StudioStrings.linksCount(token.navigationCount))
                     if !token.defaultState.isEmpty {
-                        StudioPillLabel(text: "State: \(token.defaultState)")
+                        StudioPillLabel(text: StudioStrings.stateValue(token.defaultState))
                     }
                 }
 
@@ -501,13 +563,22 @@ private struct StudioViewCard: View {
 }
 
 private struct StudioViewDetailInspector: View {
-    private enum Tab: String, CaseIterable, Identifiable {
-        case preview = "Preview"
-        case flow = "Flow"
-        case relationships = "Relationships"
-        case source = "Source"
+    private enum Tab: CaseIterable, Identifiable {
+        case preview
+        case flow
+        case relationships
+        case source
 
-        var id: String { rawValue }
+        var id: Self { self }
+
+        var title: String {
+            switch self {
+            case .preview: return StudioStrings.preview
+            case .flow: return StudioStrings.flow
+            case .relationships: return StudioStrings.relationships
+            case .source: return StudioStrings.source
+            }
+        }
     }
 
     let token: StudioNativeDocument.ViewItem?
@@ -516,220 +587,20 @@ private struct StudioViewDetailInspector: View {
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
     @State private var selectedTab: Tab = .preview
+    @State private var previewConfiguration = StudioPreviewConfiguration()
+    @State private var previewLayoutMode: StudioPreviewLayoutMode = .focus
+    @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
+    @State private var proposalArtifactIssue: StudioProposalArtifactLoadIssue?
 
     var body: some View {
         Group {
             if let token {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
-                        Text("View Detail")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(token.name)
-                                .font(.system(size: 28, weight: .bold))
-                                .fixedSize(horizontal: false, vertical: true)
-                            HStack(spacing: 8) {
-                                Text(token.presentation.capitalized)
-                                    .font(.caption.weight(.semibold))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(.quaternary.opacity(0.55), in: Capsule())
-                                    .foregroundStyle(.secondary)
-                                if token.root {
-                                    Text("Root")
-                                        .font(.caption.weight(.semibold))
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 6)
-                                        .background(Color.blue.opacity(0.14), in: Capsule())
-                                        .foregroundStyle(.blue)
-                                }
-                            }
-                            if !token.summary.isEmpty {
-                                Text(token.summary)
-                                    .foregroundStyle(.secondary)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-
-                            HStack(spacing: 8) {
-                                StudioPillLabel(text: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
-                                if token.componentsCount > 0 {
-                                    StudioPillLabel(text: "\(token.componentsCount) components")
-                                }
-                                if token.navigationCount > 0 {
-                                    StudioPillLabel(text: "\(token.navigationCount) links")
-                                }
-                            }
-                        }
-
-                        StudioInspectorSummaryGrid(items: [
-                            StudioInspectorSummaryItem(
-                                label: "Truth",
-                                value: token.snapshot == nil ? "Catalog only" : "Reference snapshot",
-                                tone: token.snapshot == nil ? .warning : .success
-                            ),
-                            StudioInspectorSummaryItem(
-                                label: "Presentation",
-                                value: token.presentation.capitalized,
-                                tone: .neutral
-                            ),
-                            StudioInspectorSummaryItem(
-                                label: "Linked components",
-                                value: "\(token.componentsCount)",
-                                tone: .accent
-                            ),
-                            StudioInspectorSummaryItem(
-                                label: "Next steps",
-                                value: "\(token.navigationCount) links",
-                                tone: .neutral
-                            )
-                        ])
-
-                        Picker("Inspector section", selection: $selectedTab) {
-                            ForEach(Tab.allCases) { tab in
-                                Text(tab.rawValue).tag(tab)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-
-                        switch selectedTab {
-                        case .preview:
-                            StudioViewSnapshotThumbnail(
-                                url: document.resolvedSnapshotURL(for: token.snapshot, appearance: appearance),
-                                appearance: appearance
-                            )
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 280)
-
-                            StudioInspectorSection(title: "What This Is") {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    StudioKeyValueRow(label: "Truth", value: token.snapshot == nil ? "Catalog only" : "Reference snapshot")
-                                    StudioKeyValueRow(label: "Presentation", value: token.presentation)
-                                    StudioKeyValueRow(label: "Default state", value: token.defaultState.isEmpty ? "—" : token.defaultState)
-                                    StudioKeyValueRow(label: "Linked components", value: "\(token.componentsCount)")
-                                }
-                            }
-
-                        case .flow:
-                            if !token.entryPoints.isEmpty || !token.primaryActions.isEmpty || !token.secondaryActions.isEmpty || !token.navigatesTo.isEmpty {
-                                StudioInspectorSection(title: "Flow") {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        if !token.entryPoints.isEmpty {
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                Text("Entry points")
-                                                    .font(.caption.weight(.semibold))
-                                                    .foregroundStyle(.secondary)
-                                                FlexiblePillStack(items: token.entryPoints.map(humanizedLabel))
-                                            }
-                                        }
-
-                                        if !token.primaryActions.isEmpty {
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                Text("Primary actions")
-                                                    .font(.caption.weight(.semibold))
-                                                    .foregroundStyle(.secondary)
-                                                FlexiblePillStack(items: token.primaryActions)
-                                            }
-                                        }
-
-                                        if !token.secondaryActions.isEmpty {
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                Text("Secondary actions")
-                                                    .font(.caption.weight(.semibold))
-                                                    .foregroundStyle(.secondary)
-                                                FlexiblePillStack(items: token.secondaryActions)
-                                            }
-                                        }
-
-                                        if !token.navigatesTo.isEmpty {
-                                            StudioInspectorLinkGroup(
-                                                title: "What Users Can Do Next",
-                                                linkItems: token.navigatesTo.prefix(5).map { navigation in
-                                                    StudioInspectorLinkItem(
-                                                        id: navigation.targetID,
-                                                        title: resolvedViewName(for: navigation.targetID),
-                                                        subtitle: navigation.trigger.isEmpty ? navigation.type.capitalized : "\(navigation.type.capitalized) via \(navigation.trigger)"
-                                                    )
-                                                },
-                                                actionTitle: "Inspect View",
-                                                action: inspectView
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-
-                        case .relationships:
-                            StudioInspectorSection(title: "Relationships") {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    if !token.components.isEmpty {
-                                        StudioInspectorLinkGroup(
-                                            title: "Linked Components",
-                                            linkItems: token.components.map { componentID in
-                                                StudioInspectorLinkItem(
-                                                    id: componentID,
-                                                    title: resolvedComponentName(for: componentID),
-                                                    subtitle: resolvedComponentSubtitle(for: componentID)
-                                                )
-                                            },
-                                            actionTitle: "Inspect Component",
-                                            action: inspectComponent
-                                        )
-                                    }
-
-                                    if !token.states.isEmpty {
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text("States")
-                                                .font(.caption.weight(.semibold))
-                                                .foregroundStyle(.secondary)
-                                            FlexiblePillStack(items: token.states.map(humanizedLabel))
-                                        }
-                                    }
-
-                                    if !token.designTokenCategories.isEmpty {
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text("Foundation categories")
-                                                .font(.caption.weight(.semibold))
-                                                .foregroundStyle(.secondary)
-                                            FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
-                                        }
-                                    }
-                                }
-                            }
-
-                        case .source:
-                            StudioInspectorSection(title: "Source") {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    StudioKeyValueRow(label: "File", value: token.sourcePath)
-                                    if !token.sourceSnippetSymbol.isEmpty {
-                                        StudioKeyValueRow(
-                                            label: "Symbol",
-                                            value: token.sourceSnippetRange.isEmpty
-                                                ? token.sourceSnippetSymbol
-                                                : "\(token.sourceSnippetSymbol) · \(token.sourceSnippetRange)"
-                                        )
-                                    }
-                                }
-                            }
-
-                            StudioInspectorSection(title: "Evidence") {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    StudioKeyValueRow(label: "Design tokens", value: "\(token.designTokenCount)")
-                                    StudioKeyValueRow(label: "Source tokens", value: "\(token.sourceTokenCount)")
-                                    StudioKeyValueRow(label: "Sheets", value: "\(token.sheetPatternsCount)")
-                                    StudioKeyValueRow(label: "Overlays", value: "\(token.overlayPatternsCount)")
-                                }
-                            }
-                        }
-                    }
-                    .padding(20)
-                }
+                viewScrollView(token)
             } else {
                 ContentUnavailableView(
-                    "Select a view",
+                    StudioStrings.selectView,
                     systemImage: "rectangle.stack",
-                    description: Text("Choose a view card to inspect its flow, linked components, and source evidence.")
+                    description: Text(StudioStrings.selectViewDescription)
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -737,6 +608,245 @@ private struct StudioViewDetailInspector: View {
         .background(.thinMaterial)
         .onChange(of: token?.id) { _, _ in
             selectedTab = .preview
+            previewConfiguration = StudioPreviewConfiguration.viewDefault(presentation: token?.presentation ?? "")
+            if let token {
+                previewConfiguration.coverageLevel = nativeViewPreviewCoverage(for: token)
+            }
+            previewLayoutMode = .focus
+            reloadProposals()
+        }
+        .onAppear(perform: reloadProposals)
+    }
+
+    @ViewBuilder
+    private func viewScrollView(_ token: StudioNativeDocument.ViewItem) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                Text(StudioStrings.viewDetail)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(token.name)
+                        .font(.system(size: 28, weight: .bold))
+                        .fixedSize(horizontal: false, vertical: true)
+                    HStack(spacing: 8) {
+                        Text(StudioStrings.navigationKindLabel(token.presentation))
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.quaternary.opacity(0.55), in: Capsule())
+                            .foregroundStyle(.secondary)
+                        if token.root {
+                            Text(StudioStrings.root)
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.blue.opacity(0.14), in: Capsule())
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                    if !token.summary.isEmpty {
+                        Text(token.summary)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    HStack(spacing: 8) {
+                        StudioPillLabel(text: token.snapshot == nil ? StudioStrings.catalogOnly : StudioStrings.referenceSnapshot)
+                        if token.componentsCount > 0 {
+                            StudioPillLabel(text: StudioStrings.componentsCount(token.componentsCount))
+                        }
+                        if token.navigationCount > 0 {
+                            StudioPillLabel(text: StudioStrings.linksCount(token.navigationCount))
+                        }
+                    }
+                }
+
+                StudioInspectorSummaryGrid(items: [
+                    StudioInspectorSummaryItem(
+                        label: StudioStrings.truth,
+                        value: token.snapshot == nil ? StudioStrings.catalogOnly : StudioStrings.referenceSnapshot,
+                        tone: token.snapshot == nil ? .warning : .success
+                    ),
+                    StudioInspectorSummaryItem(
+                        label: StudioStrings.presentation,
+                        value: StudioStrings.navigationKindLabel(token.presentation),
+                        tone: .neutral
+                    ),
+                    StudioInspectorSummaryItem(
+                        label: StudioStrings.linkedComponents,
+                        value: "\(token.componentsCount)",
+                        tone: .accent
+                    ),
+                    StudioInspectorSummaryItem(
+                        label: StudioStrings.nextSteps,
+                        value: StudioStrings.linksCount(token.navigationCount),
+                        tone: .neutral
+                    )
+                ])
+
+                Picker(StudioStrings.inspectorSection, selection: $selectedTab) {
+                    ForEach(Tab.allCases) { tab in
+                        Text(tab.title).tag(tab)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                switch selectedTab {
+                case .preview:
+                    StudioInspectorSection(title: StudioStrings.previewSurface) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            StudioPreviewControls(configuration: $previewConfiguration)
+                            StudioPreviewLayoutPicker(layoutMode: $previewLayoutMode)
+
+                            StudioPreviewHero(
+                                url: document.resolvedSnapshotURL(for: token.snapshot, appearance: appearance),
+                                appearance: appearance,
+                                configuration: previewConfiguration,
+                                layoutMode: previewLayoutMode,
+                                emptyTitle: StudioStrings.noSnapshot,
+                                emptySymbolName: "rectangle.on.rectangle"
+                            )
+                        }
+                    }
+
+                    StudioInspectorSection(title: StudioStrings.whatThisIs) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            StudioKeyValueRow(label: StudioStrings.truth, value: token.snapshot == nil ? StudioStrings.catalogOnly : StudioStrings.referenceSnapshot)
+                            StudioKeyValueRow(label: StudioStrings.presentation, value: token.presentation)
+                            StudioKeyValueRow(label: StudioStrings.defaultState, value: token.defaultState.isEmpty ? "—" : token.defaultState)
+                            StudioKeyValueRow(label: StudioStrings.linkedComponents, value: "\(token.componentsCount)")
+                            StudioPreviewContractPanel(configuration: previewConfiguration)
+                        }
+                    }
+
+                case .flow:
+                    if !token.entryPoints.isEmpty || !token.primaryActions.isEmpty || !token.secondaryActions.isEmpty || !token.navigatesTo.isEmpty {
+                        StudioInspectorSection(title: StudioStrings.flow) {
+                            VStack(alignment: .leading, spacing: 12) {
+                                if !token.entryPoints.isEmpty {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text(StudioStrings.entryPoints)
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(.secondary)
+                                        FlexiblePillStack(items: token.entryPoints.map(humanizedLabel))
+                                    }
+                                }
+
+                                if !token.primaryActions.isEmpty {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text(StudioStrings.primaryActions)
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(.secondary)
+                                        FlexiblePillStack(items: token.primaryActions)
+                                    }
+                                }
+
+                                if !token.secondaryActions.isEmpty {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text(StudioStrings.secondaryActions)
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(.secondary)
+                                        FlexiblePillStack(items: token.secondaryActions)
+                                    }
+                                }
+
+                                if !token.navigatesTo.isEmpty {
+                                    StudioInspectorLinkGroup(
+                                        title: StudioStrings.whatUsersCanDoNext,
+                                        linkItems: token.navigatesTo.prefix(5).map { navigation in
+                                            StudioInspectorLinkItem(
+                                                id: navigation.targetID,
+                                                title: resolvedViewName(for: navigation.targetID),
+                                                subtitle: StudioStrings.navigationEdgeLabel(type: navigation.type, trigger: navigation.trigger)
+                                            )
+                                        },
+                                        actionTitle: StudioStrings.inspectView,
+                                        action: inspectView
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                case .relationships:
+                    StudioInspectorSection(title: StudioStrings.relationships) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            if !token.components.isEmpty {
+                                StudioInspectorLinkGroup(
+                                    title: StudioStrings.linkedComponents,
+                                    linkItems: token.components.map { componentID in
+                                        StudioInspectorLinkItem(
+                                            id: componentID,
+                                            title: resolvedComponentName(for: componentID),
+                                            subtitle: resolvedComponentSubtitle(for: componentID)
+                                        )
+                                    },
+                                    actionTitle: StudioStrings.inspectComponent,
+                                    action: inspectComponent
+                                )
+                            }
+
+                            if !token.states.isEmpty {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(StudioStrings.states)
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(.secondary)
+                                    FlexiblePillStack(items: token.states.map(humanizedLabel))
+                                }
+                            }
+
+                            if !token.designTokenCategories.isEmpty {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(StudioStrings.foundationCategories)
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(.secondary)
+                                    FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                                }
+                            }
+                        }
+                    }
+
+                case .source:
+                    StudioInspectorSection(title: StudioStrings.source) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            StudioKeyValueRow(label: StudioStrings.file, value: token.sourcePath)
+                            if !token.sourceSnippetSymbol.isEmpty {
+                                StudioKeyValueRow(
+                                    label: StudioStrings.symbol,
+                                    value: token.sourceSnippetRange.isEmpty
+                                        ? token.sourceSnippetSymbol
+                                        : "\(token.sourceSnippetSymbol) · \(token.sourceSnippetRange)"
+                                )
+                            }
+                        }
+                    }
+
+                    StudioInspectorSection(title: StudioStrings.evidence) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            StudioKeyValueRow(label: StudioStrings.designTokens, value: "\(token.designTokenCount)")
+                            StudioKeyValueRow(label: StudioStrings.sourceTokens, value: "\(token.sourceTokenCount)")
+                            StudioKeyValueRow(label: StudioStrings.sheets, value: "\(token.sheetPatternsCount)")
+                            StudioKeyValueRow(label: StudioStrings.overlays, value: "\(token.overlayPatternsCount)")
+                        }
+                    }
+
+                    StudioMacProposalArtifactSection(
+                        artifacts: proposalArtifacts,
+                        preferredScope: "view:\(token.id)",
+                        preferredEvidencePath: token.sourcePath,
+                        loadIssue: proposalArtifactIssue,
+                        reloadProposals: reloadProposals,
+                        inspectComponent: inspectComponent,
+                        inspectView: inspectView,
+                        artifactLimit: 6,
+                        selectedArtifactID: nil,
+                        selectArtifact: nil
+                    )
+                }
+            }
+            .padding(20)
         }
     }
 
@@ -745,7 +855,7 @@ private struct StudioViewDetailInspector: View {
     }
 
     private func resolvedComponentSubtitle(for componentID: String) -> String {
-        document.components.first(where: { $0.id == componentID })?.group ?? "Component"
+        document.components.first(where: { $0.id == componentID })?.group ?? StudioStrings.componentFallbackSubtitle
     }
 
     private func resolvedViewName(for viewID: String) -> String {
@@ -757,6 +867,20 @@ private struct StudioViewDetailInspector: View {
             .replacingOccurrences(of: "-", with: " ")
             .replacingOccurrences(of: "_", with: " ")
             .capitalized
+    }
+
+    private func reloadProposals() {
+        let result = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL)
+        proposalArtifacts = result.artifacts
+        proposalArtifactIssue = result.issue
+    }
+
+    private var repositoryRootURL: URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
     }
 }
 
@@ -800,7 +924,7 @@ private struct StudioComponentSnapshotThumbnail: View {
         VStack(spacing: 8) {
             Image(systemName: "photo")
                 .font(.system(size: 28, weight: .semibold))
-            Text("No snapshot")
+            Text(StudioStrings.noSnapshot)
                 .font(.caption.weight(.medium))
         }
         .foregroundStyle(.secondary)
@@ -847,7 +971,7 @@ private struct StudioViewSnapshotThumbnail: View {
         VStack(spacing: 8) {
             Image(systemName: "rectangle.on.rectangle")
                 .font(.system(size: 28, weight: .semibold))
-            Text("No snapshot")
+            Text(StudioStrings.noSnapshot)
                 .font(.caption.weight(.medium))
         }
         .foregroundStyle(.secondary)
