@@ -1,0 +1,2701 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "common.back" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zpět" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back" } }
+      }
+    },
+    "common.cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zrušit" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } }
+      }
+    },
+    "common.forward" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vpřed" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Forward" } }
+      }
+    },
+    "common.home" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Domů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Home" } }
+      }
+    },
+    "common.load" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načíst" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Load" } }
+      }
+    },
+    "common.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open" } }
+      }
+    },
+    "common.recent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nedávné" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent" } }
+      }
+    },
+    "common.reload" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obnovit" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reload" } }
+      }
+    },
+    "common.url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "URL" } }
+      }
+    },
+    "studio.action.bundled_studio" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přibalené studio" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bundled studio" } }
+      }
+    },
+    "studio.action.demo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Demo" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Demo" } }
+      }
+    },
+    "studio.action.load_demo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načíst demo" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Load Demo" } }
+      }
+    },
+    "studio.action.open_bundle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít bundle…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Bundle…" } }
+      }
+    },
+    "studio.action.open_remote_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít vzdálené URL…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Remote URL…" } }
+      }
+    },
+    "studio.action.quick_open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Rychlé otevření" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quick Open" } }
+      }
+    },
+    "studio.action.recent_import" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nedávný import" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent import" } }
+      }
+    },
+    "studio.action.recent_remote_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nedávné vzdálené URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent remote URL" } }
+      }
+    },
+    "studio.action.recent_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nedávné URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent URL" } }
+      }
+    },
+    "studio.action.reopen_recent_import" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Znovu otevřít nedávný import" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reopen Recent Import" } }
+      }
+    },
+    "studio.action.reopen_recent_import_help" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Znovu otevřít nedávný import" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reopen recent import" } }
+      }
+    },
+    "studio.action.reopen_recent_remote_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Znovu otevřít nedávné vzdálené URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reopen Recent Remote URL" } }
+      }
+    },
+    "studio.action.reopen_recent_remote_url_help" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Znovu otevřít nedávné vzdálené URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reopen recent remote URL" } }
+      }
+    },
+    "studio.action.show_home" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazit domov" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show Home" } }
+      }
+    },
+    "studio.app.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio" } }
+      }
+    },
+    "studio.drop_bundle.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : ".humblebundle, .zip nebo .json" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : ".humblebundle, .zip or .json" } }
+      }
+    },
+    "studio.drop_bundle.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přetáhněte Humble bundle k importu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Drop a Humble bundle to import" } }
+      }
+    },
+    "studio.error.unable_to_load" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Studio se nepodařilo načíst" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to load studio" } }
+      }
+    },
+    "studio.error.unable_to_load_legacy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Legacy inspector se nepodařilo načíst" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to load legacy inspector" } }
+      }
+    },
+    "studio.legacy_web.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Legacy Web" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Legacy Web" } }
+      }
+    },
+    "studio.native_parity.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Co už má prvotřídní macOS pokrytí a co se stále opírá o legacy fallback." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "What already has first-class macOS coverage, and what still relies on the legacy fallback." } }
+      }
+    },
+    "studio.native_parity.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Mapa nativní parity" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native Parity Map" } }
+      }
+    },
+    "studio.preview_coverage.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kolik z aktuálního nativního povrchu je přesných, contract-driven, nebo se stále opírá o fallback." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "How much of the current native surface is exact, contract-driven, or still leaning on fallback." } }
+      }
+    },
+    "studio.preview_coverage.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pokrytí preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview Coverage" } }
+      }
+    },
+    "studio.remote_source.open_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít vzdálené URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Remote URL" } }
+      }
+    },
+    "studio.remote_source.prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použijte http/https URL na `.humblebundle`, `.zip` nebo `design.json`. Native foundations i legacy web inspector budou následovat tento zdroj." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use an http/https URL to a `.humblebundle`, `.zip`, or `design.json`. Native foundations and the legacy web inspector will both follow this source." } }
+      }
+    },
+    "studio.remote_source.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vzdálený zdroj" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remote source" } }
+      }
+    },
+    "studio.remote_source.use_recent_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použít nedávné URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use recent URL" } }
+      }
+    },
+    "studio.review.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Fronta revize" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review Queue" } }
+      }
+    },
+    "studio.review.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Začněte u položek, kde je exportovaná pravda nejslabší, a skočte rovnou do odpovídajícího nativního inspectoru." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start with items where exported truth is weakest, then jump straight into the matching native inspector." } }
+      }
+    },
+    "studio.review.empty_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nic nepotřebuje revizi" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nothing needs review" } }
+      }
+    },
+    "studio.review.empty_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Všechny právě importované komponenty a views mají referenční snapshoty nebo dost exportované pravdy pro nativní inspector." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All currently imported components and views have reference snapshots or enough exported truth for the native inspector." } }
+      }
+    },
+    "studio.review.focus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Fokus revize" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review Focus" } }
+      }
+    },
+    "studio.review.why" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Proč to stále potřebuje revizi" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Why It Still Needs Review" } }
+      }
+    },
+    "studio.review.choose_item" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte položku k revizi" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a review item" } }
+      }
+    },
+    "studio.review.choose_item_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte komponentu nebo view ve frontě a zkontrolujte její nativní truth gap a preview coverage." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select a component or view in the queue to inspect its native truth gap and preview coverage." } }
+      }
+    },
+    "studio.change_proposal.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh změny" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Change Proposal" } }
+      }
+    },
+    "studio.change_proposal.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zachyťte tento review nález jako markdown návrh ještě předtím, než se budoucí write-back dotkne source truth." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Capture this review finding as a markdown proposal before any future write-back touches source truth." } }
+      }
+    },
+    "studio.change_proposal.export" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Exportovat návrh změny…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Change Proposal…" } }
+      }
+    },
+    "studio.change_proposal.requested_change" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Požadovaná změna" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Requested change" } }
+      }
+    },
+    "studio.change_proposal.structured_targets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Strukturované cíle" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Structured targets" } }
+      }
+    },
+    "studio.change_proposal.acceptance_notes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Akceptační poznámky" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Acceptance notes" } }
+      }
+    },
+    "studio.change_proposal.exported" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh exportován" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal exported" } }
+      }
+    },
+    "studio.navigation.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navigační mapa" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Navigation Map" } }
+      }
+    },
+    "studio.navigation.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní mapa flow odvozená z exportovaných navigačních hran, ukotvená v app entry route." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native flow map derived from exported navigation edges, rooted at the app entry route." } }
+      }
+    },
+    "studio.destination.proposals_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Repo-aware pracovní plocha návrhů s nativními filtry, recovery a napojením na scope." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Repository-aware proposal workspace with native filters, recovery, and scope linkage." } }
+      }
+    },
+    "studio.inspector.focus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Fokus inspectoru" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspector focus" } }
+      }
+    },
+    "studio.preview_coverage.exact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přesné" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Exact" } }
+      }
+    },
+    "studio.preview_coverage.contract_driven" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Contract-driven" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Contract-driven" } }
+      }
+    },
+    "studio.preview_coverage.fallback_needed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyžaduje fallback" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fallback needed" } }
+      }
+    },
+    "studio.preview_coverage.total" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Celkem previewovatelných" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Total previewable" } }
+      }
+    },
+    "studio.parity.exact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "1:1" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "1:1" } }
+      }
+    },
+    "studio.parity.degraded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Degradované" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Degraded" } }
+      }
+    },
+    "studio.parity.fallback_only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Jen fallback" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fallback-only" } }
+      }
+    },
+    "studio.sidebar.native" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native" } }
+      }
+    },
+    "studio.sidebar.fallback" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Fallback" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fallback" } }
+      }
+    },
+    "studio.source_recovery.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zdroj a obnova" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source & Recovery" } }
+      }
+    },
+    "studio.source_recovery.current_source" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální zdroj" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current source" } }
+      }
+    },
+    "studio.source_recovery.preferred_relaunch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Preferované znovuspuštění" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preferred relaunch" } }
+      }
+    },
+    "studio.source_recovery.recommended_next_step" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Doporučený další krok" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recommended next step" } }
+      }
+    },
+    "studio.source_recovery.recent_remote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nedávný vzdálený zdroj" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent remote" } }
+      }
+    },
+    "studio.source_recovery.current_issue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální problém" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current issue" } }
+      }
+    },
+    "studio.content.components.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Komponenty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Components" } }
+      }
+    },
+    "studio.content.components.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "První nativní průchod komponentami: snapshot-first karty nad exportovaným kontraktem, tentokrát s opravdovým nativním inspectorem místo skoku zpět do webu." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "First native component pass: snapshot-first cards over the exported contract, now with a real native inspector instead of a jump straight back to the web." } }
+      }
+    },
+    "studio.content.views.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Views" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Views" } }
+      }
+    },
+    "studio.content.views.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní katalog screenů nad exportovanou pravdou, teď už s nativním detail inspectorem pro flow, navázané komponenty a zdrojové důkazy." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native screen catalog over the exported truth, now with a native detail inspector for flow, linked components, and source evidence." } }
+      }
+    },
+    "studio.foundation.tokens.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tokeny" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tokens" } }
+      }
+    },
+    "studio.foundation.tokens.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní foundation inspector pro barvy a gradienty, přímo nad exportovaným token kontraktem." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native foundation inspector for colors and gradients, backed directly by the exported token contract." } }
+      }
+    },
+    "studio.foundation.icons.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ikony" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Icons" } }
+      }
+    },
+    "studio.foundation.icons.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní prohlížeč ikon nad exportovaným asset bundlem s opravdovým inspectorem pro symbol, cestu k assetu a usage metadata." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native icon browser over the exported asset bundle, with a real inspector for symbol, asset path, and usage metadata." } }
+      }
+    },
+    "studio.foundation.typography.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Typografie" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Typography" } }
+      }
+    },
+    "studio.foundation.typography.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní inspector typografických rolí pro preview text, SwiftUI mapování a metadata měřítka z exportovaného design kontraktu." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native type role inspector for preview copy, SwiftUI mapping, and scale metadata exported from the design contract." } }
+      }
+    },
+    "studio.foundation.spacing.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Spacing a radius" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Spacing & Radius" } }
+      }
+    },
+    "studio.foundation.spacing.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní inspector prostorových tokenů pro spacing a corner radius s větším preview a kontraktovým kontextem místo dashboard-only karet." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native spatial token inspector for spacing and corner radius values, with larger previews and contract context instead of dashboard-only cards." } }
+      }
+    },
+    "studio.preview.appearance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vzhled" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Appearance" } }
+      }
+    },
+    "studio.preview.appearance_dark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tmavý" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dark" } }
+      }
+    },
+    "studio.preview.appearance_light" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Světlý" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Light" } }
+      }
+    },
+    "studio.content.component_catalog" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Katalog komponent" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Component Catalog" } }
+      }
+    },
+    "studio.content.component_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail komponenty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Component Detail" } }
+      }
+    },
+    "studio.content.view_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail view" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Detail" } }
+      }
+    },
+    "studio.content.select_component" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte komponentu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select a component" } }
+      }
+    },
+    "studio.content.select_component_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte kartu komponenty a prohlédněte si její snapshot truth, katalog stavů a source metadata." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a component card to inspect its snapshot truth, state catalog, and source metadata." } }
+      }
+    },
+    "studio.content.select_view" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte view" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select a view" } }
+      }
+    },
+    "studio.content.select_view_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte kartu view a prohlédněte si její flow, navázané komponenty a zdrojové důkazy." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a view card to inspect its flow, linked components, and source evidence." } }
+      }
+    },
+    "studio.foundation.colors" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Barvy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Colors" } }
+      }
+    },
+    "studio.foundation.gradients" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Gradienty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gradients" } }
+      }
+    },
+    "studio.foundation.spacing_group" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Spacing" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Spacing" } }
+      }
+    },
+    "studio.foundation.corner_radius" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Poloměr rohů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Corner Radius" } }
+      }
+    },
+    "studio.action.load_bundled_studio" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načíst přibalené studio" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Load bundled studio" } }
+      }
+    },
+    "studio.status.importing_file_named" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importuji %@…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Importing %@…" } }
+      }
+    },
+    "studio.source.local_file" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lokální soubor" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Local file" } }
+      }
+    },
+    "studio.recovery.issue.archive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Archiv nešel rozbalit" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Archive could not be unpacked" } }
+      }
+    },
+    "studio.recovery.issue.manifest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybí design manifest" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing design manifest" } }
+      }
+    },
+    "studio.recovery.issue.decode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Design export nešel dekódovat" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Design export could not be decoded" } }
+      }
+    },
+    "studio.recovery.issue.platform" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Platformní omezení importu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Platform import limitation" } }
+      }
+    },
+    "studio.recovery.issue.remote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vzdálený zdroj nešel hydratovat" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remote source could not be hydrated" } }
+      }
+    },
+    "studio.recovery.issue.local" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lokální zdroj nešel hydratovat" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Local source could not be hydrated" } }
+      }
+    },
+    "studio.change_proposal.save_to_repo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Uložit návrh do repa" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save Proposal to Repo" } }
+      }
+    },
+    "studio.change_proposal.repo_saved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh uložen v repu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal saved in repo" } }
+      }
+    },
+    "studio.change_proposal.repo_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh se nepodařilo uložit do repa" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to save proposal in repo" } }
+      }
+    },
+    "studio.change_proposal.artifacts_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Artefakty návrhů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal Artifacts" } }
+      }
+    },
+    "studio.change_proposal.artifacts_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načti zpět uložené markdown návrhy pro tento scope ještě před jakýmkoli apply krokem." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Read back saved markdown proposals for this scope before planning any apply step." } }
+      }
+    },
+    "studio.change_proposal.refresh" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obnovit návrhy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh Proposals" } }
+      }
+    },
+    "studio.change_proposal.open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít návrh" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Proposal" } }
+      }
+    },
+    "studio.change_proposal.reveal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ukázat ve Finderu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reveal in Finder" } }
+      }
+    },
+    "studio.change_proposal.no_matching" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pro tento review scope zatím neexistuje odpovídající uložený návrh." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No saved proposal matches this review scope yet." } }
+      }
+    },
+    "studio.change_proposal.no_saved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "V repozitáři zatím nejsou žádné uložené návrhy změn." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No saved change proposals are available in the repository yet." } }
+      }
+    },
+    "studio.change_proposal.no_filtered" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální filtry neodpovídají žádným artefaktům návrhů." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No proposal artifacts match the current filter set." } }
+      }
+    },
+    "studio.change_proposal.filter.scope" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Filtr scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scope filter" } }
+      }
+    },
+    "studio.change_proposal.filter.status" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Filtr stavu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Status filter" } }
+      }
+    },
+    "studio.change_proposal.filter.coverage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Filtr pokrytí" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Coverage filter" } }
+      }
+    },
+    "studio.change_proposal.sort" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Řazení" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sort" } }
+      }
+    },
+    "studio.change_proposal.filter.matching_scope" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přesný scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Matching scope" } }
+      }
+    },
+    "studio.change_proposal.filter.related_scope" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Související scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Related scope" } }
+      }
+    },
+    "studio.change_proposal.filter.all_artifacts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Všechny artefakty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All artifacts" } }
+      }
+    },
+    "studio.change_proposal.filter.any_status" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Libovolný stav" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Any status" } }
+      }
+    },
+    "studio.change_proposal.filter.any_coverage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Libovolné pokrytí" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Any coverage" } }
+      }
+    },
+    "studio.change_proposal.sort.newest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nejnovější první" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Newest first" } }
+      }
+    },
+    "studio.change_proposal.sort.status" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nejdřív stav" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Status first" } }
+      }
+    },
+    "studio.change_proposal.sort.confidence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nejdřív jistota scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scope confidence first" } }
+      }
+    },
+    "studio.change_proposal.linkage.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Napojení návrhů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal Linkage" } }
+      }
+    },
+    "studio.change_proposal.linkage.matching" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odpovídající návrhy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Matching proposals" } }
+      }
+    },
+    "studio.change_proposal.linkage.ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Připravené návrhy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ready proposals" } }
+      }
+    },
+    "studio.change_proposal.linkage.evidence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navázané na evidenci" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Evidence-linked" } }
+      }
+    },
+    "studio.change_proposal.workspace.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pracovní plocha návrhů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal Workspace" } }
+      }
+    },
+    "studio.change_proposal.workspace.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní pohled do repozitáře nad uloženými artefakty návrhů, jejich připraveností a aktuálním napojením zpět na source truth." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native repository view over saved proposal artifacts, their readiness, and their current linkage back to source truth." } }
+      }
+    },
+    "studio.change_proposal.workspace.all_artifacts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Všechny artefakty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All artifacts" } }
+      }
+    },
+    "studio.change_proposal.workspace.ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Připravené" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ready" } }
+      }
+    },
+    "studio.change_proposal.workspace.needs_refinement" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Potřebují zpřesnit" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needs refinement" } }
+      }
+    },
+    "studio.change_proposal.workspace.validation_signal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Signál validace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Validation signal" } }
+      }
+    },
+    "studio.change_proposal.workspace.validation_healthy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Metadata jsou většinou kompletní" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Metadata is mostly complete" } }
+      }
+    },
+    "studio.change_proposal.workspace.validation_gaps" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Některé artefakty ještě potřebují silnější scope nebo evidence metadata" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Some artifacts still need stronger scope or evidence metadata" } }
+      }
+    },
+    "studio.change_proposal.workspace.selected_artifact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vybraný návrh" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Selected Proposal" } }
+      }
+    },
+    "studio.change_proposal.workspace.select_artifact_prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyber artefakt návrhu a zkontroluj jeho validaci, navázaný scope a read-only apply preview." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select a proposal artifact to inspect its validation, linked scope, and read-only apply preview." } }
+      }
+    },
+    "studio.change_proposal.workspace.selected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vybráno" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Selected" } }
+      }
+    },
+    "studio.change_proposal.workspace.choose_artifact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vybrat artefakt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose artifact" } }
+      }
+    },
+    "studio.change_proposal.inspect_scope" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspect Scope" } }
+      }
+    },
+    "studio.change_proposal.validation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Validace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Validation" } }
+      }
+    },
+    "studio.change_proposal.validation_healthy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Metadata kompletní" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Metadata complete" } }
+      }
+    },
+    "studio.change_proposal.validation_needs_attention" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybí metadata" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needs metadata" } }
+      }
+    },
+    "studio.change_proposal.validation_missing_scope" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybí scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing scope" } }
+      }
+    },
+    "studio.change_proposal.validation_missing_evidence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybí evidence" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing evidence" } }
+      }
+    },
+    "studio.change_proposal.validation_missing_acceptance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybí akceptační poznámky" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing acceptance notes" } }
+      }
+    },
+    "studio.change_proposal.validation_missing_targets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybí structured targets" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing structured targets" } }
+      }
+    },
+    "studio.change_proposal.validation_weak_scope_confidence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Slabá jistota scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weak scope confidence" } }
+      }
+    },
+    "studio.change_proposal.apply_preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Read-only Apply Preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Read-only Apply Preview" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tento preview odhaduje očekávaný dopad a další kontroly bez jakékoli mutace source truth v repozitáři." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This preview estimates expected impact and next checks without mutating repository source truth." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.readiness" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Připravenost preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview readiness" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.readiness_ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Připraveno pro preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview-ready" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.readiness_review" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Potřebuje revizi" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needs review" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.readiness_blocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Blokováno" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Blocked" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.expected_impact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Očekávaný dopad" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Expected impact" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.would_touch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Dotklo by se" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Would touch" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.next_step" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Další krok preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Next preview step" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.evidence_match" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Shoda evidence" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Evidence match" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.evidence_matched" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navázáno na aktuální source" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Matched to current source" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.evidence_needs_check" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Potřebuje potvrzení source" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needs source confirmation" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.would_touch_component" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odpovídající component contract, souvisejících evidence cest a nativního component inspectoru" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Matching component contract, related evidence paths, and native component inspector" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.would_touch_view" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odpovídající view contract, navigation kontextu a nativního view inspectoru" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Matching view contract, navigation context, and native view inspector" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.would_touch_unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Metadata návrhu zatím nejsou dost přesná na bezpečnou předpověď nativního cíle" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal metadata is not precise enough to predict a safe native target yet" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.impact_ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Metadata jsou dost silná pro důvěryhodný read-only preview průchod." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Metadata is strong enough for a trustworthy read-only preview pass." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.impact_review" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Preview umí naznačit pravděpodobný dopad, ale část metadat je ještě potřeba zpřesnit." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview can outline probable impact, but some metadata should be tightened first." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.impact_blocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Preview má zůstat blokovaný, dokud nechybí základní scope a evidence metadata." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview should stay blocked until core scope and evidence metadata are filled in." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.next_step_ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Porovnej tenhle návrh s navázaným nativním inspectorem a potvrď, že zamýšlený diff zůstává read-only." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Compare this proposal against the linked native inspector and confirm the intended diff stays read-only." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.next_step_review" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zpřesni jistotu scope nebo structured targets, než se na apply-oriented preview začneš spoléhat." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tighten scope confidence or structured targets before trusting any apply-oriented preview." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.next_step_blocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Doplň chybějící scope a evidence metadata dřív, než vznikne jakýkoli další apply workflow." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Complete missing scope and evidence metadata before any future apply workflow." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.check_evidence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Porovnalo by vypsané evidence cesty s aktuálními povrchy v repozitáři." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Would compare listed evidence paths against the current repository surfaces." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.check_targets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ověřilo by structured targets a candidate mapping dřív, než by přišel jakýkoli automatizovaný krok." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Would verify structured targets and candidate mappings before any automated step." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.check_acceptance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Potvrdilo by acceptance notes proti nativnímu preview coverage a review truth." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Would confirm acceptance notes against native preview coverage and review truth." } }
+      }
+    },
+    "studio.change_proposal.issue.missing_directory.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Složka s návrhy ještě neexistuje" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal folder not created yet" } }
+      }
+    },
+    "studio.change_proposal.issue.unreadable_directory.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Složku s návrhy se nepodařilo načíst" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal folder could not be read" } }
+      }
+    },
+    "studio.change_proposal.issue.unreadable_artifact.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Soubor návrhu se nepodařilo načíst" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal file could not be read" } }
+      }
+    },
+    "studio.change_proposal.issue.directory_not_folder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Na očekávané cestě není složka, ale jiný typ položky." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Expected a folder, but found another item instead." } }
+      }
+    },
+    "studio.change_proposal.issue.missing_directory.recovery" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ulož první návrh do repozitáře, tím se vytvoří `docs/change-proposals/`, a potom inspector obnov." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save the first proposal to the repository to create `docs/change-proposals/`, then refresh this inspector." } }
+      }
+    },
+    "studio.change_proposal.issue.unreadable_directory.recovery" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkontroluj přístup k repozitáři nebo stav branche a potom návrhy obnov." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check repository access or branch state, then refresh proposals." } }
+      }
+    },
+    "studio.change_proposal.issue.unreadable_artifact.recovery" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevři dotčený markdown soubor, oprav kódování nebo přístup k obsahu a potom návrhy obnov." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open the affected markdown file, fix encoding or content access, then refresh proposals." } }
+      }
+    },
+    "studio.change_proposal.scope" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scope" } }
+      }
+    },
+    "studio.change_proposal.coverage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pokrytí" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Coverage" } }
+      }
+    },
+    "studio.change_proposal.evidence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Evidence" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Evidence" } }
+      }
+    },
+    "studio.change_proposal.updated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktualizováno" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Updated" } }
+      }
+    },
+    "studio.change_proposal.status" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Stav" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Status" } }
+      }
+    },
+    "studio.change_proposal.area" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Oblast" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Area" } }
+      }
+    },
+    "studio.change_proposal.why" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Proč" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Why" } }
+      }
+    },
+    "studio.change_proposal.diff_context" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Diff kontext" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Diff context" } }
+      }
+    },
+    "studio.change_proposal.scope_confidence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Jistota scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scope confidence" } }
+      }
+    },
+    "studio.change_proposal.status_draft" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Draft" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Draft" } }
+      }
+    },
+    "studio.change_proposal.status_refine" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Potřebuje zpřesnit cíle" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needs target refinement" } }
+      }
+    },
+    "studio.change_proposal.status_ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Připraveno pro apply preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ready for apply preview" } }
+      }
+    },
+    "studio.change_proposal.scope_confidence_low" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nízká" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Low" } }
+      }
+    },
+    "studio.change_proposal.scope_confidence_medium" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Související" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Related" } }
+      }
+    },
+    "studio.change_proposal.scope_confidence_high" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vysoká" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "High" } }
+      }
+    },
+    "studio.change_proposal.issue.missing_directory.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "V repozitáři zatím není složka `docs/change-proposals/`. Očekávaná cesta: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The repository does not have a `docs/change-proposals/` folder yet. Expected path: %@" } }
+      }
+    },
+    "studio.change_proposal.issue.unreadable_directory.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio nedokázalo načíst složku s návrhy na %1$@. Důvod: %2$@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio could not read the proposal folder at %1$@. Reason: %2$@" } }
+      }
+    },
+    "studio.change_proposal.issue.unreadable_artifact.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio při obnově artefaktů návrhů přeskočilo %1$@. Důvod: %2$@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio skipped %1$@ while reloading proposal artifacts. Reason: %2$@" } }
+      }
+    },
+    "studio.change_proposal.evidence_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld zdrojů evidence, začíná %2$@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld evidence sources, starting with %2$@" } }
+      }
+    },
+    "studio.change_proposal.navigation_checklist" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zachovejte chování %1$@ a držte aktuální preview contract pro %2$@ pravdivý." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preserve %1$@ behavior and keep the current %2$@ preview contract honest." } }
+      }
+    },
+    "studio.review.total_truth_gaps_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Celkový počet nativních mezer v pravdivosti z aktuálního importu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Total native truth gaps surfaced from the current import" } }
+      }
+    },
+    "studio.review.component_truth_gaps_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Znovupoužitelné části bez snapshotu nebo silné stavové pravdy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reusable pieces missing snapshot or strong state truth" } }
+      }
+    },
+    "studio.review.view_truth_gaps_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Screeny, jejichž vizuální nebo flow evidence stále potřebuje pozornost" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Screens whose visual or flow evidence still needs attention" } }
+      }
+    },
+    "studio.navigation.flow_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail flow" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Flow Detail" } }
+      }
+    },
+    "studio.navigation.select_route_node" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyber route uzel" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select a route node" } }
+      }
+    },
+    "studio.navigation.select_route_node_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyber view v navigační mapě a zkontroluj, jak se do ní uživatel dostane a kam může pokračovat." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a view in the navigation map to inspect how users reach it and where they can go next." } }
+      }
+    },
+    "studio.navigation.path_from_root" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Cesta od rootu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Path from root" } }
+      }
+    },
+    "studio.navigation.how_users_get_here" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Jak se sem uživatelé dostanou" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "How Users Get Here" } }
+      }
+    },
+    "studio.navigation.what_users_can_do_next" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Co mohou uživatelé udělat dál" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "What Users Can Do Next" } }
+      }
+    },
+    "studio.navigation.interaction_model" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Interakční model" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Interaction Model" } }
+      }
+    },
+    "common.root" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Root" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Root" } }
+      }
+    },
+    "studio.navigation.root_screen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kořenová obrazovka" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Root screen" } }
+      }
+    },
+    "studio.snapshot.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Bez snapshotu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No snapshot" } }
+      }
+    },
+    "studio.snapshot.catalog_only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Jen katalog" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Catalog only" } }
+      }
+    },
+    "studio.snapshot.reference" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Referenční snapshot" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reference snapshot" } }
+      }
+    },
+    "studio.status.loading_bundled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načítám přibalené studio…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading bundled studio…" } }
+      }
+    },
+    "studio.status.reloading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obnovuji studio…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reloading studio…" } }
+      }
+    },
+    "studio.status.loading_remote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načítám vzdálený zdroj…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading remote source…" } }
+      }
+    },
+    "studio.error.native_preview_unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní preview není k dispozici" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native preview unavailable" } }
+      }
+    },
+    "studio.load_design_export.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načtěte design export" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Load a design export" } }
+      }
+    },
+    "studio.load_design_export.workspace_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřete `.humblebundle`, `.zip` nebo `design.json` a naplňte tím nativní foundations workspace." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open a `.humblebundle`, `.zip`, or `design.json` to populate the native foundations workspace." } }
+      }
+    },
+    "studio.load_design_export.page_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřete `.humblebundle`, `.zip` nebo `design.json` a naplňte tím tuto nativní stránku." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open a `.humblebundle`, `.zip`, or `design.json` to populate this native page." } }
+      }
+    },
+    "studio.inspector.preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Náhled" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview" } }
+      }
+    },
+    "studio.inspector.relationships" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vazby" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Relationships" } }
+      }
+    },
+    "studio.inspector.source" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zdroj" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source" } }
+      }
+    },
+    "studio.inspector.section" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Sekce inspectoru" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspector section" } }
+      }
+    },
+    "studio.foundation.color_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail barvy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Color Detail" } }
+      }
+    },
+    "studio.foundation.gradient_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail gradientu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gradient Detail" } }
+      }
+    },
+    "studio.foundation.icon_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail ikony" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Icon Detail" } }
+      }
+    },
+    "studio.foundation.typography_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail typografie" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Typography Detail" } }
+      }
+    },
+    "studio.foundation.spacing_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail rozestupu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Spacing Detail" } }
+      }
+    },
+    "studio.foundation.corner_radius_detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail zaoblení rohů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Corner Radius Detail" } }
+      }
+    },
+    "studio.foundation.group" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Skupina" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Group" } }
+      }
+    },
+    "studio.foundation.references" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Reference" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "References" } }
+      }
+    },
+    "studio.foundation.variants" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Varianty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Variants" } }
+      }
+    },
+    "studio.foundation.derived_gradients" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odvozené gradienty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Derived gradients" } }
+      }
+    },
+    "studio.inspector.what_this_is" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Co to je" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "What This Is" } }
+      }
+    },
+    "studio.inspector.evidence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Evidence" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Evidence" } }
+      }
+    },
+    "studio.inspector.used_by_components" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použito v komponentách" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Used By Components" } }
+      }
+    },
+    "studio.inspector.used_by_views" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použito ve views" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Used By Views" } }
+      }
+    },
+    "studio.action.inspect_component" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Prohlédnout komponentu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspect Component" } }
+      }
+    },
+    "studio.action.inspect_view" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Prohlédnout view" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspect View" } }
+      }
+    },
+    "studio.foundation.select_token" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte token" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select a token" } }
+      }
+    },
+    "studio.foundation.select_token_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte kartu barvy nebo gradientu a prohlédněte si její varianty, reference a vazby." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a color or gradient card to inspect its variants, references, and relationships." } }
+      }
+    },
+    "studio.foundation.type" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Typ" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Type" } }
+      }
+    },
+    "studio.foundation.token" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Token" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Token" } }
+      }
+    },
+    "studio.foundation.token_colors" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Barvy tokenu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Token colors" } }
+      }
+    },
+    "studio.foundation.symbol" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Symbol" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Symbol" } }
+      }
+    },
+    "studio.foundation.truth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pravda" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Truth" } }
+      }
+    },
+    "studio.foundation.bundled_asset" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přibalený asset" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bundled asset" } }
+      }
+    },
+    "studio.foundation.used_by" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použito v" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Used by" } }
+      }
+    },
+    "studio.inspector.contract" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kontrakt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Contract" } }
+      }
+    },
+    "studio.inspector.asset" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Asset" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Asset" } }
+      }
+    },
+    "studio.foundation.path" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Cesta" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Path" } }
+      }
+    },
+    "studio.foundation.identifier" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Identifikátor" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Identifier" } }
+      }
+    },
+    "studio.foundation.select_icon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte ikonu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select an icon" } }
+      }
+    },
+    "studio.foundation.select_icon_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte kartu ikony a prohlédněte si její symbol, cestu k assetu a exportovaná metadata použití." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose an icon card to inspect its symbol, bundled asset path, and exported usage metadata." } }
+      }
+    },
+    "studio.foundation.size" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Velikost" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Size" } }
+      }
+    },
+    "studio.foundation.weight" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Řez" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weight" } }
+      }
+    },
+    "studio.inspector.preview_surface" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Preview plocha" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview Surface" } }
+      }
+    },
+    "studio.inspector.context_preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kontextové preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Context Preview" } }
+      }
+    },
+    "studio.inspector.flow_context" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kontext flow" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Flow context" } }
+      }
+    },
+    "studio.inspector.usage_signal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Signál použití" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Usage signal" } }
+      }
+    },
+    "studio.inspector.mostly_component_scoped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Převážně na úrovni komponent" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mostly component-scoped" } }
+      }
+    },
+    "studio.inspector.visible_in_view_flows" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Viditelné ve flow na úrovni views" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Visible in view-level flows" } }
+      }
+    },
+    "studio.foundation.select_typography_role" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte typografickou roli" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select a typography role" } }
+      }
+    },
+    "studio.foundation.select_typography_role_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte kartu textového stylu a prohlédněte si její preview text, škálu a SwiftUI mapování." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a type card to inspect its preview copy, scale, and SwiftUI mapping." } }
+      }
+    },
+    "studio.foundation.value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Hodnota" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Value" } }
+      }
+    },
+    "studio.foundation.usage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použití" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Usage" } }
+      }
+    },
+    "studio.foundation.no_usage_guidance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zatím bez exportovaného vodítka použití" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No exported usage guidance yet" } }
+      }
+    },
+    "studio.foundation.select_spatial_token" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte prostorový token" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select a spatial token" } }
+      }
+    },
+    "studio.foundation.select_spatial_token_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte token rozestupu nebo zaoblení a prohlédněte si jeho hodnotu, škálu preview a vodítka použití." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a spacing or radius token to inspect its value, preview scale, and usage guidance." } }
+      }
+    },
+    "studio.foundation.shared_light_dark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Sdílené light/dark" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shared light/dark" } }
+      }
+    },
+    "studio.foundation.distinct_variants" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Oddělené varianty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Distinct variants" } }
+      }
+    },
+    "studio.foundation.shared_light_dark_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Sdílená light/dark hodnota" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shared light/dark value" } }
+      }
+    },
+    "studio.foundation.distinct_light_dark_values" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Oddělené light a dark hodnoty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Distinct light and dark values" } }
+      }
+    },
+    "studio.foundation.typography_preview_sample" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Příliš žluťoučký kůň úpěl ďábelské ódy." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The quick brown fox jumps over the lazy dog." } }
+      }
+    },
+    "studio.snapshot.label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Snapshot" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Snapshot" } }
+      }
+    },
+    "studio.snapshot.catalog" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Katalog" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Catalog" } }
+      }
+    },
+    "studio.content.renderer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Renderer" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Renderer" } }
+      }
+    },
+    "studio.content.default_state" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Výchozí stav" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default state" } }
+      }
+    },
+    "studio.content.used_in" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použito v" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Used in" } }
+      }
+    },
+    "studio.content.where_it_appears" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kde se objevuje" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Where It Appears" } }
+      }
+    },
+    "studio.content.used_in_views" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použito ve views" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Used In Views" } }
+      }
+    },
+    "studio.content.foundation_categories" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Foundation kategorie" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Foundation categories" } }
+      }
+    },
+    "studio.content.state_catalog" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Katalog stavů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "State Catalog" } }
+      }
+    },
+    "studio.content.states" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Stavy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "States" } }
+      }
+    },
+    "studio.content.design_tokens" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Design tokeny" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Design tokens" } }
+      }
+    },
+    "studio.content.source_tokens" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Source tokeny" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source tokens" } }
+      }
+    },
+    "studio.content.file" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Soubor" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "File" } }
+      }
+    },
+    "studio.content.categories" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kategorie" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Categories" } }
+      }
+    },
+    "studio.content.flow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Flow" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Flow" } }
+      }
+    },
+    "studio.content.entry_points" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vstupní body" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Entry points" } }
+      }
+    },
+    "studio.content.primary_actions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Primární akce" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Primary actions" } }
+      }
+    },
+    "studio.content.secondary_actions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Sekundární akce" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Secondary actions" } }
+      }
+    },
+    "studio.content.linked_components" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navázané komponenty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Linked components" } }
+      }
+    },
+    "studio.content.next_steps" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Další kroky" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Next steps" } }
+      }
+    },
+    "studio.content.actions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Akce" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Actions" } }
+      }
+    },
+    "studio.content.views_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Views" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Views" } }
+      }
+    },
+    "studio.content.edges_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Hrany" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edges" } }
+      }
+    },
+    "studio.navigation.depth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Hloubka" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Depth" } }
+      }
+    },
+    "studio.navigation.incoming" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Příchozí" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Incoming" } }
+      }
+    },
+    "studio.navigation.outgoing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odchozí" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Outgoing" } }
+      }
+    },
+    "studio.review.truth_status" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Stav pravdy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Truth status" } }
+      }
+    },
+    "studio.review.gap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Mezera" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gap" } }
+      }
+    },
+    "studio.navigation.label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navigace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Navigation" } }
+      }
+    },
+    "common.missing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybí" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing" } }
+      }
+    },
+    "common.present" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přítomné" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Present" } }
+      }
+    },
+    "studio.content.not_exported_yet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zatím neexportováno" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not exported yet" } }
+      }
+    },
+    "studio.change_proposal.add_precise_target" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Po inspekci doplňte přesný cíl." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add precise target after inspection." } }
+      }
+    },
+    "studio.navigation.push" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Push" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Push" } }
+      }
+    },
+    "studio.navigation.sheet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Sheet" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sheet" } }
+      }
+    },
+    "studio.navigation.replace" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Replace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Replace" } }
+      }
+    },
+    "studio.navigation.other" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ostatní" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Other" } }
+      }
+    },
+    "studio.navigation.transition_via" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ přes %2$@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ via %2$@" } }
+      }
+    },
+    "studio.content.overlays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Overlaye" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Overlays" } }
+      }
+    },
+    "studio.content.sheets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Sheety" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sheets" } }
+      }
+    },
+    "studio.content.component_fallback_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Komponenta" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Component" } }
+      }
+    },
+    "studio.content.swiftui" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "SwiftUI" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "SwiftUI" } }
+      }
+    },
+    "studio.change_proposal.intent_component" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zpřesněte nativní pravdu pro %@ a uzavřete aktuální review gap před jakýmkoli budoucím write-backem." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tighten native truth for %@ and resolve the current review gap before future write-back." } }
+      }
+    },
+    "studio.change_proposal.intent_view" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyjasněte flow, vizuální pravdu nebo behavior coverage pro %@ před jakýmkoli authoring krokem." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clarify flow, visual truth, or behavior coverage for %@ before any authoring step." } }
+      }
+    },
+    "studio.change_proposal.acceptance_component" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Udržte coverage na %@ nebo lepší a zachovejte současnou sémantiku state katalogu." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keep coverage at %@ or better and preserve current state catalog semantics." } }
+      }
+    },
+    "studio.change_proposal.acceptance_view" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zachovejte chování %@ a po aplikaci návrhu znovu zkontrolujte aktuální navigation depth a coverage." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preserve %@ behavior and re-check current navigation depth and coverage after the proposal is applied." } }
+      }
+    },
+    "studio.change_proposal.markdown_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh změny" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Change Proposal" } }
+      }
+    },
+    "studio.change_proposal.markdown_scope_heading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scope" } }
+      }
+    },
+    "studio.change_proposal.markdown_requested_heading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Požadovaná změna" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Requested Change" } }
+      }
+    },
+    "studio.change_proposal.markdown_structured_targets_heading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Strukturované cíle" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Structured Targets" } }
+      }
+    },
+    "studio.change_proposal.markdown_acceptance_heading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Akceptační poznámky" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Acceptance Notes" } }
+      }
+    },
+    "studio.change_proposal.markdown_recheck_note" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Po dopadu změny znovu zkontrolujte odpovídající nativní inspector a aktuální preview contract." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Re-check the matching native inspector and current preview contract after the change lands." } }
+      }
+    },
+    "studio.change_proposal.exported_file" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh exportován: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal exported: %@" } }
+      }
+    },
+    "studio.change_proposal.repo_saved_file" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh uložen v repu: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal saved in repo: %@" } }
+      }
+    },
+    "studio.change_proposal.repo_failed_reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh se nepodařilo uložit do repa: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to save proposal in repo: %@" } }
+      }
+    },
+    "studio.navigation.graph_nodes_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Uzly aktuálně v exportovaném flow grafu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nodes currently in the exported flow graph" } }
+      }
+    },
+    "studio.navigation.graph_edges_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Push, sheety, replace a pop přechody" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Push, sheet, replace, and pop transitions" } }
+      }
+    },
+    "studio.navigation.graph_root_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Primární vstupní route pro aktuální bundle" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Primary entry route for the current bundle" } }
+      }
+    },
+    "studio.foundation.references_count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld referencí" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld references" } }
+      }
+    },
+    "studio.foundation.components_count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld komponent" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld components" } }
+      }
+    },
+    "studio.foundation.items_count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld položek" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld items" } }
+      }
+    },
+    "studio.foundation.points" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld pt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld pt" } }
+      }
+    },
+    "studio.content.states_count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld stavů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld states" } }
+      }
+    },
+    "studio.content.views_count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld views" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld views" } }
+      }
+    },
+    "studio.content.links_count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld odkazů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld links" } }
+      }
+    },
+    "studio.content.default_state_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Výchozí: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default: %@" } }
+      }
+    },
+    "studio.content.state_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Stav: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "State: %@" } }
+      }
+    },
+    "studio.navigation.depth_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Hloubka %lld" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Depth %lld" } }
+      }
+    },
+    "studio.navigation.view_count_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld views" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld views" } }
+      }
+    },
+    "studio.preview.stack.single" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Samostatná obrazovka" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Single Screen" } }
+      }
+    },
+    "studio.preview.stack.stacked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vrstvený flow" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stacked Flow" } }
+      }
+    },
+    "studio.preview.stack.branched" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Rozvětvený flow" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Branched Flow" } }
+      }
+    },
+    "common.close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zavřít" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } }
+      }
+    },
+    "common.current" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current" } }
+      }
+    },
+    "common.results_count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld výsledků" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld results" } }
+      }
+    },
+    "common.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Neznámé" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unknown" } }
+      }
+    },
+    "studio.content.component_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Komponenta · %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Component · %@" } }
+      }
+    },
+    "studio.content.view_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "View · %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View · %@" } }
+      }
+    },
+    "studio.content.components_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "komp." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "comps" } }
+      }
+    },
+    "studio.content.components_count_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } }
+      }
+    },
+    "studio.foundation.color_token_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Barevný token · %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Color token · %@" } }
+      }
+    },
+    "studio.foundation.gradient_token_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Gradient token · %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gradient token · %@" } }
+      }
+    },
+    "studio.foundation.icon_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ikona · %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Icon · %@" } }
+      }
+    },
+    "studio.foundation.typography_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Typografie · %lld pt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Typography · %lld pt" } }
+      }
+    },
+    "studio.foundation.spacing_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Spacing · %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Spacing · %@" } }
+      }
+    },
+    "studio.foundation.corner_radius_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Corner radius · %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Corner radius · %@" } }
+      }
+    },
+    "studio.legacy_web.fallback_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Web fallback" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Web fallback" } }
+      }
+    },
+    "studio.navigation.incoming_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "vst." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "in" } }
+      }
+    },
+    "studio.navigation.outgoing_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "výst." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "out" } }
+      }
+    },
+    "studio.navigation.flow_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navigační flow · %lld odchozích hran" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Navigation flow · %lld outgoing edges" } }
+      }
+    },
+    "studio.navigation.incoming_count_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } }
+      }
+    },
+    "studio.navigation.outgoing_count_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } }
+      }
+    },
+    "studio.quick_open.pages" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Stránky" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pages" } }
+      }
+    },
+    "studio.quick_open.search_placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Hledej stránky, foundations, komponenty a views…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search pages, foundations, components, and views…" } }
+      }
+    },
+    "studio.quick_open.no_matches" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Žádné výsledky" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No matches" } }
+      }
+    },
+    "studio.quick_open.no_matches_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkuste hledat podle názvu tokenu, komponenty, view nebo stránky." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try searching by token name, component, view, or page." } }
+      }
+    },
+    "studio.review.component_no_truth_reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Není exportovaný žádný referenční snapshot a nativní inspector zatím nemá ani deklarovaný state katalog, o který by se mohl opřít." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No reference snapshot is exported and the native inspector also has no declared state catalog to lean on yet." } }
+      }
+    },
+    "studio.review.component_missing_snapshot_reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Komponenta má deklarované stavy, ale stále jí chybí exportovaný referenční snapshot pro potvrzení vizuální pravdy." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The component has declared states, but there is still no exported reference snapshot to confirm visual truth." } }
+      }
+    },
+    "studio.review.component_fully_backed_reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tato komponenta je plně podložená exportovanou pravdou." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This component is fully backed by exported truth." } }
+      }
+    },
+    "studio.review.view_missing_snapshot_reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Screen má flow i component metadata, ale zatím nemá exportovaný referenční snapshot, takže vizuální pravda stále potřebuje review." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The screen has flow and component metadata, but no exported reference snapshot yet, so visual truth still needs review." } }
+      }
+    },
+    "studio.review.view_fully_backed_reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tato view je plně podložená exportovanou pravdou." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This view is fully backed by exported truth." } }
+      }
+    },
+    "studio.snapshot.approximation_only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Jen aproximace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Approximation only" } }
+      }
+    },
+    "studio.sources.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zdroje" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sources" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}
