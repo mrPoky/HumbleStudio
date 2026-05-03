@@ -245,6 +245,19 @@ enum StudioNativeImportError: LocalizedError {
     }
 }
 
+enum StudioRecoveryAction: Equatable {
+    case reopenRecentImport
+    case reopenRecentRemoteURL
+    case loadBundledStudio
+}
+
+struct StudioNativeRecoveryIssue: Equatable {
+    let title: String
+    let detail: String
+    let primaryAction: StudioRecoveryAction
+    let secondaryActions: [StudioRecoveryAction]
+}
+
 struct StudioShellActions {
     var loadBundledStudio: (() -> Void)?
     var loadDemo: (() -> Void)?
@@ -291,16 +304,17 @@ final class StudioShellModel: ObservableObject {
     @Published var isPageReady = false
     @Published var canGoBack = false
     @Published var canGoForward = false
-    @Published var pageTitle = "HumbleStudio"
-    @Published var breadcrumb = "Bundled studio"
-    @Published var sourceLabel = "Bundled studio"
+    @Published var pageTitle = StudioStrings.appTitle
+    @Published var breadcrumb = StudioStrings.bundledStudio
+    @Published var sourceLabel = StudioStrings.bundledStudio
     @Published var sourceValue = "Embedded app assets"
     @Published var statusLevel = "loading"
-    @Published var statusText = "Loading bundled studio…"
+    @Published var statusText = StudioStrings.loadingBundledStudio
     @Published var recentImportName = UserDefaults.standard.string(forKey: RecentImportStore.nameKey)
     @Published var recentRemoteURL = UserDefaults.standard.string(forKey: RecentRemoteStore.urlKey)
     @Published var nativeDocument: StudioNativeDocument?
     @Published var nativeErrorMessage: String?
+    @Published var nativeRecoveryIssue: StudioNativeRecoveryIssue?
 
     var sourceSummary: String {
         let trimmedValue = sourceValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -308,6 +322,83 @@ final class StudioShellModel: ObservableObject {
             return sourceLabel
         }
         return "\(sourceLabel) · \(trimmedValue)"
+    }
+
+    var sourceKindLabel: String {
+        switch preferredLaunchSource {
+        case .bundled:
+            return "Bundled"
+        case .demo:
+            return "Demo"
+        case .recentImport:
+            return "Local Import"
+        case .recentRemote:
+            return "Remote URL"
+        }
+    }
+
+    var recoveryReadinessLabel: String {
+        if hasRecentImport && hasRecentRemoteURL {
+            return "Import + URL ready"
+        }
+        if hasRecentImport {
+            return "Import ready"
+        }
+        if hasRecentRemoteURL {
+            return "URL ready"
+        }
+        return "Bundled only"
+    }
+
+    var recoveryReadinessTone: String {
+        if hasRecentImport || hasRecentRemoteURL {
+            return "ok"
+        }
+        return "warn"
+    }
+
+    var recommendedRecoveryActionTitle: String {
+        if let nativeRecoveryIssue {
+            return title(for: nativeRecoveryIssue.primaryAction)
+        }
+        if hasRecentImport {
+            return StudioStrings.reopenRecentImport
+        }
+        if hasRecentRemoteURL {
+            return StudioStrings.reopenRecentRemoteURL
+        }
+        return StudioStrings.loadBundledStudioAction
+    }
+
+    var recommendedRecoveryDetail: String {
+        if let nativeRecoveryIssue {
+            return nativeRecoveryIssue.detail
+        }
+        if let nativeErrorMessage, !nativeErrorMessage.isEmpty {
+            return "Native hydration hit an issue. \(recommendedRecoveryActionTitle) is the safest next step while keeping the current session recoverable."
+        }
+        if nativeDocument != nil {
+            return "Recovery is healthy. \(recommendedRecoveryActionTitle) remains available if you need to rehydrate the current source quickly."
+        }
+        return "No native document is loaded yet. \(recommendedRecoveryActionTitle) is the fastest way to establish working source truth."
+    }
+
+    var reloadActionLabel: String {
+        switch preferredLaunchSource {
+        case .bundled:
+            return StudioStrings.loadBundledStudioAction
+        case .demo:
+            return "Reload demo source"
+        case .recentImport:
+            return StudioStrings.reopenRecentImport
+        case .recentRemote:
+            return StudioStrings.reopenRecentRemoteURL
+        }
+    }
+
+    var recoveryAlternativeActionTitles: [String] {
+        guard let nativeRecoveryIssue else { return [] }
+        return nativeRecoveryIssue.secondaryActions.map(title(for:))
     }
 
     var hasRecentImport: Bool {
@@ -333,13 +424,13 @@ final class StudioShellModel: ObservableObject {
         isConnected = true
         isPageReady = false
         statusLevel = "loading"
-        statusText = "Loading bundled studio…"
+        statusText = StudioStrings.loadingBundledStudio
     }
 
     func reload() {
         isPageReady = false
         statusLevel = "loading"
-        statusText = "Reloading studio…"
+        statusText = StudioStrings.reloadingStudio
         actions.reload?()
     }
 
@@ -359,28 +450,30 @@ final class StudioShellModel: ObservableObject {
     func loadBundledStudio() {
         isPageReady = false
         preferredLaunchSource = .bundled
-        sourceLabel = "Bundled studio"
+        sourceLabel = StudioStrings.bundledStudio
         sourceValue = "Embedded app assets"
         statusLevel = "loading"
-        statusText = "Loading bundled studio…"
+        statusText = StudioStrings.loadingBundledStudio
         nativeDocument = nil
         nativeErrorMessage = nil
+        nativeRecoveryIssue = nil
         actions.loadBundledStudio?()
     }
 
     func loadDemo() {
         preferredLaunchSource = .demo
         statusLevel = "loading"
-        statusText = "Loading demo config…"
+        statusText = StudioStrings.loadingDemoConfig
         nativeDocument = nil
         nativeErrorMessage = nil
+        nativeRecoveryIssue = nil
         actions.loadDemo?()
     }
 
     func reopenRecentImport() {
         guard let bookmarkData = UserDefaults.standard.data(forKey: RecentImportStore.bookmarkKey) else {
             statusLevel = "warn"
-            statusText = "No recent import is available yet."
+            statusText = StudioStrings.recentImportUnavailable
             return
         }
 
@@ -405,31 +498,32 @@ final class StudioShellModel: ObservableObject {
         let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             statusLevel = "warn"
-            statusText = "Enter a remote bundle or config URL."
+            statusText = StudioStrings.enterRemoteURL
             return
         }
 
         guard let parsed = URL(string: trimmed), let scheme = parsed.scheme?.lowercased(), ["http", "https"].contains(scheme) else {
             statusLevel = "warn"
-            statusText = "Only http and https URLs are supported."
+            statusText = StudioStrings.onlyHTTPSSupported
             return
         }
 
         rememberRecentRemoteURL(trimmed)
         preferredLaunchSource = .recentRemote
-        clearError()
-        sourceLabel = "Remote URL"
-        sourceValue = trimmed
-        statusLevel = "loading"
-        statusText = "Loading remote source…"
-        actions.loadRemoteURL?(trimmed)
-        hydrateNativeDocumentFromRemoteURL(parsed)
+            clearError()
+            sourceLabel = StudioStrings.remoteSource
+            sourceValue = trimmed
+            statusLevel = "loading"
+            statusText = StudioStrings.loadingRemoteSource
+            nativeRecoveryIssue = nil
+            actions.loadRemoteURL?(trimmed)
+            hydrateNativeDocumentFromRemoteURL(parsed)
     }
 
     func reopenRecentRemoteURL() {
         guard let recentRemoteURL, !recentRemoteURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             statusLevel = "warn"
-            statusText = "No recent remote URL is available yet."
+            statusText = StudioStrings.recentRemoteUnavailable
             return
         }
 
@@ -444,7 +538,7 @@ final class StudioShellModel: ObservableObject {
 
         guard let scheme = url.scheme?.lowercased() else {
             statusLevel = "warn"
-            statusText = "Unsupported incoming URL."
+            statusText = StudioStrings.unsupportedIncomingURL
             return
         }
 
@@ -454,7 +548,7 @@ final class StudioShellModel: ObservableObject {
         }
 
         statusLevel = "warn"
-        statusText = "Only file, http, and https URLs are supported."
+        statusText = StudioStrings.onlyFileOrWebURLSupported
     }
 
     func navigateBack() {
@@ -473,27 +567,27 @@ final class StudioShellModel: ObservableObject {
             return
         case .demo:
             statusLevel = "loading"
-            statusText = "Restoring demo source…"
+            statusText = StudioStrings.restoringDemoSource
             actions.loadDemo?()
         case .recentImport:
             guard hasRecentImport else {
                 preferredLaunchSource = .bundled
                 statusLevel = "warn"
-                statusText = "Recent import is unavailable. Showing bundled studio."
+                statusText = StudioStrings.recentImportUnavailableFallback
                 return
             }
             statusLevel = "loading"
-            statusText = "Reopening recent import…"
+            statusText = StudioStrings.reopeningRecentImport
             reopenRecentImport()
         case .recentRemote:
             guard hasRecentRemoteURL else {
                 preferredLaunchSource = .bundled
                 statusLevel = "warn"
-                statusText = "Recent remote URL is unavailable. Showing bundled studio."
+                statusText = StudioStrings.recentRemoteUnavailableFallback
                 return
             }
             statusLevel = "loading"
-            statusText = "Restoring remote source…"
+            statusText = StudioStrings.restoringRemoteSource
             reopenRecentRemoteURL()
         }
     }
@@ -511,10 +605,11 @@ final class StudioShellModel: ObservableObject {
             try rememberRecentImport(for: url)
             preferredLaunchSource = .recentImport
             clearError()
-            sourceLabel = "Local file"
+            sourceLabel = StudioStrings.localFile
             sourceValue = url.lastPathComponent
             statusLevel = "loading"
-            statusText = "Importing \(url.lastPathComponent)…"
+            statusText = StudioStrings.importingFileNamed(url.lastPathComponent)
+            nativeRecoveryIssue = nil
             actions.importPayload?(url.lastPathComponent, fileData)
             hydrateNativeDocument(fileName: url.lastPathComponent, data: fileData, sourceURL: url)
         } catch {
@@ -528,6 +623,22 @@ final class StudioShellModel: ObservableObject {
 
     func clearError() {
         errorMessage = nil
+    }
+
+    func performRecoveryAction(named title: String) {
+        guard let action = recoveryAction(named: title) else { return }
+        performRecoveryAction(action)
+    }
+
+    func performRecoveryAction(_ action: StudioRecoveryAction) {
+        switch action {
+        case .reopenRecentImport:
+            reopenRecentImport()
+        case .reopenRecentRemoteURL:
+            reopenRecentRemoteURL()
+        case .loadBundledStudio:
+            loadBundledStudio()
+        }
     }
 
     func updateShellState(
@@ -544,7 +655,7 @@ final class StudioShellModel: ObservableObject {
             pageTitle = title
         }
         if let breadcrumb {
-            self.breadcrumb = breadcrumb.isEmpty ? "Bundled studio" : breadcrumb
+            self.breadcrumb = breadcrumb.isEmpty ? StudioStrings.bundledStudio : breadcrumb
         }
         if let sourceLabel, !sourceLabel.isEmpty {
             self.sourceLabel = sourceLabel
@@ -590,20 +701,23 @@ final class StudioShellModel: ObservableObject {
 
     private func hydrateNativeDocument(fileName: String, data: Data, sourceURL: URL?) {
         nativeErrorMessage = nil
+        nativeRecoveryIssue = nil
         Task {
             do {
                 let document = try Self.makeNativeDocument(fileName: fileName, data: data, sourceURL: sourceURL)
                 await MainActor.run {
                     self.nativeDocument = document
                     self.nativeErrorMessage = nil
+                    self.nativeRecoveryIssue = nil
                 }
             } catch {
                 await MainActor.run {
                     self.nativeDocument = nil
                     self.nativeErrorMessage = error.localizedDescription
+                    self.nativeRecoveryIssue = self.makeRecoveryIssue(from: error, remote: false)
                     if self.errorMessage == nil {
                         self.statusLevel = "warn"
-                        self.statusText = "Native preview is unavailable for this source."
+                        self.statusText = StudioStrings.nativePreviewUnavailableForSource
                     }
                 }
             }
@@ -612,6 +726,7 @@ final class StudioShellModel: ObservableObject {
 
     private func hydrateNativeDocumentFromRemoteURL(_ url: URL) {
         nativeErrorMessage = nil
+        nativeRecoveryIssue = nil
         Task {
             do {
                 let (data, _) = try await URLSession.shared.data(from: url)
@@ -620,14 +735,16 @@ final class StudioShellModel: ObservableObject {
                 await MainActor.run {
                     self.nativeDocument = document
                     self.nativeErrorMessage = nil
+                    self.nativeRecoveryIssue = nil
                 }
             } catch {
                 await MainActor.run {
                     self.nativeDocument = nil
                     self.nativeErrorMessage = error.localizedDescription
+                    self.nativeRecoveryIssue = self.makeRecoveryIssue(from: error, remote: true)
                     if self.errorMessage == nil {
                         self.statusLevel = "warn"
-                        self.statusText = "Remote source loaded, but native preview could not be prepared."
+                        self.statusText = StudioStrings.remotePreviewUnavailable
                     }
                 }
             }
@@ -1006,5 +1123,76 @@ final class StudioShellModel: ObservableObject {
                 fragment.prefix(1).uppercased() + fragment.dropFirst()
             }
             .joined(separator: " ")
+    }
+
+    private func makeRecoveryIssue(from error: Error, remote: Bool) -> StudioNativeRecoveryIssue {
+        let primaryAction: StudioRecoveryAction = hasRecentImport ? .reopenRecentImport : (hasRecentRemoteURL ? .reopenRecentRemoteURL : .loadBundledStudio)
+        let secondaryActions = availableRecoveryActions(excluding: primaryAction)
+
+        if let importError = error as? StudioNativeImportError {
+            switch importError {
+            case .invalidArchive:
+                return StudioNativeRecoveryIssue(
+                    title: StudioStrings.recoveryIssueArchive,
+                    detail: error.localizedDescription,
+                    primaryAction: primaryAction,
+                    secondaryActions: secondaryActions
+                )
+            case .missingDesignJSON:
+                return StudioNativeRecoveryIssue(
+                    title: StudioStrings.recoveryIssueManifest,
+                    detail: error.localizedDescription,
+                    primaryAction: primaryAction,
+                    secondaryActions: secondaryActions
+                )
+            case .invalidDesignJSON:
+                return StudioNativeRecoveryIssue(
+                    title: StudioStrings.recoveryIssueDecode,
+                    detail: error.localizedDescription,
+                    primaryAction: primaryAction,
+                    secondaryActions: secondaryActions
+                )
+            case .unsupportedBundlePlatform:
+                return StudioNativeRecoveryIssue(
+                    title: StudioStrings.recoveryIssuePlatform,
+                    detail: error.localizedDescription,
+                    primaryAction: .loadBundledStudio,
+                    secondaryActions: availableRecoveryActions(excluding: .loadBundledStudio)
+                )
+            }
+        }
+
+        return StudioNativeRecoveryIssue(
+            title: remote ? StudioStrings.recoveryIssueRemote : StudioStrings.recoveryIssueLocal,
+            detail: error.localizedDescription,
+            primaryAction: primaryAction,
+            secondaryActions: secondaryActions
+        )
+    }
+
+    private func availableRecoveryActions(excluding primaryAction: StudioRecoveryAction) -> [StudioRecoveryAction] {
+        let all: [StudioRecoveryAction] = [
+            hasRecentImport ? .reopenRecentImport : nil,
+            hasRecentRemoteURL ? .reopenRecentRemoteURL : nil,
+            .loadBundledStudio
+        ].compactMap { $0 }
+
+        return all.filter { $0 != primaryAction }
+    }
+
+    private func title(for action: StudioRecoveryAction) -> String {
+        switch action {
+        case .reopenRecentImport:
+            return StudioStrings.reopenRecentImport
+        case .reopenRecentRemoteURL:
+            return StudioStrings.reopenRecentRemoteURL
+        case .loadBundledStudio:
+            return StudioStrings.loadBundledStudioAction
+        }
+    }
+
+    private func recoveryAction(named title: String) -> StudioRecoveryAction? {
+        let actions: [StudioRecoveryAction] = [.reopenRecentImport, .reopenRecentRemoteURL, .loadBundledStudio]
+        return actions.first(where: { self.title(for: $0) == title })
     }
 }

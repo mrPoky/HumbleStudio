@@ -7,49 +7,18 @@ enum StudioNativeDestination: String, Hashable, CaseIterable {
     case views
     case review
     case navigation
+    case proposals
     case icons
     case typography
     case spacing
     case legacyWeb
 
     var title: String {
-        switch self {
-        case .overview: return "Overview"
-        case .tokens: return "Tokens"
-        case .components: return "Components"
-        case .views: return "Views"
-        case .review: return "Review Queue"
-        case .navigation: return "Navigation Map"
-        case .icons: return "Icons"
-        case .typography: return "Typography"
-        case .spacing: return "Spacing & Radius"
-        case .legacyWeb: return "Legacy Web Inspector"
-        }
+        StudioStrings.destinationTitle(self)
     }
 
     var subtitle: String {
-        switch self {
-        case .overview:
-            return "Native foundations workspace for imported design exports."
-        case .tokens:
-            return "Colors and gradients rendered directly in SwiftUI."
-        case .components:
-            return "Snapshot-first component catalog rendered natively."
-        case .views:
-            return "Screen catalog with snapshot and flow truth, rendered natively."
-        case .review:
-            return "Native queue for components and views whose exported truth still needs attention."
-        case .navigation:
-            return "Native flow map over exported navigation edges and root routing."
-        case .icons:
-            return "Native icon catalog sourced from the imported bundle."
-        case .typography:
-            return "Type styles decoded from the export contract."
-        case .spacing:
-            return "Padding and corner radius tokens rendered natively."
-        case .legacyWeb:
-            return "Fallback web inspector for any parity gaps that are not native yet."
-        }
+        StudioStrings.destinationSubtitle(self)
     }
 
     var symbolName: String {
@@ -60,6 +29,7 @@ enum StudioNativeDestination: String, Hashable, CaseIterable {
         case .views: return "rectangle.on.rectangle"
         case .review: return "exclamationmark.circle"
         case .navigation: return "arrow.triangle.branch"
+        case .proposals: return "doc.text.magnifyingglass"
         case .icons: return "app.gift"
         case .typography: return "textformat"
         case .spacing: return "square.on.square"
@@ -75,6 +45,7 @@ enum StudioNativeRoute: Equatable {
     case views(String?)
     case review
     case navigation(String?)
+    case proposals
     case icons(String?)
     case typography(String?)
     case spacing(StudioNativeMetricSelection?)
@@ -88,6 +59,7 @@ enum StudioNativeRoute: Equatable {
         case .views: return .views
         case .review: return .review
         case .navigation: return .navigation
+        case .proposals: return .proposals
         case .icons: return .icons
         case .typography: return .typography
         case .spacing: return .spacing
@@ -104,6 +76,94 @@ struct StudioNativeSelectionState: Equatable {
     var componentID: String?
     var viewID: String?
     var navigationViewID: String?
+}
+
+struct StudioMacWorkspaceRouteSession: Equatable {
+    var selection: StudioNativeDestination? = .overview
+    var selectionState = StudioNativeSelectionState()
+    var recentQuickOpenKeys: [String] = []
+    var history = StudioNativeHistoryState()
+    var isApplyingRoute = false
+
+    var currentQuickOpenKey: String? {
+        StudioMacWorkspaceQuickOpenState.currentKey(
+            selection: selection,
+            selectionState: selectionState
+        )
+    }
+
+    mutating func recordQuickOpenKey(_ key: String) {
+        StudioMacWorkspaceQuickOpenState.recordRecentKey(key, in: &recentQuickOpenKeys)
+    }
+
+    mutating func navigateToDestination(
+        _ destination: StudioNativeDestination,
+        document: StudioNativeDocument?
+    ) {
+        recordQuickOpenKey("page:\(destination.rawValue)")
+        applyRoute(
+            StudioNativeRouteResolver.route(
+                for: destination,
+                state: selectionState,
+                document: document
+            ),
+            document: document
+        )
+    }
+
+    mutating func applyRoute(
+        _ route: StudioNativeRoute,
+        document: StudioNativeDocument?,
+        addToHistory: Bool = true
+    ) {
+        StudioMacWorkspaceRouteActions.applyRoute(
+            route,
+            selection: &selection,
+            selectionState: &selectionState,
+            document: document,
+            history: &history,
+            isApplyingRoute: &isApplyingRoute,
+            addToHistory: addToHistory
+        )
+    }
+
+    mutating func navigateBack(
+        document: StudioNativeDocument?,
+        navigateLegacyBack: () -> Void
+    ) {
+        StudioMacWorkspaceRouteActions.navigateBack(
+            selection: &selection,
+            selectionState: &selectionState,
+            document: document,
+            history: &history,
+            isApplyingRoute: &isApplyingRoute,
+            navigateLegacyBack: navigateLegacyBack
+        )
+    }
+
+    mutating func navigateForward(
+        document: StudioNativeDocument?,
+        navigateLegacyForward: () -> Void
+    ) {
+        StudioMacWorkspaceRouteActions.navigateForward(
+            selection: &selection,
+            selectionState: &selectionState,
+            document: document,
+            history: &history,
+            isApplyingRoute: &isApplyingRoute,
+            navigateLegacyForward: navigateLegacyForward
+        )
+    }
+
+    mutating func syncRouteFromState(document: StudioNativeDocument?) {
+        StudioMacWorkspaceRouteActions.syncRouteFromState(
+            selection: selection,
+            selectionState: selectionState,
+            document: document,
+            history: &history,
+            isApplyingRoute: isApplyingRoute
+        )
+    }
 }
 
 struct StudioNativeHistoryState: Equatable {
@@ -229,6 +289,8 @@ enum StudioNativeRouteController {
                     document: document
                 )
             selection = .navigation
+        case .proposals:
+            selection = .proposals
         case let .icons(iconID):
             selectionState.iconID =
                 iconID
@@ -290,6 +352,8 @@ enum StudioNativeRouteResolver {
             return .review
         case .navigation:
             return .navigation(resolvedNavigationViewID(state: state, document: document))
+        case .proposals:
+            return .proposals
         case .icons:
             return .icons(resolvedIconID(state: state, document: document))
         case .typography:
@@ -353,5 +417,113 @@ enum StudioNativeRouteResolver {
             return .radius(firstRadius.id)
         }
         return nil
+    }
+}
+
+enum StudioMacWorkspaceRouteActions {
+    static func canNavigateBack(
+        selection: StudioNativeDestination?,
+        webCanGoBack: Bool,
+        history: StudioNativeHistoryState
+    ) -> Bool {
+        selection == .legacyWeb ? webCanGoBack : history.canNavigateBack
+    }
+
+    static func canNavigateForward(
+        selection: StudioNativeDestination?,
+        webCanGoForward: Bool,
+        history: StudioNativeHistoryState
+    ) -> Bool {
+        selection == .legacyWeb ? webCanGoForward : history.canNavigateForward
+    }
+
+    static func navigateBack(
+        selection: inout StudioNativeDestination?,
+        selectionState: inout StudioNativeSelectionState,
+        document: StudioNativeDocument?,
+        history: inout StudioNativeHistoryState,
+        isApplyingRoute: inout Bool,
+        navigateLegacyBack: () -> Void
+    ) {
+        if selection == .legacyWeb {
+            navigateLegacyBack()
+            return
+        }
+        guard let route = StudioNativeRouteController.navigateBack(
+            selection: selection,
+            history: &history
+        ) else { return }
+        StudioNativeRouteController.apply(
+            route: route,
+            selection: &selection,
+            selectionState: &selectionState,
+            document: document,
+            history: &history,
+            isApplyingRoute: &isApplyingRoute,
+            addToHistory: false
+        )
+    }
+
+    static func navigateForward(
+        selection: inout StudioNativeDestination?,
+        selectionState: inout StudioNativeSelectionState,
+        document: StudioNativeDocument?,
+        history: inout StudioNativeHistoryState,
+        isApplyingRoute: inout Bool,
+        navigateLegacyForward: () -> Void
+    ) {
+        if selection == .legacyWeb {
+            navigateLegacyForward()
+            return
+        }
+        guard let route = StudioNativeRouteController.navigateForward(
+            selection: selection,
+            history: &history
+        ) else { return }
+        StudioNativeRouteController.apply(
+            route: route,
+            selection: &selection,
+            selectionState: &selectionState,
+            document: document,
+            history: &history,
+            isApplyingRoute: &isApplyingRoute,
+            addToHistory: false
+        )
+    }
+
+    static func syncRouteFromState(
+        selection: StudioNativeDestination?,
+        selectionState: StudioNativeSelectionState,
+        document: StudioNativeDocument?,
+        history: inout StudioNativeHistoryState,
+        isApplyingRoute: Bool
+    ) {
+        StudioNativeRouteController.syncRoute(
+            selection: selection,
+            selectionState: selectionState,
+            document: document,
+            history: &history,
+            isApplyingRoute: isApplyingRoute
+        )
+    }
+
+    static func applyRoute(
+        _ route: StudioNativeRoute,
+        selection: inout StudioNativeDestination?,
+        selectionState: inout StudioNativeSelectionState,
+        document: StudioNativeDocument?,
+        history: inout StudioNativeHistoryState,
+        isApplyingRoute: inout Bool,
+        addToHistory: Bool
+    ) {
+        StudioNativeRouteController.apply(
+            route: route,
+            selection: &selection,
+            selectionState: &selectionState,
+            document: document,
+            history: &history,
+            isApplyingRoute: &isApplyingRoute,
+            addToHistory: addToHistory
+        )
     }
 }

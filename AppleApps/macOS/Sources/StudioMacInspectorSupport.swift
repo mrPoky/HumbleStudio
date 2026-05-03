@@ -11,19 +11,29 @@ struct StudioNativePageContainer<Content: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         } else if let nativeErrorMessage {
             ContentUnavailableView(
-                "Native preview unavailable",
+                StudioStrings.nativePreviewUnavailable,
                 systemImage: "exclamationmark.triangle",
                 description: Text(nativeErrorMessage)
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ContentUnavailableView(
-                "Load a design export",
+                StudioStrings.loadDesignExport,
                 systemImage: "shippingbox",
-                description: Text("Open a `.humblebundle`, `.zip`, or `design.json` to populate this native page.")
+                description: Text(StudioStrings.loadNativePageDescription)
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+}
+
+struct StudioPreviewCoverageSummary {
+    let exact: Int
+    let contractDriven: Int
+    let fallbackNeeded: Int
+
+    var total: Int {
+        exact + contractDriven + fallbackNeeded
     }
 }
 
@@ -276,9 +286,11 @@ struct StudioNativeReviewCard: View {
     let title: String
     let subtitle: String
     let status: StudioNativeTruthStatus
+    let coverageLevel: StudioPreviewCoverageLevel
     let reason: String
     let evidence: [(String, String)]
     let actionTitle: String
+    let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
@@ -304,6 +316,16 @@ struct StudioNativeReviewCard: View {
                     .foregroundStyle(status.color)
             }
 
+            HStack(spacing: 8) {
+                Text(coverageLevel.rawValue)
+                    .font(.caption.weight(.semibold))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(coverageLevel.color.opacity(0.14), in: Capsule())
+                    .foregroundStyle(coverageLevel.color)
+                Spacer(minLength: 0)
+            }
+
             Text(reason)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -324,7 +346,7 @@ struct StudioNativeReviewCard: View {
         .background(.background, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(status.color.opacity(0.22), lineWidth: 1)
+                .stroke(isSelected ? Color.accentColor.opacity(0.65) : status.color.opacity(0.22), lineWidth: isSelected ? 1.5 : 1)
         )
     }
 }
@@ -342,7 +364,7 @@ struct StudioNativeNavigationNodeCard: View {
                     Text(view.name)
                         .font(.headline)
                         .lineLimit(2)
-                    Text(view.presentation.capitalized)
+                    Text(StudioStrings.navigationKindLabel(view.presentation))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -350,7 +372,7 @@ struct StudioNativeNavigationNodeCard: View {
                 Spacer(minLength: 8)
 
                 if isRoot {
-                    Text("Root")
+                    Text(StudioStrings.root)
                         .font(.caption.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 5)
@@ -367,10 +389,10 @@ struct StudioNativeNavigationNodeCard: View {
             }
 
             HStack(spacing: 8) {
-                StudioPillLabel(text: "\(incomingCount) in")
-                StudioPillLabel(text: "\(view.navigatesTo.count) out")
+                StudioPillLabel(text: StudioStrings.incomingCountShort(incomingCount))
+                StudioPillLabel(text: StudioStrings.outgoingCountShort(view.navigatesTo.count))
                 if view.componentsCount > 0 {
-                    StudioPillLabel(text: "\(view.componentsCount) comps")
+                    StudioPillLabel(text: StudioStrings.componentsCountShort(view.componentsCount))
                 }
             }
         }
@@ -417,7 +439,7 @@ extension Color {
 
 extension StudioNativeDocument.MetricToken {
     var kindLabel: String {
-        kind == "cornerRadius" ? "Corner Radius" : "Spacing"
+        kind == "cornerRadius" ? StudioStrings.cornerRadius : StudioStrings.spacing
     }
 
     var scalarValue: CGFloat {
@@ -551,7 +573,7 @@ func makeNativeNavigationGraph(document: StudioNativeDocument) -> NativeNavigati
     }
 
     let edgeCount = document.views.reduce(0) { $0 + $1.navigatesTo.count }
-    let rootViewName = viewByID[rootViewID]?.name ?? "Unknown"
+    let rootViewName = viewByID[rootViewID]?.name ?? StudioStrings.unknown
 
     return NativeNavigationGraph(
         rootViewID: rootViewID,
@@ -566,36 +588,105 @@ func makeNativeNavigationGraph(document: StudioNativeDocument) -> NativeNavigati
 
 func nativeComponentTruthStatus(for component: StudioNativeDocument.ComponentItem) -> StudioNativeTruthStatus {
     if component.snapshot != nil {
-        return StudioNativeTruthStatus(label: "Reference snapshot", color: .green, needsAttention: false)
+        return StudioNativeTruthStatus(label: StudioStrings.referenceSnapshot, color: .green, needsAttention: false)
     }
     if component.statesCount > 0 {
-        return StudioNativeTruthStatus(label: "Catalog only", color: .orange, needsAttention: true)
+        return StudioNativeTruthStatus(label: StudioStrings.catalogOnly, color: .orange, needsAttention: true)
     }
-    return StudioNativeTruthStatus(label: "Approximation only", color: .red, needsAttention: true)
+    return StudioNativeTruthStatus(label: StudioStrings.approximationOnly, color: .red, needsAttention: true)
+}
+
+func nativeComponentPreviewCoverage(for component: StudioNativeDocument.ComponentItem) -> StudioPreviewCoverageLevel {
+    if component.snapshot != nil {
+        return .exact
+    }
+    if component.statesCount > 0 || !component.swiftUI.isEmpty {
+        return .contractDriven
+    }
+    return .fallbackNeeded
 }
 
 func nativeViewTruthStatus(for view: StudioNativeDocument.ViewItem) -> StudioNativeTruthStatus {
     if view.snapshot != nil {
-        return StudioNativeTruthStatus(label: "Reference snapshot", color: .green, needsAttention: false)
+        return StudioNativeTruthStatus(label: StudioStrings.referenceSnapshot, color: .green, needsAttention: false)
     }
-    return StudioNativeTruthStatus(label: "Catalog only", color: .orange, needsAttention: true)
+    return StudioNativeTruthStatus(label: StudioStrings.catalogOnly, color: .orange, needsAttention: true)
+}
+
+func nativeViewPreviewCoverage(for view: StudioNativeDocument.ViewItem) -> StudioPreviewCoverageLevel {
+    if view.snapshot != nil {
+        return .exact
+    }
+    if view.componentsCount > 0 || view.navigationCount > 0 {
+        return .contractDriven
+    }
+    return .fallbackNeeded
+}
+
+func nativeTypographyPreviewCoverage(for token: StudioNativeDocument.TypographyToken) -> StudioPreviewCoverageLevel {
+    if !token.sourcePaths.isEmpty && token.referenceCount > 0 {
+        return .exact
+    }
+    if token.referenceCount > 0 || !token.swiftUI.isEmpty {
+        return .contractDriven
+    }
+    return .fallbackNeeded
+}
+
+func nativeMetricPreviewCoverage(for token: StudioNativeDocument.MetricToken) -> StudioPreviewCoverageLevel {
+    if !token.sourcePaths.isEmpty && !token.usage.isEmpty {
+        return .exact
+    }
+    if token.referenceCount > 0 || !token.usage.isEmpty {
+        return .contractDriven
+    }
+    return .fallbackNeeded
+}
+
+func nativePreviewCoverageSummary(for document: StudioNativeDocument) -> StudioPreviewCoverageSummary {
+    var exact = 0
+    var contractDriven = 0
+    var fallbackNeeded = 0
+
+    let levels = document.components.map(nativeComponentPreviewCoverage(for:))
+        + document.views.map(nativeViewPreviewCoverage(for:))
+        + document.typography.map(nativeTypographyPreviewCoverage(for:))
+        + document.spacing.map(nativeMetricPreviewCoverage(for:))
+        + document.radius.map(nativeMetricPreviewCoverage(for:))
+
+    for level in levels {
+        switch level {
+        case .exact:
+            exact += 1
+        case .contractDriven:
+            contractDriven += 1
+        case .fallbackNeeded:
+            fallbackNeeded += 1
+        }
+    }
+
+    return StudioPreviewCoverageSummary(
+        exact: exact,
+        contractDriven: contractDriven,
+        fallbackNeeded: fallbackNeeded
+    )
 }
 
 func nativeComponentReviewReason(for component: StudioNativeDocument.ComponentItem) -> String {
     if component.snapshot == nil && component.statesCount == 0 {
-        return "No reference snapshot is exported and the native inspector also has no declared state catalog to lean on yet."
+        return StudioStrings.componentNoTruthReason()
     }
     if component.snapshot == nil {
-        return "The component has declared states, but there is still no exported reference snapshot to confirm visual truth."
+        return StudioStrings.componentMissingSnapshotReason()
     }
-    return "This component is fully backed by exported truth."
+    return StudioStrings.componentFullyBackedReason()
 }
 
 func nativeViewReviewReason(for view: StudioNativeDocument.ViewItem) -> String {
     if view.snapshot == nil {
-        return "The screen has flow and component metadata, but no exported reference snapshot yet, so visual truth still needs review."
+        return StudioStrings.viewMissingSnapshotReason()
     }
-    return "This view is fully backed by exported truth."
+    return StudioStrings.viewFullyBackedReason()
 }
 
 func getComponentUsageCount(_ component: StudioNativeDocument.ComponentItem, in document: StudioNativeDocument) -> Int {
