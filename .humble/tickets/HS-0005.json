@@ -1,0 +1,63 @@
+{
+  "id": "HS-0005",
+  "title": "Add repo-aware supported app picker to the web fallback loader",
+  "status": "solved",
+  "type": "product",
+  "priority": "medium",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Extend the static HumbleStudio loader so it can offer direct selection of a few known supported Humble apps instead of requiring only manual file or URL entry.",
+  "acceptance_criteria": [
+    "The web fallback loader renders a visible supported-app picker alongside the existing URL, file, and demo inputs.",
+    "Known repo-aware app entries can load their raw `.humblebundle` or `.humble/design.json` source directly.",
+    "The picker can also prefill the URL field for transparent manual inspection before loading.",
+    "Remember/reload loader behavior stays truthful for the new supported-app source type.",
+    "The static web fallback integrity check still passes after the loader changes."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "This slice keeps the picker intentionally small and truthful by only listing neighboring repos with confirmed `.humble` exports."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "note": "Web fallback integrity validation should pass after the supported-app picker wiring."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene should stay clean after the loader and documentation edits."
+    }
+  ],
+  "related_files": [
+    "index.html",
+    "studio.css",
+    "js/app.js",
+    "js/demo.js",
+    "README.md",
+    "Scripts/check_web_fallback.py",
+    ".humble/status/current.json",
+    ".humble/tickets/HS-0005.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "user_request",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "User asked whether HumbleStudio could offer direct selection of supported apps instead of only file selection."
+  },
+  "commands": [
+    "python3 Scripts/check_web_fallback.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "The current picker is intentionally curated rather than dynamic so the web fallback does not overclaim repository support.",
+    "A later native/web shared source catalog would be a good follow-up if more repos start exporting stable `.humble` sources."
+  ]
+}

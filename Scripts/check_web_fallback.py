@@ -48,6 +48,7 @@ def validate_markup(index_path: Path) -> list[str]:
     content = index_path.read_text(encoding="utf-8")
     required_fragments = [
         'id="page-loader"',
+        'id="loaderSupportedApps"',
         'id="page-review"',
         'id="page-navmap"',
         'src="js/app.js"',

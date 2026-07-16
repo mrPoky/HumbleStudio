@@ -3,13 +3,14 @@
   "status_version": 1,
   "last_refreshed": "2026-07-16",
   "summary": {
-    "overall_percent": 77,
+    "overall_percent": 78,
     "confidence": "medium",
-    "headline": "HumbleStudio now has a working hybrid design viewer plus repo-local workflow operations and native proposal inspectors that understand ticket linkage and read-only source audit truth.",
+    "headline": "HumbleStudio now has a working hybrid design viewer plus repo-local workflow operations, a repo-aware supported-app web loader, and native proposal inspectors that understand ticket linkage and read-only source audit truth.",
     "notes": [
       "Percentages are directional maturity estimates, not precise scorecards.",
       "Repo-owned status belongs in this file so shared tooling reads repo truth instead of replacing it.",
       "The new HS ticket store should own future non-trivial HumbleStudio work.",
+      "The web loader can now truthfully offer a small supported-app catalog instead of forcing every known repo through manual URL entry.",
       "Read-only workflow surfaces should stay truthful and avoid mutating repo state implicitly."
     ]
   },
@@ -52,7 +53,7 @@
     {
       "command": "python3 Scripts/check_web_fallback.py",
       "status": "passed",
-      "summary": "The static web fallback now has an explicit script-based integrity check for local assets, markup anchors, and bundled JSON fixtures."
+      "summary": "The static web fallback now has an explicit script-based integrity check for local assets, markup anchors, bundled JSON fixtures, and the supported-app picker anchor."
     },
     {
       "command": "bash Scripts/run_local_checks.sh --workflow-only",
@@ -77,10 +78,10 @@
     {
       "id": "web-fallback",
       "label": "Web fallback",
-      "percent": 61,
+      "percent": 66,
       "status": "uneven",
-      "signal": "The static viewer remains useful for fast viewing, but contract and parity truth now belong primarily in the native app.",
-      "next_move": "Keep the web surface honest as fallback instead of parking unfinished native work there."
+      "signal": "The static viewer remains a fallback, but it now offers a truthful one-click picker for a few known repo exports instead of relying only on manual URL and file entry.",
+      "next_move": "Keep the catalog honest, small, and shared with native source selection instead of growing ad hoc per repo."
     },
     {
       "id": "repo-workflow",
@@ -94,27 +95,52 @@
   "top_gaps": [
     {
       "rank": 1,
-      "title": "Exercise the new HS ticket, lane, proposal-linkage, local-check, and native ticket-readback workflow on the next real implementation slice",
-      "recommended_ticket_status": "accepted"
-    },
-    {
-      "rank": 2,
       "title": "Continue converting remaining hardcoded macOS inspector copy to StudioStrings in foundation and review details",
       "recommended_ticket_status": "proposed"
     },
     {
-      "rank": 3,
+      "rank": 2,
       "title": "Deepen proposal artifact read-back across more native inspectors and truth surfaces",
       "recommended_ticket_status": "proposed"
     },
     {
+      "rank": 3,
+      "title": "Add stronger read-only apply audit mapping against current repo files and candidate source paths",
+      "recommended_ticket_status": "proposed"
+    },
+    {
       "rank": 4,
-      "title": "Promote the new workflow scripts into stronger routine use and build a minimal release/pre-promotion wrapper",
+      "title": "Share the new supported-app source catalog between web fallback and native source selection so repo-awareness stays truthful in one place",
       "recommended_ticket_status": "accepted"
     },
     {
       "rank": 5,
-      "title": "Add stronger read-only apply audit mapping against current repo files and candidate source paths",
+      "title": "Promote the new workflow scripts into stronger routine use and build a minimal release/pre-promotion wrapper",
+      "recommended_ticket_status": "accepted"
+    },
+    {
+      "rank": 6,
+      "title": "Exercise the new HS ticket, lane, proposal-linkage, local-check, and native ticket-readback workflow on the next real implementation slice",
+      "recommended_ticket_status": "accepted"
+    },
+    {
+      "rank": 7,
+      "title": "Add proposal/ticket summary context to more review queue focus surfaces",
+      "recommended_ticket_status": "proposed"
+    },
+    {
+      "rank": 8,
+      "title": "Dotáhnout explicitní error surfaces pro import/reload failure typy i mimo proposal artifacts",
+      "recommended_ticket_status": "proposed"
+    },
+    {
+      "rank": 9,
+      "title": "Učesat zbývající localized/native truth kolem parity narrative a foundation detail copy",
+      "recommended_ticket_status": "proposed"
+    },
+    {
+      "rank": 10,
+      "title": "Připravit promotion této větve na main podle canonical happy path, až budou web picker a native proposal slices považované za dostatečně uzavřené",
       "recommended_ticket_status": "proposed"
     }
   ]
