@@ -12,7 +12,7 @@
   "acceptance_criteria": [
     "HumbleStudio has a repo-local AGENTS.md that adopts the canonical contract and documents repo-specific overrides explicitly.",
     "Config/repo-contract.json declares the repo identity, workflow policy, module roots, localization strategy, and fixed worktree lane root.",
-    "Docs/workflow-contract.md documents local git, ticket, verification, lane, and override rules truthfully.",
+    "docs/workflow-contract.md documents local git, ticket, verification, lane, and override rules truthfully.",
     "Shared validator and repo doctor entrypoints exist locally, and HumbleStudio has repo-native ticket plus status surfaces.",
     "Relevant validation commands pass or any branch-freshness gate failure is reported honestly as a promotion-context check."
   ],
@@ -56,7 +56,7 @@
   "related_files": [
     "AGENTS.md",
     "Config/repo-contract.json",
-    "Docs/workflow-contract.md",
+    "docs/workflow-contract.md",
     "Scripts/validate_repo_contract.py",
     "Scripts/humble_doctor.py",
     "Scripts/validate_humble_tickets.py",

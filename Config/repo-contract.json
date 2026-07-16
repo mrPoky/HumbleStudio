@@ -41,7 +41,7 @@
     "required_paths": [
       "README.md",
       "AGENTS.md",
-      "Docs/workflow-contract.md",
+      "docs/workflow-contract.md",
       "Scripts/validate_repo_contract.py",
       "Scripts/humble_doctor.py",
       "Scripts/validate_humble_tickets.py",

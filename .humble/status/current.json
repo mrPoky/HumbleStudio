@@ -3,13 +3,14 @@
   "status_version": 1,
   "last_refreshed": "2026-07-16",
   "summary": {
-    "overall_percent": 64,
+    "overall_percent": 67,
     "confidence": "medium",
-    "headline": "HumbleStudio has a working hybrid design viewer and now a repo-local development contract scaffold with ticket, status, and lane surfaces.",
+    "headline": "HumbleStudio now has a working hybrid design viewer plus repo-local contract, ticket, lane, and read-only workflow observability surfaces.",
     "notes": [
       "Percentages are directional maturity estimates, not precise scorecards.",
       "Repo-owned status belongs in this file so shared tooling reads repo truth instead of replacing it.",
-      "The new HS ticket store should own future non-trivial HumbleStudio work."
+      "The new HS ticket store should own future non-trivial HumbleStudio work.",
+      "Read-only workflow surfaces should stay truthful and avoid mutating repo state implicitly."
     ]
   },
   "evidence_commands": [
@@ -27,6 +28,16 @@
       "command": "python3 Scripts/humble_doctor.py --strict",
       "status": "blocked",
       "summary": "Strict repo doctor stays a branch-freshness gate and is expected to fail from an active topic branch instead of a clean main checkout."
+    },
+    {
+      "command": "python3 Scripts/render_humble_tickets.py --limit 5",
+      "status": "passed",
+      "summary": "The repo-native ticket board now renders HS tickets together with lane occupancy from local repo truth."
+    },
+    {
+      "command": "python3 Scripts/humble_status.py",
+      "status": "passed",
+      "summary": "The repo-native status surface now renders current git, ticket, worktree, and lane context on top of `.humble/status/current.json`."
     }
   ],
   "operating_layers": [
@@ -58,12 +69,17 @@
   "top_gaps": [
     {
       "rank": 1,
-      "title": "Exercise the new HS ticket and lane workflow on the next real implementation slice",
+      "title": "Exercise the new HS ticket, lane, and observability workflow on the next real implementation slice",
       "recommended_ticket_status": "accepted"
     },
     {
       "rank": 2,
       "title": "Add a committed repo-local CI surface or explicit script-based verification story for the web fallback",
+      "recommended_ticket_status": "proposed"
+    },
+    {
+      "rank": 3,
+      "title": "Add a safe lane-claim or ticket-bootstrap helper once the read-only workflow surfaces prove stable",
       "recommended_ticket_status": "proposed"
     }
   ]

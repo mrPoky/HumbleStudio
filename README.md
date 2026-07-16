@@ -189,10 +189,12 @@ HumbleStudio now adopts Jan Pokorny's canonical repository development contract.
 
 Primary local workflow surfaces:
 - [AGENTS.md](/Users/janpokorny/Coding/personal/apps/HumbleStudio/AGENTS.md)
-- [Docs/workflow-contract.md](/Users/janpokorny/Coding/personal/apps/HumbleStudio/Docs/workflow-contract.md)
+- [docs/workflow-contract.md](/Users/janpokorny/Coding/personal/apps/HumbleStudio/docs/workflow-contract.md)
 - [Config/repo-contract.json](/Users/janpokorny/Coding/personal/apps/HumbleStudio/Config/repo-contract.json)
 - `.humble/tickets/` for repo-native HS tickets
 - `.humble/status/current.json` for repo-owned status truth
+- `python3 Scripts/render_humble_tickets.py` for a compact ticket and lane board
+- `python3 Scripts/humble_status.py` for repo-owned status plus live git/worktree context
 
 Local contract validation commands:
 - `python3 Scripts/validate_humble_tickets.py`

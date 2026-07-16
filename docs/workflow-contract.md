@@ -54,12 +54,20 @@ enough to deserve enforcement, not just memory.
 
 - Non-trivial work belongs in `.humble/tickets`.
 - HumbleStudio uses the `HS-####` ticket prefix.
+- Read-only ticket board rendering lives in `python3 Scripts/render_humble_tickets.py`.
 - Ticket status should describe reality:
   - `accepted` or `ready` before implementation
   - `in_progress` after implementation starts
   - `testing` once code is done and verification remains
   - `solved` only after acceptance criteria and evidence are present
 - Ticket validation should run through `python3 Scripts/validate_humble_tickets.py`.
+
+## Status Workflow
+
+- Repo-owned directional status truth lives in `.humble/status/current.json`.
+- `python3 Scripts/humble_status.py` is the supported read-only way to combine
+  that repo truth with live git, ticket, lane, and worktree state.
+- The script is an observability surface, not a source of derived policy.
 
 ## Verification
 

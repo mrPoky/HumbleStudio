@@ -13,11 +13,13 @@ HumbleControl-owned canonical contract instead of silently forking policy here.
 
 - Repository: `HumbleStudio`
 - Repo contract config: `Config/repo-contract.json`
-- Local workflow contract: `Docs/workflow-contract.md`
+- Local workflow contract: `docs/workflow-contract.md`
 - Shared contract validator entrypoint: `Scripts/validate_repo_contract.py`
 - Local repo doctor entrypoint: `Scripts/humble_doctor.py`
 - Repo-native ticket store: `.humble/tickets`
 - Repo status surface: `.humble/status/current.json`
+- Ticket board renderer: `Scripts/render_humble_tickets.py`
+- Repo status renderer: `Scripts/humble_status.py`
 
 ## Start Of Work
 
@@ -29,7 +31,7 @@ Before editing files:
 - Inspect relevant local workflow files before deciding implementation details.
   For HumbleStudio this usually means `README.md`, `project.yml`,
   `script/build_and_run.sh`, `HumbleStudio.xcodeproj/project.pbxproj`, and any
-  existing docs in `Docs/` or `docs/`.
+  existing docs in `docs/`.
 - Identify the owning repo-native ticket for non-trivial work. Create or update
   a `HS-` ticket in `.humble/tickets` when the slice changes behavior,
   workflow, documentation with operating impact, release process, or shared
