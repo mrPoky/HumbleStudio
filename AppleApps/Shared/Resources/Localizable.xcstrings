@@ -1548,6 +1548,41 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal still needs ticket, scope, or evidence metadata before any apply-oriented audit should be trusted." } }
       }
     },
+    "studio.change_proposal.apply_preview.repo_audit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Audit repo cest" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Repository path audit" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.repo_current_source" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální soubor scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current scope file" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.repo_matched" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Dohledané repo soubory" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Resolved repo files" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.repo_missing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybějící kandidáti" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing candidates" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.repo_no_candidates" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Z aktuální evidence zatím nešlo odvodit žádné kandidátní repo soubory." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No repository file candidates could be derived from current evidence yet." } }
+      }
+    },
     "studio.change_proposal.issue.missing_directory.detail" : {
       "extractionState" : "manual",
       "localizations" : {

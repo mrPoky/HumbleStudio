@@ -2086,6 +2086,7 @@ struct StudioMacProposalArtifactsPage: View {
                     StudioMacProposalArtifactDetailPanel(
                         artifact: selectedArtifact,
                         document: document,
+                        repositoryRootURL: repositoryRootURL,
                         inspectComponent: inspectComponent,
                         inspectView: inspectView
                     )
@@ -2161,6 +2162,7 @@ struct StudioMacProposalArtifactsPage: View {
 private struct StudioMacProposalArtifactDetailPanel: View {
     let artifact: StudioChangeProposalArtifact?
     let document: StudioNativeDocument?
+    let repositoryRootURL: URL
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
 
@@ -2217,6 +2219,10 @@ private struct StudioMacProposalArtifactDetailPanel: View {
 
             StudioInspectorSection(title: StudioStrings.proposalApplyPreview) {
                 if let artifact {
+                    let repoAuditEntries = repositoryAuditEntries(for: artifact)
+                    let matchedRepoEntries = repoAuditEntries.filter(\.exists)
+                    let missingRepoEntries = repoAuditEntries.filter { !$0.exists }
+
                     VStack(alignment: .leading, spacing: 12) {
                         Text(StudioStrings.proposalApplyPreviewDescription)
                             .font(.caption)
@@ -2254,6 +2260,49 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewSourceAudit, value: sourceAuditSummary(for: artifact))
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewNextStep, value: artifact.applyPreviewNextStep)
 
+                        StudioInspectorSection(title: StudioStrings.proposalApplyPreviewRepoAudit) {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioInspectorSummaryGrid(items: [
+                                    StudioInspectorSummaryItem(
+                                        label: StudioStrings.proposalApplyPreviewRepoMatched,
+                                        value: StudioStrings.resultsCount(matchedRepoEntries.count),
+                                        tone: matchedRepoEntries.isEmpty ? .warning : .success
+                                    ),
+                                    StudioInspectorSummaryItem(
+                                        label: StudioStrings.proposalApplyPreviewRepoMissing,
+                                        value: StudioStrings.resultsCount(missingRepoEntries.count),
+                                        tone: missingRepoEntries.isEmpty ? .success : .warning
+                                    ),
+                                    StudioInspectorSummaryItem(
+                                        label: StudioStrings.proposalApplyPreviewRepoCurrentSource,
+                                        value: matchedScopeSourcePath(for: artifact).isEmpty ? StudioStrings.notAvailableYet : matchedScopeSourcePath(for: artifact),
+                                        tone: matchedScopeSourcePath(for: artifact).isEmpty ? .warning : .accent
+                                    )
+                                ])
+
+                                if repoAuditEntries.isEmpty {
+                                    Text(StudioStrings.proposalApplyPreviewRepoNoCandidates)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                } else {
+                                    ForEach(repoAuditEntries.prefix(6)) { entry in
+                                        HStack(alignment: .top, spacing: 10) {
+                                            Text(entry.displayPath)
+                                                .font(.caption.monospaced())
+                                                .foregroundStyle(.secondary)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                            Spacer(minLength: 8)
+                                            StudioProposalArtifactBadge(
+                                                text: entry.exists ? StudioStrings.present : StudioStrings.missing,
+                                                color: entry.exists ? .green : .orange
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         VStack(alignment: .leading, spacing: 8) {
                             Text(StudioStrings.recommendedNextStep)
                                 .font(.caption.weight(.semibold))
@@ -2285,6 +2334,66 @@ private struct StudioMacProposalArtifactDetailPanel: View {
         default:
             return nil
         }
+    }
+
+    private func matchedScopeSourcePath(for artifact: StudioChangeProposalArtifact) -> String {
+        guard let document else { return "" }
+        switch artifact.scopeKind {
+        case "component":
+            return document.components.first(where: { "component:\($0.id)" == artifact.scope })?.sourcePath ?? ""
+        case "view":
+            return document.views.first(where: { "view:\($0.id)" == artifact.scope })?.sourcePath ?? ""
+        default:
+            return ""
+        }
+    }
+
+    private func repositoryAuditEntries(for artifact: StudioChangeProposalArtifact) -> [StudioProposalRepoAuditEntry] {
+        var candidates: [String] = []
+        let currentSourcePath = matchedScopeSourcePath(for: artifact)
+        if !currentSourcePath.isEmpty {
+            candidates.append(currentSourcePath)
+        }
+        candidates.append(contentsOf: artifact.evidenceItems)
+
+        var seen: Set<String> = []
+        return candidates.compactMap { rawCandidate in
+            guard let resolved = resolveRepositoryCandidate(rawCandidate) else {
+                return nil
+            }
+            guard seen.insert(resolved.displayPath).inserted else {
+                return nil
+            }
+            return resolved
+        }
+    }
+
+    private func resolveRepositoryCandidate(_ rawCandidate: String) -> StudioProposalRepoAuditEntry? {
+        let trimmed = rawCandidate.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return nil
+        }
+
+        let candidateURL: URL
+        let displayPath: String
+
+        if trimmed.hasPrefix("/") {
+            candidateURL = URL(fileURLWithPath: trimmed)
+            displayPath = trimmed
+        } else {
+            candidateURL = repositoryRootURL.appendingPathComponent(trimmed)
+            displayPath = trimmed
+        }
+
+        let looksLikeAPath = trimmed.contains("/") || trimmed.contains(".")
+        guard looksLikeAPath else {
+            return nil
+        }
+
+        return StudioProposalRepoAuditEntry(
+            displayPath: displayPath,
+            exists: FileManager.default.fileExists(atPath: candidateURL.path)
+        )
     }
 
     private func evidenceMatchLabel(for artifact: StudioChangeProposalArtifact) -> String {
@@ -2380,6 +2489,13 @@ private enum StudioProposalSourceAuditStatus {
     case exact
     case related
     case needsMetadata
+}
+
+private struct StudioProposalRepoAuditEntry: Identifiable {
+    let displayPath: String
+    let exists: Bool
+
+    var id: String { displayPath }
 }
 
 private struct StudioProposalArtifactBadge: View {

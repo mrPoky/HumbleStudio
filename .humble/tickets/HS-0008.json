@@ -1,0 +1,61 @@
+{
+  "id": "HS-0008",
+  "title": "Strengthen read-only apply preview with repository path audit",
+  "status": "solved",
+  "type": "feature",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Deepen the native proposal apply-preview loop by resolving current repository file candidates from proposal evidence and surfacing a truthful repository path audit without mutating source truth.",
+  "acceptance_criteria": [
+    "Selected proposal artifact detail shows a repository path audit in the read-only apply preview.",
+    "The audit resolves current scope source files and evidence-derived path candidates against the current checkout.",
+    "The UI clearly distinguishes present and missing repository candidates without implying any source mutation.",
+    "The macOS build still passes after the audit enhancement.",
+    "Patch hygiene and ticket validation pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after adding repository path audit details to the read-only apply preview."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0008.json",
+      "note": "HS-0008 ticket schema validated successfully."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after adding repository path audit mapping and localized apply-preview labels."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/tickets/HS-0008.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 follow-up to strengthen read-only apply preview against current repository files."
+  },
+  "commands": [
+    "git diff --check",
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0008.json",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "This slice remains read-only and only audits current repository candidates derived from proposal scope and evidence metadata.",
+    "Repository path audit should stay truthful even when candidates are missing or incomplete."
+  ]
+}
