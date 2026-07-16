@@ -18,17 +18,19 @@ Load a single `.humblebundle` or a plain `.humble/design.json` from any HumblePl
 open index.html
 ```
 
-Then pick one of three ways to load a config:
+Then pick one of four ways to load a config:
 
 | Method | When to use |
 |--------|-------------|
 | **URL** | Paste a raw GitHub URL to `.humble/HumbleSudoku.humblebundle` or `.humble/design.json` on any branch |
 | **File** | Upload a local `.humblebundle`, `.zip`, or `design.json` for offline work |
+| **Supported apps** | Click a known app such as HumbleSudoku, MyVltavaRun, or HumbleControl and load its current exported source directly |
 | **Demo** | Click "Load HumbleSudoku demo config" to explore a real example |
 
 Hosted niceties included:
 - drag & drop onto the upload card
 - remembers the last URL or demo source in `localStorage`
+- offers repo-aware one-click loading for a small catalog of known supported apps
 - supports URL bootstrap via `?bundle=https://...` or `?config=https://...`
 
 ### Native macOS app
@@ -180,3 +182,35 @@ HumbleStudio is part of the HumblePlatform toolchain alongside:
 - **HumbleSudoku** — the iOS app this viewer was built for
 - **HumbleControl Web** — integrated analytics dashboard for code quality reports
 - **HumbleFlow** — shared CI/CD policy and hooks
+
+---
+
+## Repository Workflow
+
+HumbleStudio now adopts Jan Pokorny's canonical repository development contract.
+
+Primary local workflow surfaces:
+- [AGENTS.md](/Users/janpokorny/Coding/personal/apps/HumbleStudio/AGENTS.md)
+- [docs/workflow-contract.md](/Users/janpokorny/Coding/personal/apps/HumbleStudio/docs/workflow-contract.md)
+- [Config/repo-contract.json](/Users/janpokorny/Coding/personal/apps/HumbleStudio/Config/repo-contract.json)
+- `.humble/tickets/` for repo-native HS tickets
+- `.humble/status/current.json` for repo-owned status truth
+- `python3 Scripts/allocate_humble_ticket_id.py` for the next free HS ticket id
+- `python3 Scripts/start_ticket_lane.py --path <scope>` to prepare the next ticketed lane slice
+- `python3 Scripts/render_humble_tickets.py` for a compact ticket and lane board
+- `python3 Scripts/humble_status.py` for repo-owned status plus live git/worktree context
+- `python3 Scripts/render_humble_status.py` for a reader-friendly status summary or Mermaid view
+
+Local contract validation commands:
+- `python3 Scripts/validate_humble_tickets.py`
+- `python3 Scripts/validate_repo_contract.py`
+- `python3 Scripts/humble_doctor.py --repo-root . --strict`
+- `python3 Scripts/check_web_fallback.py`
+- `bash Scripts/run_local_checks.sh --workflow-only`
+- GitHub automation mirrors the same onboarding slice in `.github/workflows/repo-contract.yml`
+
+Worktree lanes:
+- the reserved root checkout should stay a clean `main` checkout whenever practical
+- active implementation work should prefer `/Users/janpokorny/Coding/personal/worktrees/HumbleStudio/lane-1` through `lane-4`
+- lane metadata lives in `.humble/coordination/lanes.json`
+- proposal artifacts can optionally link back to HS tickets via `HS-####` ids in `docs/change-proposals/*.md`

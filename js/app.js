@@ -236,6 +236,67 @@ async function loadFromUrl() {
   await loadConfigFromUrl(url);
 }
 
+function getSupportedAppSource(appId) {
+  return (SUPPORTED_APP_SOURCES || []).find(app => app.id === appId) || null;
+}
+
+function buildSupportedAppSourceState(app, mode = 'url') {
+  if (!app) return null;
+  if (mode === 'demo' && app.hasDemo) {
+    return {
+      type: 'supported-app',
+      value: 'HumbleSudoku demo config',
+      appId: app.id,
+      appName: app.name,
+      mode: 'demo',
+    };
+  }
+  return {
+    type: 'supported-app',
+    value: app.source?.value || '',
+    appId: app.id,
+    appName: app.name,
+    mode: 'url',
+  };
+}
+
+async function loadSupportedApp(appId, mode = 'url') {
+  const app = getSupportedAppSource(appId);
+  if (!app) {
+    setStatus('err', 'Unsupported app selection.');
+    return;
+  }
+
+  const source = buildSupportedAppSourceState(app, mode);
+  if (!source?.value) {
+    setStatus('err', 'Supported app source is missing.');
+    return;
+  }
+
+  rememberLastSource(source);
+  setCurrentLoadSource(source);
+  updateLoaderSourceUi();
+
+  if (source.mode === 'demo') {
+    clearBundleAssets();
+    applyConfig(DEMO_CONFIG);
+    return;
+  }
+
+  const urlInput = document.getElementById('urlInput');
+  if (urlInput) urlInput.value = source.value;
+  await loadConfigFromUrl(source.value);
+}
+
+function useSupportedAppUrl(appId) {
+  const app = getSupportedAppSource(appId);
+  const urlInput = document.getElementById('urlInput');
+  if (!app?.source?.value || !urlInput) return;
+  urlInput.value = app.source.value;
+  urlInput.focus();
+  setStatus('warn', `Prepared URL for ${app.name}.`);
+}
+
 async function loadConfigFromUrl(url) {
   setStatus('loading', 'Loading...');
   try {
@@ -326,6 +387,43 @@ function loadDemo() {
   setCurrentLoadSource({ type: 'demo', value: 'HumbleSudoku demo config' });
   updateLoaderSourceUi();
   applyConfig(DEMO_CONFIG);
+}
+
+function renderSupportedApps() {
+  const container = document.getElementById('loaderSupportedApps');
+  if (!container) return;
+  const apps = SUPPORTED_APP_SOURCES || [];
+  if (!apps.length) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = apps.map(app => {
+    const sourceKind = app.sourceKind || 'config';
+    const demoAction = app.hasDemo
+      ? `<button class="btn-sm loader-supported-btn" onclick="loadSupportedApp('${app.id}', 'demo')">Demo</button>`
+      : '';
+    return `
+      <div class="loader-supported-card">
+        <div class="loader-supported-head">
+          <div class="loader-supported-meta">
+            <div class="loader-supported-name">${escapeHtml(app.name || 'Supported app')}</div>
+            <div class="loader-supported-sub">${escapeHtml(app.repo || '')}</div>
+          </div>
+          <div class="loader-supported-badge">${escapeHtml(app.badge || sourceKind)}</div>
+        </div>
+        <div class="loader-supported-desc">${escapeHtml(app.description || '')}</div>
+        <div class="loader-supported-foot">
+          <span>${escapeHtml(app.platform || 'App')}</span>
+          <span>${escapeHtml(sourceKind)}</span>
+        </div>
+        <div class="loader-supported-actions">
+          <button class="btn-full loader-supported-btn" onclick="loadSupportedApp('${app.id}')">Load</button>
+          <button class="btn-sm loader-supported-btn" onclick="useSupportedAppUrl('${app.id}')">Use URL</button>
+          ${demoAction}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function getComponentStates(component) {
@@ -1438,11 +1536,15 @@ function getSourceLabel(source) {
   if (source.type === 'url') return 'URL source';
   if (source.type === 'file') return 'Local file';
   if (source.type === 'demo') return 'Demo source';
+  if (source.type === 'supported-app') return 'Supported app';
   return 'Source';
 }
 
 function getSourceValueLabel(source) {
   if (!source?.value) return '';
+  if (source.type === 'supported-app' && source.appName) {
+    return source.mode === 'demo' ? `${source.appName} demo` : source.appName;
+  }
   if (source.type === 'url') {
     try {
       const parsed = new URL(source.value);
@@ -1529,6 +1631,10 @@ function clearRememberedSource() {
 async function reloadLastSource() {
   const source = getRememberedSource();
   if (!source) return;
+  if (source.type === 'supported-app' && source.appId) {
+    await loadSupportedApp(source.appId, source.mode || 'url');
+    return;
+  }
   if (source.type === 'url' && source.value) {
     document.getElementById('urlInput').value = source.value;
     await loadConfigFromUrl(source.value);
@@ -1549,6 +1655,9 @@ function updateLoaderSourceUi() {
   if (source?.type === 'url' && urlInput && !urlInput.value) {
     urlInput.value = source.value || '';
   }
+  if (source?.type === 'supported-app' && source.mode !== 'demo' && urlInput && !urlInput.value) {
+    urlInput.value = source.value || '';
+  }
   if (!currentLoadSource && source?.value) {
     setCurrentLoadSource(source);
     renderTopbarSource();
@@ -1562,6 +1671,10 @@ function updateLoaderSourceUi() {
   actions.style.display = 'flex';
   if (source.type === 'url') {
     reloadBtn.textContent = `Reload ${source.value}`;
+  } else if (source.type === 'supported-app') {
+    reloadBtn.textContent = source.mode === 'demo'
+      ? `Reload ${source.appName || 'supported app'} demo`
+      : `Reload ${source.appName || 'supported app'}`;
   } else if (source.type === 'demo') {
     reloadBtn.textContent = 'Reload HumbleSudoku demo';
   } else {
@@ -1589,6 +1702,7 @@ async function handleDroppedFiles(event) {
 }
 
 async function bootstrapLoaderExperience() {
+  renderSupportedApps();
   updateLoaderSourceUi();
   syncNavMapZoomLabel();
 

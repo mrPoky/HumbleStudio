@@ -243,7 +243,7 @@ struct StudioShellView: View {
             Form {
                 Section(StudioStrings.remoteSource) {
                     TextField(
-                        "https://raw.githubusercontent.com/user/repo/main/.humble/HumbleSudoku.humblebundle",
+                        StudioStrings.remoteSourcePlaceholder,
                         text: $remoteURLDraft,
                         axis: .vertical
                     )
@@ -271,6 +271,8 @@ struct StudioShellView: View {
                         }
                     }
                 }
+
+                StudioSupportedRemoteAppsSection(remoteURLDraft: $remoteURLDraft)
             }
             .navigationTitle(StudioStrings.openRemoteSourceTitle)
             #if os(iOS)

@@ -307,7 +307,7 @@ final class StudioShellModel: ObservableObject {
     @Published var pageTitle = StudioStrings.appTitle
     @Published var breadcrumb = StudioStrings.bundledStudio
     @Published var sourceLabel = StudioStrings.bundledStudio
-    @Published var sourceValue = "Embedded app assets"
+    @Published var sourceValue = StudioStrings.embeddedAppAssets
     @Published var statusLevel = "loading"
     @Published var statusText = StudioStrings.loadingBundledStudio
     @Published var recentImportName = UserDefaults.standard.string(forKey: RecentImportStore.nameKey)
@@ -327,13 +327,13 @@ final class StudioShellModel: ObservableObject {
     var sourceKindLabel: String {
         switch preferredLaunchSource {
         case .bundled:
-            return "Bundled"
+            return StudioStrings.bundledStudio
         case .demo:
-            return "Demo"
+            return StudioStrings.demo
         case .recentImport:
-            return "Local Import"
+            return StudioStrings.localFile
         case .recentRemote:
-            return "Remote URL"
+            return StudioStrings.openRemoteSourceTitle
         }
     }
 
@@ -388,7 +388,7 @@ final class StudioShellModel: ObservableObject {
         case .bundled:
             return StudioStrings.loadBundledStudioAction
         case .demo:
-            return "Reload demo source"
+            return StudioStrings.reloadDemoSource
         case .recentImport:
             return StudioStrings.reopenRecentImport
         case .recentRemote:
@@ -451,7 +451,7 @@ final class StudioShellModel: ObservableObject {
         isPageReady = false
         preferredLaunchSource = .bundled
         sourceLabel = StudioStrings.bundledStudio
-        sourceValue = "Embedded app assets"
+        sourceValue = StudioStrings.embeddedAppAssets
         statusLevel = "loading"
         statusText = StudioStrings.loadingBundledStudio
         nativeDocument = nil

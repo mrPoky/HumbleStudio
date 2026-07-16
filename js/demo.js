@@ -1,3 +1,46 @@
+const SUPPORTED_APP_SOURCES = [
+  {
+    id: 'humble-sudoku',
+    name: 'HumbleSudoku',
+    platform: 'iOS',
+    repo: 'mrPoky/HumbleSudoku',
+    sourceKind: 'bundle',
+    badge: 'Snapshots',
+    description: 'Bundle-first export with real snapshots, icons, and navigation data.',
+    source: {
+      type: 'url',
+      value: 'https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle',
+    },
+    hasDemo: true,
+  },
+  {
+    id: 'my-vltava-run',
+    name: 'MyVltavaRun',
+    platform: 'iOS',
+    repo: 'mrPoky/MyVltavaRun',
+    sourceKind: 'design.json',
+    badge: 'Native app',
+    description: 'A local-first iOS export with the plain config contract already available.',
+    source: {
+      type: 'url',
+      value: 'https://raw.githubusercontent.com/mrPoky/MyVltavaRun/main/.humble/design.json',
+    },
+  },
+  {
+    id: 'humble-control',
+    name: 'HumbleControl',
+    platform: 'Web',
+    repo: 'mrPoky/HumbleControl',
+    sourceKind: 'design.json',
+    badge: 'Dashboard',
+    description: 'The repo-development dashboard app that already exposes a `.humble/design.json` export.',
+    source: {
+      type: 'url',
+      value: 'https://raw.githubusercontent.com/mrPoky/HumbleControl/main/.humble/design.json',
+    },
+  },
+];
+
 // HumbleSudoku demo config — mirrors .humble/design.json in the HumbleSudoku repo
 const DEMO_CONFIG = {
   meta: { name:"HumbleSudoku", version:"1.0", platform:"ios", repo:"humbleplatform/HumbleSudoku" },

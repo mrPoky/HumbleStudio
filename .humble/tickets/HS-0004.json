@@ -1,0 +1,62 @@
+{
+  "id": "HS-0004",
+  "title": "Expose proposal ticket linkage and source audit in native inspectors",
+  "status": "solved",
+  "type": "workflow",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Extend the native macOS proposal inspectors so repo-backed change proposals show linked HS tickets, surface a truthful read-only source audit, and stop relying on hardcoded parity copy for the most visible proposal-related narratives.",
+  "acceptance_criteria": [
+    "Proposal artifacts parse and expose linked HS ticket ids when proposal markdown references them.",
+    "The native proposal workspace and proposal detail inspector show linked ticket context directly.",
+    "Read-only apply preview includes a truthful source audit summary instead of only coverage and evidence-match status.",
+    "The most visible proposal-adjacent hardcoded parity copy moves into StudioStrings and localized string catalog truth.",
+    "The native macOS app still builds after the inspector and localization changes."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "This slice focuses on moving proposal-to-ticket linkage and apply audit truth from repo-only workflow tooling into the native product surface."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Whitespace and patch hygiene checks passed for the native proposal linkage slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+      "note": "The macOS native workspace builds successfully after the proposal inspector changes."
+    }
+  ],
+  "related_files": [
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+    "docs/change-marking-contract.md",
+    ".humble/status/current.json",
+    ".humble/tickets/HS-0004.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Continuation of HumbleStudio native proposal and inspector truth work after repo workflow onboarding."
+  },
+  "commands": [
+    "git diff --check",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build"
+  ],
+  "agent_notes": [
+    "This slice reads linked HS ticket ids from proposal markdown but does not invent or auto-assign them during proposal save.",
+    "The next likely proposal step is a deeper read-only apply audit against concrete repository files and target mappings."
+  ]
+}

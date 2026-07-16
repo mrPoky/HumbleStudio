@@ -13,6 +13,7 @@
 		15B721987348ED2EF06949AE /* StudioMacContentWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87907AE1843232106A2FEB0C /* StudioMacContentWorkspace.swift */; };
 		168E34340DEDFACB25072A5F /* StudioMacReviewNavigationWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */; };
 		195566F1067AB02DAB2CC384 /* StudioStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F9A4B07E7ED4171D0D81C6 /* StudioStrings.swift */; };
+		1A8A49BA2A5A1A28006A9A0C /* StudioSupportedAppCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8A49BA2A5A1A28006A9A0B /* StudioSupportedAppCatalog.swift */; };
 		36741C0B293FEE13E3A183C6 /* StudioWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */; };
 		4458CB1A5F16E5D6080FDD3B /* StudioMacWorkspaceShellSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3683DF4303AF2F5E91C5039C /* StudioMacWorkspaceShellSupport.swift */; };
 		5242C028E7591D57129E09B9 /* HumbleStudioiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC38BC02A4C65C8C269C130 /* HumbleStudioiOSApp.swift */; };
@@ -25,6 +26,7 @@
 		A817540636AC3DBCF3267431 /* HumbleStudioMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4750EAFF90869AE84E110EF2 /* HumbleStudioMacApp.swift */; };
 		ACE9607ED3E6C4880FB57034 /* StudioWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */; };
 		B49A8565DD03097D7BCD2E85 /* StudioMacWorkspaceContextSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77DB27EA2B9D22F27F288D98 /* StudioMacWorkspaceContextSupport.swift */; };
+		B9D9C5222260AB170FF65F59 /* StudioSupportedAppCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8A49BA2A5A1A28006A9A0B /* StudioSupportedAppCatalog.swift */; };
 		BB189871D6EA8502C2E15FCA /* StudioBundleLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */; };
 		C3C2B5C4B75980A52838EDCB /* StudioShellNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0054C0A8AF25F71DBEC639AC /* StudioShellNotifications.swift */; };
 		D0D11E40F9C37988F17FD5DF /* StudioMacInspectorSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676AC0ADE7216ACD24C594C6 /* StudioMacInspectorSupport.swift */; };
@@ -39,6 +41,7 @@
 		0054C0A8AF25F71DBEC639AC /* StudioShellNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioShellNotifications.swift; sourceTree = "<group>"; };
 		0958D3EF729B09DC0785D633 /* StudioMacWorkspaceRoutingSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceRoutingSupport.swift; sourceTree = "<group>"; };
 		16530D78C8E532F120F4D9F3 /* StudioMacQuickOpenSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacQuickOpenSupport.swift; sourceTree = "<group>"; };
+		1A8A49BA2A5A1A28006A9A0B /* StudioSupportedAppCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioSupportedAppCatalog.swift; sourceTree = "<group>"; };
 		2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioBundleLocator.swift; sourceTree = "<group>"; };
 		22C13464105FE50E0343800A /* StudioShellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioShellModel.swift; sourceTree = "<group>"; };
 		3683DF4303AF2F5E91C5039C /* StudioMacWorkspaceShellSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceShellSupport.swift; sourceTree = "<group>"; };
@@ -138,6 +141,7 @@
 				22C13464105FE50E0343800A /* StudioShellModel.swift */,
 				0054C0A8AF25F71DBEC639AC /* StudioShellNotifications.swift */,
 				4F5B07D498AE97DC178F220C /* StudioShellView.swift */,
+				1A8A49BA2A5A1A28006A9A0B /* StudioSupportedAppCatalog.swift */,
 				F0F9A4B07E7ED4171D0D81C6 /* StudioStrings.swift */,
 				CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */,
 			);
@@ -284,6 +288,7 @@
 				948B959AD9E8A0C0A904162C /* StudioShellModel.swift in Sources */,
 				C3C2B5C4B75980A52838EDCB /* StudioShellNotifications.swift in Sources */,
 				FCE41AC494B4670B5D6F476D /* StudioShellView.swift in Sources */,
+				B9D9C5222260AB170FF65F59 /* StudioSupportedAppCatalog.swift in Sources */,
 				EEC848FDA342530E527B3629 /* StudioStrings.swift in Sources */,
 				36741C0B293FEE13E3A183C6 /* StudioWebView.swift in Sources */,
 			);
@@ -298,6 +303,7 @@
 				101B6D3E4055A66EFE9444B6 /* StudioShellModel.swift in Sources */,
 				738264D6DA33AD355A5B2606 /* StudioShellNotifications.swift in Sources */,
 				D3B4FB992647FF3A47C89B71 /* StudioShellView.swift in Sources */,
+				1A8A49BA2A5A1A28006A9A0C /* StudioSupportedAppCatalog.swift in Sources */,
 				195566F1067AB02DAB2CC384 /* StudioStrings.swift in Sources */,
 				ACE9607ED3E6C4880FB57034 /* StudioWebView.swift in Sources */,
 			);

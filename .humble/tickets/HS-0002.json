@@ -1,0 +1,82 @@
+{
+  "id": "HS-0002",
+  "title": "Add repo-native workflow observability helpers",
+  "status": "solved",
+  "type": "workflow",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Add lightweight read-only scripts that render HumbleStudio ticket, lane, status, git, and worktree state directly from repo-owned workflow files so day-to-day operation matches the nearby HumbleControl and HumbleSudoku flow more closely.",
+  "acceptance_criteria": [
+    "HumbleStudio exposes a read-only ticket board renderer for HS tickets and lane occupancy.",
+    "HumbleStudio exposes a read-only status renderer that combines repo status truth with live git and worktree context.",
+    "Local docs mention the new supported workflow commands instead of leaving them discoverable only through Scripts inspection.",
+    "Validation and command evidence prove the new helpers run successfully in the current repository state."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "This slice was selected after comparing HumbleStudio workflow surfaces to HumbleControl and HumbleSudoku, which already expose practical read-only ticket and status helpers."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/render_humble_tickets.py --limit 5",
+      "note": "Rendered a compact ticket and lane board from the local HS workflow files."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/humble_status.py",
+      "note": "Rendered repo-owned status together with live git and worktree context."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py",
+      "note": "Validated both HS workflow tickets after adding the new observability slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 -m py_compile Scripts/*.py",
+      "note": "All workflow helper scripts compiled successfully."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Whitespace and patch hygiene checks passed for the observability slice."
+    }
+  ],
+  "related_files": [
+    "Scripts/render_humble_tickets.py",
+    "Scripts/humble_status.py",
+    "README.md",
+    "docs/workflow-contract.md",
+    "AGENTS.md",
+    ".humble/status/current.json",
+    ".humble/tickets/HS-0002.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Follow-up workflow parity slice after canonical contract onboarding, inspired by HumbleControl and HumbleSudoku."
+  },
+  "commands": [
+    "python3 Scripts/render_humble_tickets.py --limit 5",
+    "python3 Scripts/humble_status.py",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 -m py_compile Scripts/*.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "This slice intentionally stays read-only and does not claim lanes, allocate tickets, or mutate git state.",
+    "If the workflow becomes routine, the next safe step is a narrowly scoped lane-claim or ticket-bootstrap helper."
+  ]
+}
