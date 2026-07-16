@@ -668,6 +668,14 @@ struct StudioPreviewContractPanel: View {
 
             StudioKeyValueRow(label: "Preview contract", value: configuration.contractSummary)
             StudioKeyValueRow(label: "Behavior model", value: configuration.behaviorSummary)
+            StudioKeyValueRow(
+                label: StudioStrings.previewSafeArea,
+                value: StudioStrings.previewSafeAreaInsets(
+                    top: Int(configuration.device.safeAreaInsets(for: configuration.orientation).top),
+                    bottom: Int(configuration.device.safeAreaInsets(for: configuration.orientation).bottom),
+                    horizontal: Int(configuration.device.safeAreaInsets(for: configuration.orientation).horizontal)
+                )
+            )
             StudioKeyValueRow(label: "Stack context", value: configuration.stackContext.summary)
             StudioKeyValueRow(label: "Coverage note", value: configuration.coverageLevel.summary)
         }
