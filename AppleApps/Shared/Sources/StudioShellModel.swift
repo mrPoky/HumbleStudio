@@ -234,13 +234,36 @@ enum StudioNativeImportError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unsupportedBundlePlatform:
-            return "Native bundle import is currently only available on macOS."
+            return StudioStrings.nativeImportPlatformDetail
         case .invalidArchive:
-            return "The Humble bundle could not be unpacked."
+            return StudioStrings.nativeImportArchiveDetail
         case .missingDesignJSON:
-            return "The imported source does not contain a design.json manifest."
+            return StudioStrings.nativeImportManifestDetail
         case .invalidDesignJSON:
-            return "The imported design.json file could not be decoded."
+            return StudioStrings.nativeImportDecodeDetail
+        }
+    }
+}
+
+enum StudioWorkspaceSourceError: LocalizedError {
+    case recentImportResolutionFailed(String)
+    case localFileUnreadable(fileName: String, reason: String)
+    case remoteFetchUnavailable(host: String)
+    case remoteFetchTimedOut(host: String)
+    case remoteFetchServerRejected(host: String)
+
+    var errorDescription: String? {
+        switch self {
+        case let .recentImportResolutionFailed(reason):
+            return StudioStrings.recentImportResolutionFailed(reason)
+        case let .localFileUnreadable(fileName, reason):
+            return StudioStrings.localFileReadFailed(fileName, reason)
+        case let .remoteFetchUnavailable(host):
+            return StudioStrings.remoteFetchUnavailable(host)
+        case let .remoteFetchTimedOut(host):
+            return StudioStrings.remoteFetchTimedOut(host)
+        case let .remoteFetchServerRejected(host):
+            return StudioStrings.remoteFetchServerRejected(host)
         }
     }
 }
@@ -358,15 +381,15 @@ final class StudioShellModel: ObservableObject {
 
     var recoveryReadinessLabel: String {
         if hasRecentImport && hasRecentRemoteURL {
-            return "Import + URL ready"
+            return StudioStrings.recoveryReadinessImportAndURL
         }
         if hasRecentImport {
-            return "Import ready"
+            return StudioStrings.recoveryReadinessImportOnly
         }
         if hasRecentRemoteURL {
-            return "URL ready"
+            return StudioStrings.recoveryReadinessURLOnly
         }
-        return "Bundled only"
+        return StudioStrings.recoveryReadinessBundledOnly
     }
 
     var recoveryReadinessTone: String {
@@ -394,12 +417,12 @@ final class StudioShellModel: ObservableObject {
             return nativeRecoveryIssue.detail
         }
         if let nativeErrorMessage, !nativeErrorMessage.isEmpty {
-            return "Native hydration hit an issue. \(recommendedRecoveryActionTitle) is the safest next step while keeping the current session recoverable."
+            return StudioStrings.recoveryRecommendationIssue(recommendedRecoveryActionTitle)
         }
         if nativeDocument != nil {
-            return "Recovery is healthy. \(recommendedRecoveryActionTitle) remains available if you need to rehydrate the current source quickly."
+            return StudioStrings.recoveryRecommendationHealthy(recommendedRecoveryActionTitle)
         }
-        return "No native document is loaded yet. \(recommendedRecoveryActionTitle) is the fastest way to establish working source truth."
+        return StudioStrings.recoveryRecommendationNoDocument(recommendedRecoveryActionTitle)
     }
 
     var reloadActionLabel: String {
@@ -508,7 +531,10 @@ final class StudioShellModel: ObservableObject {
             }
             importFile(at: url)
         } catch {
-            report(error: error)
+            presentSourceFailure(
+                StudioWorkspaceSourceError.recentImportResolutionFailed(error.localizedDescription),
+                sourceErrorContext: .recentImport
+            )
         }
     }
 
@@ -640,7 +666,13 @@ final class StudioShellModel: ObservableObject {
             actions.importPayload?(url.lastPathComponent, fileData)
             hydrateNativeDocument(fileName: url.lastPathComponent, data: fileData, sourceURL: url)
         } catch {
-            report(error: error)
+            presentSourceFailure(
+                StudioWorkspaceSourceError.localFileUnreadable(
+                    fileName: url.lastPathComponent.isEmpty ? url.path : url.lastPathComponent,
+                    reason: error.localizedDescription
+                ),
+                sourceErrorContext: .localFile
+            )
         }
     }
 
@@ -710,6 +742,15 @@ final class StudioShellModel: ObservableObject {
         statusText = error.localizedDescription
     }
 
+    private func presentSourceFailure(_ error: Error, sourceErrorContext: StudioSourceErrorContext) {
+        report(error: error)
+        nativeErrorMessage = error.localizedDescription
+        nativeRecoveryIssue = makeRecoveryIssue(from: error, remote: sourceErrorContext == .remote)
+        if sourceErrorContext != .remote {
+            nativeDocument = nil
+        }
+    }
+
     private func rememberRecentImport(for url: URL) throws {
         let bookmarkData = try url.bookmarkData(
             options: Self.bookmarkCreationOptions,
@@ -765,10 +806,11 @@ final class StudioShellModel: ObservableObject {
                     self.nativeRecoveryIssue = nil
                 }
             } catch {
+                let wrappedError = Self.remoteFetchError(from: error, url: url)
                 await MainActor.run {
                     self.nativeDocument = nil
-                    self.nativeErrorMessage = error.localizedDescription
-                    self.nativeRecoveryIssue = self.makeRecoveryIssue(from: error, remote: true)
+                    self.nativeErrorMessage = wrappedError.localizedDescription
+                    self.nativeRecoveryIssue = self.makeRecoveryIssue(from: wrappedError, remote: true)
                     if self.errorMessage == nil {
                         self.statusLevel = "warn"
                         self.statusText = StudioStrings.remotePreviewUnavailable
@@ -1156,6 +1198,32 @@ final class StudioShellModel: ObservableObject {
         let primaryAction: StudioRecoveryAction = hasRecentImport ? .reopenRecentImport : (hasRecentRemoteURL ? .reopenRecentRemoteURL : .loadBundledStudio)
         let secondaryActions = availableRecoveryActions(excluding: primaryAction)
 
+        if let sourceError = error as? StudioWorkspaceSourceError {
+            switch sourceError {
+            case .recentImportResolutionFailed:
+                return StudioNativeRecoveryIssue(
+                    title: StudioStrings.recoveryIssueRecentImport,
+                    detail: sourceError.localizedDescription,
+                    primaryAction: primaryAction,
+                    secondaryActions: secondaryActions
+                )
+            case .localFileUnreadable:
+                return StudioNativeRecoveryIssue(
+                    title: StudioStrings.recoveryIssueLocal,
+                    detail: sourceError.localizedDescription,
+                    primaryAction: primaryAction,
+                    secondaryActions: secondaryActions
+                )
+            case .remoteFetchUnavailable, .remoteFetchTimedOut, .remoteFetchServerRejected:
+                return StudioNativeRecoveryIssue(
+                    title: StudioStrings.recoveryIssueRemoteFetch,
+                    detail: sourceError.localizedDescription,
+                    primaryAction: primaryAction,
+                    secondaryActions: secondaryActions
+                )
+            }
+        }
+
         if let importError = error as? StudioNativeImportError {
             switch importError {
             case .invalidArchive:
@@ -1197,6 +1265,23 @@ final class StudioShellModel: ObservableObject {
         )
     }
 
+    private static func remoteFetchError(from error: Error, url: URL) -> StudioWorkspaceSourceError {
+        let host = url.host ?? url.absoluteString
+
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .timedOut:
+                return .remoteFetchTimedOut(host: host)
+            case .badServerResponse, .cannotParseResponse:
+                return .remoteFetchServerRejected(host: host)
+            default:
+                return .remoteFetchUnavailable(host: host)
+            }
+        }
+
+        return .remoteFetchUnavailable(host: host)
+    }
+
     private func availableRecoveryActions(excluding primaryAction: StudioRecoveryAction) -> [StudioRecoveryAction] {
         let all: [StudioRecoveryAction] = [
             hasRecentImport ? .reopenRecentImport : nil,
@@ -1211,4 +1296,10 @@ final class StudioShellModel: ObservableObject {
         let actions: [StudioRecoveryAction] = [.reopenRecentImport, .reopenRecentRemoteURL, .loadBundledStudio]
         return actions.first(where: { $0.title == title })
     }
+}
+
+private enum StudioSourceErrorContext: Equatable {
+    case recentImport
+    case localFile
+    case remote
 }

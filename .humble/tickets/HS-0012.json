@@ -1,0 +1,61 @@
+{
+  "id": "HS-0012",
+  "title": "Localize recovery truth and refine source failure types",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Move remaining recovery and context status copy onto StudioStrings, and replace generic recent-import and remote-fetch failures with more specific recovery-aware error cases.",
+  "acceptance_criteria": [
+    "StudioShellModel no longer hardcodes user-facing recovery readiness or recommendation copy in English.",
+    "Recent import resolution, local file read, and remote fetch failures produce more precise recovery-aware issues than a generic raw error path.",
+    "Workspace context summaries for tokens, icons, typography, and spatial tokens no longer hardcode English labels.",
+    "Ticket validation, patch hygiene, and a HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0012.json",
+      "note": "HS-0012 ticket schema validated after localizing recovery truth copy and refining recent-import and remote-fetch failure cases."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after updating StudioStrings, the string catalog, and recovery-aware source error handling."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after moving remaining recovery copy onto StudioStrings and refining source failure classification."
+    }
+  ],
+  "related_files": [
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceContextSupport.swift",
+    ".humble/tickets/HS-0012.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 items 1 and 2 merged into one recovery-truth slice after HS-0011."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0012.json",
+    "git diff --check",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "This slice keeps the recent shared native recovery surface but feeds it more truthful copy and slightly better failure classification.",
+    "Proposal artifact workflow remains out of scope for this pass."
+  ]
+}

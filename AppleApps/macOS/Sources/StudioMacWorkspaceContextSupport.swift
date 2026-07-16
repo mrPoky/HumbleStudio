@@ -213,10 +213,10 @@ enum StudioMacWorkspaceContextResolver {
             switch selectionState.tokenSelection {
             case let .color(id):
                 guard let token = document.colors.first(where: { $0.id == id }) else { return nil }
-                return "Color token · \(token.group)"
+                return StudioStrings.colorTokenSummary(token.group)
             case let .gradient(id):
                 guard let token = document.gradients.first(where: { $0.id == id }) else { return nil }
-                return "Gradient token · \(token.group)"
+                return StudioStrings.gradientTokenSummary(token.group)
             case nil:
                 return nil
             }
@@ -228,18 +228,20 @@ enum StudioMacWorkspaceContextResolver {
             return view.summary.isEmpty ? StudioStrings.viewSummary(view.presentation) : view.summary
         case .icons:
             guard let icon = document.icons.first(where: { $0.id == selectionState.iconID }) else { return nil }
-            return "Icon · \(icon.symbol)"
+            return StudioStrings.iconSummary(icon.symbol)
         case .typography:
             guard let token = document.typography.first(where: { $0.id == selectionState.typographyID }) else { return nil }
-            return "\(Int(token.size)) pt · \(token.swiftUI)"
+            return token.swiftUI.isEmpty
+                ? StudioStrings.typographySummary(points: Int(token.size))
+                : StudioStrings.typographyContext(points: Int(token.size), swiftUI: token.swiftUI)
         case .spacing:
             switch selectionState.metricSelection {
             case let .spacing(id):
                 guard let token = document.spacing.first(where: { $0.id == id }) else { return nil }
-                return "Spacing · \(token.value)"
+                return StudioStrings.spacingSummary(token.value)
             case let .radius(id):
                 guard let token = document.radius.first(where: { $0.id == id }) else { return nil }
-                return "Corner radius · \(token.value)"
+                return StudioStrings.cornerRadiusSummary(token.value)
             case nil:
                 return nil
             }

@@ -85,6 +85,12 @@ enum StudioStrings {
     static let recoveryIssuePlatform = String(localized: "studio.recovery.issue.platform", defaultValue: "Platform import limitation")
     static let recoveryIssueRemote = String(localized: "studio.recovery.issue.remote", defaultValue: "Remote source could not be hydrated")
     static let recoveryIssueLocal = String(localized: "studio.recovery.issue.local", defaultValue: "Local source could not be hydrated")
+    static let recoveryIssueRecentImport = String(localized: "studio.recovery.issue.recent_import", defaultValue: "Recent import could not be reopened")
+    static let recoveryIssueRemoteFetch = String(localized: "studio.recovery.issue.remote_fetch", defaultValue: "Remote source could not be downloaded")
+    static let nativeImportPlatformDetail = String(localized: "studio.recovery.detail.platform", defaultValue: "Native bundle import is currently only available on macOS.")
+    static let nativeImportArchiveDetail = String(localized: "studio.recovery.detail.archive", defaultValue: "The Humble bundle could not be unpacked.")
+    static let nativeImportManifestDetail = String(localized: "studio.recovery.detail.manifest", defaultValue: "The imported source does not contain a design.json manifest.")
+    static let nativeImportDecodeDetail = String(localized: "studio.recovery.detail.decode", defaultValue: "The imported design.json file could not be decoded.")
     static let saveProposalToRepo = String(localized: "studio.change_proposal.save_to_repo", defaultValue: "Save Proposal to Repo")
     static let repoProposalSaved = String(localized: "studio.change_proposal.repo_saved", defaultValue: "Proposal saved in repo")
     static let repoProposalFailed = String(localized: "studio.change_proposal.repo_failed", defaultValue: "Unable to save proposal in repo")
@@ -95,6 +101,34 @@ enum StudioStrings {
     static let recentRemote = String(localized: "studio.source_recovery.recent_remote", defaultValue: "Recent remote")
     static let notAvailableYet = String(localized: "common.not_available_yet", defaultValue: "Not available yet")
     static let currentIssue = String(localized: "studio.source_recovery.current_issue", defaultValue: "Current issue")
+    static let recoveryReadinessImportAndURL = String(localized: "studio.source_recovery.readiness.import_and_url", defaultValue: "Import + URL ready")
+    static let recoveryReadinessImportOnly = String(localized: "studio.source_recovery.readiness.import_only", defaultValue: "Import ready")
+    static let recoveryReadinessURLOnly = String(localized: "studio.source_recovery.readiness.url_only", defaultValue: "URL ready")
+    static let recoveryReadinessBundledOnly = String(localized: "studio.source_recovery.readiness.bundled_only", defaultValue: "Bundled only")
+    static func recoveryRecommendationIssue(_ actionTitle: String) -> String {
+        String(format: String(localized: "studio.source_recovery.recommendation.issue", defaultValue: "Native hydration hit an issue. %@ is the safest next step while keeping the current session recoverable."), locale: Locale.current, actionTitle)
+    }
+    static func recoveryRecommendationHealthy(_ actionTitle: String) -> String {
+        String(format: String(localized: "studio.source_recovery.recommendation.healthy", defaultValue: "Recovery is healthy. %@ remains available if you need to rehydrate the current source quickly."), locale: Locale.current, actionTitle)
+    }
+    static func recoveryRecommendationNoDocument(_ actionTitle: String) -> String {
+        String(format: String(localized: "studio.source_recovery.recommendation.no_document", defaultValue: "No native document is loaded yet. %@ is the fastest way to establish working source truth."), locale: Locale.current, actionTitle)
+    }
+    static func recentImportResolutionFailed(_ reason: String) -> String {
+        String(format: String(localized: "studio.source_recovery.recent_import_resolution_failed", defaultValue: "HumbleStudio could not reopen the recent import bookmark. Reason: %@"), locale: Locale.current, reason)
+    }
+    static func localFileReadFailed(_ fileName: String, _ reason: String) -> String {
+        String(format: String(localized: "studio.source_recovery.local_file_read_failed", defaultValue: "HumbleStudio could not read %@. Reason: %@"), locale: Locale.current, fileName, reason)
+    }
+    static func remoteFetchUnavailable(_ host: String) -> String {
+        String(format: String(localized: "studio.source_recovery.remote_fetch_unavailable", defaultValue: "HumbleStudio could not reach %@ while downloading the remote source."), locale: Locale.current, host)
+    }
+    static func remoteFetchTimedOut(_ host: String) -> String {
+        String(format: String(localized: "studio.source_recovery.remote_fetch_timed_out", defaultValue: "The remote source at %@ took too long to respond."), locale: Locale.current, host)
+    }
+    static func remoteFetchServerRejected(_ host: String) -> String {
+        String(format: String(localized: "studio.source_recovery.remote_fetch_server_rejected", defaultValue: "The remote source at %@ returned an invalid or rejected response."), locale: Locale.current, host)
+    }
     static let previewCoverageTitle = String(localized: "studio.preview_coverage.title", defaultValue: "Preview Coverage")
     static let previewCoverageSubtitle = String(localized: "studio.preview_coverage.subtitle", defaultValue: "How much of the current native surface is exact, contract-driven, or still leaning on fallback.")
     static let nativeParityMapTitle = String(localized: "studio.native_parity.title", defaultValue: "Native Parity Map")
@@ -531,6 +565,10 @@ enum StudioStrings {
 
     static func typographySummary(points: Int) -> String {
         String(localized: "studio.foundation.typography_summary", defaultValue: "Typography · \(points) pt")
+    }
+
+    static func typographyContext(points: Int, swiftUI: String) -> String {
+        String(format: String(localized: "studio.foundation.typography_context", defaultValue: "%lld pt · %@"), locale: Locale.current, points, swiftUI)
     }
 
     static func spacingSummary(_ value: String) -> String {

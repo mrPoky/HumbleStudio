@@ -547,6 +547,90 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Current issue" } }
       }
     },
+    "studio.source_recovery.readiness.import_and_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Import i URL připravené" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import + URL ready" } }
+      }
+    },
+    "studio.source_recovery.readiness.import_only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Import připravený" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import ready" } }
+      }
+    },
+    "studio.source_recovery.readiness.url_only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "URL připravená" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "URL ready" } }
+      }
+    },
+    "studio.source_recovery.readiness.bundled_only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Jen vestavěný zdroj" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bundled only" } }
+      }
+    },
+    "studio.source_recovery.recommendation.issue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní hydratace narazila na problém. %@ je teď nejbezpečnější další krok a zachová session obnovitelnou." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native hydration hit an issue. %@ is the safest next step while keeping the current session recoverable." } }
+      }
+    },
+    "studio.source_recovery.recommendation.healthy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obnova je v pořádku. %@ zůstává k dispozici, kdybyste potřebovali rychle znovu hydratovat aktuální zdroj." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recovery is healthy. %@ remains available if you need to rehydrate the current source quickly." } }
+      }
+    },
+    "studio.source_recovery.recommendation.no_document" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zatím není načtený žádný nativní dokument. %@ je nejrychlejší cesta, jak znovu ustavit pravdu zdroje." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No native document is loaded yet. %@ is the fastest way to establish working source truth." } }
+      }
+    },
+    "studio.source_recovery.recent_import_resolution_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio nedokázalo znovu otevřít bookmark nedávného importu. Důvod: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio could not reopen the recent import bookmark. Reason: %@" } }
+      }
+    },
+    "studio.source_recovery.local_file_read_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio nedokázalo přečíst %@. Důvod: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio could not read %@. Reason: %@" } }
+      }
+    },
+    "studio.source_recovery.remote_fetch_unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio se při stahování vzdáleného zdroje nedokázalo spojit s %@." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio could not reach %@ while downloading the remote source." } }
+      }
+    },
+    "studio.source_recovery.remote_fetch_timed_out" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vzdálený zdroj na %@ odpovídal příliš dlouho." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The remote source at %@ took too long to respond." } }
+      }
+    },
+    "studio.source_recovery.remote_fetch_server_rejected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vzdálený zdroj na %@ vrátil neplatnou nebo odmítnutou odpověď." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The remote source at %@ returned an invalid or rejected response." } }
+      }
+    },
     "studio.content.components.title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -811,6 +895,48 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lokální zdroj nešel hydratovat" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Local source could not be hydrated" } }
+      }
+    },
+    "studio.recovery.issue.recent_import" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nedávný import nešel znovu otevřít" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent import could not be reopened" } }
+      }
+    },
+    "studio.recovery.issue.remote_fetch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vzdálený zdroj nešel stáhnout" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remote source could not be downloaded" } }
+      }
+    },
+    "studio.recovery.detail.platform" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní import bundle je zatím dostupný jen na macOS." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native bundle import is currently only available on macOS." } }
+      }
+    },
+    "studio.recovery.detail.archive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Humble bundle nešel rozbalit." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The Humble bundle could not be unpacked." } }
+      }
+    },
+    "studio.recovery.detail.manifest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovaný zdroj neobsahuje manifest `design.json`." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The imported source does not contain a design.json manifest." } }
+      }
+    },
+    "studio.recovery.detail.decode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovaný soubor `design.json` nešel dekódovat." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The imported design.json file could not be decoded." } }
       }
     },
     "studio.change_proposal.save_to_repo" : {
@@ -2848,6 +2974,13 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Typografie · %lld pt" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Typography · %lld pt" } }
+      }
+    },
+    "studio.foundation.typography_context" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld pt · %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld pt · %@" } }
       }
     },
     "studio.foundation.spacing_summary" : {
