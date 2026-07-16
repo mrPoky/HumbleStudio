@@ -189,6 +189,19 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);display:flex;m
 .loader-upload-cta{padding:7px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--t1);flex-shrink:0}
 .loader-inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .loader-or{text-align:center;font-size:11px;color:var(--t3);margin:10px 0}
+.loader-supported-copy{font-size:11px;color:var(--t2);margin-bottom:12px}
+.loader-supported-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.loader-supported-card{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:16px;border:1px solid var(--border);background:linear-gradient(180deg, color-mix(in srgb, var(--surface2) 82%, var(--accent) 18%), var(--surface))}
+.loader-supported-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.loader-supported-meta{display:flex;flex-direction:column;gap:3px;min-width:0}
+.loader-supported-name{font-size:13px;font-weight:700;color:var(--t1)}
+.loader-supported-sub{font-size:10px;color:var(--t3);font-family:var(--mono);word-break:break-word}
+.loader-supported-badge{padding:4px 8px;border-radius:999px;background:var(--accent-soft-bg);border:1px solid var(--accent-soft-border);font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--accent-soft-text);flex-shrink:0}
+.loader-supported-desc{font-size:11px;color:var(--t2);min-height:48px}
+.loader-supported-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;color:var(--t3)}
+.loader-supported-actions{display:flex;gap:8px;flex-wrap:wrap}
+.loader-supported-btn{flex:1;min-width:0}
+.loader-supported-btn.btn-sm{justify-content:center}
 .loader-actions{display:flex;gap:8px;margin-top:10px}
 .btn-full{flex:1;background:var(--accent);border:none;border-radius:var(--r-sm);padding:9px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--font)}
 .btn-full-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--t1)}

@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "base_ref": "origin/main",
+  "lanes": [
+    {
+      "id": "lane-1",
+      "worktree_path": "../../worktrees/HumbleStudio/lane-1",
+      "state": "free",
+      "ticket": null,
+      "branch": null,
+      "owner": null,
+      "scope_paths": [],
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "released_at": null,
+      "note": "Reusable lane for a focused HumbleStudio implementation slice."
+    },
+    {
+      "id": "lane-2",
+      "worktree_path": "../../worktrees/HumbleStudio/lane-2",
+      "state": "free",
+      "ticket": null,
+      "branch": null,
+      "owner": null,
+      "scope_paths": [],
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "released_at": null,
+      "note": "Reusable lane for a second active HumbleStudio slice."
+    },
+    {
+      "id": "lane-3",
+      "worktree_path": "../../worktrees/HumbleStudio/lane-3",
+      "state": "free",
+      "ticket": null,
+      "branch": null,
+      "owner": null,
+      "scope_paths": [],
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "released_at": null,
+      "note": "Reusable lane for docs, QA, or workflow follow-up."
+    },
+    {
+      "id": "lane-4",
+      "worktree_path": "../../worktrees/HumbleStudio/lane-4",
+      "state": "free",
+      "ticket": null,
+      "branch": null,
+      "owner": null,
+      "scope_paths": [],
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "released_at": null,
+      "note": "Reusable overflow lane for short-lived focused tasks."
+    }
+  ]
+}

@@ -239,6 +239,13 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Remote URL" } }
       }
     },
+    "studio.remote_source.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle" } }
+      }
+    },
     "studio.remote_source.prompt" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -246,11 +253,32 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Use an http/https URL to a `.humblebundle`, `.zip`, or `design.json`. Native foundations and the legacy web inspector will both follow this source." } }
       }
     },
+    "studio.remote_source.supported_apps_prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte známou Humble aplikaci a předvyplňte její exportované raw URL před načtením." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pick a known Humble app to prefill its exported raw URL before loading." } }
+      }
+    },
+    "studio.remote_source.supported_apps_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Podporované aplikace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Supported apps" } }
+      }
+    },
     "studio.remote_source.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vzdálený zdroj" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Remote source" } }
+      }
+    },
+    "studio.remote_source.use_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použít URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use URL" } }
       }
     },
     "studio.remote_source.use_recent_url" : {
@@ -699,6 +727,27 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lokální soubor" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Local file" } }
+      }
+    },
+    "studio.source.demo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Demo zdroj" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Demo source" } }
+      }
+    },
+    "studio.source.embedded_assets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vestavěná aktiva aplikace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Embedded app assets" } }
+      }
+    },
+    "studio.source.reload_demo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Znovu načíst demo zdroj" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reload demo source" } }
       }
     },
     "studio.recovery.issue.archive" : {
@@ -1401,6 +1450,83 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "High" } }
       }
     },
+    "studio.change_proposal.linkage.tickets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navázané tickety" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Linked tickets" } }
+      }
+    },
+    "studio.change_proposal.tickets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tickety" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tickets" } }
+      }
+    },
+    "studio.change_proposal.no_linked_tickets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zatím bez navázaného HS ticketu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No linked HS ticket yet" } }
+      }
+    },
+    "studio.change_proposal.ticket_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld navázaných ticketů, začíná %2$@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld linked tickets, starting with %2$@" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.source_audit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Audit zdroje" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source audit" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.source_audit_exact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navázáno a podloženo evidencí" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Linked and evidence-backed" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.source_audit_related" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Částečně navázáno" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Partially linked" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.source_audit_needs_metadata" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Potřebuje metadata" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needs metadata" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.source_audit_summary_exact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh už propojuje ticket, scope a evidence dost silně na pravdivý nativní audit." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal already links ticket, scope, and evidence strongly enough for a truthful native audit." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.source_audit_summary_related" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh už má část nativního propojení, ale ticket nebo evidence metadata ještě potřebují dotáhnout." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal has some native linkage, but ticket or evidence metadata still needs tightening." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.source_audit_summary_needs_metadata" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Návrh ještě potřebuje ticket, scope nebo evidence metadata, než bude možné věřit apply-oriented auditu." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal still needs ticket, scope, or evidence metadata before any apply-oriented audit should be trusted." } }
+      }
+    },
     "studio.change_proposal.issue.missing_directory.detail" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1553,6 +1679,76 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obnovuji studio…" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Reloading studio…" } }
+      }
+    },
+    "studio.parity.legacy_web_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Fallback cesta pro parity mezery, chybějící nativní detail a budoucí write-back workflow." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fallback path for parity gaps, missing native detail, and future write-back workflows." } }
+      }
+    },
+    "studio.parity.review_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pravda review queue je nativní, ale pořád explicitně ukazuje degraded a fallback-risk místa." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Queue truth is native, but it still surfaces degraded and fallback-risk areas explicitly." } }
+      }
+    },
+    "studio.parity.navigation_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navigační graf je nativní a contract-aware, i když některé behavior hrany zůstávají aproximované." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Navigation graph is native and contract-aware, with behavior edges still approximated where needed." } }
+      }
+    },
+    "studio.parity.proposal_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Artefakty návrhů jsou tu plně nativní, s repo-aware filtry, recovery, scope linkage a ticket-aware audit kontextem." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal artifacts are fully native here, with repo-aware filters, recovery, scope linkage, and ticket-aware audit context." } }
+      }
+    },
+    "studio.parity.typography_exact_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Typografické role jsou podložené evidencí a nativně inspectovatelné." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Type roles are evidence-backed and inspectable natively." } }
+      }
+    },
+    "studio.parity.typography_degraded_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Typografické role jsou native-first, ale část usage kontextu je ještě contract-driven." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Type roles are native-first, but some usage context is still contract-driven." } }
+      }
+    },
+    "studio.parity.spacing_exact_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Spacing a radius tokeny jsou nativně podložené evidencí." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Spacing and radius tokens are evidence-backed natively." } }
+      }
+    },
+    "studio.parity.spacing_degraded_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Prostorové tokeny jdou inspectovat nativně, ale část kontextu je ještě odvozená z usage dat." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Spatial tokens are inspectable natively, with some context still inferred from usage data." } }
+      }
+    },
+    "studio.parity.narrative_degraded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld nativních surfaces už je dost first-class pro každodenní inspekci, ale stále ukazují degraded místa, kde je chování nebo evidence modelované místo plně reference-backed." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld native surfaces are already first-class enough for everyday inspection, but still expose degraded areas where behavior or evidence is modeled instead of fully reference-backed." } }
+      }
+    },
+    "studio.parity.narrative_exact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní inspekce je napříč aktuálním importovaným bundlem převážně přesná. Zbývající fallback potřeba se teď týká hlavně budoucího write-back authoringu a long-tail parity hran." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native inspection is broadly exact across the current imported bundle. Remaining fallback need is now mostly about future write-back authoring and long-tail parity edges." } }
       }
     },
     "studio.status.loading_remote" : {

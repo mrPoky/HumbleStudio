@@ -7,6 +7,7 @@ The goal is to let a reviewer point at a native surface, describe a desired chan
 Current repository convention:
 - proposals are saved under `docs/change-proposals/`
 - the macOS review inspector can read those markdown artifacts back for the matching component or view scope
+- the native proposal workspace can also read linked `HS-####` ids back as repo workflow context when proposals reference them
 - proposal capture remains read-only; no proposal mutates exported truth on save
 
 ## Principles
@@ -23,6 +24,7 @@ Current repository convention:
 
 ## Scope
 - Surface: `view:home`
+- Ticket: `HS-0003`
 - Evidence: `HomeView.swift`, `design.json`
 - Coverage: `Contract-driven`
 
@@ -43,6 +45,7 @@ Current repository convention:
 ```
 
 Preferred metadata additions for native read-back:
+- `Ticket` or `Tickets` lines make it possible to link the proposal back to repo-native HS workflow items without changing current exported truth.
 - `Area` keeps the proposal diff-oriented instead of burying the affected region in prose.
 - `Why` captures the review rationale separately from the requested change.
 - `Token candidate`, `Component candidate`, and `View candidate` make structured targets easier to surface in native inspectors and future apply previews.

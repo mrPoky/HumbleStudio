@@ -1,0 +1,66 @@
+{
+  "name": "HumbleStudio",
+  "repo_type": "humble-studio-hybrid",
+  "profiles": [
+    "humble-studio-hybrid"
+  ],
+  "module_roots": [
+    "AppleApps",
+    "js",
+    "docs"
+  ],
+  "locale_policy": {
+    "declared_locales": [
+      "en",
+      "cs"
+    ],
+    "strategy": "apple-xcstrings-and-web-inline"
+  },
+  "workflow": {
+    "default_branch": "main",
+    "requires_tickets": true,
+    "branch_hygiene": {
+      "rebase_before_local_checks": true,
+      "rebase_before_promotion": true,
+      "prefer_fast_promotion_after_green": true,
+      "delete_merged_topic_branches": true
+    },
+    "worktree_lanes": {
+      "enabled": true,
+      "root": "/Users/janpokorny/Coding/personal/worktrees/HumbleStudio",
+      "lanes": [
+        "lane-1",
+        "lane-2",
+        "lane-3",
+        "lane-4"
+      ],
+      "reserved_main_checkout": true
+    }
+  },
+  "rules": {
+    "required_paths": [
+      "README.md",
+      "AGENTS.md",
+      "docs/workflow-contract.md",
+      "Scripts/validate_repo_contract.py",
+      "Scripts/humble_doctor.py",
+      "Scripts/validate_humble_tickets.py",
+      ".humble/status/current.json",
+      ".humble/tickets",
+      ".humble/coordination/lanes.json",
+      "script/build_and_run.sh",
+      "AppleApps"
+    ],
+    "required_any_paths": [
+      [
+        "HumbleStudio.xcodeproj",
+        "*.xcodeproj"
+      ],
+      [
+        "index.html",
+        "js/app.js"
+      ]
+    ],
+    "required_commands": []
+  }
+}

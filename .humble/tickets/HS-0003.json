@@ -1,0 +1,120 @@
+{
+  "id": "HS-0003",
+  "title": "Add repo-native workflow operations and proposal linkage",
+  "status": "solved",
+  "type": "workflow",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Add the next practical HumbleStudio workflow layer after onboarding: ticket id allocation, lane claim tooling, human-readable status rendering, a unified local checks wrapper, an explicit web fallback integrity verifier, and lightweight proposal-to-ticket linkage rooted in markdown artifacts.",
+  "acceptance_criteria": [
+    "HumbleStudio can allocate the next free HS ticket id from repo-native ticket files.",
+    "HumbleStudio exposes explicit lane operation helpers and a start-ticket-lane entrypoint aligned with the fixed lane registry.",
+    "HumbleStudio exposes a reader-friendly repo status renderer on top of repo-owned status truth.",
+    "HumbleStudio has a unified local workflow checks wrapper and an explicit web fallback verification command.",
+    "Proposal artifacts can link back to HS tickets through repo workflow tooling and documentation without mutating source truth."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "This slice intentionally batches the highest-value remaining workflow operations after comparing HumbleStudio with the closer HumbleControl and HumbleSudoku development flow."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/allocate_humble_ticket_id.py",
+      "note": "Confirmed the next repo-native HS ticket id can be allocated automatically."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/start_ticket_lane.py --ticket HS-0003 --path Scripts --dry-run",
+      "note": "Confirmed the lane starter resolves the target ticket, branch, and lane without mutating git state."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/render_humble_status.py",
+      "note": "Rendered the new human-readable repo status summary."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "note": "Verified static web fallback asset and markup integrity."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only",
+      "note": "Confirmed the new unified workflow gate passes in the current repository state."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py",
+      "note": "Validated the updated HS ticket set after adding workflow operations and proposal linkage."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Validated the updated repo contract surfaces and workflow documentation."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 -m py_compile Scripts/*.py",
+      "note": "Compiled all workflow scripts after adding the new operational helpers."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Whitespace and patch hygiene checks passed for the workflow operations slice."
+    }
+  ],
+  "related_files": [
+    "Scripts/allocate_humble_ticket_id.py",
+    "Scripts/proposal_artifact_index.py",
+    "Scripts/manage_humble_lanes.py",
+    "Scripts/start_ticket_lane.py",
+    "Scripts/check_web_fallback.py",
+    "Scripts/render_humble_status.py",
+    "Scripts/run_local_checks.sh",
+    "Scripts/humble_status.py",
+    "Scripts/render_humble_tickets.py",
+    "README.md",
+    "AGENTS.md",
+    "docs/workflow-contract.md",
+    "docs/change-marking-contract.md",
+    ".github/workflows/repo-contract.yml",
+    ".humble/status/current.json",
+    ".humble/tickets/HS-0003.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Continuation of HumbleStudio repository workflow onboarding and parity work after the initial observability slice."
+  },
+  "commands": [
+    "python3 Scripts/allocate_humble_ticket_id.py",
+    "python3 Scripts/start_ticket_lane.py --ticket HS-0003 --path Scripts --dry-run",
+    "python3 Scripts/render_humble_status.py",
+    "python3 Scripts/check_web_fallback.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 -m py_compile Scripts/*.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "This slice keeps lane preparation explicit and dry-runnable instead of mutating git worktrees behind an implicit command.",
+    "Proposal linkage is currently repo-workflow-level truth through markdown ids and renderers; the next likely step is surfacing the same linkage inside native proposal inspectors."
+  ]
+}
