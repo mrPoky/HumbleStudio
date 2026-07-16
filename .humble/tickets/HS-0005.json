@@ -1,16 +1,17 @@
 {
   "id": "HS-0005",
-  "title": "Add repo-aware supported app picker to the web fallback loader",
+  "title": "Add repo-aware supported app picker to the loaders",
   "status": "solved",
-  "type": "product",
+  "type": "feature",
   "priority": "medium",
   "owner": "Codex",
   "created_at": "2026-07-16",
   "updated_at": "2026-07-16",
   "source": "agent",
-  "summary": "Extend the static HumbleStudio loader so it can offer direct selection of a few known supported Humble apps instead of requiring only manual file or URL entry.",
+  "summary": "Extend the static and native HumbleStudio loaders so they can offer direct selection of a few known supported Humble apps instead of requiring only manual file or URL entry.",
   "acceptance_criteria": [
     "The web fallback loader renders a visible supported-app picker alongside the existing URL, file, and demo inputs.",
+    "The native remote URL sheets render the same curated supported-app picker and prefill the selected app URL.",
     "Known repo-aware app entries can load their raw `.humblebundle` or `.humble/design.json` source directly.",
     "The picker can also prefill the URL field for transparent manual inspection before loading.",
     "Remember/reload loader behavior stays truthful for the new supported-app source type.",
@@ -33,9 +34,32 @@
       "status": "passed",
       "path": "git diff --check",
       "note": "Patch hygiene should stay clean after the loader and documentation edits."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "The native macOS/iOS remote URL sheets now use the same curated app catalog as the web fallback and avoid hardcoded source labels by routing them through StudioStrings."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract validation passed with only the existing localization heuristic warning."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build passed after adding StudioSupportedAppCatalog.swift to the Xcode project sources."
     }
   ],
   "related_files": [
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/Shared/Sources/StudioShellView.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+    "HumbleStudio.xcodeproj/project.pbxproj",
     "index.html",
     "studio.css",
     "js/app.js",
@@ -47,17 +71,22 @@
   ],
   "blocked_by": null,
   "trigger": {
-    "kind": "user_request",
+    "kind": "manual_prompt",
     "interaction_mode": "agent_autonomous",
     "question_policy": "allowed",
     "source_ref": "User asked whether HumbleStudio could offer direct selection of supported apps instead of only file selection."
   },
   "commands": [
     "python3 Scripts/check_web_fallback.py",
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0005.json",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
     "git diff --check"
   ],
   "agent_notes": [
     "The current picker is intentionally curated rather than dynamic so the web fallback does not overclaim repository support.",
-    "A later native/web shared source catalog would be a good follow-up if more repos start exporting stable `.humble` sources."
+    "A later native/web shared source catalog would be a good follow-up if more repos start exporting stable `.humble` sources.",
+    "The SwiftUI picker intentionally pre-fills the URL field rather than auto-loading immediately, so users can inspect the raw source before loading."
   ]
 }

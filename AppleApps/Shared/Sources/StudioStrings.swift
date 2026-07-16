@@ -28,8 +28,12 @@ enum StudioStrings {
     static let sources = String(localized: "studio.sources.title", defaultValue: "Sources")
     static let remoteSource = String(localized: "studio.remote_source.title", defaultValue: "Remote source")
     static let remoteSourcePrompt = String(localized: "studio.remote_source.prompt", defaultValue: "Use an http/https URL to a `.humblebundle`, `.zip`, or `design.json`. Native foundations and the legacy web inspector will both follow this source.")
+    static let remoteSourcePlaceholder = String(localized: "studio.remote_source.placeholder", defaultValue: "https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle")
     static let useRecentURL = String(localized: "studio.remote_source.use_recent_url", defaultValue: "Use recent URL")
     static let openRemoteSourceTitle = String(localized: "studio.remote_source.open_title", defaultValue: "Open Remote URL")
+    static let supportedAppsTitle = String(localized: "studio.remote_source.supported_apps_title", defaultValue: "Supported apps")
+    static let supportedAppsPrompt = String(localized: "studio.remote_source.supported_apps_prompt", defaultValue: "Pick a known Humble app to prefill its exported raw URL before loading.")
+    static let useURL = String(localized: "studio.remote_source.use_url", defaultValue: "Use URL")
     static let cancel = String(localized: "common.cancel", defaultValue: "Cancel")
     static let close = String(localized: "common.close", defaultValue: "Close")
     static let load = String(localized: "common.load", defaultValue: "Load")
@@ -226,6 +230,9 @@ enum StudioStrings {
     static let proposalApplyPreviewSourceAuditSummaryExact = String(localized: "studio.change_proposal.apply_preview.source_audit_summary_exact", defaultValue: "Proposal already links ticket, scope, and evidence strongly enough for a truthful native audit.")
     static let proposalApplyPreviewSourceAuditSummaryRelated = String(localized: "studio.change_proposal.apply_preview.source_audit_summary_related", defaultValue: "Proposal has some native linkage, but ticket or evidence metadata still needs tightening.")
     static let proposalApplyPreviewSourceAuditSummaryNeedsMetadata = String(localized: "studio.change_proposal.apply_preview.source_audit_summary_needs_metadata", defaultValue: "Proposal still needs ticket, scope, or evidence metadata before any apply-oriented audit should be trusted.")
+    static let embeddedAppAssets = String(localized: "studio.source.embedded_assets", defaultValue: "Embedded app assets")
+    static let demoSource = String(localized: "studio.source.demo", defaultValue: "Demo source")
+    static let reloadDemoSource = String(localized: "studio.source.reload_demo", defaultValue: "Reload demo source")
     static func proposalTicketSummary(count: Int, firstTicket: String) -> String {
         String(localized: "studio.change_proposal.ticket_summary", defaultValue: "\(count) linked tickets, starting with \(firstTicket)")
     }

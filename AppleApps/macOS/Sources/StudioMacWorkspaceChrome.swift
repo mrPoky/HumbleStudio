@@ -686,7 +686,7 @@ private struct StudioMacSourceRecoveryCard: View {
         case .bundled:
             return StudioStrings.bundledStudio
         case .demo:
-            return "Demo source"
+            return StudioStrings.demoSource
         case .recentImport:
             return StudioStrings.recentImport
         case .recentRemote:
@@ -959,7 +959,7 @@ struct StudioMacRemoteURLSheet: View {
             Form {
                 Section(StudioStrings.remoteSource) {
                     TextField(
-                        "https://raw.githubusercontent.com/user/repo/main/.humble/HumbleSudoku.humblebundle",
+                        StudioStrings.remoteSourcePlaceholder,
                         text: $remoteURLDraft,
                         axis: .vertical
                     )
@@ -982,6 +982,8 @@ struct StudioMacRemoteURLSheet: View {
                         }
                     }
                 }
+
+                StudioSupportedRemoteAppsSection(remoteURLDraft: $remoteURLDraft)
             }
             .navigationTitle(StudioStrings.openRemoteSourceTitle)
             .toolbar {
