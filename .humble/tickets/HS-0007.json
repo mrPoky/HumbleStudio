@@ -1,0 +1,59 @@
+{
+  "id": "HS-0007",
+  "title": "Add proposal linkage summaries to native component and view inspectors",
+  "status": "solved",
+  "type": "feature",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Deepen proposal artifact read-back in the native content workspace by surfacing truthful proposal linkage summaries directly inside component and view detail inspectors.",
+  "acceptance_criteria": [
+    "Component detail inspector shows a proposal linkage summary for the matching component scope.",
+    "View detail inspector shows a proposal linkage summary for the matching view scope.",
+    "The linkage summary reuses existing native proposal artifact truth such as ready state, evidence match, linked tickets, and apply-preview readiness.",
+    "The macOS build still passes after the inspector updates.",
+    "Patch hygiene and ticket validation pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after adding proposal linkage summaries to the native content inspectors."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0007.json",
+      "note": "HS-0007 ticket schema validated successfully."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after adding proposal linkage summaries and shared artifact readiness helpers."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacContentWorkspace.swift",
+    ".humble/tickets/HS-0007.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 follow-up to deepen proposal artifact linkage beyond review-focus surfaces."
+  },
+  "commands": [
+    "git diff --check",
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0007.json",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "This slice intentionally reuses existing proposal artifact parsing and validation surfaces instead of inventing a second artifact model.",
+    "The goal is truthful inspector context, not write-back or proposal mutation."
+  ]
+}

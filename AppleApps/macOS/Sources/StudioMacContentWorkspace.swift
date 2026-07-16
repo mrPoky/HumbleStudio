@@ -405,6 +405,15 @@ private struct StudioComponentDetailInspector: View {
                         }
                     }
 
+                    StudioInspectorSection(title: StudioStrings.proposalLinkageTitle) {
+                        StudioInspectorSummaryGrid(
+                            items: proposalLinkageItems(
+                                scope: "component:\(token.id)",
+                                evidencePath: token.sourcePath
+                            )
+                        )
+                    }
+
                     StudioMacProposalArtifactSection(
                         artifacts: proposalArtifacts,
                         preferredScope: "component:\(token.id)",
@@ -477,6 +486,42 @@ private struct StudioComponentDetailInspector: View {
 
     private func relatedViews(for token: StudioNativeDocument.ComponentItem) -> [StudioNativeDocument.ViewItem] {
         document.views.filter { $0.components.contains(token.id) }
+    }
+
+    private func proposalLinkageItems(scope: String, evidencePath: String) -> [StudioInspectorSummaryItem] {
+        let matching = proposalArtifacts.filter { $0.scope == scope }
+        let ready = matching.filter(\.isReadyProposal)
+        let evidenceMatched = matching.filter { $0.referencesEvidence(path: evidencePath) }
+        let linkedTickets = Set(matching.flatMap(\.ticketIDs))
+        let previewReady = matching.filter(\.isReadyForApplyPreview)
+
+        return [
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageMatching,
+                value: StudioStrings.resultsCount(matching.count),
+                tone: matching.isEmpty ? .warning : .accent
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageReady,
+                value: StudioStrings.resultsCount(ready.count),
+                tone: ready.isEmpty ? .neutral : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageEvidence,
+                value: StudioStrings.resultsCount(evidenceMatched.count),
+                tone: evidenceMatched.isEmpty ? .warning : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageTickets,
+                value: StudioStrings.resultsCount(linkedTickets.count),
+                tone: linkedTickets.isEmpty ? .warning : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalApplyPreviewReadiness,
+                value: StudioStrings.resultsCount(previewReady.count),
+                tone: previewReady.isEmpty ? .neutral : .success
+            )
+        ]
     }
 
     private func reloadProposals() {
@@ -832,6 +877,15 @@ private struct StudioViewDetailInspector: View {
                         }
                     }
 
+                    StudioInspectorSection(title: StudioStrings.proposalLinkageTitle) {
+                        StudioInspectorSummaryGrid(
+                            items: proposalLinkageItems(
+                                scope: "view:\(token.id)",
+                                evidencePath: token.sourcePath
+                            )
+                        )
+                    }
+
                     StudioMacProposalArtifactSection(
                         artifacts: proposalArtifacts,
                         preferredScope: "view:\(token.id)",
@@ -867,6 +921,42 @@ private struct StudioViewDetailInspector: View {
             .replacingOccurrences(of: "-", with: " ")
             .replacingOccurrences(of: "_", with: " ")
             .capitalized
+    }
+
+    private func proposalLinkageItems(scope: String, evidencePath: String) -> [StudioInspectorSummaryItem] {
+        let matching = proposalArtifacts.filter { $0.scope == scope }
+        let ready = matching.filter(\.isReadyProposal)
+        let evidenceMatched = matching.filter { $0.referencesEvidence(path: evidencePath) }
+        let linkedTickets = Set(matching.flatMap(\.ticketIDs))
+        let previewReady = matching.filter(\.isReadyForApplyPreview)
+
+        return [
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageMatching,
+                value: StudioStrings.resultsCount(matching.count),
+                tone: matching.isEmpty ? .warning : .accent
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageReady,
+                value: StudioStrings.resultsCount(ready.count),
+                tone: ready.isEmpty ? .neutral : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageEvidence,
+                value: StudioStrings.resultsCount(evidenceMatched.count),
+                tone: evidenceMatched.isEmpty ? .warning : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageTickets,
+                value: StudioStrings.resultsCount(linkedTickets.count),
+                tone: linkedTickets.isEmpty ? .warning : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalApplyPreviewReadiness,
+                value: StudioStrings.resultsCount(previewReady.count),
+                tone: previewReady.isEmpty ? .neutral : .success
+            )
+        ]
     }
 
     private func reloadProposals() {

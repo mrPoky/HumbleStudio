@@ -142,6 +142,12 @@ struct StudioChangeProposalArtifact: Identifiable, Equatable {
             StudioStrings.proposalApplyPreviewCheckAcceptance
         ]
     }
+    var isReadyProposal: Bool {
+        status == .ready
+    }
+    var isReadyForApplyPreview: Bool {
+        applyPreviewReadiness == .ready
+    }
     var applyPreviewConfiguration: StudioPreviewConfiguration {
         var configuration = StudioPreviewConfiguration.viewDefault(presentation: previewPresentationHint)
         configuration.coverageLevel = previewCoverageLevel
