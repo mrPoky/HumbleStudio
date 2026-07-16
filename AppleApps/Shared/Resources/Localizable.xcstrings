@@ -256,8 +256,15 @@
     "studio.remote_source.supported_apps_prompt" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte známou Humble aplikaci a předvyplňte její exportované raw URL před načtením." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pick a known Humble app to prefill its exported raw URL before loading." } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte známou Humble aplikaci a předvyplňte její exportované raw URL, nebo ji načtěte rovnou." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pick a known Humble app to prefill its exported raw URL or load it directly." } }
+      }
+    },
+    "studio.remote_source.supported_app_source" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Podporovaná aplikace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Supported app" } }
       }
     },
     "studio.remote_source.supported_apps_title" : {
@@ -265,6 +272,13 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Podporované aplikace" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Supported apps" } }
+      }
+    },
+    "studio.remote_source.load_now" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načíst hned" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Load Now" } }
       }
     },
     "studio.remote_source.title" : {

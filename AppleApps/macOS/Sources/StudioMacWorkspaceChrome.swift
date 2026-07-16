@@ -953,6 +953,7 @@ struct StudioMacRemoteURLSheet: View {
     let hasRecentRemoteURL: Bool
     let dismiss: () -> Void
     let load: (String) -> Void
+    let loadSupportedApp: (StudioSupportedAppSource) -> Void
 
     var body: some View {
         NavigationStack {
@@ -983,7 +984,10 @@ struct StudioMacRemoteURLSheet: View {
                     }
                 }
 
-                StudioSupportedRemoteAppsSection(remoteURLDraft: $remoteURLDraft)
+                StudioSupportedRemoteAppsSection(remoteURLDraft: $remoteURLDraft) { app in
+                    dismiss()
+                    loadSupportedApp(app)
+                }
             }
             .navigationTitle(StudioStrings.openRemoteSourceTitle)
             .toolbar {

@@ -272,7 +272,10 @@ struct StudioShellView: View {
                     }
                 }
 
-                StudioSupportedRemoteAppsSection(remoteURLDraft: $remoteURLDraft)
+                StudioSupportedRemoteAppsSection(remoteURLDraft: $remoteURLDraft) { app in
+                    isImportingRemoteURL = false
+                    model.loadSupportedApp(app)
+                }
             }
             .navigationTitle(StudioStrings.openRemoteSourceTitle)
             #if os(iOS)
