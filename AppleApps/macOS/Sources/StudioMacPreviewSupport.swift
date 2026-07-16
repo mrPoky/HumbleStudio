@@ -342,7 +342,7 @@ struct StudioPreviewSurface<Content: View>: View {
                         .fill(appearance == .light ? Color.white : Color(hex: "#11182B"))
                         .frame(width: frameSize.width - contentInset, height: frameSize.height - contentInset)
                         .overlay {
-                            previewSurface(canvasSize: canvasSize)
+                            scaledPreviewSurface(canvasSize: canvasSize)
                         }
                         .overlay {
                             if configuration.showSafeAreas {
@@ -415,6 +415,20 @@ struct StudioPreviewSurface<Content: View>: View {
             if showsTabBar {
                 previewTabBar
             }
+        }
+    }
+
+    private func scaledPreviewSurface(canvasSize: CGSize) -> some View {
+        GeometryReader { proxy in
+            let scale = min(
+                proxy.size.width / max(canvasSize.width, 1),
+                proxy.size.height / max(canvasSize.height, 1)
+            )
+
+            previewSurface(canvasSize: canvasSize)
+                .frame(width: canvasSize.width, height: canvasSize.height)
+                .scaleEffect(scale)
+                .frame(width: proxy.size.width, height: proxy.size.height)
         }
     }
 
