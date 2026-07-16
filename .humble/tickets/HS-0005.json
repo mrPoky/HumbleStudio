@@ -58,6 +58,7 @@
     "AppleApps/Shared/Sources/StudioShellView.swift",
     "AppleApps/Shared/Sources/StudioStrings.swift",
     "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
     "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
     "HumbleStudio.xcodeproj/project.pbxproj",
     "index.html",

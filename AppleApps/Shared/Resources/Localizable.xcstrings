@@ -239,6 +239,13 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Remote URL" } }
       }
     },
+    "studio.remote_source.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle" } }
+      }
+    },
     "studio.remote_source.prompt" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -246,11 +253,32 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Use an http/https URL to a `.humblebundle`, `.zip`, or `design.json`. Native foundations and the legacy web inspector will both follow this source." } }
       }
     },
+    "studio.remote_source.supported_apps_prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte známou Humble aplikaci a předvyplňte její exportované raw URL před načtením." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pick a known Humble app to prefill its exported raw URL before loading." } }
+      }
+    },
+    "studio.remote_source.supported_apps_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Podporované aplikace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Supported apps" } }
+      }
+    },
     "studio.remote_source.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vzdálený zdroj" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Remote source" } }
+      }
+    },
+    "studio.remote_source.use_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použít URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use URL" } }
       }
     },
     "studio.remote_source.use_recent_url" : {
@@ -699,6 +727,27 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lokální soubor" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Local file" } }
+      }
+    },
+    "studio.source.demo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Demo zdroj" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Demo source" } }
+      }
+    },
+    "studio.source.embedded_assets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vestavěná aktiva aplikace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Embedded app assets" } }
+      }
+    },
+    "studio.source.reload_demo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Znovu načíst demo zdroj" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reload demo source" } }
       }
     },
     "studio.recovery.issue.archive" : {
