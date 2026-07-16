@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct StudioChangeProposalArtifact: Identifiable, Equatable {
     let url: URL
     let scope: String
+    let ticketIDs: [String]
     let evidenceItems: [String]
     let coverage: String
     let area: String
@@ -28,6 +29,15 @@ struct StudioChangeProposalArtifact: Identifiable, Equatable {
             return evidenceItems[0]
         }
         return StudioStrings.proposalEvidenceSummary(count: evidenceItems.count, firstItem: evidenceItems[0])
+    }
+    var ticketSummary: String {
+        if ticketIDs.isEmpty {
+            return StudioStrings.proposalNoLinkedTickets
+        }
+        if ticketIDs.count == 1 {
+            return ticketIDs[0]
+        }
+        return StudioStrings.proposalTicketSummary(count: ticketIDs.count, firstTicket: ticketIDs[0])
     }
     var diffContextSummary: String {
         let pieces = [area, tokenCandidate, componentCandidate, viewCandidate].filter { !$0.isEmpty }
@@ -285,6 +295,7 @@ struct StudioChangeProposalArtifact: Identifiable, Equatable {
         return StudioChangeProposalArtifact(
             url: url,
             scope: lineValue(in: content, prefix: "- Surface: `", suffix: "`"),
+            ticketIDs: ticketIDs(in: content),
             evidenceItems: codeSpanValues(in: content, linePrefix: "- Evidence: "),
             coverage: lineValue(in: content, prefix: "- Coverage: `", suffix: "`"),
             area: lineValue(in: content, prefix: "- Area: `", suffix: "`"),
@@ -342,6 +353,22 @@ struct StudioChangeProposalArtifact: Identifiable, Equatable {
                 index.isMultiple(of: 2) ? nil : segment.trimmingCharacters(in: .whitespacesAndNewlines)
             }
             .filter { !$0.isEmpty }
+    }
+
+    private static func ticketIDs(in content: String) -> [String] {
+        let pattern = #"\bHS-\d{4}\b"#
+        guard let regularExpression = try? NSRegularExpression(pattern: pattern) else {
+            return []
+        }
+
+        let fullRange = NSRange(content.startIndex..<content.endIndex, in: content)
+        let identifiers = regularExpression.matches(in: content, range: fullRange).compactMap { match -> String? in
+            guard let range = Range(match.range, in: content) else {
+                return nil
+            }
+            return String(content[range])
+        }
+        return Array(Set(identifiers)).sorted()
     }
 }
 
@@ -1250,6 +1277,7 @@ private struct StudioNavigationDetailInspector: View {
         let matching = proposalArtifacts.filter { $0.scope == "view:\(view.id)" }
         let ready = matching.filter { $0.status == .ready }
         let evidenceMatched = matching.filter { $0.referencesEvidence(path: view.sourcePath) }
+        let linkedTickets = Set(matching.flatMap(\.ticketIDs))
 
         return [
             StudioInspectorSummaryItem(
@@ -1266,6 +1294,11 @@ private struct StudioNavigationDetailInspector: View {
                 label: StudioStrings.proposalLinkageEvidence,
                 value: StudioStrings.resultsCount(evidenceMatched.count),
                 tone: evidenceMatched.isEmpty ? .warning : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageTickets,
+                value: StudioStrings.resultsCount(linkedTickets.count),
+                tone: linkedTickets.isEmpty ? .warning : .success
             ),
             StudioInspectorSummaryItem(
                 label: StudioStrings.proposalScopeConfidence,
@@ -1760,6 +1793,7 @@ struct StudioMacProposalArtifactSection: View {
         StudioKeyValueRow(label: StudioStrings.proposalScopeConfidence, value: artifact.scopeConfidence.label)
         StudioKeyValueRow(label: StudioStrings.proposalCoverage, value: artifact.coverage.isEmpty ? StudioStrings.notAvailableYet : artifact.coverage)
         StudioKeyValueRow(label: StudioStrings.proposalEvidence, value: artifact.sourceEvidenceSummary)
+        StudioKeyValueRow(label: StudioStrings.proposalTickets, value: artifact.ticketSummary)
         if !artifact.area.isEmpty {
             StudioKeyValueRow(label: StudioStrings.proposalArea, value: artifact.area)
         }
@@ -1936,6 +1970,11 @@ struct StudioMacProposalArtifactsPage: View {
                         value: metadataHealthCount,
                         caption: metadataHealthCaption
                     )
+                    StudioCountCard(
+                        title: StudioStrings.proposalLinkageTickets,
+                        value: StudioStrings.resultsCount(linkedTicketCount),
+                        caption: linkedTicketCount == 0 ? StudioStrings.proposalNoLinkedTickets : StudioStrings.proposalLinkageTickets
+                    )
                 }
 
                 if document != nil {
@@ -1955,6 +1994,11 @@ struct StudioMacProposalArtifactsPage: View {
                                 label: StudioStrings.proposalLinkageEvidence,
                                 value: StudioStrings.resultsCount(linkedEvidenceCount),
                                 tone: linkedEvidenceCount == 0 ? .warning : .success
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: StudioStrings.proposalLinkageTickets,
+                                value: StudioStrings.resultsCount(linkedTicketCount),
+                                tone: linkedTicketCount == 0 ? .warning : .success
                             ),
                             StudioInspectorSummaryItem(
                                 label: StudioStrings.proposalWorkspaceValidationSignal,
@@ -2085,6 +2129,10 @@ struct StudioMacProposalArtifactsPage: View {
         }.count
     }
 
+    private var linkedTicketCount: Int {
+        Set(proposalArtifacts.flatMap(\.ticketIDs)).count
+    }
+
     private func reloadProposals() {
         let result = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL)
         proposalArtifacts = result.artifacts
@@ -2127,6 +2175,7 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                         StudioKeyValueRow(label: StudioStrings.proposalScope, value: artifact.scope)
                         StudioKeyValueRow(label: StudioStrings.proposalCoverage, value: artifact.coverage.isEmpty ? StudioStrings.notAvailableYet : artifact.coverage)
                         StudioKeyValueRow(label: StudioStrings.proposalEvidence, value: artifact.sourceEvidenceSummary)
+                        StudioKeyValueRow(label: StudioStrings.proposalTickets, value: artifact.ticketSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalDiffContext, value: artifact.diffContextSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewEvidenceMatch, value: evidenceMatchLabel(for: artifact))
 
@@ -2182,6 +2231,11 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                                 label: StudioStrings.proposalApplyPreviewEvidenceMatch,
                                 value: evidenceMatchLabel(for: artifact),
                                 tone: evidenceMatchTone(for: artifact)
+                            ),
+                            StudioInspectorSummaryItem(
+                                label: StudioStrings.proposalApplyPreviewSourceAudit,
+                                value: sourceAuditLabel(for: artifact),
+                                tone: sourceAuditTone(for: artifact)
                             )
                         ])
 
@@ -2189,6 +2243,8 @@ private struct StudioMacProposalArtifactDetailPanel: View {
 
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewExpectedImpact, value: artifact.applyPreviewImpactSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewWouldTouch, value: artifact.applyPreviewTouchSummary)
+                        StudioKeyValueRow(label: StudioStrings.proposalTickets, value: artifact.ticketSummary)
+                        StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewSourceAudit, value: sourceAuditSummary(for: artifact))
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewNextStep, value: artifact.applyPreviewNextStep)
 
                         VStack(alignment: .leading, spacing: 8) {
@@ -2246,6 +2302,50 @@ private struct StudioMacProposalArtifactDetailPanel: View {
         isEvidenceMatched(for: artifact) ? .success : .warning
     }
 
+    private func sourceAuditLabel(for artifact: StudioChangeProposalArtifact) -> String {
+        switch sourceAuditStatus(for: artifact) {
+        case .exact:
+            return StudioStrings.proposalApplyPreviewSourceAuditExact
+        case .related:
+            return StudioStrings.proposalApplyPreviewSourceAuditRelated
+        case .needsMetadata:
+            return StudioStrings.proposalApplyPreviewSourceAuditNeedsMetadata
+        }
+    }
+
+    private func sourceAuditSummary(for artifact: StudioChangeProposalArtifact) -> String {
+        switch sourceAuditStatus(for: artifact) {
+        case .exact:
+            return StudioStrings.proposalApplyPreviewSourceAuditSummaryExact
+        case .related:
+            return StudioStrings.proposalApplyPreviewSourceAuditSummaryRelated
+        case .needsMetadata:
+            return StudioStrings.proposalApplyPreviewSourceAuditSummaryNeedsMetadata
+        }
+    }
+
+    private func sourceAuditTone(for artifact: StudioChangeProposalArtifact) -> StudioInspectorSummaryTone {
+        switch sourceAuditStatus(for: artifact) {
+        case .exact:
+            return .success
+        case .related:
+            return .accent
+        case .needsMetadata:
+            return .warning
+        }
+    }
+
+    private func sourceAuditStatus(for artifact: StudioChangeProposalArtifact) -> StudioProposalSourceAuditStatus {
+        let matchedEvidence = isEvidenceMatched(for: artifact)
+        if matchedEvidence, artifact.scopeTargetID != nil, !artifact.ticketIDs.isEmpty {
+            return .exact
+        }
+        if matchedEvidence || artifact.scopeTargetID != nil || !artifact.ticketIDs.isEmpty {
+            return .related
+        }
+        return .needsMetadata
+    }
+
     private func tone(for readiness: StudioProposalApplyPreviewReadiness) -> StudioInspectorSummaryTone {
         switch readiness {
         case .ready:
@@ -2267,6 +2367,12 @@ private struct StudioMacProposalArtifactDetailPanel: View {
             return .warning
         }
     }
+}
+
+private enum StudioProposalSourceAuditStatus {
+    case exact
+    case related
+    case needsMetadata
 }
 
 private struct StudioProposalArtifactBadge: View {

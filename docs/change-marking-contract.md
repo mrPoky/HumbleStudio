@@ -7,6 +7,7 @@ The goal is to let a reviewer point at a native surface, describe a desired chan
 Current repository convention:
 - proposals are saved under `docs/change-proposals/`
 - the macOS review inspector can read those markdown artifacts back for the matching component or view scope
+- the native proposal workspace can also read linked `HS-####` ids back as repo workflow context when proposals reference them
 - proposal capture remains read-only; no proposal mutates exported truth on save
 
 ## Principles

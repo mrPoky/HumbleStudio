@@ -149,6 +149,7 @@ enum StudioStrings {
     static let proposalLinkageMatching = String(localized: "studio.change_proposal.linkage.matching", defaultValue: "Matching proposals")
     static let proposalLinkageReady = String(localized: "studio.change_proposal.linkage.ready", defaultValue: "Ready proposals")
     static let proposalLinkageEvidence = String(localized: "studio.change_proposal.linkage.evidence", defaultValue: "Evidence-linked")
+    static let proposalLinkageTickets = String(localized: "studio.change_proposal.linkage.tickets", defaultValue: "Linked tickets")
     static let proposalWorkspaceTitle = String(localized: "studio.change_proposal.workspace.title", defaultValue: "Proposal Workspace")
     static let proposalWorkspaceSubtitle = String(localized: "studio.change_proposal.workspace.subtitle", defaultValue: "Native repository view over saved proposal artifacts, their readiness, and their current linkage back to source truth.")
     static let proposalWorkspaceAllArtifacts = String(localized: "studio.change_proposal.workspace.all_artifacts", defaultValue: "All artifacts")
@@ -209,6 +210,7 @@ enum StudioStrings {
     static let proposalArea = String(localized: "studio.change_proposal.area", defaultValue: "Area")
     static let proposalWhy = String(localized: "studio.change_proposal.why", defaultValue: "Why")
     static let proposalDiffContext = String(localized: "studio.change_proposal.diff_context", defaultValue: "Diff context")
+    static let proposalTickets = String(localized: "studio.change_proposal.tickets", defaultValue: "Tickets")
     static let proposalScopeConfidence = String(localized: "studio.change_proposal.scope_confidence", defaultValue: "Scope confidence")
     static let proposalStatusDraft = String(localized: "studio.change_proposal.status_draft", defaultValue: "Draft")
     static let proposalStatusRefine = String(localized: "studio.change_proposal.status_refine", defaultValue: "Needs target refinement")
@@ -216,6 +218,17 @@ enum StudioStrings {
     static let proposalScopeConfidenceLow = String(localized: "studio.change_proposal.scope_confidence_low", defaultValue: "Low")
     static let proposalScopeConfidenceMedium = String(localized: "studio.change_proposal.scope_confidence_medium", defaultValue: "Related")
     static let proposalScopeConfidenceHigh = String(localized: "studio.change_proposal.scope_confidence_high", defaultValue: "High")
+    static let proposalNoLinkedTickets = String(localized: "studio.change_proposal.no_linked_tickets", defaultValue: "No linked HS ticket yet")
+    static let proposalApplyPreviewSourceAudit = String(localized: "studio.change_proposal.apply_preview.source_audit", defaultValue: "Source audit")
+    static let proposalApplyPreviewSourceAuditExact = String(localized: "studio.change_proposal.apply_preview.source_audit_exact", defaultValue: "Linked and evidence-backed")
+    static let proposalApplyPreviewSourceAuditRelated = String(localized: "studio.change_proposal.apply_preview.source_audit_related", defaultValue: "Partially linked")
+    static let proposalApplyPreviewSourceAuditNeedsMetadata = String(localized: "studio.change_proposal.apply_preview.source_audit_needs_metadata", defaultValue: "Needs metadata")
+    static let proposalApplyPreviewSourceAuditSummaryExact = String(localized: "studio.change_proposal.apply_preview.source_audit_summary_exact", defaultValue: "Proposal already links ticket, scope, and evidence strongly enough for a truthful native audit.")
+    static let proposalApplyPreviewSourceAuditSummaryRelated = String(localized: "studio.change_proposal.apply_preview.source_audit_summary_related", defaultValue: "Proposal has some native linkage, but ticket or evidence metadata still needs tightening.")
+    static let proposalApplyPreviewSourceAuditSummaryNeedsMetadata = String(localized: "studio.change_proposal.apply_preview.source_audit_summary_needs_metadata", defaultValue: "Proposal still needs ticket, scope, or evidence metadata before any apply-oriented audit should be trusted.")
+    static func proposalTicketSummary(count: Int, firstTicket: String) -> String {
+        String(localized: "studio.change_proposal.ticket_summary", defaultValue: "\(count) linked tickets, starting with \(firstTicket)")
+    }
     static func proposalArtifactsIssueMissingDirectoryDetail(_ path: String) -> String {
         String(localized: "studio.change_proposal.issue.missing_directory.detail", defaultValue: "The repository does not have a `docs/change-proposals/` folder yet. Expected path: \(path)")
     }
@@ -258,6 +271,18 @@ enum StudioStrings {
     static let onlyFileOrWebURLSupported = String(localized: "studio.remote_source.only_supported_types", defaultValue: "Only file, http, and https URLs are supported.")
     static let loadingBundledStudio = String(localized: "studio.status.loading_bundled", defaultValue: "Loading bundled studio…")
     static let reloadingStudio = String(localized: "studio.status.reloading", defaultValue: "Reloading studio…")
+    static let parityLegacyWebSubtitle = String(localized: "studio.parity.legacy_web_subtitle", defaultValue: "Fallback path for parity gaps, missing native detail, and future write-back workflows.")
+    static let parityReviewSubtitle = String(localized: "studio.parity.review_subtitle", defaultValue: "Queue truth is native, but it still surfaces degraded and fallback-risk areas explicitly.")
+    static let parityNavigationSubtitle = String(localized: "studio.parity.navigation_subtitle", defaultValue: "Navigation graph is native and contract-aware, with behavior edges still approximated where needed.")
+    static let parityProposalSubtitle = String(localized: "studio.parity.proposal_subtitle", defaultValue: "Proposal artifacts are fully native here, with repo-aware filters, recovery, scope linkage, and ticket-aware audit context.")
+    static let parityTypographyExactSubtitle = String(localized: "studio.parity.typography_exact_subtitle", defaultValue: "Type roles are evidence-backed and inspectable natively.")
+    static let parityTypographyDegradedSubtitle = String(localized: "studio.parity.typography_degraded_subtitle", defaultValue: "Type roles are native-first, but some usage context is still contract-driven.")
+    static let paritySpacingExactSubtitle = String(localized: "studio.parity.spacing_exact_subtitle", defaultValue: "Spacing and radius tokens are evidence-backed natively.")
+    static let paritySpacingDegradedSubtitle = String(localized: "studio.parity.spacing_degraded_subtitle", defaultValue: "Spatial tokens are inspectable natively, with some context still inferred from usage data.")
+    static func parityNarrativeDegraded(_ count: Int) -> String {
+        String(localized: "studio.parity.narrative_degraded", defaultValue: "\(count) native surfaces are already first-class enough for everyday inspection, but still expose degraded areas where behavior or evidence is modeled instead of fully reference-backed.")
+    }
+    static let parityNarrativeExact = String(localized: "studio.parity.narrative_exact", defaultValue: "Native inspection is broadly exact across the current imported bundle. Remaining fallback need is now mostly about future write-back authoring and long-tail parity edges.")
     static let loadingDemoConfig = String(localized: "studio.status.loading_demo", defaultValue: "Loading demo config…")
     static let loadingRemoteSource = String(localized: "studio.status.loading_remote", defaultValue: "Loading remote source…")
     static let restoringDemoSource = String(localized: "studio.status.restoring_demo", defaultValue: "Restoring demo source…")

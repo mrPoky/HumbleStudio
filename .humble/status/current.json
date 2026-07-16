@@ -3,9 +3,9 @@
   "status_version": 1,
   "last_refreshed": "2026-07-16",
   "summary": {
-    "overall_percent": 74,
+    "overall_percent": 77,
     "confidence": "medium",
-    "headline": "HumbleStudio now has a working hybrid design viewer plus repo-local contract, ticket, lane, proposal linkage, and local workflow operation surfaces.",
+    "headline": "HumbleStudio now has a working hybrid design viewer plus repo-local workflow operations and native proposal inspectors that understand ticket linkage and read-only source audit truth.",
     "notes": [
       "Percentages are directional maturity estimates, not precise scorecards.",
       "Repo-owned status belongs in this file so shared tooling reads repo truth instead of replacing it.",
@@ -58,16 +58,21 @@
       "command": "bash Scripts/run_local_checks.sh --workflow-only",
       "status": "passed",
       "summary": "HumbleStudio now has a single repo-local workflow gate for ticket, contract, web fallback, script compilation, and diff hygiene checks."
+    },
+    {
+      "command": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+      "status": "passed",
+      "summary": "The native macOS workspace still builds after adding proposal ticket linkage, source audit summaries, and localized parity copy."
     }
   ],
   "operating_layers": [
     {
       "id": "native-workspace",
       "label": "Native workspace",
-      "percent": 74,
+      "percent": 78,
       "status": "healthy",
-      "signal": "The macOS workspace is the primary surface for truthful inspection, proposal artifacts, and preview fidelity work.",
-      "next_move": "Keep shifting product truth and authoring workflows into native-first inspectors."
+      "signal": "The macOS workspace is now the primary truthful surface for inspection, proposal artifacts, ticket linkage, and read-only apply audit context.",
+      "next_move": "Keep extending proposal linkage and localization truth across the remaining inspectors instead of falling back to repo-only workflow visibility."
     },
     {
       "id": "web-fallback",
@@ -89,27 +94,27 @@
   "top_gaps": [
     {
       "rank": 1,
-      "title": "Exercise the new HS ticket, lane, proposal-linkage, and local-check workflow on the next real implementation slice",
+      "title": "Exercise the new HS ticket, lane, proposal-linkage, local-check, and native ticket-readback workflow on the next real implementation slice",
       "recommended_ticket_status": "accepted"
     },
     {
       "rank": 2,
-      "title": "Extend proposal-to-ticket linkage into native inspector summaries instead of keeping it repo-workflow-only",
+      "title": "Continue converting remaining hardcoded macOS inspector copy to StudioStrings in foundation and review details",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 3,
-      "title": "Promote the new workflow scripts into stronger routine use and build a minimal release/pre-promotion wrapper",
+      "title": "Deepen proposal artifact read-back across more native inspectors and truth surfaces",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 4,
-      "title": "Continue converting remaining hardcoded macOS inspector copy to StudioStrings in foundation and review details",
+      "title": "Promote the new workflow scripts into stronger routine use and build a minimal release/pre-promotion wrapper",
       "recommended_ticket_status": "accepted"
     },
     {
       "rank": 5,
-      "title": "Deepen proposal artifact read-back across more native inspectors and truth surfaces",
+      "title": "Add stronger read-only apply audit mapping against current repo files and candidate source paths",
       "recommended_ticket_status": "proposed"
     }
   ]

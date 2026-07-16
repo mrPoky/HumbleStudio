@@ -827,17 +827,17 @@ private struct StudioMacNativeParityCard: View {
     private func paritySubtitle(for destination: StudioNativeDestination, tone: StudioMacParityTone) -> String {
         switch destination {
         case .legacyWeb:
-            return "Fallback path for parity gaps, missing native detail, and future write-back workflows."
+            return StudioStrings.parityLegacyWebSubtitle
         case .review:
-            return "Queue truth is native, but it still surfaces degraded and fallback-risk areas explicitly."
+            return StudioStrings.parityReviewSubtitle
         case .navigation:
-            return "Navigation graph is native and contract-aware, with behavior edges still approximated where needed."
+            return StudioStrings.parityNavigationSubtitle
         case .proposals:
-            return "Proposal artifacts are fully native here, with repo-aware filters, recovery, and scope linkage."
+            return StudioStrings.parityProposalSubtitle
         case .typography:
-            return tone == .exact ? "Type roles are evidence-backed and inspectable natively." : "Type roles are native-first, but some usage context is still contract-driven."
+            return tone == .exact ? StudioStrings.parityTypographyExactSubtitle : StudioStrings.parityTypographyDegradedSubtitle
         case .spacing:
-            return tone == .exact ? "Spacing and radius tokens are evidence-backed natively." : "Spatial tokens are inspectable natively, with some context still inferred from usage data."
+            return tone == .exact ? StudioStrings.paritySpacingExactSubtitle : StudioStrings.paritySpacingDegradedSubtitle
         default:
             return destination.subtitle
         }
@@ -846,9 +846,9 @@ private struct StudioMacNativeParityCard: View {
     private var parityNarrative: String {
         let degradedCount = rows.filter { $0.tone == .degraded }.count
         if degradedCount > 0 {
-            return "\(degradedCount) native surfaces are already first-class enough for everyday inspection, but still expose degraded areas where behavior or evidence is modeled instead of fully reference-backed."
+            return StudioStrings.parityNarrativeDegraded(degradedCount)
         }
-        return "Native inspection is broadly exact across the current imported bundle. Remaining fallback need is now mostly about future write-back authoring and long-tail parity edges."
+        return StudioStrings.parityNarrativeExact
     }
 }
 
