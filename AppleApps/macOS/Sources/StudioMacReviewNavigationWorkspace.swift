@@ -2395,7 +2395,7 @@ private struct StudioPreviewCoveragePill: View {
     let count: Int
 
     var body: some View {
-        Text("\(count) \(level.rawValue)")
+        Text(StudioStrings.previewCoverageCount(count, level: level))
             .font(.caption.weight(.semibold))
             .padding(.horizontal, 10)
             .padding(.vertical, 6)

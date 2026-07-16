@@ -456,6 +456,13 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Fallback needed" } }
       }
     },
+    "studio.preview_coverage.count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld %@" } }
+      }
+    },
     "studio.preview_coverage.total" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1840,6 +1847,27 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail gradientu" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Gradient Detail" } }
+      }
+    },
+    "studio.foundation.kind.gradient" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Gradient" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gradient" } }
+      }
+    },
+    "studio.foundation.kind.linear_gradient" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lineární gradient" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Linear Gradient" } }
+      }
+    },
+    "studio.foundation.kind.radial_gradient" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Radiální gradient" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Radial Gradient" } }
       }
     },
     "studio.foundation.icon_detail" : {

@@ -1,0 +1,64 @@
+{
+  "id": "HS-0006",
+  "title": "Localize remaining native foundation and review inspector copy",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Move the remaining user-facing hardcoded copy in the native macOS foundation and review inspector surfaces into StudioStrings and the shared string catalog so native truth stays localized and consistent.",
+  "acceptance_criteria": [
+    "Remaining user-facing hardcoded strings in `StudioMacFoundationWorkspace.swift` are routed through `StudioStrings` where practical.",
+    "Any remaining review-detail user-facing hardcoded strings touched by the slice are routed through `StudioStrings` instead of inline literals.",
+    "`AppleApps/Shared/Resources/Localizable.xcstrings` contains matching EN and CS entries for the new typed strings.",
+    "The native macOS app still builds after the localization pass.",
+    "Patch hygiene stays clean after the string and inspector edits."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after routing remaining foundation and review coverage labels through StudioStrings."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0006.json",
+      "note": "HS-0006 ticket schema validated successfully in the lane checkout."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after the localization cleanup."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacFoundationWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/status/current.json",
+    ".humble/tickets/HS-0006.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top gap in `.humble/status/current.json` after supported-app and preview branch cleanup."
+  },
+  "commands": [
+    "git diff --check",
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0006.json",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "This slice is intentionally scoped to localized native copy truth, not broader inspector architecture changes.",
+    "Non-user-facing structural literals such as scope ids, case labels, and system image names stay inline unless they become product copy.",
+    "Claimed lane-1 on branch `refactor/hs-0006-localize-remaining-native-foundation-and-review`."
+  ]
+}

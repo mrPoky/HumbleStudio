@@ -592,6 +592,37 @@ enum StudioStrings {
         }
     }
 
+    static func previewCoverageCount(_ count: Int, level: StudioPreviewCoverageLevel) -> String {
+        String(
+            format: String(localized: "studio.preview_coverage.count", defaultValue: "%lld %@"),
+            locale: Locale.current,
+            count,
+            previewCoverageLabel(level)
+        )
+    }
+
+    static func foundationTokenKindLabel(_ rawValue: String) -> String {
+        switch rawValue.lowercased() {
+        case "gradient":
+            return String(localized: "studio.foundation.kind.gradient", defaultValue: "Gradient")
+        case "lineargradient", "linear-gradient", "linear_gradient":
+            return String(localized: "studio.foundation.kind.linear_gradient", defaultValue: "Linear Gradient")
+        case "radialgradient", "radial-gradient", "radial_gradient":
+            return String(localized: "studio.foundation.kind.radial_gradient", defaultValue: "Radial Gradient")
+        case "cornerradius", "corner-radius", "corner_radius":
+            return cornerRadius
+        case "spacing":
+            return spacing
+        case "color":
+            return colors
+        default:
+            return rawValue
+                .replacingOccurrences(of: "-", with: " ")
+                .replacingOccurrences(of: "_", with: " ")
+                .capitalized
+        }
+    }
+
     static func previewStackContextLabel(_ context: StudioPreviewStackContext) -> String {
         switch context {
         case .single:

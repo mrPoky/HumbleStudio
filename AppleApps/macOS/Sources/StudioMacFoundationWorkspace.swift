@@ -467,7 +467,7 @@ private struct StudioGradientCard: View {
                 Text(token.name)
                     .font(.headline)
                     .lineLimit(2)
-                Text(token.kind.capitalized)
+                Text(StudioStrings.foundationTokenKindLabel(token.kind))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 if token.referenceCount > 0 {
@@ -678,7 +678,7 @@ private struct StudioTokenDetailInspector: View {
 
                     HStack(spacing: 8) {
                         StudioPillLabel(text: StudioStrings.referencesCount(token.referenceCount))
-                        StudioPillLabel(text: token.kind.capitalized)
+                        StudioPillLabel(text: StudioStrings.foundationTokenKindLabel(token.kind))
                         if !token.designComponentIDs.isEmpty {
                             StudioPillLabel(text: StudioStrings.componentsCount(token.designComponentIDs.count))
                         }
@@ -704,7 +704,7 @@ private struct StudioTokenDetailInspector: View {
                     StudioInspectorSection(title: StudioStrings.whatThisIs) {
                         VStack(alignment: .leading, spacing: 10) {
                             StudioKeyValueRow(label: StudioStrings.token, value: token.id)
-                            StudioKeyValueRow(label: StudioStrings.type, value: token.kind.capitalized)
+                            StudioKeyValueRow(label: StudioStrings.type, value: StudioStrings.foundationTokenKindLabel(token.kind))
                             if !token.swiftUI.isEmpty {
                                 StudioKeyValueRow(label: StudioStrings.swiftUILabel, value: token.swiftUI)
                             }
@@ -778,7 +778,7 @@ private struct StudioTokenDetailInspector: View {
     private func gradientSummaryItems(for token: StudioNativeDocument.GradientToken) -> [StudioInspectorSummaryItem] {
         [
             StudioInspectorSummaryItem(label: StudioStrings.group, value: token.group.capitalized, tone: .neutral),
-            StudioInspectorSummaryItem(label: StudioStrings.type, value: token.kind.capitalized, tone: .accent),
+            StudioInspectorSummaryItem(label: StudioStrings.type, value: StudioStrings.foundationTokenKindLabel(token.kind), tone: .accent),
             StudioInspectorSummaryItem(label: StudioStrings.references, value: "\(token.referenceCount)", tone: .neutral),
             StudioInspectorSummaryItem(label: StudioStrings.components, value: "\(token.designComponentIDs.count)", tone: .success)
         ]
