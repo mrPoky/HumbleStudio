@@ -130,7 +130,8 @@ struct StudioMacWorkspaceView: View {
             selectedTypographyID: typographyIDBinding,
             selectedMetricSelection: metricSelectionBinding,
             inspectComponent: inspectComponent,
-            inspectView: inspectView
+            inspectView: inspectView,
+            loadSupportedApp: loadSupportedApp
         )
     }
 
@@ -249,6 +250,11 @@ struct StudioMacWorkspaceView: View {
         routeSession.navigateToDestination(destination, document: model.nativeDocument)
     }
 
+    private func loadSupportedApp(_ app: StudioSupportedAppSource) {
+        navigateToDestination(.overview)
+        model.loadSupportedApp(app)
+    }
+
     private func navigateBack() {
         routeSession.navigateBack(
             document: model.nativeDocument,
@@ -308,6 +314,7 @@ struct StudioMacWorkspaceView: View {
             openRemoteURL: { sourceSession.presentRemoteURL(recentRemoteURL: model.recentRemoteURL) },
             reopenRecentImport: model.reopenRecentImport,
             reopenRecentRemoteURL: model.reopenRecentRemoteURL,
+            loadSupportedApp: loadSupportedApp,
             loadHome: {
                 navigateToDestination(.overview)
                 model.loadBundledStudio()

@@ -30,6 +30,7 @@ struct StudioMacWorkspaceSourceCommandContext {
     let openRemoteURL: () -> Void
     let reopenRecentImport: () -> Void
     let reopenRecentRemoteURL: () -> Void
+    let loadSupportedApp: (StudioSupportedAppSource) -> Void
     let loadHome: () -> Void
     let reload: () -> Void
 }
@@ -103,6 +104,30 @@ struct StudioMacWorkspaceToolbar: ToolbarContent {
                 source.openRemoteURL()
             } label: {
                 Label(StudioStrings.url, systemImage: "link")
+            }
+
+            Menu {
+                ForEach(StudioSupportedAppCatalog.all) { app in
+                    Button {
+                        source.loadSupportedApp(app)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(app.name)
+                            Text(app.repo)
+                                .font(.caption)
+                        }
+                    }
+                }
+
+                Divider()
+
+                Button {
+                    source.openRemoteURL()
+                } label: {
+                    Label(StudioStrings.openRemoteURL, systemImage: "link")
+                }
+            } label: {
+                Label(StudioStrings.supportedAppsTitle, systemImage: "square.grid.2x2")
             }
 
             if source.hasRecentImport {

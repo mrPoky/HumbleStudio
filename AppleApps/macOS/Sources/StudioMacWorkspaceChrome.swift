@@ -214,11 +214,12 @@ struct StudioMacWorkspaceDetailContent: View {
     @Binding var selectedMetricSelection: StudioNativeMetricSelection?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
+    let loadSupportedApp: (StudioSupportedAppSource) -> Void
 
     var body: some View {
         switch selection ?? .overview {
         case .overview:
-            StudioMacOverviewPage(model: model)
+            StudioMacOverviewPage(model: model, loadSupportedApp: loadSupportedApp)
         case .tokens:
             StudioMacTokensPage(
                 document: model.nativeDocument,
@@ -508,6 +509,7 @@ private struct StudioMacLegacyFallbackStatusCard: View {
 
 struct StudioMacOverviewPage: View {
     @ObservedObject var model: StudioShellModel
+    let loadSupportedApp: (StudioSupportedAppSource) -> Void
 
     var body: some View {
         ScrollView {
@@ -544,23 +546,37 @@ struct StudioMacOverviewPage: View {
                         message: StudioStrings.migrationStatusMessage
                     )
 
-                    StudioMacSourceRecoveryCard(model: model)
+                    StudioMacSourceRecoveryCard(model: model, loadSupportedApp: loadSupportedApp)
                     StudioMacPreviewCoverageCard(document: document)
                     StudioMacNativeParityCard(document: document)
                 } else if let nativeErrorMessage = model.nativeErrorMessage {
-                    ContentUnavailableView(
-                        StudioStrings.nativePreviewUnavailable,
-                        systemImage: "exclamationmark.triangle",
-                        description: Text(nativeErrorMessage)
-                    )
-                    .frame(maxWidth: .infinity, minHeight: 320)
+                    VStack(alignment: .leading, spacing: 18) {
+                        ContentUnavailableView(
+                            StudioStrings.nativePreviewUnavailable,
+                            systemImage: "exclamationmark.triangle",
+                            description: Text(nativeErrorMessage)
+                        )
+                        .frame(maxWidth: .infinity, minHeight: 220)
+
+                        StudioSupportedAppsCard(
+                            selectedRemoteURL: model.recentRemoteURL,
+                            loadApp: loadSupportedApp
+                        )
+                    }
                 } else {
-                    ContentUnavailableView(
-                        StudioStrings.loadDesignExport,
-                        systemImage: "shippingbox",
-                        description: Text(StudioStrings.loadNativeWorkspaceDescription)
-                    )
-                    .frame(maxWidth: .infinity, minHeight: 320)
+                    VStack(alignment: .leading, spacing: 18) {
+                        ContentUnavailableView(
+                            StudioStrings.loadDesignExport,
+                            systemImage: "shippingbox",
+                            description: Text(StudioStrings.loadNativeWorkspaceDescription)
+                        )
+                        .frame(maxWidth: .infinity, minHeight: 220)
+
+                        StudioSupportedAppsCard(
+                            selectedRemoteURL: model.recentRemoteURL,
+                            loadApp: loadSupportedApp
+                        )
+                    }
                 }
             }
             .padding(24)
@@ -570,6 +586,7 @@ struct StudioMacOverviewPage: View {
 
 private struct StudioMacSourceRecoveryCard: View {
     @ObservedObject var model: StudioShellModel
+    let loadSupportedApp: (StudioSupportedAppSource) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -644,6 +661,11 @@ private struct StudioMacSourceRecoveryCard: View {
                     }
                 }
             }
+
+            StudioSupportedAppsCard(
+                selectedRemoteURL: model.recentRemoteURL,
+                loadApp: loadSupportedApp
+            )
         }
         .padding(18)
         .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))

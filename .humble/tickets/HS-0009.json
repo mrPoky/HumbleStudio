@@ -1,0 +1,61 @@
+{
+  "id": "HS-0009",
+  "title": "Promote supported apps into a first-class native source picker",
+  "status": "solved",
+  "type": "feature",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Expose the existing supported-app catalog directly in the macOS source workflow so users can load known Humble repositories without detouring through the remote URL text field.",
+  "acceptance_criteria": [
+    "The macOS toolbar offers a first-class supported-app picker that loads a known app directly.",
+    "The overview and source recovery flow offer supported apps when no native document is loaded or when recovery is needed.",
+    "The supported-app flow stays truthful about loading repository-backed remote exports rather than implying a local file import.",
+    "Ticket validation, patch hygiene, and a targeted HumbleStudioMac build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0009.json",
+      "note": "HS-0009 ticket schema validated after adding the supported-app picker slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed for the supported-app picker changes."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after exposing supported apps in the toolbar, overview, and recovery workflow."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceShellSupport.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceView.swift",
+    "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+    ".humble/tickets/HS-0009.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 slice to offer supported repositories directly in the native source picker."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0009.json",
+    "git diff --check",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "This slice should reuse the existing supported app catalog instead of introducing a second source of truth.",
+    "The UX should clearly describe that supported apps still hydrate from repository-backed remote export URLs."
+  ]
+}

@@ -59,44 +59,108 @@ struct StudioSupportedRemoteAppsSection: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
 
-            ForEach(StudioSupportedAppCatalog.all) { app in
-                HStack(alignment: .top, spacing: 12) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(app.name)
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-                        Text(app.repo)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(app.sourceSummary)
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
+            StudioSupportedAppsList(
+                selectedRemoteURL: remoteURLDraft,
+                useURL: { remoteURLDraft = $0.remoteURL },
+                loadApp: loadApp
+            )
+        }
+    }
+}
+
+struct StudioSupportedAppsCard: View {
+    let selectedRemoteURL: String?
+    let loadApp: (StudioSupportedAppSource) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(StudioStrings.supportedAppsTitle)
+                .font(.headline)
+
+            Text(StudioStrings.supportedAppsPrompt)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            StudioSupportedAppsList(
+                selectedRemoteURL: selectedRemoteURL,
+                useURL: nil,
+                loadApp: loadApp
+            )
+        }
+        .padding(18)
+        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(.quaternary.opacity(0.8), lineWidth: 1)
+        )
+    }
+}
+
+private struct StudioSupportedAppsList: View {
+    let selectedRemoteURL: String?
+    let useURL: ((StudioSupportedAppSource) -> Void)?
+    let loadApp: ((StudioSupportedAppSource) -> Void)?
+
+    var body: some View {
+        ForEach(StudioSupportedAppCatalog.all) { app in
+            StudioSupportedAppRow(
+                app: app,
+                isCurrent: selectedRemoteURL == app.remoteURL,
+                useURL: useURL,
+                loadApp: loadApp
+            )
+        }
+    }
+}
+
+private struct StudioSupportedAppRow: View {
+    let app: StudioSupportedAppSource
+    let isCurrent: Bool
+    let useURL: ((StudioSupportedAppSource) -> Void)?
+    let loadApp: ((StudioSupportedAppSource) -> Void)?
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(app.name)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Text(app.repo)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(app.sourceSummary)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+
+            Spacer(minLength: 12)
+
+            VStack(alignment: .trailing, spacing: 8) {
+                if isCurrent {
+                    Label(StudioStrings.current, systemImage: "checkmark.circle.fill")
+                        .font(.caption.weight(.semibold))
+                        .labelStyle(.titleAndIcon)
+                }
+
+                if let useURL {
+                    Button(StudioStrings.useURL) {
+                        useURL(app)
                     }
+                    .buttonStyle(.borderless)
+                }
 
-                    Spacer(minLength: 12)
-
-                    VStack(alignment: .trailing, spacing: 8) {
-                        if remoteURLDraft == app.remoteURL {
-                            Label(StudioStrings.current, systemImage: "checkmark.circle.fill")
-                                .font(.caption.weight(.semibold))
-                                .labelStyle(.titleAndIcon)
-                        }
-
-                        Button(StudioStrings.useURL) {
-                            remoteURLDraft = app.remoteURL
-                        }
-                        .buttonStyle(.borderless)
-
-                        if let loadApp {
-                            Button(StudioStrings.loadNow) {
-                                loadApp(app)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.small)
-                        }
+                if let loadApp {
+                    Button(StudioStrings.loadNow) {
+                        loadApp(app)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
                 }
             }
         }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 }
