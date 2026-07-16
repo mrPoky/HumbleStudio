@@ -121,13 +121,16 @@ struct StudioPreviewDevice: Identifiable, Equatable, Hashable {
     let landscapeSize: CGSize
     let cornerRadius: CGFloat
     let bezelPadding: CGFloat
-    let safeAreaTop: CGFloat
-    let safeAreaBottom: CGFloat
-    let safeAreaHorizontal: CGFloat
+    let portraitSafeArea: StudioPreviewSafeAreaInsets
+    let landscapeSafeArea: StudioPreviewSafeAreaInsets
     let notes: String
 
     func canvasSize(for orientation: StudioPreviewOrientation) -> CGSize {
         orientation == .portrait ? portraitSize : landscapeSize
+    }
+
+    func safeAreaInsets(for orientation: StudioPreviewOrientation) -> StudioPreviewSafeAreaInsets {
+        orientation == .portrait ? portraitSafeArea : landscapeSafeArea
     }
 
     func sizeClasses(for orientation: StudioPreviewOrientation) -> (horizontal: StudioPreviewSizeClass, vertical: StudioPreviewSizeClass) {
@@ -144,6 +147,12 @@ struct StudioPreviewDevice: Identifiable, Equatable, Hashable {
     }
 }
 
+struct StudioPreviewSafeAreaInsets: Equatable, Hashable {
+    let top: CGFloat
+    let bottom: CGFloat
+    let horizontal: CGFloat
+}
+
 enum StudioPreviewCatalog {
     static let devices: [StudioPreviewDevice] = [
         StudioPreviewDevice(
@@ -153,9 +162,8 @@ enum StudioPreviewCatalog {
             landscapeSize: CGSize(width: 852, height: 393),
             cornerRadius: 44,
             bezelPadding: 18,
-            safeAreaTop: 59,
-            safeAreaBottom: 34,
-            safeAreaHorizontal: 0,
+            portraitSafeArea: StudioPreviewSafeAreaInsets(top: 59, bottom: 34, horizontal: 0),
+            landscapeSafeArea: StudioPreviewSafeAreaInsets(top: 0, bottom: 21, horizontal: 59),
             notes: "Phone-first compact viewport for everyday navigation and sheet checks."
         ),
         StudioPreviewDevice(
@@ -165,9 +173,8 @@ enum StudioPreviewCatalog {
             landscapeSize: CGSize(width: 932, height: 430),
             cornerRadius: 48,
             bezelPadding: 20,
-            safeAreaTop: 59,
-            safeAreaBottom: 34,
-            safeAreaHorizontal: 0,
+            portraitSafeArea: StudioPreviewSafeAreaInsets(top: 59, bottom: 34, horizontal: 0),
+            landscapeSafeArea: StudioPreviewSafeAreaInsets(top: 0, bottom: 21, horizontal: 59),
             notes: "Larger phone viewport for dense content and action spacing checks."
         ),
         StudioPreviewDevice(
@@ -177,9 +184,8 @@ enum StudioPreviewCatalog {
             landscapeSize: CGSize(width: 1194, height: 834),
             cornerRadius: 36,
             bezelPadding: 18,
-            safeAreaTop: 24,
-            safeAreaBottom: 20,
-            safeAreaHorizontal: 0,
+            portraitSafeArea: StudioPreviewSafeAreaInsets(top: 24, bottom: 20, horizontal: 0),
+            landscapeSafeArea: StudioPreviewSafeAreaInsets(top: 24, bottom: 20, horizontal: 0),
             notes: "Tablet viewport for split layouts, popovers, and longer reading flows."
         )
     ]
@@ -411,6 +417,8 @@ struct StudioPreviewSurface<Content: View>: View {
         .overlay(alignment: .top) {
             if showsNavigationBar {
                 previewNavigationBar
+            } else if showsFullScreenDismissControl {
+                previewFullScreenDismissControl
             }
         }
         .overlay(alignment: .bottom) {
@@ -482,6 +490,19 @@ struct StudioPreviewSurface<Content: View>: View {
         }
     }
 
+    private var previewFullScreenDismissControl: some View {
+        HStack {
+            Spacer(minLength: 0)
+            Image(systemName: "xmark")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.secondary)
+                .frame(width: 28, height: 28)
+                .background(Color.secondary.opacity(0.14), in: Circle())
+        }
+        .padding(.top, 14)
+        .padding(.horizontal, 14)
+    }
+
     private var previewTabBar: some View {
         VStack(spacing: 0) {
             Divider()
@@ -507,25 +528,28 @@ struct StudioPreviewSurface<Content: View>: View {
         }
     }
 
+    @ViewBuilder
     private func safeAreaOverlay(in previewSize: CGSize) -> some View {
+        let safeArea = configuration.device.safeAreaInsets(for: configuration.orientation)
+
         VStack(spacing: 0) {
             Rectangle()
                 .fill(Color.blue.opacity(0.10))
-                .frame(height: scaled(configuration.device.safeAreaTop, from: canvasSize.height, to: previewSize.height))
+                .frame(height: scaled(safeArea.top, from: canvasSize.height, to: previewSize.height))
             Spacer(minLength: 0)
             Rectangle()
                 .fill(Color.orange.opacity(0.10))
-                .frame(height: scaled(configuration.device.safeAreaBottom, from: canvasSize.height, to: previewSize.height))
+                .frame(height: scaled(safeArea.bottom, from: canvasSize.height, to: previewSize.height))
         }
         .overlay(alignment: .leading) {
             HStack(spacing: 0) {
                 Rectangle()
                     .fill(Color.green.opacity(0.06))
-                    .frame(width: scaled(configuration.device.safeAreaHorizontal, from: canvasSize.width, to: previewSize.width))
+                    .frame(width: scaled(safeArea.horizontal, from: canvasSize.width, to: previewSize.width))
                 Spacer(minLength: 0)
                 Rectangle()
                     .fill(Color.green.opacity(0.06))
-                    .frame(width: scaled(configuration.device.safeAreaHorizontal, from: canvasSize.width, to: previewSize.width))
+                    .frame(width: scaled(safeArea.horizontal, from: canvasSize.width, to: previewSize.width))
             }
         }
     }
@@ -571,6 +595,10 @@ struct StudioPreviewSurface<Content: View>: View {
 
     private var showsDismissControl: Bool {
         configuration.presentationMode == .sheet || configuration.presentationMode == .fullScreenCover
+    }
+
+    private var showsFullScreenDismissControl: Bool {
+        configuration.presentationMode == .fullScreenCover && !showsNavigationBar
     }
 }
 
