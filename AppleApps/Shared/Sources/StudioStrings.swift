@@ -109,10 +109,26 @@ enum StudioStrings {
     static let legacyFallbackTitle = String(localized: "studio.legacy_fallback.title", defaultValue: "Legacy Web Fallback")
     static let nativeStatus = String(localized: "studio.legacy_fallback.native_status", defaultValue: "Native status")
     static let bestUse = String(localized: "studio.legacy_fallback.best_use", defaultValue: "Best use")
+    static let legacyFallbackBestUseValue = String(localized: "studio.legacy_fallback.best_use_value", defaultValue: "Fallback for parity gaps, unresolved native detail, and future authoring/write-back workflows.")
+    static func legacyFallbackNativeStatusIssues(_ message: String) -> String {
+        String(localized: "studio.legacy_fallback.native_status_issues", defaultValue: "Native import has issues: \(message)")
+    }
+    static let legacyFallbackNativeStatusLoaded = String(localized: "studio.legacy_fallback.native_status_loaded", defaultValue: "Native bundle truth is loaded; fallback is optional support.")
+    static let legacyFallbackNativeStatusMissing = String(localized: "studio.legacy_fallback.native_status_missing", defaultValue: "Native document is not loaded yet.")
     static let support = String(localized: "studio.legacy_fallback.support", defaultValue: "Support")
     static let primary = String(localized: "studio.legacy_fallback.primary", defaultValue: "Primary")
+    static let legacyFallbackSummarySupport = String(localized: "studio.legacy_fallback.summary_support", defaultValue: "Native coverage exists for the main inspector surfaces. Use this path when you need the older web behavior or a parity escape hatch.")
+    static let legacyFallbackSummaryPrimary = String(localized: "studio.legacy_fallback.summary_primary", defaultValue: "This fallback is currently carrying the session because native truth is missing or still recovering.")
     static let migrationStatusTitle = String(localized: "studio.migration_status.title", defaultValue: "Migration status")
     static let migrationStatusMessage = String(localized: "studio.migration_status.message", defaultValue: "The macOS app now reads bundle truth natively for foundations, components, views, review, and navigation. The legacy web inspector remains as a fallback for parity gaps and future authoring workflows while the SwiftUI surface keeps expanding.")
+    static let overviewTokensCaption = String(localized: "studio.overview.tokens_caption", defaultValue: "Colors and gradients")
+    static let overviewComponentsCaption = String(localized: "studio.overview.components_caption", defaultValue: "Native dashboard now reads snapshots from the bundle")
+    static let overviewViewsCaption = String(localized: "studio.overview.views_caption", defaultValue: "Native screen catalog with snapshot-first previews")
+    static let overviewNavigationTitle = String(localized: "studio.overview.navigation_title", defaultValue: "Navigation")
+    static let overviewNavigationCaption = String(localized: "studio.overview.navigation_caption", defaultValue: "Flow edges derived from the exported contract")
+    static let overviewIconsCaption = String(localized: "studio.overview.icons_caption", defaultValue: "Resolved from the bundle")
+    static let overviewTypographyCaption = String(localized: "studio.overview.typography_caption", defaultValue: "Type roles")
+    static let overviewSpacingCaption = String(localized: "studio.overview.spacing_caption", defaultValue: "Spatial tokens")
     static let reviewQueueTitle = String(localized: "studio.review.title", defaultValue: "Review Queue")
     static let reviewQueueSubtitle = String(localized: "studio.review.subtitle", defaultValue: "Start with items where exported truth is weakest, then jump straight into the matching native inspector.")
     static let nothingNeedsReview = String(localized: "studio.review.empty_title", defaultValue: "Nothing needs review")
@@ -297,6 +313,21 @@ enum StudioStrings {
         String(localized: "studio.parity.narrative_degraded", defaultValue: "\(count) native surfaces are already first-class enough for everyday inspection, but still expose degraded areas where behavior or evidence is modeled instead of fully reference-backed.")
     }
     static let parityNarrativeExact = String(localized: "studio.parity.narrative_exact", defaultValue: "Native inspection is broadly exact across the current imported bundle. Remaining fallback need is now mostly about future write-back authoring and long-tail parity edges.")
+    static func previewCoverageNarrativeFallback(_ count: Int) -> String {
+        String(
+            format: String(localized: "studio.preview_coverage.narrative_fallback", defaultValue: "%lld native surfaces still need fallback help. The highest remaining risk is where exported visual truth and native behavior modeling are both still thin."),
+            locale: Locale.current,
+            count
+        )
+    }
+    static func previewCoverageNarrativeContract(_ count: Int) -> String {
+        String(
+            format: String(localized: "studio.preview_coverage.narrative_contract", defaultValue: "Fallback pressure is low, but %lld surfaces are still modeled from contract rather than fully reference-backed visual truth."),
+            locale: Locale.current,
+            count
+        )
+    }
+    static let previewCoverageNarrativeExact = String(localized: "studio.preview_coverage.narrative_exact", defaultValue: "All currently imported component and view surfaces are reference-backed in native preview.")
     static let loadingDemoConfig = String(localized: "studio.status.loading_demo", defaultValue: "Loading demo config…")
     static let loadingRemoteSource = String(localized: "studio.status.loading_remote", defaultValue: "Loading remote source…")
     static let restoringDemoSource = String(localized: "studio.status.restoring_demo", defaultValue: "Restoring demo source…")

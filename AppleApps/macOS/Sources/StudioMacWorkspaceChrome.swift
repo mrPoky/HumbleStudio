@@ -459,7 +459,7 @@ private struct StudioMacLegacyFallbackStatusCard: View {
             VStack(alignment: .leading, spacing: 10) {
                 StudioKeyValueRow(label: StudioStrings.currentSource, value: model.sourceSummary)
                 StudioKeyValueRow(label: StudioStrings.nativeStatus, value: nativeStatusText)
-                StudioKeyValueRow(label: StudioStrings.bestUse, value: "Fallback for parity gaps, unresolved native detail, and future authoring/write-back workflows.")
+                StudioKeyValueRow(label: StudioStrings.bestUse, value: StudioStrings.legacyFallbackBestUseValue)
             }
 
             if let nativeErrorMessage = model.nativeErrorMessage, !nativeErrorMessage.isEmpty {
@@ -483,19 +483,19 @@ private struct StudioMacLegacyFallbackStatusCard: View {
 
     private var nativeStatusText: String {
         if let nativeErrorMessage = model.nativeErrorMessage, !nativeErrorMessage.isEmpty {
-            return "Native import has issues: \(nativeErrorMessage)"
+            return StudioStrings.legacyFallbackNativeStatusIssues(nativeErrorMessage)
         }
         if model.nativeDocument != nil {
-            return "Native bundle truth is loaded; fallback is optional support."
+            return StudioStrings.legacyFallbackNativeStatusLoaded
         }
-        return "Native document is not loaded yet."
+        return StudioStrings.legacyFallbackNativeStatusMissing
     }
 
     private var statusSummary: String {
         if model.nativeDocument != nil {
-            return "Native coverage exists for the main inspector surfaces. Use this path when you need the older web behavior or a parity escape hatch."
+            return StudioStrings.legacyFallbackSummarySupport
         }
-        return "This fallback is currently carrying the session because native truth is missing or still recovering."
+        return StudioStrings.legacyFallbackSummaryPrimary
     }
 
     private var statusBadge: String {
@@ -532,13 +532,13 @@ struct StudioMacOverviewPage: View {
                     }
 
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 180), spacing: 16)], spacing: 16) {
-                        StudioCountCard(title: "Tokens", value: "\(document.colors.count + document.gradients.count)", caption: "Colors and gradients")
-                        StudioCountCard(title: "Components", value: "\(document.components.count)", caption: "Native dashboard now reads snapshots from the bundle")
-                        StudioCountCard(title: "Views", value: "\(document.views.count)", caption: "Native screen catalog with snapshot-first previews")
-                        StudioCountCard(title: "Navigation", value: "\(document.views.reduce(0) { $0 + $1.navigatesTo.count })", caption: "Flow edges derived from the exported contract")
-                        StudioCountCard(title: "Icons", value: "\(document.icons.count)", caption: "Resolved from the bundle")
-                        StudioCountCard(title: "Typography", value: "\(document.typography.count)", caption: "Type roles")
-                        StudioCountCard(title: "Spacing & Radius", value: "\(document.spacing.count + document.radius.count)", caption: "Spatial tokens")
+                        StudioCountCard(title: StudioStrings.tokensPageTitle, value: "\(document.colors.count + document.gradients.count)", caption: StudioStrings.overviewTokensCaption)
+                        StudioCountCard(title: StudioStrings.componentsPageTitle, value: "\(document.components.count)", caption: StudioStrings.overviewComponentsCaption)
+                        StudioCountCard(title: StudioStrings.viewsPageTitle, value: "\(document.views.count)", caption: StudioStrings.overviewViewsCaption)
+                        StudioCountCard(title: StudioStrings.overviewNavigationTitle, value: "\(document.views.reduce(0) { $0 + $1.navigatesTo.count })", caption: StudioStrings.overviewNavigationCaption)
+                        StudioCountCard(title: StudioStrings.iconsPageTitle, value: "\(document.icons.count)", caption: StudioStrings.overviewIconsCaption)
+                        StudioCountCard(title: StudioStrings.typographyPageTitle, value: "\(document.typography.count)", caption: StudioStrings.overviewTypographyCaption)
+                        StudioCountCard(title: StudioStrings.spacingPageTitle, value: "\(document.spacing.count + document.radius.count)", caption: StudioStrings.overviewSpacingCaption)
                     }
 
                     StudioMigrationCard(
@@ -784,12 +784,12 @@ private struct StudioMacPreviewCoverageCard: View {
 
     private var summaryNarrative: String {
         if summary.fallbackNeeded > 0 {
-            return "\(summary.fallbackNeeded) native surfaces still need fallback help. The highest remaining risk is where exported visual truth and native behavior modeling are both still thin."
+            return StudioStrings.previewCoverageNarrativeFallback(summary.fallbackNeeded)
         }
         if summary.contractDriven > 0 {
-            return "Fallback pressure is low, but \(summary.contractDriven) surfaces are still modeled from contract rather than fully reference-backed visual truth."
+            return StudioStrings.previewCoverageNarrativeContract(summary.contractDriven)
         }
-        return "All currently imported component and view surfaces are reference-backed in native preview."
+        return StudioStrings.previewCoverageNarrativeExact
     }
 }
 

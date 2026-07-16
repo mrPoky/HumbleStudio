@@ -2969,6 +2969,125 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "This view is fully backed by exported truth." } }
       }
     },
+    "studio.legacy_fallback.best_use_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Fallback pro parity mezery, nedořešený nativní detail a budoucí authoring/write-back workflow." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fallback for parity gaps, unresolved native detail, and future authoring/write-back workflows." } }
+      }
+    },
+    "studio.legacy_fallback.native_status_issues" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní import má potíže: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native import has issues: %@" } }
+      }
+    },
+    "studio.legacy_fallback.native_status_loaded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní pravda bundle je načtená; fallback je už jen podpůrná cesta." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native bundle truth is loaded; fallback is optional support." } }
+      }
+    },
+    "studio.legacy_fallback.native_status_missing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní dokument ještě není načtený." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native document is not loaded yet." } }
+      }
+    },
+    "studio.legacy_fallback.summary_support" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Hlavní inspector surfaces už mají nativní coverage. Použijte tuto cestu, když potřebujete starší webové chování nebo parity escape hatch." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native coverage exists for the main inspector surfaces. Use this path when you need the older web behavior or a parity escape hatch." } }
+      }
+    },
+    "studio.legacy_fallback.summary_primary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tento fallback teď nese celou session, protože nativní pravda chybí nebo se ještě zotavuje." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This fallback is currently carrying the session because native truth is missing or still recovering." } }
+      }
+    },
+    "studio.overview.tokens_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Barvy a gradienty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Colors and gradients" } }
+      }
+    },
+    "studio.overview.components_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní dashboard už čte snapshoty přímo z bundle" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native dashboard now reads snapshots from the bundle" } }
+      }
+    },
+    "studio.overview.views_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní katalog screenů se snapshot-first preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native screen catalog with snapshot-first previews" } }
+      }
+    },
+    "studio.overview.navigation_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navigace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Navigation" } }
+      }
+    },
+    "studio.overview.navigation_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Flow hrany odvozené z exportovaného kontraktu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Flow edges derived from the exported contract" } }
+      }
+    },
+    "studio.overview.icons_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyřešené z bundle" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Resolved from the bundle" } }
+      }
+    },
+    "studio.overview.typography_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Typografické role" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Type roles" } }
+      }
+    },
+    "studio.overview.spacing_caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Prostorové tokeny" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Spatial tokens" } }
+      }
+    },
+    "studio.preview_coverage.narrative_fallback" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld nativních surface ještě potřebuje fallback pomoc. Největší zbývající riziko je tam, kde je exportovaná vizuální pravda i modelování nativního chování stále slabé." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld native surfaces still need fallback help. The highest remaining risk is where exported visual truth and native behavior modeling are both still thin." } }
+      }
+    },
+    "studio.preview_coverage.narrative_contract" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Fallback tlak je nízký, ale %lld surfaces jsou stále modelované z kontraktu místo plně referenčně podložené vizuální pravdy." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fallback pressure is low, but %lld surfaces are still modeled from contract rather than fully reference-backed visual truth." } }
+      }
+    },
+    "studio.preview_coverage.narrative_exact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Všechny aktuálně importované component a view surfaces jsou v nativním preview referenčně podložené." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All currently imported component and view surfaces are reference-backed in native preview." } }
+      }
+    },
     "studio.snapshot.approximation_only" : {
       "extractionState" : "manual",
       "localizations" : {

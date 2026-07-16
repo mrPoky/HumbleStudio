@@ -1,0 +1,59 @@
+{
+  "id": "HS-0010",
+  "title": "Localize native overview and fallback workspace copy",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Replace remaining hardcoded user-facing copy in the macOS native overview, fallback, and preview coverage chrome with typed StudioStrings and matching string catalog entries.",
+  "acceptance_criteria": [
+    "StudioMacWorkspaceChrome no longer hardcodes its overview card captions, legacy fallback status copy, or preview coverage narrative text.",
+    "New overview and fallback copy is exposed through typed StudioStrings entries backed by Localizable.xcstrings.",
+    "Ticket validation, patch hygiene, and a HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0010.json",
+      "note": "HS-0010 ticket schema validated after moving overview and fallback copy onto typed StudioStrings."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after removing hardcoded workspace chrome copy."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after localizing overview captions, fallback status text, and preview coverage narratives."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/tickets/HS-0010.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 follow-up to remove remaining hardcoded native workspace copy."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0010.json",
+    "git diff --check",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "This slice stays read-only at the product level and focuses on truthful localized native copy.",
+    "Foundation and review inspector string cleanup remains follow-up work after the workspace chrome pass."
+  ]
+}
