@@ -19,12 +19,17 @@ enum StudioNativeMetricSelection: Equatable {
 struct StudioMacTokensPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let nativeRecoveryIssue: StudioNativeRecoveryIssue?
     @Binding var selection: StudioNativeTokenSelection?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
 
     var body: some View {
-        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+        StudioNativePageContainer(
+            document: document,
+            nativeErrorMessage: nativeErrorMessage,
+            nativeRecoveryIssue: nativeRecoveryIssue
+        ) { document in
             HStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 28) {
@@ -106,11 +111,16 @@ struct StudioMacTokensPage: View {
 struct StudioMacIconsPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let nativeRecoveryIssue: StudioNativeRecoveryIssue?
     let inspectComponent: (String) -> Void
     @Binding var selection: String?
 
     var body: some View {
-        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+        StudioNativePageContainer(
+            document: document,
+            nativeErrorMessage: nativeErrorMessage,
+            nativeRecoveryIssue: nativeRecoveryIssue
+        ) { document in
             HStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
@@ -167,12 +177,17 @@ struct StudioMacIconsPage: View {
 struct StudioMacTypographyPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let nativeRecoveryIssue: StudioNativeRecoveryIssue?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
     @Binding var selection: String?
 
     var body: some View {
-        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+        StudioNativePageContainer(
+            document: document,
+            nativeErrorMessage: nativeErrorMessage,
+            nativeRecoveryIssue: nativeRecoveryIssue
+        ) { document in
             HStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
@@ -229,12 +244,17 @@ struct StudioMacTypographyPage: View {
 struct StudioMacSpacingPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let nativeRecoveryIssue: StudioNativeRecoveryIssue?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
     @Binding var selection: StudioNativeMetricSelection?
 
     var body: some View {
-        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+        StudioNativePageContainer(
+            document: document,
+            nativeErrorMessage: nativeErrorMessage,
+            nativeRecoveryIssue: nativeRecoveryIssue
+        ) { document in
             HStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 28) {

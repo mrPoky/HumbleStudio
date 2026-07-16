@@ -249,6 +249,17 @@ enum StudioRecoveryAction: Equatable {
     case reopenRecentImport
     case reopenRecentRemoteURL
     case loadBundledStudio
+
+    var title: String {
+        switch self {
+        case .reopenRecentImport:
+            return StudioStrings.reopenRecentImport
+        case .reopenRecentRemoteURL:
+            return StudioStrings.reopenRecentRemoteURL
+        case .loadBundledStudio:
+            return StudioStrings.loadBundledStudioAction
+        }
+    }
 }
 
 struct StudioNativeRecoveryIssue: Equatable {
@@ -256,6 +267,14 @@ struct StudioNativeRecoveryIssue: Equatable {
     let detail: String
     let primaryAction: StudioRecoveryAction
     let secondaryActions: [StudioRecoveryAction]
+
+    var primaryActionTitle: String {
+        primaryAction.title
+    }
+
+    var secondaryActionTitles: [String] {
+        secondaryActions.map(\.title)
+    }
 }
 
 struct StudioShellActions {
@@ -359,7 +378,7 @@ final class StudioShellModel: ObservableObject {
 
     var recommendedRecoveryActionTitle: String {
         if let nativeRecoveryIssue {
-            return title(for: nativeRecoveryIssue.primaryAction)
+            return nativeRecoveryIssue.primaryActionTitle
         }
         if hasRecentImport {
             return StudioStrings.reopenRecentImport
@@ -397,8 +416,7 @@ final class StudioShellModel: ObservableObject {
     }
 
     var recoveryAlternativeActionTitles: [String] {
-        guard let nativeRecoveryIssue else { return [] }
-        return nativeRecoveryIssue.secondaryActions.map(title(for:))
+        nativeRecoveryIssue?.secondaryActionTitles ?? []
     }
 
     var hasRecentImport: Bool {
@@ -1189,19 +1207,8 @@ final class StudioShellModel: ObservableObject {
         return all.filter { $0 != primaryAction }
     }
 
-    private func title(for action: StudioRecoveryAction) -> String {
-        switch action {
-        case .reopenRecentImport:
-            return StudioStrings.reopenRecentImport
-        case .reopenRecentRemoteURL:
-            return StudioStrings.reopenRecentRemoteURL
-        case .loadBundledStudio:
-            return StudioStrings.loadBundledStudioAction
-        }
-    }
-
     private func recoveryAction(named title: String) -> StudioRecoveryAction? {
         let actions: [StudioRecoveryAction] = [.reopenRecentImport, .reopenRecentRemoteURL, .loadBundledStudio]
-        return actions.first(where: { self.title(for: $0) == title })
+        return actions.first(where: { $0.title == title })
     }
 }

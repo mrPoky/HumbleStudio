@@ -4,12 +4,17 @@ import AppKit
 struct StudioMacComponentsPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let nativeRecoveryIssue: StudioNativeRecoveryIssue?
     @Binding var appearance: StudioNativeAppearance
     @Binding var selectedComponentID: String?
     let inspectView: (String) -> Void
 
     var body: some View {
-        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+        StudioNativePageContainer(
+            document: document,
+            nativeErrorMessage: nativeErrorMessage,
+            nativeRecoveryIssue: nativeRecoveryIssue
+        ) { document in
             HStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
@@ -77,13 +82,18 @@ struct StudioMacComponentsPage: View {
 struct StudioMacViewsPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let nativeRecoveryIssue: StudioNativeRecoveryIssue?
     @Binding var appearance: StudioNativeAppearance
     @Binding var selectedViewID: String?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
 
     var body: some View {
-        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+        StudioNativePageContainer(
+            document: document,
+            nativeErrorMessage: nativeErrorMessage,
+            nativeRecoveryIssue: nativeRecoveryIssue
+        ) { document in
             HStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {

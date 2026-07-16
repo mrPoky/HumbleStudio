@@ -1,0 +1,62 @@
+{
+  "id": "HS-0011",
+  "title": "Strengthen native recovery error surfaces",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Replace raw native hydration error strings in the macOS native inspectors with a structured recovery-aware surface backed by the existing native recovery issue model.",
+  "acceptance_criteria": [
+    "Native inspector pages show recovery issue title and recommended next step when native hydration fails.",
+    "The shared macOS native page container accepts typed recovery issue context instead of relying only on a raw error string.",
+    "Ticket validation, patch hygiene, and a HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0011.json",
+      "note": "HS-0011 ticket schema validated after switching native inspector error states onto structured recovery-aware surfaces."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after wiring native recovery issue state through the shared page container and overview error surface."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after introducing the structured recovery-aware native error surface."
+    }
+  ],
+  "related_files": [
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources/StudioMacInspectorSupport.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+    "AppleApps/macOS/Sources/StudioMacContentWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacFoundationWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    ".humble/tickets/HS-0011.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Re-ranked Top 10 favored typed native error surfaces over already-mostly-complete localization debt."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0011.json",
+    "git diff --check",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "This slice stays read-only and improves truthful inspector UX during native import or hydration failure states.",
+    "The prior localization item remains valid, but the repo state no longer makes it the highest-value safe slice."
+  ]
+}

@@ -3,12 +3,19 @@ import SwiftUI
 struct StudioNativePageContainer<Content: View>: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let nativeRecoveryIssue: StudioNativeRecoveryIssue?
     @ViewBuilder var content: (StudioNativeDocument) -> Content
 
     var body: some View {
         if let document {
             content(document)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        } else if let nativeRecoveryIssue {
+            StudioNativeRecoveryUnavailableView(
+                issue: nativeRecoveryIssue,
+                nativeErrorMessage: nativeErrorMessage
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let nativeErrorMessage {
             ContentUnavailableView(
                 StudioStrings.nativePreviewUnavailable,
@@ -23,6 +30,39 @@ struct StudioNativePageContainer<Content: View>: View {
                 description: Text(StudioStrings.loadNativePageDescription)
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}
+
+struct StudioNativeRecoveryUnavailableView: View {
+    let issue: StudioNativeRecoveryIssue
+    let nativeErrorMessage: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            ContentUnavailableView(
+                issue.title,
+                systemImage: "exclamationmark.triangle",
+                description: Text(issue.detail)
+            )
+
+            StudioInspectorSection(title: StudioStrings.sourceRecoveryTitle) {
+                VStack(alignment: .leading, spacing: 10) {
+                    StudioKeyValueRow(label: StudioStrings.currentIssue, value: issue.title)
+                    StudioKeyValueRow(label: StudioStrings.recommendedNextStep, value: issue.primaryActionTitle)
+
+                    if !issue.secondaryActionTitles.isEmpty {
+                        StudioKeyValueRow(
+                            label: StudioStrings.secondaryActions,
+                            value: issue.secondaryActionTitles.joined(separator: " · ")
+                        )
+                    }
+
+                    if let nativeErrorMessage, nativeErrorMessage != issue.detail {
+                        StudioKeyValueRow(label: StudioStrings.currentIssue, value: nativeErrorMessage)
+                    }
+                }
+            }
         }
     }
 }

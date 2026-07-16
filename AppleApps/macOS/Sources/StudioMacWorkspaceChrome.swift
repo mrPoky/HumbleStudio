@@ -224,6 +224,7 @@ struct StudioMacWorkspaceDetailContent: View {
             StudioMacTokensPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
+                nativeRecoveryIssue: model.nativeRecoveryIssue,
                 selection: $selectedTokenSelection,
                 inspectComponent: inspectComponent,
                 inspectView: inspectView
@@ -232,6 +233,7 @@ struct StudioMacWorkspaceDetailContent: View {
             StudioMacComponentsPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
+                nativeRecoveryIssue: model.nativeRecoveryIssue,
                 appearance: $componentAppearance,
                 selectedComponentID: $selectedComponentID,
                 inspectView: inspectView
@@ -240,6 +242,7 @@ struct StudioMacWorkspaceDetailContent: View {
             StudioMacViewsPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
+                nativeRecoveryIssue: model.nativeRecoveryIssue,
                 appearance: $viewAppearance,
                 selectedViewID: $selectedViewID,
                 inspectComponent: inspectComponent,
@@ -249,6 +252,7 @@ struct StudioMacWorkspaceDetailContent: View {
             StudioMacReviewPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
+                nativeRecoveryIssue: model.nativeRecoveryIssue,
                 inspectComponent: inspectComponent,
                 inspectView: inspectView
             )
@@ -256,6 +260,7 @@ struct StudioMacWorkspaceDetailContent: View {
             StudioMacNavigationPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
+                nativeRecoveryIssue: model.nativeRecoveryIssue,
                 selectedViewID: $selectedNavigationViewID,
                 inspectView: inspectView
             )
@@ -269,6 +274,7 @@ struct StudioMacWorkspaceDetailContent: View {
             StudioMacIconsPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
+                nativeRecoveryIssue: model.nativeRecoveryIssue,
                 inspectComponent: inspectComponent,
                 selection: $selectedIconID
             )
@@ -276,6 +282,7 @@ struct StudioMacWorkspaceDetailContent: View {
             StudioMacTypographyPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
+                nativeRecoveryIssue: model.nativeRecoveryIssue,
                 inspectComponent: inspectComponent,
                 inspectView: inspectView,
                 selection: $selectedTypographyID
@@ -284,6 +291,7 @@ struct StudioMacWorkspaceDetailContent: View {
             StudioMacSpacingPage(
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
+                nativeRecoveryIssue: model.nativeRecoveryIssue,
                 inspectComponent: inspectComponent,
                 inspectView: inspectView,
                 selection: $selectedMetricSelection
@@ -551,12 +559,20 @@ struct StudioMacOverviewPage: View {
                     StudioMacNativeParityCard(document: document)
                 } else if let nativeErrorMessage = model.nativeErrorMessage {
                     VStack(alignment: .leading, spacing: 18) {
-                        ContentUnavailableView(
-                            StudioStrings.nativePreviewUnavailable,
-                            systemImage: "exclamationmark.triangle",
-                            description: Text(nativeErrorMessage)
-                        )
-                        .frame(maxWidth: .infinity, minHeight: 220)
+                        if let nativeRecoveryIssue = model.nativeRecoveryIssue {
+                            StudioNativeRecoveryUnavailableView(
+                                issue: nativeRecoveryIssue,
+                                nativeErrorMessage: nativeErrorMessage
+                            )
+                            .frame(maxWidth: .infinity, minHeight: 220, alignment: .topLeading)
+                        } else {
+                            ContentUnavailableView(
+                                StudioStrings.nativePreviewUnavailable,
+                                systemImage: "exclamationmark.triangle",
+                                description: Text(nativeErrorMessage)
+                            )
+                            .frame(maxWidth: .infinity, minHeight: 220)
+                        }
 
                         StudioSupportedAppsCard(
                             selectedRemoteURL: model.recentRemoteURL,

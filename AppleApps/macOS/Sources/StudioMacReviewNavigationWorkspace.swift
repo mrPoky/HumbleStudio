@@ -614,13 +614,18 @@ private enum StudioProposalArtifactSortOrder: CaseIterable, Identifiable {
 struct StudioMacReviewPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let nativeRecoveryIssue: StudioNativeRecoveryIssue?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
     @State private var selectedItem: StudioMacReviewSelection?
     @State private var inspectorLayoutMode: StudioPreviewLayoutMode = .focus
 
     var body: some View {
-        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+        StudioNativePageContainer(
+            document: document,
+            nativeErrorMessage: nativeErrorMessage,
+            nativeRecoveryIssue: nativeRecoveryIssue
+        ) { document in
             let components = document.components.filter { nativeComponentTruthStatus(for: $0).needsAttention }
             let views = document.views.filter { nativeViewTruthStatus(for: $0).needsAttention }
             let coverage = nativePreviewCoverageSummary(for: document)
@@ -945,12 +950,17 @@ private struct StudioMacReviewFocusInspector: View {
 struct StudioMacNavigationPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
+    let nativeRecoveryIssue: StudioNativeRecoveryIssue?
     @Binding var selectedViewID: String?
     let inspectView: (String) -> Void
     @State private var inspectorLayoutMode: StudioPreviewLayoutMode = .focus
 
     var body: some View {
-        StudioNativePageContainer(document: document, nativeErrorMessage: nativeErrorMessage) { document in
+        StudioNativePageContainer(
+            document: document,
+            nativeErrorMessage: nativeErrorMessage,
+            nativeRecoveryIssue: nativeRecoveryIssue
+        ) { document in
             let graph = makeNativeNavigationGraph(document: document)
             let coverage = nativePreviewCoverageSummary(for: document)
 
