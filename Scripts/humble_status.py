@@ -9,6 +9,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+import proposal_artifact_index
+
 
 ROOT = Path(__file__).resolve().parents[1]
 STATUS_PATH = ROOT / ".humble" / "status" / "current.json"
@@ -111,12 +113,16 @@ def collect_status() -> dict[str, Any]:
     lanes = lane_registry.get("lanes", [])
     active_lanes = [lane for lane in lanes if lane.get("state") == "active"]
     quarantined_lanes = [lane for lane in lanes if lane.get("state") == "quarantined"]
+    proposal_summary = proposal_artifact_index.summary_payload()
     status["workflow"] = {
         "ticket_count": len(sorted(TICKET_DIR.glob("HS-*.json"))),
         "lane_count": len(lanes),
         "active_lane_count": len(active_lanes),
         "free_lane_count": len(lanes) - len(active_lanes) - len(quarantined_lanes),
         "quarantined_lane_count": len(quarantined_lanes),
+        "proposal_artifact_count": proposal_summary["proposal_artifact_count"],
+        "linked_proposal_count": proposal_summary["linked_proposal_count"],
+        "linked_proposal_ticket_count": proposal_summary["linked_ticket_count"],
     }
     return status
 
@@ -136,6 +142,11 @@ def render_text(payload: dict[str, Any]) -> str:
             f"{workflow['active_lane_count']} active / "
             f"{workflow['free_lane_count']} free / "
             f"{workflow['quarantined_lane_count']} quarantined"
+        ),
+        (
+            "- proposal links: "
+            f"{workflow['proposal_artifact_count']} artifacts / "
+            f"{workflow['linked_proposal_count']} linked ticket references"
         ),
         f"- headline: {payload['summary']['headline']}",
         (

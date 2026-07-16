@@ -34,6 +34,9 @@ jobs:
       - name: Compile local workflow scripts
         run: python3 -m py_compile Scripts/*.py
 
+      - name: Web fallback integrity
+        run: python3 Scripts/check_web_fallback.py
+
       - name: Diff whitespace check
         run: git diff --check
 

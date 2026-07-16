@@ -23,6 +23,7 @@ Current repository convention:
 
 ## Scope
 - Surface: `view:home`
+- Ticket: `HS-0003`
 - Evidence: `HomeView.swift`, `design.json`
 - Coverage: `Contract-driven`
 
@@ -43,6 +44,7 @@ Current repository convention:
 ```
 
 Preferred metadata additions for native read-back:
+- `Ticket` or `Tickets` lines make it possible to link the proposal back to repo-native HS workflow items without changing current exported truth.
 - `Area` keeps the proposal diff-oriented instead of burying the affected region in prose.
 - `Why` captures the review rationale separately from the requested change.
 - `Token candidate`, `Component candidate`, and `View candidate` make structured targets easier to surface in native inspectors and future apply previews.

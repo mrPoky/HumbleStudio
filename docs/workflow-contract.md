@@ -44,6 +44,10 @@ enough to deserve enforcement, not just memory.
   `/Users/janpokorny/Coding/personal/worktrees/HumbleStudio`.
 - Lane inventory and claims live in `.humble/coordination/lanes.json`.
 - `lane-1` through `lane-4` are the fixed implementation lanes.
+- `python3 Scripts/start_ticket_lane.py --path <scope>` is the supported repo-local
+  entrypoint for claiming the next ready ticket into a lane.
+- `python3 Scripts/manage_humble_lanes.py list` exposes the underlying lane registry,
+  and `claim` / `release` are explicit write operations rather than hidden side effects.
 - The root checkout at
   `/Users/janpokorny/Coding/personal/apps/HumbleStudio` is reserved as the main
   catalog checkout and should remain on a clean `main` whenever practical.
@@ -54,7 +58,10 @@ enough to deserve enforcement, not just memory.
 
 - Non-trivial work belongs in `.humble/tickets`.
 - HumbleStudio uses the `HS-####` ticket prefix.
+- `python3 Scripts/allocate_humble_ticket_id.py` returns the next free ticket id.
 - Read-only ticket board rendering lives in `python3 Scripts/render_humble_tickets.py`.
+- Proposal artifacts in `docs/change-proposals/` may link back to HS tickets by
+  including one or more `HS-####` ids in the markdown body.
 - Ticket status should describe reality:
   - `accepted` or `ready` before implementation
   - `in_progress` after implementation starts
@@ -67,6 +74,8 @@ enough to deserve enforcement, not just memory.
 - Repo-owned directional status truth lives in `.humble/status/current.json`.
 - `python3 Scripts/humble_status.py` is the supported read-only way to combine
   that repo truth with live git, ticket, lane, and worktree state.
+- `python3 Scripts/render_humble_status.py` is the supported human-readable summary
+  and Mermaid renderer for the same repo-owned status truth.
 - The script is an observability surface, not a source of derived policy.
 
 ## Verification
@@ -78,6 +87,8 @@ Shared workflow checks:
 - `python3 Scripts/validate_humble_tickets.py`
 - `python3 Scripts/validate_repo_contract.py`
 - `python3 Scripts/humble_doctor.py --repo-root . --strict`
+- `python3 Scripts/check_web_fallback.py`
+- `bash Scripts/run_local_checks.sh --workflow-only`
 - `python3 -m py_compile Scripts/*.py`
 - `git diff --check`
 
@@ -88,9 +99,10 @@ Native/product checks when relevant:
 
 Web/product checks when relevant:
 
+- `python3 Scripts/check_web_fallback.py` for static asset and markup consistency
 - open or sanity-check `index.html` and the static viewer assets that changed
-- run any focused command added by the slice; there is no repo-local CI or test
-  harness for the static web surface yet
+- run any focused command added by the slice; the web fallback now has a script-based
+  integrity check, but still does not have a browser-level automated test harness
 
 ## Repo-Specific Overrides
 

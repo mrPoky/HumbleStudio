@@ -18,8 +18,11 @@ HumbleControl-owned canonical contract instead of silently forking policy here.
 - Local repo doctor entrypoint: `Scripts/humble_doctor.py`
 - Repo-native ticket store: `.humble/tickets`
 - Repo status surface: `.humble/status/current.json`
+- Ticket id allocator: `Scripts/allocate_humble_ticket_id.py`
+- Lane manager entrypoints: `Scripts/manage_humble_lanes.py`, `Scripts/start_ticket_lane.py`
 - Ticket board renderer: `Scripts/render_humble_tickets.py`
 - Repo status renderer: `Scripts/humble_status.py`
+- Status summary renderer: `Scripts/render_humble_status.py`
 
 ## Start Of Work
 
@@ -65,6 +68,7 @@ Before editing files:
 - Active implementation slices should prefer `lane-1` through `lane-4` when the
   lane workflow is available and prepared for the task.
 - Lane state lives in `.humble/coordination/lanes.json`.
+- Use `python3 Scripts/start_ticket_lane.py --path <scope>` when preparing the next explicit lane-backed slice.
 - If work starts before a lane is prepared, say so explicitly instead of
   pretending lane discipline was followed.
 
@@ -102,6 +106,8 @@ Default workflow checks for this repo:
 - `python3 Scripts/validate_humble_tickets.py`
 - `python3 Scripts/validate_repo_contract.py`
 - `python3 Scripts/humble_doctor.py --repo-root . --strict`
+- `python3 Scripts/check_web_fallback.py`
+- `bash Scripts/run_local_checks.sh --workflow-only`
 - `python3 -m py_compile Scripts/*.py`
 - `git diff --check`
 

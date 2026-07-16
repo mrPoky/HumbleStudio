@@ -9,6 +9,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+import proposal_artifact_index
+
 
 ROOT = Path(__file__).resolve().parents[1]
 STATUS_PATH = ROOT / ".humble" / "status" / "current.json"
@@ -109,6 +111,8 @@ def render_text(
 ) -> str:
     app = app_name()
     summary = summary_payload(tickets, lanes)
+    proposal_counts = proposal_artifact_index.linked_ticket_counts()
+    proposal_summary = proposal_artifact_index.summary_payload()
     lines = [
         f"{app} Tickets",
         f"Total tickets: {summary['total_tickets']}",
@@ -121,11 +125,21 @@ def render_text(
             f"{summary['lanes_quarantined']} quarantined / "
             f"{summary['lanes_total']} total"
         ),
+        (
+            "Proposal links: "
+            f"{proposal_summary['proposal_artifact_count']} artifacts / "
+            f"{proposal_summary['linked_ticket_count']} linked tickets"
+        ),
         "",
         "Tickets",
     ]
     for ticket in selected:
-        lines.append(f"- {ticket['id']} [{ticket['status']}/{ticket['priority']}] {ticket['title']}")
+        proposal_suffix = ""
+        if proposal_counts.get(str(ticket["id"])):
+            proposal_suffix = f" · proposals {proposal_counts[str(ticket['id'])]}"
+        lines.append(
+            f"- {ticket['id']} [{ticket['status']}/{ticket['priority']}] {ticket['title']}{proposal_suffix}"
+        )
 
     lines.append("")
     lines.append("Lanes")
@@ -152,6 +166,8 @@ def render_json(
         "summary": summary_payload(tickets, lanes),
         "tickets": selected,
         "lanes": lanes,
+        "proposal_summary": proposal_artifact_index.summary_payload(),
+        "proposal_ticket_counts": proposal_artifact_index.linked_ticket_counts(),
     }
     return json.dumps(payload, indent=2, ensure_ascii=False)
 

@@ -3,15 +3,20 @@
   "status_version": 1,
   "last_refreshed": "2026-07-16",
   "summary": {
-    "overall_percent": 67,
+    "overall_percent": 74,
     "confidence": "medium",
-    "headline": "HumbleStudio now has a working hybrid design viewer plus repo-local contract, ticket, lane, and read-only workflow observability surfaces.",
+    "headline": "HumbleStudio now has a working hybrid design viewer plus repo-local contract, ticket, lane, proposal linkage, and local workflow operation surfaces.",
     "notes": [
       "Percentages are directional maturity estimates, not precise scorecards.",
       "Repo-owned status belongs in this file so shared tooling reads repo truth instead of replacing it.",
       "The new HS ticket store should own future non-trivial HumbleStudio work.",
       "Read-only workflow surfaces should stay truthful and avoid mutating repo state implicitly."
     ]
+  },
+  "refresh_cadence": {
+    "repo_workflow": "Refresh after every non-trivial implementation slice and before promotion to main.",
+    "proposal_linkage": "Refresh after saving or editing repo-backed proposal artifacts in docs/change-proposals/.",
+    "web_fallback": "Refresh after any index.html, studio.css, or js/ fallback change by running Scripts/check_web_fallback.py."
   },
   "evidence_commands": [
     {
@@ -38,6 +43,21 @@
       "command": "python3 Scripts/humble_status.py",
       "status": "passed",
       "summary": "The repo-native status surface now renders current git, ticket, worktree, and lane context on top of `.humble/status/current.json`."
+    },
+    {
+      "command": "python3 Scripts/render_humble_status.py",
+      "status": "passed",
+      "summary": "The repo-native status summary now has a reader-friendly text and Mermaid renderer for review and planning."
+    },
+    {
+      "command": "python3 Scripts/check_web_fallback.py",
+      "status": "passed",
+      "summary": "The static web fallback now has an explicit script-based integrity check for local assets, markup anchors, and bundled JSON fixtures."
+    },
+    {
+      "command": "bash Scripts/run_local_checks.sh --workflow-only",
+      "status": "passed",
+      "summary": "HumbleStudio now has a single repo-local workflow gate for ticket, contract, web fallback, script compilation, and diff hygiene checks."
     }
   ],
   "operating_layers": [
@@ -60,26 +80,36 @@
     {
       "id": "repo-workflow",
       "label": "Repo workflow",
-      "percent": 56,
-      "status": "uneven",
-      "signal": "The repository now has contract, ticket, status, and lane scaffolding, but the workflow still needs routine use.",
-      "next_move": "Run upcoming HumbleStudio slices through HS tickets and lane claims instead of keeping workflow state only in chat."
+      "percent": 71,
+      "status": "healthy",
+      "signal": "The repository now has contract, ticket, status, lane, proposal-linkage, and local check surfaces, but it still needs routine operational use.",
+      "next_move": "Use the new ticket allocator, lane starter, and local check wrapper on the next real implementation slice instead of staying in manual workflow mode."
     }
   ],
   "top_gaps": [
     {
       "rank": 1,
-      "title": "Exercise the new HS ticket, lane, and observability workflow on the next real implementation slice",
+      "title": "Exercise the new HS ticket, lane, proposal-linkage, and local-check workflow on the next real implementation slice",
       "recommended_ticket_status": "accepted"
     },
     {
       "rank": 2,
-      "title": "Add a committed repo-local CI surface or explicit script-based verification story for the web fallback",
+      "title": "Extend proposal-to-ticket linkage into native inspector summaries instead of keeping it repo-workflow-only",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 3,
-      "title": "Add a safe lane-claim or ticket-bootstrap helper once the read-only workflow surfaces prove stable",
+      "title": "Promote the new workflow scripts into stronger routine use and build a minimal release/pre-promotion wrapper",
+      "recommended_ticket_status": "proposed"
+    },
+    {
+      "rank": 4,
+      "title": "Continue converting remaining hardcoded macOS inspector copy to StudioStrings in foundation and review details",
+      "recommended_ticket_status": "accepted"
+    },
+    {
+      "rank": 5,
+      "title": "Deepen proposal artifact read-back across more native inspectors and truth surfaces",
       "recommended_ticket_status": "proposed"
     }
   ]
