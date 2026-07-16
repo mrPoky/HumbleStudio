@@ -333,7 +333,7 @@ final class StudioShellModel: ObservableObject {
         case .recentImport:
             return StudioStrings.localFile
         case .recentRemote:
-            return StudioStrings.openRemoteSourceTitle
+            return StudioSupportedAppCatalog.app(forRemoteURL: recentRemoteURL) == nil ? StudioStrings.openRemoteSourceTitle : StudioStrings.supportedAppSource
         }
     }
 
@@ -495,6 +495,14 @@ final class StudioShellModel: ObservableObject {
     }
 
     func loadRemoteURL(_ rawValue: String) {
+        loadRemoteURL(rawValue, selectedApp: nil)
+    }
+
+    func loadSupportedApp(_ app: StudioSupportedAppSource) {
+        loadRemoteURL(app.remoteURL, selectedApp: app)
+    }
+
+    private func loadRemoteURL(_ rawValue: String, selectedApp: StudioSupportedAppSource?) {
         let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             statusLevel = "warn"
@@ -510,14 +518,15 @@ final class StudioShellModel: ObservableObject {
 
         rememberRecentRemoteURL(trimmed)
         preferredLaunchSource = .recentRemote
-            clearError()
-            sourceLabel = StudioStrings.remoteSource
-            sourceValue = trimmed
-            statusLevel = "loading"
-            statusText = StudioStrings.loadingRemoteSource
-            nativeRecoveryIssue = nil
-            actions.loadRemoteURL?(trimmed)
-            hydrateNativeDocumentFromRemoteURL(parsed)
+        let resolvedApp = selectedApp ?? StudioSupportedAppCatalog.app(forRemoteURL: trimmed)
+        clearError()
+        sourceLabel = resolvedApp == nil ? StudioStrings.remoteSource : StudioStrings.supportedAppSource
+        sourceValue = resolvedApp?.sourceLabel ?? trimmed
+        statusLevel = "loading"
+        statusText = StudioStrings.loadingRemoteSource
+        nativeRecoveryIssue = nil
+        actions.loadRemoteURL?(trimmed)
+        hydrateNativeDocumentFromRemoteURL(parsed)
     }
 
     func reopenRecentRemoteURL() {

@@ -142,7 +142,8 @@ struct StudioMacWorkspaceView: View {
             dismiss: {
                 sourceSession.dismissRemoteURL()
             },
-            load: model.loadRemoteURL(_:)
+            load: model.loadRemoteURL(_:),
+            loadSupportedApp: model.loadSupportedApp(_:)
         )
     }
 
