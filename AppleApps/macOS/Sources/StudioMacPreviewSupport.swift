@@ -326,6 +326,10 @@ struct StudioPreviewSurface<Content: View>: View {
                 let canvasSize = configuration.device.canvasSize(for: configuration.orientation)
                 let frameSize = fittedFrameSize(baseSize: canvasSize, in: proxy.size)
                 let contentInset = configuration.showDeviceFrame ? configuration.device.bezelPadding * 2 : 0
+                let previewSize = CGSize(
+                    width: frameSize.width - contentInset,
+                    height: frameSize.height - contentInset
+                )
 
                 ZStack {
                     if configuration.showDeviceFrame {
@@ -342,7 +346,7 @@ struct StudioPreviewSurface<Content: View>: View {
                         }
                         .overlay {
                             if configuration.showSafeAreas {
-                                safeAreaOverlay(for: canvasSize)
+                                safeAreaOverlay(in: previewSize)
                             }
                         }
                         .clipShape(RoundedRectangle(cornerRadius: max(configuration.device.cornerRadius - 10, 24), style: .continuous))
@@ -490,25 +494,25 @@ struct StudioPreviewSurface<Content: View>: View {
         }
     }
 
-    private func safeAreaOverlay(for canvasSize: CGSize) -> some View {
+    private func safeAreaOverlay(in previewSize: CGSize) -> some View {
         VStack(spacing: 0) {
             Rectangle()
                 .fill(Color.blue.opacity(0.10))
-                .frame(height: scaled(configuration.device.safeAreaTop, over: canvasSize.height))
+                .frame(height: scaled(configuration.device.safeAreaTop, from: canvasSize.height, to: previewSize.height))
             Spacer(minLength: 0)
             Rectangle()
                 .fill(Color.orange.opacity(0.10))
-                .frame(height: scaled(configuration.device.safeAreaBottom, over: canvasSize.height))
+                .frame(height: scaled(configuration.device.safeAreaBottom, from: canvasSize.height, to: previewSize.height))
         }
         .overlay(alignment: .leading) {
             HStack(spacing: 0) {
                 Rectangle()
                     .fill(Color.green.opacity(0.06))
-                    .frame(width: scaled(configuration.device.safeAreaHorizontal, over: canvasSize.width))
+                    .frame(width: scaled(configuration.device.safeAreaHorizontal, from: canvasSize.width, to: previewSize.width))
                 Spacer(minLength: 0)
                 Rectangle()
                     .fill(Color.green.opacity(0.06))
-                    .frame(width: scaled(configuration.device.safeAreaHorizontal, over: canvasSize.width))
+                    .frame(width: scaled(configuration.device.safeAreaHorizontal, from: canvasSize.width, to: previewSize.width))
             }
         }
     }
@@ -536,11 +540,13 @@ struct StudioPreviewSurface<Content: View>: View {
         return CGSize(width: baseSize.width * scale, height: baseSize.height * scale)
     }
 
-    private func scaled(_ value: CGFloat, over total: CGFloat) -> CGFloat {
-        let canvasSize = configuration.device.canvasSize(for: configuration.orientation)
-        let reference = total == canvasSize.height ? canvasSize.height : canvasSize.width
+    private var canvasSize: CGSize {
+        configuration.device.canvasSize(for: configuration.orientation)
+    }
+
+    private func scaled(_ value: CGFloat, from reference: CGFloat, to previewLength: CGFloat) -> CGFloat {
         guard reference > 0 else { return 0 }
-        return value / reference * total
+        return value / reference * previewLength
     }
 
     private var showsDismissControl: Bool {
