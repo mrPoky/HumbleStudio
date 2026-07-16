@@ -1278,6 +1278,7 @@ private struct StudioNavigationDetailInspector: View {
         let ready = matching.filter { $0.status == .ready }
         let evidenceMatched = matching.filter { $0.referencesEvidence(path: view.sourcePath) }
         let linkedTickets = Set(matching.flatMap(\.ticketIDs))
+        let previewReady = matching.filter { $0.applyPreviewReadiness == .ready }
 
         return [
             StudioInspectorSummaryItem(
@@ -1301,9 +1302,9 @@ private struct StudioNavigationDetailInspector: View {
                 tone: linkedTickets.isEmpty ? .warning : .success
             ),
             StudioInspectorSummaryItem(
-                label: StudioStrings.proposalScopeConfidence,
-                value: matching.first?.scopeConfidence.label ?? StudioStrings.notAvailableYet,
-                tone: matching.first == nil ? .neutral : .accent
+                label: StudioStrings.proposalApplyPreviewReadiness,
+                value: StudioStrings.resultsCount(previewReady.count),
+                tone: previewReady.isEmpty ? .neutral : .success
             )
         ]
     }

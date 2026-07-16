@@ -2675,6 +2675,20 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Single Screen" } }
       }
     },
+    "studio.preview.safe_area" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odsazení bezpečné oblasti" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Safe area insets" } }
+      }
+    },
+    "studio.preview.safe_area_insets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nahoře %lld pt · Dole %lld pt · Vodorovně %lld pt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Top %lld pt · Bottom %lld pt · Horizontal %lld pt" } }
+      }
+    },
     "studio.preview.stack.stacked" : {
       "extractionState" : "manual",
       "localizations" : {

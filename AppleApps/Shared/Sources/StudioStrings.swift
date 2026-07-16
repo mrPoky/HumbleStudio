@@ -603,6 +603,21 @@ enum StudioStrings {
         }
     }
 
+    static let previewSafeArea = String(localized: "studio.preview.safe_area", defaultValue: "Safe area insets")
+
+    static func previewSafeAreaInsets(top: Int, bottom: Int, horizontal: Int) -> String {
+        String(
+            format: String(
+                localized: "studio.preview.safe_area_insets",
+                defaultValue: "Top %lld pt · Bottom %lld pt · Horizontal %lld pt"
+            ),
+            locale: Locale.current,
+            top,
+            bottom,
+            horizontal
+        )
+    }
+
     static func navigationKindLabel(_ rawValue: String) -> String {
         switch rawValue.lowercased() {
         case "push":
