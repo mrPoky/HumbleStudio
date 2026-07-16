@@ -38,7 +38,7 @@
     {
       "kind": "note",
       "status": "passed",
-      "note": "The native macOS/iOS remote URL sheets now use the same curated app catalog as the web fallback and avoid hardcoded source labels by routing them through StudioStrings."
+      "note": "The native macOS/iOS remote URL sheets now use the same curated app catalog as the web fallback, can either prefill or directly load a supported app, and keep truthful source labels through StudioStrings."
     },
     {
       "kind": "command",
@@ -88,6 +88,6 @@
   "agent_notes": [
     "The current picker is intentionally curated rather than dynamic so the web fallback does not overclaim repository support.",
     "A later native/web shared source catalog would be a good follow-up if more repos start exporting stable `.humble` sources.",
-    "The SwiftUI picker intentionally pre-fills the URL field rather than auto-loading immediately, so users can inspect the raw source before loading."
+    "The SwiftUI picker now supports both transparent URL prefilling and one-step loading so repo-aware source selection stays truthful without forcing manual URL confirmation."
   ]
 }
