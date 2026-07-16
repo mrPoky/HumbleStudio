@@ -1,0 +1,85 @@
+{
+  "id": "HS-0001",
+  "title": "Onboard HumbleStudio to the canonical repository development contract",
+  "status": "solved",
+  "type": "workflow",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "user",
+  "summary": "Adopt Jan's canonical repository development contract in HumbleStudio by adding repo-local AGENTS rules, a machine-readable repo contract, workflow docs, ticket and status surfaces, lane metadata, and shared validator wrappers without weakening the canonical policy.",
+  "acceptance_criteria": [
+    "HumbleStudio has a repo-local AGENTS.md that adopts the canonical contract and documents repo-specific overrides explicitly.",
+    "Config/repo-contract.json declares the repo identity, workflow policy, module roots, localization strategy, and fixed worktree lane root.",
+    "Docs/workflow-contract.md documents local git, ticket, verification, lane, and override rules truthfully.",
+    "Shared validator and repo doctor entrypoints exist locally, and HumbleStudio has repo-native ticket plus status surfaces.",
+    "Relevant validation commands pass or any branch-freshness gate failure is reported honestly as a promotion-context check."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "User explicitly requested onboarding this repository to Jan's canonical development contract and asked for validation, staging, and a commit."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py",
+      "note": "Validated the first HS ticket and local ticket schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "The shared contract validator passed; it still reports the known custom localization-strategy warning."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "python3 Scripts/humble_doctor.py --strict",
+      "note": "Strict repo doctor is a branch-freshness gate and failed from the active topic branch because the reserved root checkout is intentionally not on clean main during this onboarding slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 -m py_compile Scripts/*.py",
+      "note": "All local workflow scripts compiled successfully."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Diff whitespace checks passed for the onboarding slice."
+    }
+  ],
+  "related_files": [
+    "AGENTS.md",
+    "Config/repo-contract.json",
+    "Docs/workflow-contract.md",
+    "Scripts/validate_repo_contract.py",
+    "Scripts/humble_doctor.py",
+    "Scripts/validate_humble_tickets.py",
+    ".humble/status/current.json",
+    ".humble/coordination/lanes.json",
+    ".humble/tickets/HS-0001.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "User asked to onboard HumbleStudio to the canonical repository development contract."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict",
+    "python3 -m py_compile Scripts/*.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "This repository did not have a local AGENTS.md or shared-contract scaffold before this onboarding slice.",
+    "Lane workflow was not available at the start of work; this slice introduces the lane metadata surface for future use."
+  ]
+}

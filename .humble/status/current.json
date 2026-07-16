@@ -1,0 +1,70 @@
+{
+  "app": "HumbleStudio",
+  "status_version": 1,
+  "last_refreshed": "2026-07-16",
+  "summary": {
+    "overall_percent": 64,
+    "confidence": "medium",
+    "headline": "HumbleStudio has a working hybrid design viewer and now a repo-local development contract scaffold with ticket, status, and lane surfaces.",
+    "notes": [
+      "Percentages are directional maturity estimates, not precise scorecards.",
+      "Repo-owned status belongs in this file so shared tooling reads repo truth instead of replacing it.",
+      "The new HS ticket store should own future non-trivial HumbleStudio work."
+    ]
+  },
+  "evidence_commands": [
+    {
+      "command": "python3 Scripts/validate_repo_contract.py",
+      "status": "passed",
+      "summary": "The local repo contract validated successfully against the HumbleControl-owned shared standard, with only the expected custom-localization warning."
+    },
+    {
+      "command": "python3 Scripts/validate_humble_tickets.py",
+      "status": "passed",
+      "summary": "Validated the repo-native HS ticket surface and first onboarding ticket."
+    },
+    {
+      "command": "python3 Scripts/humble_doctor.py --strict",
+      "status": "blocked",
+      "summary": "Strict repo doctor stays a branch-freshness gate and is expected to fail from an active topic branch instead of a clean main checkout."
+    }
+  ],
+  "operating_layers": [
+    {
+      "id": "native-workspace",
+      "label": "Native workspace",
+      "percent": 74,
+      "status": "healthy",
+      "signal": "The macOS workspace is the primary surface for truthful inspection, proposal artifacts, and preview fidelity work.",
+      "next_move": "Keep shifting product truth and authoring workflows into native-first inspectors."
+    },
+    {
+      "id": "web-fallback",
+      "label": "Web fallback",
+      "percent": 61,
+      "status": "uneven",
+      "signal": "The static viewer remains useful for fast viewing, but contract and parity truth now belong primarily in the native app.",
+      "next_move": "Keep the web surface honest as fallback instead of parking unfinished native work there."
+    },
+    {
+      "id": "repo-workflow",
+      "label": "Repo workflow",
+      "percent": 56,
+      "status": "uneven",
+      "signal": "The repository now has contract, ticket, status, and lane scaffolding, but the workflow still needs routine use.",
+      "next_move": "Run upcoming HumbleStudio slices through HS tickets and lane claims instead of keeping workflow state only in chat."
+    }
+  ],
+  "top_gaps": [
+    {
+      "rank": 1,
+      "title": "Exercise the new HS ticket and lane workflow on the next real implementation slice",
+      "recommended_ticket_status": "accepted"
+    },
+    {
+      "rank": 2,
+      "title": "Add a committed repo-local CI surface or explicit script-based verification story for the web fallback",
+      "recommended_ticket_status": "proposed"
+    }
+  ]
+}

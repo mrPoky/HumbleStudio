@@ -180,3 +180,27 @@ HumbleStudio is part of the HumblePlatform toolchain alongside:
 - **HumbleSudoku** — the iOS app this viewer was built for
 - **HumbleControl Web** — integrated analytics dashboard for code quality reports
 - **HumbleFlow** — shared CI/CD policy and hooks
+
+---
+
+## Repository Workflow
+
+HumbleStudio now adopts Jan Pokorny's canonical repository development contract.
+
+Primary local workflow surfaces:
+- [AGENTS.md](/Users/janpokorny/Coding/personal/apps/HumbleStudio/AGENTS.md)
+- [Docs/workflow-contract.md](/Users/janpokorny/Coding/personal/apps/HumbleStudio/Docs/workflow-contract.md)
+- [Config/repo-contract.json](/Users/janpokorny/Coding/personal/apps/HumbleStudio/Config/repo-contract.json)
+- `.humble/tickets/` for repo-native HS tickets
+- `.humble/status/current.json` for repo-owned status truth
+
+Local contract validation commands:
+- `python3 Scripts/validate_humble_tickets.py`
+- `python3 Scripts/validate_repo_contract.py`
+- `python3 Scripts/humble_doctor.py --repo-root . --strict`
+- GitHub automation mirrors the same onboarding slice in `.github/workflows/repo-contract.yml`
+
+Worktree lanes:
+- the reserved root checkout should stay a clean `main` checkout whenever practical
+- active implementation work should prefer `/Users/janpokorny/Coding/personal/worktrees/HumbleStudio/lane-1` through `lane-4`
+- lane metadata lives in `.humble/coordination/lanes.json`
