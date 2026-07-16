@@ -330,6 +330,7 @@ struct StudioPreviewSurface<Content: View>: View {
                     width: frameSize.width - contentInset,
                     height: frameSize.height - contentInset
                 )
+                let displayedCanvasSize = fittedCanvasSize(baseSize: canvasSize, in: previewSize)
 
                 ZStack {
                     if configuration.showDeviceFrame {
@@ -346,7 +347,8 @@ struct StudioPreviewSurface<Content: View>: View {
                         }
                         .overlay {
                             if configuration.showSafeAreas {
-                                safeAreaOverlay(in: previewSize)
+                                safeAreaOverlay(in: displayedCanvasSize)
+                                    .frame(width: displayedCanvasSize.width, height: displayedCanvasSize.height)
                             }
                         }
                         .clipShape(RoundedRectangle(cornerRadius: max(configuration.device.cornerRadius - 10, 24), style: .continuous))
@@ -420,14 +422,11 @@ struct StudioPreviewSurface<Content: View>: View {
 
     private func scaledPreviewSurface(canvasSize: CGSize) -> some View {
         GeometryReader { proxy in
-            let scale = min(
-                proxy.size.width / max(canvasSize.width, 1),
-                proxy.size.height / max(canvasSize.height, 1)
-            )
+            let displayedCanvasSize = fittedCanvasSize(baseSize: canvasSize, in: proxy.size)
 
             previewSurface(canvasSize: canvasSize)
                 .frame(width: canvasSize.width, height: canvasSize.height)
-                .scaleEffect(scale)
+                .scaleEffect(displayedCanvasSize.width / max(canvasSize.width, 1))
                 .frame(width: proxy.size.width, height: proxy.size.height)
         }
     }
@@ -550,6 +549,13 @@ struct StudioPreviewSurface<Content: View>: View {
     private func fittedFrameSize(baseSize: CGSize, in available: CGSize) -> CGSize {
         let widthRatio = max((available.width - 20) / max(baseSize.width, 1), 0.1)
         let heightRatio = max((available.height - 20) / max(baseSize.height, 1), 0.1)
+        let scale = min(widthRatio, heightRatio)
+        return CGSize(width: baseSize.width * scale, height: baseSize.height * scale)
+    }
+
+    private func fittedCanvasSize(baseSize: CGSize, in available: CGSize) -> CGSize {
+        let widthRatio = available.width / max(baseSize.width, 1)
+        let heightRatio = available.height / max(baseSize.height, 1)
         let scale = min(widthRatio, heightRatio)
         return CGSize(width: baseSize.width * scale, height: baseSize.height * scale)
     }
