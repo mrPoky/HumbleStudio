@@ -31,7 +31,13 @@ enough to deserve enforcement, not just memory.
 - Normal work happens on short-lived topic branches created from the latest
   `main`.
 - Branch names use `<type>/<short-kebab-description>`.
+- Ticketed topic branches should include every primary `HS-####` id in the
+  branch name when practical, for example
+  `feat/hs-0005-hs-0009-supported-app-source-picker`.
 - Commit subjects use `<type>(<scope>): <imperative summary>`.
+- For ticketed topic branches, the commit scope should include the same ticket
+  ids as the branch, for example
+  `feat(hs-0005,hs-0009): promote supported apps into the native picker`.
 - PR titles should match the intended squash commit title.
 - Topic branches should be rebased onto the latest `origin/main` before
   meaningful local checks and before promotion.

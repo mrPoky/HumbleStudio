@@ -48,11 +48,13 @@ Before editing files:
 - Normal work belongs on short-lived topic branches created from the latest
   `main`.
 - Branch names use `<type>/<short-kebab-description>`.
-- Ticketed branches should include the ticket id when practical, for example
-  `chore/hs-0001-repo-contract-onboarding`.
+- Ticketed branches should include every primary ticket id, for example
+  `chore/hs-0001-hs-0002-repo-contract-onboarding`.
 - Allowed prefixes are `feat`, `fix`, `refactor`, `chore`, `docs`, `hotfix`,
   and `release` only when a release branch is truly needed.
 - Commits use `<type>(<scope>): <imperative summary>`.
+- For ticketed branches, the commit scope should include the same ticket ids as
+  the branch, for example `chore(hs-0001,hs-0002): tighten workflow truth`.
 - PR titles should match the intended final squash commit title.
 - Rebase topic branches onto `origin/main` before meaningful local checks and
   before promotion.

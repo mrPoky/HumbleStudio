@@ -25,6 +25,18 @@ Use this when continuing work in the HumbleStudio repo across multiple iteration
    - demote low-leverage cleanup
 4. Implement the highest-value safe slice you can finish and verify in one turn.
 
+## Branch and commit hygiene
+
+1. Work from a lane-backed topic branch when available instead of the root
+   checkout.
+2. If the slice is ticketed, include the primary `HS-####` ids in the branch
+   name.
+3. If the slice is ticketed, use the same ticket ids in the commit scope, for
+   example `refactor(hs-0011,hs-0012): strengthen native recovery truth`.
+4. Before calling a stale remote branch "unfinished", compare it directly
+   against current `main` with `git diff HEAD..origin/<branch>` so you do not
+   accidentally revive older code that `main` already superseded.
+
 ## Priority rules
 
 1. macOS native shell and inspector modularity

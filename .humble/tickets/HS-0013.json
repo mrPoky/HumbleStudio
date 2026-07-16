@@ -1,0 +1,95 @@
+{
+  "id": "HS-0013",
+  "title": "Retire stale topic branches and align ticketed commit naming",
+  "status": "solved",
+  "type": "feature",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-16",
+  "updated_at": "2026-07-16",
+  "source": "agent",
+  "summary": "Audit the remaining stale remote topic branches against current main, retire the obsolete ones safely, and align HumbleStudio's local workflow truth with ticket-scoped branch and commit naming used in sibling repositories.",
+  "acceptance_criteria": [
+    "Remaining stale remote topic branches are audited directly against current main and either promoted or explicitly proven obsolete.",
+    "Repo-local workflow truth documents that ticketed branches and commit scopes should carry the same primary HS ticket ids.",
+    "The local HumbleStudio iteration skill reflects the same branch and commit naming rule plus the direct stale-branch audit rule.",
+    "Ticket validation, patch hygiene, and workflow-focused verification pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --stat HEAD..origin/feat/navigation-preview-ready-proposals",
+      "note": "Direct HEAD-versus-remote diff showed the stale preview branch would remove newer proposal, recovery, and ticket work from current main rather than add new value."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --stat HEAD..origin/chore/hs-0001-repo-development-contract-onboarding",
+      "note": "Direct HEAD-versus-remote diff showed the stale onboarding branch would roll back newer tickets, proposal workflow, and recovery/localization work from current main."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git push origin --delete feat/navigation-preview-ready-proposals",
+      "note": "Deleted the stale remote preview branch after proving it was superseded by current main."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git push origin --delete chore/hs-0001-repo-development-contract-onboarding",
+      "note": "Deleted the stale remote onboarding branch after proving it was superseded by current main."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0013.json",
+      "note": "HS-0013 ticket schema validated after recording stale-branch cleanup and naming-contract alignment."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract validation passed after tightening local ticket-scoped branch and commit naming truth."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only",
+      "note": "Workflow-only local checks passed after the branch cleanup and workflow truth updates."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed for the workflow truth and ticket evidence updates."
+    }
+  ],
+  "related_files": [
+    "AGENTS.md",
+    "docs/workflow-contract.md",
+    ".codex/skills/humblestudio-iteration-loop/SKILL.md",
+    ".humble/tickets/HS-0013.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Direct branch audit showed two stale remote branches still existed and local HumbleStudio workflow truth had not yet adopted ticket-scoped commit naming used in sibling repositories."
+  },
+  "commands": [
+    "git diff --stat HEAD..origin/feat/navigation-preview-ready-proposals",
+    "git diff --stat HEAD..origin/chore/hs-0001-repo-development-contract-onboarding",
+    "git push origin --delete feat/navigation-preview-ready-proposals",
+    "git push origin --delete chore/hs-0001-repo-development-contract-onboarding",
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0013.json",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "This slice treats direct HEAD-versus-remote diffs as authoritative for stale branch cleanup so older branches are not accidentally replayed onto newer main work.",
+    "Commit scope for this slice should include HS-0013 to match the ticketed branch naming contract used in sibling repositories."
+  ]
+}
