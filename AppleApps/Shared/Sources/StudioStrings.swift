@@ -362,6 +362,37 @@ enum StudioStrings {
         )
     }
     static let previewCoverageNarrativeExact = String(localized: "studio.preview_coverage.narrative_exact", defaultValue: "All currently imported component and view surfaces are reference-backed in native preview.")
+    static let previewDeviceLabel = String(localized: "studio.preview.device_label", defaultValue: "Device")
+    static let previewOrientationLabel = String(localized: "studio.preview.orientation_label", defaultValue: "Orientation")
+    static let previewPresentationLabel = String(localized: "studio.preview.presentation_label", defaultValue: "Presentation")
+    static let previewChromeLabel = String(localized: "studio.preview.chrome_label", defaultValue: "Chrome")
+    static let previewNavigationDepthLabel = String(localized: "studio.preview.navigation_depth_label", defaultValue: "Navigation depth")
+    static let previewLayeringLabel = String(localized: "studio.preview.layering_label", defaultValue: "Layering")
+    static let previewStackContext = String(localized: "studio.preview.stack_context", defaultValue: "Stack context")
+    static let previewCoverage = String(localized: "studio.preview.coverage", defaultValue: "Coverage")
+    static let previewShowSafeAreas = String(localized: "studio.preview.show_safe_areas", defaultValue: "Show safe areas")
+    static let previewShowDeviceFrame = String(localized: "studio.preview.show_device_frame", defaultValue: "Show device frame")
+    static let previewScale = String(localized: "studio.preview.scale", defaultValue: "Preview scale")
+    static let previewContract = String(localized: "studio.preview.contract", defaultValue: "Preview contract")
+    static let previewBehaviorModel = String(localized: "studio.preview.behavior_model", defaultValue: "Behavior model")
+    static let previewCoverageNote = String(localized: "studio.preview.coverage_note", defaultValue: "Coverage note")
+    static let previewSizeClasses = String(localized: "studio.preview.size_classes", defaultValue: "Size classes")
+    static let previewBreadcrumbDetail = String(localized: "studio.preview.breadcrumb.detail", defaultValue: "Detail")
+    static let previewBreadcrumbFlow = String(localized: "studio.preview.breadcrumb.flow", defaultValue: "Flow")
+    static let previewBreadcrumbReview = String(localized: "studio.preview.breadcrumb.review", defaultValue: "Review")
+    static let previewFullScreen = String(localized: "studio.preview.presentation.full_screen", defaultValue: "Full Screen")
+    static let previewNavigationChrome = String(localized: "studio.preview.chrome.navigation", defaultValue: "Navigation")
+    static let previewNone = String(localized: "studio.preview.chrome.none", defaultValue: "None")
+    static let previewTabBar = String(localized: "studio.preview.chrome.tab_bar", defaultValue: "Tab Bar")
+    static let previewBoth = String(localized: "studio.preview.chrome.both", defaultValue: "Both")
+    static let previewDeepLink = String(localized: "studio.preview.navigation_depth.deep", defaultValue: "Deep Link")
+    static let previewInline = String(localized: "studio.preview.layering.inline", defaultValue: "Inline")
+    static let previewElevated = String(localized: "studio.preview.layering.elevated", defaultValue: "Elevated")
+    static let previewBlocking = String(localized: "studio.preview.layering.blocking", defaultValue: "Blocking")
+    static let previewFit = String(localized: "studio.preview.scale.fit", defaultValue: "Fit")
+    static let previewFocus = String(localized: "studio.preview.scale.focus", defaultValue: "Focus")
+    static let previewCompact = String(localized: "studio.preview.size_class.compact", defaultValue: "Compact")
+    static let previewRegular = String(localized: "studio.preview.size_class.regular", defaultValue: "Regular")
     static let loadingDemoConfig = String(localized: "studio.status.loading_demo", defaultValue: "Loading demo config…")
     static let loadingRemoteSource = String(localized: "studio.status.loading_remote", defaultValue: "Loading remote source…")
     static let restoringDemoSource = String(localized: "studio.status.restoring_demo", defaultValue: "Restoring demo source…")
@@ -675,6 +706,87 @@ enum StudioStrings {
         )
     }
 
+    static func previewDeviceName(_ id: String) -> String {
+        switch id {
+        case "iphone-compact":
+            return String(localized: "studio.preview.device.iphone_compact.name", defaultValue: "iPhone Compact")
+        case "iphone-plus":
+            return String(localized: "studio.preview.device.iphone_plus.name", defaultValue: "iPhone Plus")
+        case "ipad-portrait":
+            return String(localized: "studio.preview.device.ipad_portrait.name", defaultValue: "iPad Portrait")
+        default:
+            return id
+        }
+    }
+
+    static func previewDeviceNotes(_ id: String) -> String {
+        switch id {
+        case "iphone-compact":
+            return String(localized: "studio.preview.device.iphone_compact.note", defaultValue: "Phone-first compact viewport for everyday navigation and sheet checks.")
+        case "iphone-plus":
+            return String(localized: "studio.preview.device.iphone_plus.note", defaultValue: "Larger phone viewport for dense content and action spacing checks.")
+        case "ipad-portrait":
+            return String(localized: "studio.preview.device.ipad_portrait.note", defaultValue: "Tablet viewport for split layouts, popovers, and longer reading flows.")
+        default:
+            return id
+        }
+    }
+
+    static func previewOrientationLabel(_ orientation: StudioPreviewOrientation) -> String {
+        switch orientation {
+        case .portrait:
+            return String(localized: "studio.preview.orientation.portrait", defaultValue: "Portrait")
+        case .landscape:
+            return String(localized: "studio.preview.orientation.landscape", defaultValue: "Landscape")
+        }
+    }
+
+    static func previewPresentationModeLabel(_ mode: StudioPreviewPresentationMode) -> String {
+        switch mode {
+        case .push:
+            return push
+        case .sheet:
+            return sheet
+        case .fullScreenCover:
+            return previewFullScreen
+        }
+    }
+
+    static func previewNavigationChromeLabel(_ chrome: StudioPreviewNavigationChrome) -> String {
+        switch chrome {
+        case .none:
+            return previewNone
+        case .navigationBar:
+            return previewNavigationChrome
+        case .tabBar:
+            return previewTabBar
+        case .both:
+            return previewBoth
+        }
+    }
+
+    static func previewNavigationDepthLabel(_ depth: StudioPreviewNavigationDepth) -> String {
+        switch depth {
+        case .root:
+            return rootLabel
+        case .detail:
+            return previewBreadcrumbDetail
+        case .deep:
+            return previewDeepLink
+        }
+    }
+
+    static func previewModalLayeringLabel(_ layering: StudioPreviewModalLayering) -> String {
+        switch layering {
+        case .inline:
+            return previewInline
+        case .elevated:
+            return previewElevated
+        case .blocking:
+            return previewBlocking
+        }
+    }
+
     static func foundationTokenKindLabel(_ rawValue: String) -> String {
         switch rawValue.lowercased() {
         case "gradient":
@@ -708,6 +820,57 @@ enum StudioStrings {
         }
     }
 
+    static func previewStackContextSummary(_ context: StudioPreviewStackContext) -> String {
+        switch context {
+        case .single:
+            return String(localized: "studio.preview.stack.single.summary", defaultValue: "Inspecting one isolated surface without surrounding flow baggage.")
+        case .stacked:
+            return String(localized: "studio.preview.stack.stacked.summary", defaultValue: "Inspecting a screen inside a straightforward parent-child navigation stack.")
+        case .branched:
+            return String(localized: "studio.preview.stack.branched.summary", defaultValue: "Inspecting a screen inside a larger flow with alternate routes, overlays, or exits.")
+        }
+    }
+
+    static func previewBreadcrumbLabels(_ context: StudioPreviewStackContext) -> [String] {
+        switch context {
+        case .single:
+            return [current]
+        case .stacked:
+            return [home, previewBreadcrumbDetail, current]
+        case .branched:
+            return [home, previewBreadcrumbFlow, previewBreadcrumbReview, current]
+        }
+    }
+
+    static func previewCoverageSummary(_ level: StudioPreviewCoverageLevel) -> String {
+        switch level {
+        case .exact:
+            return String(localized: "studio.preview_coverage.exact.summary", defaultValue: "Reference-backed preview with strong exported visual truth.")
+        case .contractDriven:
+            return String(localized: "studio.preview_coverage.contract_driven.summary", defaultValue: "Behavior is modeled natively from the contract, but still approximated.")
+        case .fallbackNeeded:
+            return String(localized: "studio.preview_coverage.fallback_needed.summary", defaultValue: "Native preview is still incomplete here and may require fallback inspection.")
+        }
+    }
+
+    static func previewLayoutModeLabel(_ mode: StudioPreviewLayoutMode) -> String {
+        switch mode {
+        case .regular:
+            return previewFit
+        case .focus:
+            return previewFocus
+        }
+    }
+
+    static func previewSizeClassLabel(_ sizeClass: StudioPreviewSizeClass) -> String {
+        switch sizeClass {
+        case .compact:
+            return previewCompact
+        case .regular:
+            return previewRegular
+        }
+    }
+
     static let previewSafeArea = String(localized: "studio.preview.safe_area", defaultValue: "Safe area insets")
 
     static func previewSafeAreaInsets(top: Int, bottom: Int, horizontal: Int) -> String {
@@ -720,6 +883,54 @@ enum StudioStrings {
             top,
             bottom,
             horizontal
+        )
+    }
+
+    static func previewSizeClassesValue(horizontal: StudioPreviewSizeClass, vertical: StudioPreviewSizeClass) -> String {
+        String(
+            format: String(localized: "studio.preview.size_classes_value", defaultValue: "H %@ · V %@"),
+            locale: Locale.current,
+            previewSizeClassLabel(horizontal),
+            previewSizeClassLabel(vertical)
+        )
+    }
+
+    static func previewContractSummary(
+        deviceName: String,
+        orientation: StudioPreviewOrientation,
+        presentationMode: StudioPreviewPresentationMode,
+        navigationChrome: StudioPreviewNavigationChrome,
+        navigationDepth: StudioPreviewNavigationDepth,
+        stackContext: StudioPreviewStackContext
+    ) -> String {
+        [
+            deviceName,
+            previewOrientationLabel(orientation),
+            previewPresentationModeLabel(presentationMode),
+            previewNavigationChromeLabel(navigationChrome),
+            previewNavigationDepthLabel(navigationDepth),
+            previewStackContextLabel(stackContext)
+        ].joined(separator: " · ")
+    }
+
+    static func previewBehaviorSummary(
+        presentationMode: StudioPreviewPresentationMode,
+        navigationChrome: StudioPreviewNavigationChrome,
+        navigationDepth: StudioPreviewNavigationDepth,
+        modalLayering: StudioPreviewModalLayering,
+        stackContext: StudioPreviewStackContext
+    ) -> String {
+        String(
+            format: String(
+                localized: "studio.preview.behavior_summary",
+                defaultValue: "%1$@ flow with %2$@ chrome, %3$@ route depth, %4$@ layering, and a %5$@ context."
+            ),
+            locale: Locale.current,
+            previewPresentationModeLabel(presentationMode),
+            previewNavigationChromeLabel(navigationChrome).lowercased(),
+            previewNavigationDepthLabel(navigationDepth).lowercased(),
+            previewModalLayeringLabel(modalLayering).lowercased(),
+            previewStackContextLabel(stackContext).lowercased()
         )
     }
 

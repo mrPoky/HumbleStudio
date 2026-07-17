@@ -442,6 +442,13 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Exact" } }
       }
     },
+    "studio.preview_coverage.exact.summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Preview je podložené referencí a má silnou exportovanou vizuální pravdu." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reference-backed preview with strong exported visual truth." } }
+      }
+    },
     "studio.preview_coverage.contract_driven" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -449,11 +456,25 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Contract-driven" } }
       }
     },
+    "studio.preview_coverage.contract_driven.summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chování je modelované nativně z kontraktu, ale pořád je jen aproximované." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Behavior is modeled natively from the contract, but still approximated." } }
+      }
+    },
     "studio.preview_coverage.fallback_needed" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyžaduje fallback" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Fallback needed" } }
+      }
+    },
+    "studio.preview_coverage.fallback_needed.summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní preview je tu stále neúplné a může vyžadovat fallback inspector." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native preview is still incomplete here and may require fallback inspection." } }
       }
     },
     "studio.preview_coverage.count" : {
@@ -734,6 +755,286 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Světlý" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Light" } }
+      }
+    },
+    "studio.preview.device_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zařízení" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Device" } }
+      }
+    },
+    "studio.preview.orientation_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Orientace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Orientation" } }
+      }
+    },
+    "studio.preview.presentation_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Prezentace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Presentation" } }
+      }
+    },
+    "studio.preview.chrome_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chrome" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Chrome" } }
+      }
+    },
+    "studio.preview.navigation_depth_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Hloubka navigace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Navigation depth" } }
+      }
+    },
+    "studio.preview.layering_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vrstvení" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Layering" } }
+      }
+    },
+    "studio.preview.stack_context" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kontext stacku" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stack context" } }
+      }
+    },
+    "studio.preview.coverage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Coverage" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Coverage" } }
+      }
+    },
+    "studio.preview.show_safe_areas" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazit safe area" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show safe areas" } }
+      }
+    },
+    "studio.preview.show_device_frame" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazit rám zařízení" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show device frame" } }
+      }
+    },
+    "studio.preview.scale" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Měřítko preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview scale" } }
+      }
+    },
+    "studio.preview.contract" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Preview kontrakt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview contract" } }
+      }
+    },
+    "studio.preview.behavior_model" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Model chování" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Behavior model" } }
+      }
+    },
+    "studio.preview.coverage_note" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Poznámka ke coverage" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Coverage note" } }
+      }
+    },
+    "studio.preview.size_classes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Size classes" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Size classes" } }
+      }
+    },
+    "studio.preview.size_classes_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "H %@ · V %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "H %@ · V %@" } }
+      }
+    },
+    "studio.preview.device.iphone_compact.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "iPhone Compact" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "iPhone Compact" } }
+      }
+    },
+    "studio.preview.device.iphone_compact.note" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kompaktní telefonní viewport pro běžnou navigaci a kontrolu sheetů." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Phone-first compact viewport for everyday navigation and sheet checks." } }
+      }
+    },
+    "studio.preview.device.iphone_plus.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "iPhone Plus" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "iPhone Plus" } }
+      }
+    },
+    "studio.preview.device.iphone_plus.note" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Větší telefonní viewport pro hustší obsah a rozestupy akcí." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Larger phone viewport for dense content and action spacing checks." } }
+      }
+    },
+    "studio.preview.device.ipad_portrait.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "iPad Portrait" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "iPad Portrait" } }
+      }
+    },
+    "studio.preview.device.ipad_portrait.note" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tabletový viewport pro split layouty, popovery a delší čtecí flow." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tablet viewport for split layouts, popovers, and longer reading flows." } }
+      }
+    },
+    "studio.preview.orientation.portrait" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Na výšku" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Portrait" } }
+      }
+    },
+    "studio.preview.orientation.landscape" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Na šířku" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Landscape" } }
+      }
+    },
+    "studio.preview.presentation.full_screen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Celá obrazovka" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Full Screen" } }
+      }
+    },
+    "studio.preview.chrome.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Bez chrome" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "None" } }
+      }
+    },
+    "studio.preview.chrome.navigation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navigace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Navigation" } }
+      }
+    },
+    "studio.preview.chrome.tab_bar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tab Bar" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tab Bar" } }
+      }
+    },
+    "studio.preview.chrome.both" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obojí" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Both" } }
+      }
+    },
+    "studio.preview.navigation_depth.deep" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Deep Link" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deep Link" } }
+      }
+    },
+    "studio.preview.layering.inline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Inline" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inline" } }
+      }
+    },
+    "studio.preview.layering.elevated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyzdvižené" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Elevated" } }
+      }
+    },
+    "studio.preview.layering.blocking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Blokující" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Blocking" } }
+      }
+    },
+    "studio.preview.scale.fit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přizpůsobit" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fit" } }
+      }
+    },
+    "studio.preview.scale.focus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Fokus" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Focus" } }
+      }
+    },
+    "studio.preview.size_class.compact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Compact" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Compact" } }
+      }
+    },
+    "studio.preview.size_class.regular" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Regular" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Regular" } }
+      }
+    },
+    "studio.preview.breadcrumb.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Detail" } }
+      }
+    },
+    "studio.preview.breadcrumb.flow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Flow" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Flow" } }
+      }
+    },
+    "studio.preview.breadcrumb.review" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Review" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review" } }
       }
     },
     "studio.content.component_catalog" : {
@@ -2864,6 +3165,13 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Single Screen" } }
       }
     },
+    "studio.preview.stack.single.summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Inspektuje se jedna izolovaná surface bez okolní flow zátěže." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspecting one isolated surface without surrounding flow baggage." } }
+      }
+    },
     "studio.preview.safe_area" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2885,11 +3193,32 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Stacked Flow" } }
       }
     },
+    "studio.preview.stack.stacked.summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Inspektuje se obrazovka uvnitř přímočarého rodič-potomek navigačního stacku." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspecting a screen inside a straightforward parent-child navigation stack." } }
+      }
+    },
     "studio.preview.stack.branched" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Rozvětvený flow" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Branched Flow" } }
+      }
+    },
+    "studio.preview.stack.branched.summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Inspektuje se obrazovka uvnitř většího flow s alternativními trasami, overlayi nebo exit body." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspecting a screen inside a larger flow with alternate routes, overlays, or exits." } }
+      }
+    },
+    "studio.preview.behavior_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ flow s %2$@ chrome, hloubkou trasy %3$@, vrstvením %4$@ a kontextem %5$@." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ flow with %2$@ chrome, %3$@ route depth, %4$@ layering, and a %5$@ context." } }
       }
     },
     "common.close" : {

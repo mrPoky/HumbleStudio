@@ -5,13 +5,15 @@ enum StudioPreviewOrientation: String, CaseIterable, Identifiable {
     case landscape
 
     var id: String { rawValue }
+
+    var label: String { StudioStrings.previewOrientationLabel(self) }
 }
 
 enum StudioPreviewSizeClass: String {
     case compact
     case regular
 
-    var label: String { rawValue.capitalized }
+    var label: String { StudioStrings.previewSizeClassLabel(self) }
 }
 
 enum StudioPreviewPresentationMode: String, CaseIterable, Identifiable {
@@ -20,6 +22,8 @@ enum StudioPreviewPresentationMode: String, CaseIterable, Identifiable {
     case fullScreenCover = "Full Screen"
 
     var id: String { rawValue }
+
+    var label: String { StudioStrings.previewPresentationModeLabel(self) }
 }
 
 enum StudioPreviewNavigationChrome: String, CaseIterable, Identifiable {
@@ -29,6 +33,8 @@ enum StudioPreviewNavigationChrome: String, CaseIterable, Identifiable {
     case both = "Both"
 
     var id: String { rawValue }
+
+    var label: String { StudioStrings.previewNavigationChromeLabel(self) }
 }
 
 enum StudioPreviewNavigationDepth: String, CaseIterable, Identifiable {
@@ -37,6 +43,8 @@ enum StudioPreviewNavigationDepth: String, CaseIterable, Identifiable {
     case deep = "Deep Link"
 
     var id: String { rawValue }
+
+    var label: String { StudioStrings.previewNavigationDepthLabel(self) }
 }
 
 enum StudioPreviewModalLayering: String, CaseIterable, Identifiable {
@@ -45,6 +53,8 @@ enum StudioPreviewModalLayering: String, CaseIterable, Identifiable {
     case blocking = "Blocking"
 
     var id: String { rawValue }
+
+    var label: String { StudioStrings.previewModalLayeringLabel(self) }
 }
 
 enum StudioPreviewStackContext: String, CaseIterable, Identifiable {
@@ -55,25 +65,11 @@ enum StudioPreviewStackContext: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var summary: String {
-        switch self {
-        case .single:
-            return "Inspecting one isolated surface without surrounding flow baggage."
-        case .stacked:
-            return "Inspecting a screen inside a straightforward parent-child navigation stack."
-        case .branched:
-            return "Inspecting a screen inside a larger flow with alternate routes, overlays, or exits."
-        }
+        StudioStrings.previewStackContextSummary(self)
     }
 
     var breadcrumbLabels: [String] {
-        switch self {
-        case .single:
-            return ["Current"]
-        case .stacked:
-            return ["Home", "Detail", "Current"]
-        case .branched:
-            return ["Home", "Flow", "Review", "Current"]
-        }
+        StudioStrings.previewBreadcrumbLabels(self)
     }
 }
 
@@ -83,6 +79,8 @@ enum StudioPreviewCoverageLevel: String, CaseIterable, Identifiable {
     case fallbackNeeded = "Fallback needed"
 
     var id: String { rawValue }
+
+    var label: String { StudioStrings.previewCoverageLabel(self) }
 
     var color: Color {
         switch self {
@@ -96,14 +94,7 @@ enum StudioPreviewCoverageLevel: String, CaseIterable, Identifiable {
     }
 
     var summary: String {
-        switch self {
-        case .exact:
-            return "Reference-backed preview with strong exported visual truth."
-        case .contractDriven:
-            return "Behavior is modeled natively from the contract, but still approximated."
-        case .fallbackNeeded:
-            return "Native preview is still incomplete here and may require fallback inspection."
-        }
+        StudioStrings.previewCoverageSummary(self)
     }
 }
 
@@ -112,6 +103,8 @@ enum StudioPreviewLayoutMode: String, CaseIterable, Identifiable {
     case focus = "Focus"
 
     var id: String { rawValue }
+
+    var label: String { StudioStrings.previewLayoutModeLabel(self) }
 }
 
 struct StudioPreviewDevice: Identifiable, Equatable, Hashable {
@@ -157,36 +150,36 @@ enum StudioPreviewCatalog {
     static let devices: [StudioPreviewDevice] = [
         StudioPreviewDevice(
             id: "iphone-compact",
-            name: "iPhone Compact",
+            name: StudioStrings.previewDeviceName("iphone-compact"),
             portraitSize: CGSize(width: 393, height: 852),
             landscapeSize: CGSize(width: 852, height: 393),
             cornerRadius: 44,
             bezelPadding: 18,
             portraitSafeArea: StudioPreviewSafeAreaInsets(top: 59, bottom: 34, horizontal: 0),
             landscapeSafeArea: StudioPreviewSafeAreaInsets(top: 0, bottom: 21, horizontal: 59),
-            notes: "Phone-first compact viewport for everyday navigation and sheet checks."
+            notes: StudioStrings.previewDeviceNotes("iphone-compact")
         ),
         StudioPreviewDevice(
             id: "iphone-plus",
-            name: "iPhone Plus",
+            name: StudioStrings.previewDeviceName("iphone-plus"),
             portraitSize: CGSize(width: 430, height: 932),
             landscapeSize: CGSize(width: 932, height: 430),
             cornerRadius: 48,
             bezelPadding: 20,
             portraitSafeArea: StudioPreviewSafeAreaInsets(top: 59, bottom: 34, horizontal: 0),
             landscapeSafeArea: StudioPreviewSafeAreaInsets(top: 0, bottom: 21, horizontal: 59),
-            notes: "Larger phone viewport for dense content and action spacing checks."
+            notes: StudioStrings.previewDeviceNotes("iphone-plus")
         ),
         StudioPreviewDevice(
             id: "ipad-portrait",
-            name: "iPad Portrait",
+            name: StudioStrings.previewDeviceName("ipad-portrait"),
             portraitSize: CGSize(width: 834, height: 1194),
             landscapeSize: CGSize(width: 1194, height: 834),
             cornerRadius: 36,
             bezelPadding: 18,
             portraitSafeArea: StudioPreviewSafeAreaInsets(top: 24, bottom: 20, horizontal: 0),
             landscapeSafeArea: StudioPreviewSafeAreaInsets(top: 24, bottom: 20, horizontal: 0),
-            notes: "Tablet viewport for split layouts, popovers, and longer reading flows."
+            notes: StudioStrings.previewDeviceNotes("ipad-portrait")
         )
     ]
 
@@ -210,11 +203,24 @@ struct StudioPreviewConfiguration: Equatable {
     }
 
     var contractSummary: String {
-        "\(device.name) · \(orientation.rawValue.capitalized) · \(presentationMode.rawValue) · \(navigationChrome.rawValue) · \(navigationDepth.rawValue) · \(stackContext.rawValue)"
+        StudioStrings.previewContractSummary(
+            deviceName: device.name,
+            orientation: orientation,
+            presentationMode: presentationMode,
+            navigationChrome: navigationChrome,
+            navigationDepth: navigationDepth,
+            stackContext: stackContext
+        )
     }
 
     var behaviorSummary: String {
-        "\(presentationMode.rawValue) flow with \(navigationChrome.rawValue.lowercased()) chrome, \(navigationDepth.rawValue.lowercased()) route depth, \(modalLayering.rawValue.lowercased()) layering, and a \(stackContext.rawValue.lowercased()) context."
+        StudioStrings.previewBehaviorSummary(
+            presentationMode: presentationMode,
+            navigationChrome: navigationChrome,
+            navigationDepth: navigationDepth,
+            modalLayering: modalLayering,
+            stackContext: stackContext
+        )
     }
 
     static func viewDefault(presentation: String) -> StudioPreviewConfiguration {
@@ -254,57 +260,57 @@ struct StudioPreviewControls: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Picker("Device", selection: $configuration.device) {
+            Picker(StudioStrings.previewDeviceLabel, selection: $configuration.device) {
                 ForEach(StudioPreviewCatalog.devices) { device in
                     Text(device.name).tag(device)
                 }
             }
 
-            Picker("Orientation", selection: $configuration.orientation) {
+            Picker(StudioStrings.previewOrientationLabel, selection: $configuration.orientation) {
                 ForEach(StudioPreviewOrientation.allCases) { orientation in
-                    Text(orientation.rawValue.capitalized).tag(orientation)
+                    Text(orientation.label).tag(orientation)
                 }
             }
             .pickerStyle(.segmented)
 
-            Picker("Presentation", selection: $configuration.presentationMode) {
+            Picker(StudioStrings.previewPresentationLabel, selection: $configuration.presentationMode) {
                 ForEach(StudioPreviewPresentationMode.allCases) { mode in
-                    Text(mode.rawValue).tag(mode)
+                    Text(mode.label).tag(mode)
                 }
             }
 
-            Picker("Chrome", selection: $configuration.navigationChrome) {
+            Picker(StudioStrings.previewChromeLabel, selection: $configuration.navigationChrome) {
                 ForEach(StudioPreviewNavigationChrome.allCases) { chrome in
-                    Text(chrome.rawValue).tag(chrome)
+                    Text(chrome.label).tag(chrome)
                 }
             }
 
-            Picker("Navigation depth", selection: $configuration.navigationDepth) {
+            Picker(StudioStrings.previewNavigationDepthLabel, selection: $configuration.navigationDepth) {
                 ForEach(StudioPreviewNavigationDepth.allCases) { depth in
-                    Text(depth.rawValue).tag(depth)
+                    Text(depth.label).tag(depth)
                 }
             }
 
-            Picker("Layering", selection: $configuration.modalLayering) {
+            Picker(StudioStrings.previewLayeringLabel, selection: $configuration.modalLayering) {
                 ForEach(StudioPreviewModalLayering.allCases) { layering in
-                    Text(layering.rawValue).tag(layering)
+                    Text(layering.label).tag(layering)
                 }
             }
 
-            Picker("Stack context", selection: $configuration.stackContext) {
+            Picker(StudioStrings.previewStackContext, selection: $configuration.stackContext) {
                 ForEach(StudioPreviewStackContext.allCases) { context in
-                    Text(context.rawValue).tag(context)
+                    Text(StudioStrings.previewStackContextLabel(context)).tag(context)
                 }
             }
 
-            Picker("Coverage", selection: $configuration.coverageLevel) {
+            Picker(StudioStrings.previewCoverage, selection: $configuration.coverageLevel) {
                 ForEach(StudioPreviewCoverageLevel.allCases) { level in
-                    Text(level.rawValue).tag(level)
+                    Text(level.label).tag(level)
                 }
             }
 
-            Toggle("Show safe areas", isOn: $configuration.showSafeAreas)
-            Toggle("Show device frame", isOn: $configuration.showDeviceFrame)
+            Toggle(StudioStrings.previewShowSafeAreas, isOn: $configuration.showSafeAreas)
+            Toggle(StudioStrings.previewShowDeviceFrame, isOn: $configuration.showDeviceFrame)
         }
     }
 }
@@ -619,13 +625,13 @@ private struct StudioPreviewHeader: View {
             Spacer(minLength: 12)
 
             VStack(alignment: .trailing, spacing: 4) {
-                Text(configuration.coverageLevel.rawValue)
+                Text(configuration.coverageLevel.label)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(configuration.coverageLevel.color.opacity(0.12), in: Capsule())
                     .foregroundStyle(configuration.coverageLevel.color)
-                Text(configuration.orientation.rawValue.capitalized)
+                Text(configuration.orientation.label)
                     .font(.caption.weight(.semibold))
                 Text(sizeLabel)
                     .font(.caption)
@@ -643,8 +649,10 @@ private struct StudioPreviewHeader: View {
     }
 
     private var sizeClassLabel: String {
-        let sizeClasses = configuration.sizeClasses
-        return "H \(sizeClasses.horizontal.label) · V \(sizeClasses.vertical.label)"
+        StudioStrings.previewSizeClassesValue(
+            horizontal: configuration.sizeClasses.horizontal,
+            vertical: configuration.sizeClasses.vertical
+        )
     }
 }
 
@@ -654,20 +662,25 @@ struct StudioPreviewContractPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(configuration.coverageLevel.rawValue)
+                Text(configuration.coverageLevel.label)
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .background(configuration.coverageLevel.color.opacity(0.14), in: Capsule())
                     .foregroundStyle(configuration.coverageLevel.color)
                 Spacer(minLength: 8)
-                Text("H \(configuration.sizeClasses.horizontal.label) · V \(configuration.sizeClasses.vertical.label)")
+                Text(
+                    StudioStrings.previewSizeClassesValue(
+                        horizontal: configuration.sizeClasses.horizontal,
+                        vertical: configuration.sizeClasses.vertical
+                    )
+                )
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            StudioKeyValueRow(label: "Preview contract", value: configuration.contractSummary)
-            StudioKeyValueRow(label: "Behavior model", value: configuration.behaviorSummary)
+            StudioKeyValueRow(label: StudioStrings.previewContract, value: configuration.contractSummary)
+            StudioKeyValueRow(label: StudioStrings.previewBehaviorModel, value: configuration.behaviorSummary)
             StudioKeyValueRow(
                 label: StudioStrings.previewSafeArea,
                 value: StudioStrings.previewSafeAreaInsets(
@@ -676,8 +689,8 @@ struct StudioPreviewContractPanel: View {
                     horizontal: Int(configuration.device.safeAreaInsets(for: configuration.orientation).horizontal)
                 )
             )
-            StudioKeyValueRow(label: "Stack context", value: configuration.stackContext.summary)
-            StudioKeyValueRow(label: "Coverage note", value: configuration.coverageLevel.summary)
+            StudioKeyValueRow(label: StudioStrings.previewStackContext, value: configuration.stackContext.summary)
+            StudioKeyValueRow(label: StudioStrings.previewCoverageNote, value: configuration.coverageLevel.summary)
         }
         .padding(14)
         .background(.quaternary.opacity(0.32), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
@@ -743,9 +756,9 @@ struct StudioPreviewLayoutPicker: View {
     @Binding var layoutMode: StudioPreviewLayoutMode
 
     var body: some View {
-        Picker("Preview scale", selection: $layoutMode) {
+        Picker(StudioStrings.previewScale, selection: $layoutMode) {
             ForEach(StudioPreviewLayoutMode.allCases) { mode in
-                Text(mode.rawValue).tag(mode)
+                Text(mode.label).tag(mode)
             }
         }
         .pickerStyle(.segmented)
