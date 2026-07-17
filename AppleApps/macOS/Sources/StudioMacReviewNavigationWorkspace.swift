@@ -14,6 +14,8 @@ struct StudioChangeProposalArtifact: Identifiable, Equatable {
     let tokenCandidate: String
     let componentCandidate: String
     let viewCandidate: String
+    let diffSignal: String
+    let touchpoints: [String]
     let structuredTargets: String
     let acceptanceChecks: [String]
     let updatedAt: Date
@@ -40,11 +42,30 @@ struct StudioChangeProposalArtifact: Identifiable, Equatable {
         return StudioStrings.proposalTicketSummary(count: ticketIDs.count, firstTicket: ticketIDs[0])
     }
     var diffContextSummary: String {
-        let pieces = [area, tokenCandidate, componentCandidate, viewCandidate].filter { !$0.isEmpty }
+        let candidateSummary = [area, tokenCandidate, componentCandidate, viewCandidate]
+            .filter { !$0.isEmpty && $0 != StudioStrings.notAvailableYet }
+            .joined(separator: " · ")
+        let pieces = [diffSignalSummary, touchpointSummary, candidateSummary]
+            .filter { !$0.isEmpty && $0 != StudioStrings.notAvailableYet }
         if pieces.isEmpty {
             return StudioStrings.notAvailableYet
         }
-        return pieces.joined(separator: " · ")
+        if pieces.count == 1 {
+            return pieces[0]
+        }
+        return StudioStrings.proposalDiffContextSummary(pieces[0], pieces.dropFirst().joined(separator: " · "))
+    }
+    var diffSignalSummary: String {
+        diffSignal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? StudioStrings.notAvailableYet : diffSignal
+    }
+    var touchpointSummary: String {
+        if touchpoints.isEmpty {
+            return StudioStrings.notAvailableYet
+        }
+        if touchpoints.count == 1 {
+            return touchpoints[0]
+        }
+        return StudioStrings.proposalTouchpointSummary(count: touchpoints.count, firstItem: touchpoints[0])
     }
     var scopeDisplayLabel: String {
         StudioStrings.proposalScopeDisplay(kind: scopeKindLabel, identifier: scopeTargetID)
@@ -333,6 +354,8 @@ struct StudioChangeProposalArtifact: Identifiable, Equatable {
             tokenCandidate: lineValue(in: content, prefix: "- Token candidate: `", suffix: "`"),
             componentCandidate: lineValue(in: content, prefix: "- Component candidate: `", suffix: "`"),
             viewCandidate: lineValue(in: content, prefix: "- View candidate: `", suffix: "`"),
+            diffSignal: lineValue(in: content, prefix: "- Diff signal: "),
+            touchpoints: codeSpanValues(in: content, linePrefix: "- Touchpoints: "),
             structuredTargets: sectionLines(in: content, heading: "## Structured Targets").joined(separator: " · "),
             acceptanceChecks: sectionLines(in: content, heading: "## Acceptance Notes"),
             updatedAt: updatedAt
@@ -1573,14 +1596,23 @@ private struct StudioMacChangeProposalCard: View {
     private var proposalMarkdown: String {
         let coverage: String
         let sourcePath: String
+        let diffSignal: String
         switch selection {
         case let .component(component):
             coverage = nativeComponentPreviewCoverage(for: component).rawValue
             sourcePath = component.sourcePath
+            diffSignal = StudioStrings.proposalDiffSignalComponent
         case let .view(view):
             coverage = nativeViewPreviewCoverage(for: view).rawValue
             sourcePath = view.sourcePath
+            diffSignal = StudioStrings.proposalDiffSignalView
         }
+        let touchpoints = [
+            sourcePath.isEmpty ? StudioStrings.notExportedYet : sourcePath,
+            tokenCandidate ?? StudioStrings.notAvailableYet,
+            componentCandidate ?? StudioStrings.notAvailableYet,
+            viewCandidate ?? StudioStrings.notAvailableYet
+        ].filter { !$0.isEmpty && $0 != StudioStrings.notAvailableYet }
 
         return """
         # \(StudioStrings.proposalMarkdownTitle)
@@ -1599,6 +1631,8 @@ private struct StudioMacChangeProposalCard: View {
         - Token candidate: `\(tokenCandidate ?? StudioStrings.notAvailableYet)`
         - Component candidate: `\(componentCandidate ?? StudioStrings.notAvailableYet)`
         - View candidate: `\(viewCandidate ?? StudioStrings.notAvailableYet)`
+        - \(StudioStrings.proposalMarkdownDiffSignalLabel): \(diffSignal)
+        - \(StudioStrings.proposalMarkdownTouchpointsLabel): \(touchpoints.map { "`\($0)`" }.joined(separator: ", "))
         - Targets: \(structuredTargets.isEmpty ? StudioStrings.addPreciseTargetAfterInspection : structuredTargets)
 
         ## \(StudioStrings.proposalMarkdownAcceptanceHeading)
@@ -1858,6 +1892,7 @@ struct StudioMacProposalArtifactSection: View {
         StudioKeyValueRow(label: StudioStrings.proposalScopeConfidence, value: artifact.scopeConfidence.label)
         StudioKeyValueRow(label: StudioStrings.proposalCoverage, value: artifact.coverageDisplayLabel)
         StudioKeyValueRow(label: StudioStrings.proposalEvidence, value: artifact.sourceEvidenceSummary)
+        StudioKeyValueRow(label: StudioStrings.proposalTouchpoints, value: artifact.touchpointSummary)
         StudioKeyValueRow(label: StudioStrings.proposalTickets, value: artifact.ticketSummary)
         if !artifact.area.isEmpty {
             StudioKeyValueRow(label: StudioStrings.proposalArea, value: artifact.area)
@@ -1868,6 +1903,7 @@ struct StudioMacProposalArtifactSection: View {
         if !artifact.why.isEmpty {
             StudioKeyValueRow(label: StudioStrings.proposalWhy, value: artifact.why)
         }
+        StudioKeyValueRow(label: StudioStrings.proposalDiffSignal, value: artifact.diffSignalSummary)
         StudioKeyValueRow(label: StudioStrings.proposalDiffContext, value: artifact.diffContextSummary)
         if !artifact.structuredTargets.isEmpty {
             StudioKeyValueRow(label: StudioStrings.structuredTargets, value: artifact.structuredTargets)
@@ -2242,7 +2278,9 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                         StudioKeyValueRow(label: StudioStrings.proposalScope, value: artifact.scopeDisplayLabel)
                         StudioKeyValueRow(label: StudioStrings.proposalCoverage, value: artifact.coverageDisplayLabel)
                         StudioKeyValueRow(label: StudioStrings.proposalEvidence, value: artifact.sourceEvidenceSummary)
+                        StudioKeyValueRow(label: StudioStrings.proposalTouchpoints, value: artifact.touchpointSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalTickets, value: artifact.ticketSummary)
+                        StudioKeyValueRow(label: StudioStrings.proposalDiffSignal, value: artifact.diffSignalSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalDiffContext, value: artifact.diffContextSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewEvidenceMatch, value: evidenceMatchLabel(for: artifact))
 
@@ -2315,6 +2353,7 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewExpectedImpact, value: artifact.applyPreviewImpactSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewWouldTouch, value: artifact.applyPreviewTouchSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalTickets, value: artifact.ticketSummary)
+                        StudioKeyValueRow(label: StudioStrings.proposalTouchpoints, value: artifact.touchpointSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewSourceAudit, value: sourceAuditSummary(for: artifact))
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewNextStep, value: artifact.applyPreviewNextStep)
 

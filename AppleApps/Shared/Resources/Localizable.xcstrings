@@ -2045,6 +2045,27 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Diff context" } }
       }
     },
+    "studio.change_proposal.diff_context_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ · %2$@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ · %2$@" } }
+      }
+    },
+    "studio.change_proposal.diff_signal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Diff signál" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Diff signal" } }
+      }
+    },
+    "studio.change_proposal.touchpoints" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Touchpointy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Touchpoints" } }
+      }
+    },
     "studio.change_proposal.scope_confidence" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2120,6 +2141,13 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld navázaných ticketů, začíná %2$@" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld linked tickets, starting with %2$@" } }
+      }
+    },
+    "studio.change_proposal.touchpoint_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld touchpointů, začíná %2$@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld touchpoints, starting with %2$@" } }
       }
     },
     "studio.change_proposal.apply_preview.source_audit" : {
@@ -2232,6 +2260,34 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld zdrojů evidence, začíná %2$@" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld evidence sources, starting with %2$@" } }
+      }
+    },
+    "studio.change_proposal.markdown_diff_signal_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Diff signal" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Diff signal" } }
+      }
+    },
+    "studio.change_proposal.markdown_touchpoints_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Touchpoints" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Touchpoints" } }
+      }
+    },
+    "studio.change_proposal.diff_signal_component" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kontrakt komponenty + preview coverage" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Component contract + preview coverage" } }
+      }
+    },
+    "studio.change_proposal.diff_signal_view" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Flow view + navigační coverage" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View flow + navigation coverage" } }
       }
     },
     "studio.change_proposal.navigation_checklist" : {

@@ -329,6 +329,8 @@ enum StudioStrings {
     static let proposalArea = String(localized: "studio.change_proposal.area", defaultValue: "Area")
     static let proposalWhy = String(localized: "studio.change_proposal.why", defaultValue: "Why")
     static let proposalDiffContext = String(localized: "studio.change_proposal.diff_context", defaultValue: "Diff context")
+    static let proposalDiffSignal = String(localized: "studio.change_proposal.diff_signal", defaultValue: "Diff signal")
+    static let proposalTouchpoints = String(localized: "studio.change_proposal.touchpoints", defaultValue: "Touchpoints")
     static let proposalTickets = String(localized: "studio.change_proposal.tickets", defaultValue: "Tickets")
     static let proposalScopeConfidence = String(localized: "studio.change_proposal.scope_confidence", defaultValue: "Scope confidence")
     static let proposalStatusDraft = String(localized: "studio.change_proposal.status_draft", defaultValue: "Draft")
@@ -359,6 +361,9 @@ enum StudioStrings {
     static let reloadDemoSource = String(localized: "studio.source.reload_demo", defaultValue: "Reload demo source")
     static func proposalTicketSummary(count: Int, firstTicket: String) -> String {
         String(localized: "studio.change_proposal.ticket_summary", defaultValue: "\(count) linked tickets, starting with \(firstTicket)")
+    }
+    static func proposalTouchpointSummary(count: Int, firstItem: String) -> String {
+        String(localized: "studio.change_proposal.touchpoint_summary", defaultValue: "\(count) touchpoints, starting with \(firstItem)")
     }
     static func proposalScopeDisplay(kind: String, identifier: String?) -> String {
         let resolvedIdentifier = identifier?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -704,6 +709,21 @@ enum StudioStrings {
     static func proposalEvidenceSummary(count: Int, firstItem: String) -> String {
         String(localized: "studio.change_proposal.evidence_summary", defaultValue: "\(count) evidence sources, starting with \(firstItem)")
     }
+    static func proposalDiffContextSummary(_ diffSignal: String, _ touchpoints: String) -> String {
+        let trimmedSignal = diffSignal.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedTouchpoints = touchpoints.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedSignal.isEmpty {
+            return trimmedTouchpoints.isEmpty ? notAvailableYet : trimmedTouchpoints
+        }
+        if trimmedTouchpoints.isEmpty {
+            return trimmedSignal
+        }
+        return String(localized: "studio.change_proposal.diff_context_summary", defaultValue: "\(trimmedSignal) · \(trimmedTouchpoints)")
+    }
+    static let proposalMarkdownDiffSignalLabel = String(localized: "studio.change_proposal.markdown_diff_signal_label", defaultValue: "Diff signal")
+    static let proposalMarkdownTouchpointsLabel = String(localized: "studio.change_proposal.markdown_touchpoints_label", defaultValue: "Touchpoints")
+    static let proposalDiffSignalComponent = String(localized: "studio.change_proposal.diff_signal_component", defaultValue: "Component contract + preview coverage")
+    static let proposalDiffSignalView = String(localized: "studio.change_proposal.diff_signal_view", defaultValue: "View flow + navigation coverage")
 
     static func colorTokenSummary(_ group: String) -> String {
         String(localized: "studio.foundation.color_token_summary", defaultValue: "Color token · \(group)")

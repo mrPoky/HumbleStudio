@@ -1,0 +1,67 @@
+{
+  "id": "HS-0020",
+  "title": "Add evidence and diff metadata to proposal artifacts",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-17",
+  "updated_at": "2026-07-17",
+  "source": "agent",
+  "summary": "Extend proposal artifact markdown and native read-back surfaces with clearer evidence summaries and diff-oriented metadata so proposal review stays more truthful before any future apply step.",
+  "acceptance_criteria": [
+    "Proposal artifact export writes deterministic diff-oriented metadata without breaking older proposal markdown files.",
+    "Proposal artifact parsing reads the new metadata when present and falls back safely when it is absent.",
+    "Native proposal list and detail surfaces expose stronger evidence and diff summaries.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0020.json",
+      "note": "HS-0020 ticket schema validated after extending proposal artifacts with evidence and diff metadata."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after updating proposal export, read-back parsing, and native proposal surfaces."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract validation passed after adding localized proposal metadata labels and summaries."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after adding proposal evidence summary and diff-oriented metadata."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/tickets/HS-0020.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 re-rank after HS-0019: proposal artifacts still need clearer evidence summary and diff-oriented metadata before apply-preview trust can move further."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0020.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Preserve backward compatibility for older proposal markdown.",
+    "Keep root checkout clean after lane claim and release."
+  ]
+}
