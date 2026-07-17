@@ -1800,6 +1800,48 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Scope" } }
       }
     },
+    "studio.change_proposal.scope_display" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ · %2$@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ · %2$@" } }
+      }
+    },
+    "studio.change_proposal.scope_display_missing_target" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ · %2$@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ · %2$@" } }
+      }
+    },
+    "studio.change_proposal.scope_kind.component" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Komponenta" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Component" } }
+      }
+    },
+    "studio.change_proposal.scope_kind.view" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obrazovka" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View" } }
+      }
+    },
+    "studio.change_proposal.scope_kind.unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Neznámý scope" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unknown scope" } }
+      }
+    },
+    "studio.change_proposal.scope_missing_target" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybí cíl" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing target" } }
+      }
+    },
     "studio.change_proposal.coverage" : {
       "extractionState" : "manual",
       "localizations" : {

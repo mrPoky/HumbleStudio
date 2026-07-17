@@ -1,0 +1,67 @@
+{
+  "id": "HS-0016",
+  "title": "Humanize proposal scope and coverage truth in native inspectors",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-17",
+  "updated_at": "2026-07-17",
+  "source": "agent",
+  "summary": "Replace remaining raw proposal scope and coverage metadata in native review inspectors with typed StudioStrings formatting so proposal read-back surfaces stay localized and truthful instead of exposing internal identifiers.",
+  "acceptance_criteria": [
+    "Proposal artifact surfaces in the native review workspace no longer show raw scope kind or coverage tokens when a localized truthful label is available.",
+    "Any new proposal scope, target, or coverage formatting is exposed through typed StudioStrings backed by Localizable.xcstrings.",
+    "The slice keeps proposal filtering and matching behavior unchanged while improving read-back clarity.",
+    "Ticket validation, patch hygiene, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0016.json",
+      "note": "HS-0016 ticket schema validated after humanizing proposal scope and coverage labels in the native review workspace."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after replacing raw proposal scope and coverage values with typed localized display labels."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract validation passed after extending the shared StudioStrings and xcstrings proposal scope formatting."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after rewiring review proposal inspector surfaces to use humanized scope and coverage labels."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/tickets/HS-0016.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 item 1 was re-ranked after HS-0014 and the remaining high-leverage native localization debt is proposal/read-back truth leaking raw scope and coverage metadata."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0016.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Keep proposal artifact matching, filtering, and repo read-back behavior unchanged.",
+    "Favor localized product-truth labels over raw internal tokens in inspector UI."
+  ]
+}

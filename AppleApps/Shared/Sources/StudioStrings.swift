@@ -287,11 +287,32 @@ enum StudioStrings {
     static let proposalApplyPreviewRepoMissing = String(localized: "studio.change_proposal.apply_preview.repo_missing", defaultValue: "Missing candidates")
     static let proposalApplyPreviewRepoCurrentSource = String(localized: "studio.change_proposal.apply_preview.repo_current_source", defaultValue: "Current scope file")
     static let proposalApplyPreviewRepoNoCandidates = String(localized: "studio.change_proposal.apply_preview.repo_no_candidates", defaultValue: "No repository file candidates could be derived from current evidence yet.")
+    static let proposalScopeKindComponent = String(localized: "studio.change_proposal.scope_kind.component", defaultValue: "Component")
+    static let proposalScopeKindView = String(localized: "studio.change_proposal.scope_kind.view", defaultValue: "View")
+    static let proposalScopeKindUnknown = String(localized: "studio.change_proposal.scope_kind.unknown", defaultValue: "Unknown scope")
+    static let proposalScopeMissingTarget = String(localized: "studio.change_proposal.scope_missing_target", defaultValue: "Missing target")
     static let embeddedAppAssets = String(localized: "studio.source.embedded_assets", defaultValue: "Embedded app assets")
     static let demoSource = String(localized: "studio.source.demo", defaultValue: "Demo source")
     static let reloadDemoSource = String(localized: "studio.source.reload_demo", defaultValue: "Reload demo source")
     static func proposalTicketSummary(count: Int, firstTicket: String) -> String {
         String(localized: "studio.change_proposal.ticket_summary", defaultValue: "\(count) linked tickets, starting with \(firstTicket)")
+    }
+    static func proposalScopeDisplay(kind: String, identifier: String?) -> String {
+        let resolvedIdentifier = identifier?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let resolvedIdentifier, !resolvedIdentifier.isEmpty {
+            return String(
+                format: String(localized: "studio.change_proposal.scope_display", defaultValue: "%1$@ · %2$@"),
+                locale: Locale.current,
+                kind,
+                resolvedIdentifier
+            )
+        }
+        return String(
+            format: String(localized: "studio.change_proposal.scope_display_missing_target", defaultValue: "%1$@ · %2$@"),
+            locale: Locale.current,
+            kind,
+            proposalScopeMissingTarget
+        )
     }
     static func proposalArtifactsIssueMissingDirectoryDetail(_ path: String) -> String {
         String(localized: "studio.change_proposal.issue.missing_directory.detail", defaultValue: "The repository does not have a `docs/change-proposals/` folder yet. Expected path: \(path)")

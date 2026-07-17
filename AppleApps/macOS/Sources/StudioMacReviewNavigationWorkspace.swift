@@ -46,6 +46,25 @@ struct StudioChangeProposalArtifact: Identifiable, Equatable {
         }
         return pieces.joined(separator: " · ")
     }
+    var scopeDisplayLabel: String {
+        StudioStrings.proposalScopeDisplay(kind: scopeKindLabel, identifier: scopeTargetID)
+    }
+    var coverageDisplayLabel: String {
+        guard !coverage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return StudioStrings.notAvailableYet
+        }
+        return StudioStrings.previewCoverageLabel(previewCoverageLevel)
+    }
+    var scopeKindLabel: String {
+        switch scopeKind {
+        case "component":
+            return StudioStrings.proposalScopeKindComponent
+        case "view":
+            return StudioStrings.proposalScopeKindView
+        default:
+            return StudioStrings.proposalScopeKindUnknown
+        }
+    }
     fileprivate var status: StudioProposalArtifactStatus {
         let hasIntent = !requestedChange.isEmpty
         let hasTarget = !tokenCandidate.isEmpty || !componentCandidate.isEmpty || !viewCandidate.isEmpty || !structuredTargets.isEmpty
@@ -1364,7 +1383,7 @@ private struct StudioMacChangeProposalCard: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                StudioKeyValueRow(label: StudioStrings.proposalScope, value: scopeLabel)
+                StudioKeyValueRow(label: StudioStrings.proposalScope, value: scopeInspectorLabel)
                 StudioKeyValueRow(label: StudioStrings.proposalArea, value: proposalArea)
                 StudioKeyValueRow(label: StudioStrings.requestedChange, value: requestedChange)
                 StudioKeyValueRow(label: StudioStrings.proposalWhy, value: proposalWhy)
@@ -1397,6 +1416,15 @@ private struct StudioMacChangeProposalCard: View {
             return "component:\(component.id)"
         case let .view(view):
             return "view:\(view.id)"
+        }
+    }
+
+    private var scopeInspectorLabel: String {
+        switch selection {
+        case let .component(component):
+            return StudioStrings.proposalScopeDisplay(kind: StudioStrings.proposalScopeKindComponent, identifier: component.id)
+        case let .view(view):
+            return StudioStrings.proposalScopeDisplay(kind: StudioStrings.proposalScopeKindView, identifier: view.id)
         }
     }
 
@@ -1803,12 +1831,12 @@ struct StudioMacProposalArtifactSection: View {
             }
         }
 
-        StudioKeyValueRow(label: StudioStrings.proposalScope, value: artifact.scope)
+        StudioKeyValueRow(label: StudioStrings.proposalScope, value: artifact.scopeDisplayLabel)
         StudioKeyValueRow(label: StudioStrings.proposalStatus, value: artifact.status.label)
         StudioKeyValueRow(label: StudioStrings.proposalValidation, value: artifact.validationStatus.label)
         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewReadiness, value: artifact.applyPreviewReadiness.label)
         StudioKeyValueRow(label: StudioStrings.proposalScopeConfidence, value: artifact.scopeConfidence.label)
-        StudioKeyValueRow(label: StudioStrings.proposalCoverage, value: artifact.coverage.isEmpty ? StudioStrings.notAvailableYet : artifact.coverage)
+        StudioKeyValueRow(label: StudioStrings.proposalCoverage, value: artifact.coverageDisplayLabel)
         StudioKeyValueRow(label: StudioStrings.proposalEvidence, value: artifact.sourceEvidenceSummary)
         StudioKeyValueRow(label: StudioStrings.proposalTickets, value: artifact.ticketSummary)
         if !artifact.area.isEmpty {
@@ -2191,8 +2219,8 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                             StudioProposalArtifactBadge(text: artifact.status.label, color: artifact.status.color)
                         }
 
-                        StudioKeyValueRow(label: StudioStrings.proposalScope, value: artifact.scope)
-                        StudioKeyValueRow(label: StudioStrings.proposalCoverage, value: artifact.coverage.isEmpty ? StudioStrings.notAvailableYet : artifact.coverage)
+                        StudioKeyValueRow(label: StudioStrings.proposalScope, value: artifact.scopeDisplayLabel)
+                        StudioKeyValueRow(label: StudioStrings.proposalCoverage, value: artifact.coverageDisplayLabel)
                         StudioKeyValueRow(label: StudioStrings.proposalEvidence, value: artifact.sourceEvidenceSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalTickets, value: artifact.ticketSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalDiffContext, value: artifact.diffContextSummary)
