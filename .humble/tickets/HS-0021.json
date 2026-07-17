@@ -1,0 +1,78 @@
+{
+  "id": "HS-0021",
+  "title": "Connect review and navigation surfaces to proposal context",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-17",
+  "updated_at": "2026-07-17",
+  "source": "agent",
+  "summary": "Expose proposal context directly inside native review queue and navigation audit surfaces so matching proposal work is visible before opening the full artifact section.",
+  "acceptance_criteria": [
+    "Review queue cards surface matching proposal context for components and views.",
+    "Navigation map cards or detail audit surfaces surface matching proposal context for the selected view.",
+    "The change reuses existing proposal artifact matching logic instead of introducing a second proposal state model.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Review queue cards now show proposal count, ready count, and preview-ready count badges for matching component and view scopes."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Navigation map cards now show matching proposal badges, and the navigation trigger audit grid now includes proposal count and preview readiness truth for the selected view."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0021.json",
+      "note": "Validated the ticket schema after marking the slice solved."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed there are no whitespace or patch formatting issues in the slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after the review and navigation proposal-context slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacInspectorSupport.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/tickets/HS-0021.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 re-rank after HS-0020: review queue and navigation audit still hide proposal context behind deeper artifact sections."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0021.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Prefer lightweight badges and summary chips over adding a second proposal detail workflow.",
+    "Keep root checkout clean after lane claim and release."
+  ]
+}

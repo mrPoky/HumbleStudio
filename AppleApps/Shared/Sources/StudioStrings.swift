@@ -332,6 +332,8 @@ enum StudioStrings {
     static let proposalDiffSignal = String(localized: "studio.change_proposal.diff_signal", defaultValue: "Diff signal")
     static let proposalTouchpoints = String(localized: "studio.change_proposal.touchpoints", defaultValue: "Touchpoints")
     static let proposalTickets = String(localized: "studio.change_proposal.tickets", defaultValue: "Tickets")
+    static let proposalReadyShort = String(localized: "studio.change_proposal.ready_short", defaultValue: "ready")
+    static let proposalPreviewReadyShort = String(localized: "studio.change_proposal.preview_ready_short", defaultValue: "preview-ready")
     static let proposalScopeConfidence = String(localized: "studio.change_proposal.scope_confidence", defaultValue: "Scope confidence")
     static let proposalStatusDraft = String(localized: "studio.change_proposal.status_draft", defaultValue: "Draft")
     static let proposalStatusRefine = String(localized: "studio.change_proposal.status_refine", defaultValue: "Needs target refinement")
@@ -364,6 +366,15 @@ enum StudioStrings {
     }
     static func proposalTouchpointSummary(count: Int, firstItem: String) -> String {
         String(localized: "studio.change_proposal.touchpoint_summary", defaultValue: "\(count) touchpoints, starting with \(firstItem)")
+    }
+    static func proposalCountSummary(_ count: Int) -> String {
+        String(localized: "studio.change_proposal.count_summary", defaultValue: "\(count) proposals")
+    }
+    static func proposalReadyCountSummary(_ count: Int) -> String {
+        String(localized: "studio.change_proposal.ready_count_summary", defaultValue: "\(count) ready")
+    }
+    static func proposalPreviewReadyCountSummary(_ count: Int) -> String {
+        String(localized: "studio.change_proposal.preview_ready_count_summary", defaultValue: "\(count) preview-ready")
     }
     static func proposalScopeDisplay(kind: String, identifier: String?) -> String {
         let resolvedIdentifier = identifier?.trimmingCharacters(in: .whitespacesAndNewlines)

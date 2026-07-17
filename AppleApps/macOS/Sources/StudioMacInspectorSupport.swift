@@ -327,12 +327,19 @@ struct FlexiblePillStack: View {
 }
 
 struct StudioNativeReviewCard: View {
+    struct Badge: Identifiable {
+        let id = UUID()
+        let text: String
+        let color: Color
+    }
+
     let title: String
     let subtitle: String
     let status: StudioNativeTruthStatus
     let coverageLevel: StudioPreviewCoverageLevel
     let reason: String
     let evidence: [(String, String)]
+    let badges: [Badge]
     let actionTitle: String
     let isSelected: Bool
     let action: () -> Void
@@ -367,6 +374,14 @@ struct StudioNativeReviewCard: View {
                     .padding(.vertical, 6)
                     .background(coverageLevel.color.opacity(0.14), in: Capsule())
                     .foregroundStyle(coverageLevel.color)
+                ForEach(badges) { badge in
+                    Text(badge.text)
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(badge.color.opacity(0.14), in: Capsule())
+                        .foregroundStyle(badge.color)
+                }
                 Spacer(minLength: 0)
             }
 
@@ -396,10 +411,17 @@ struct StudioNativeReviewCard: View {
 }
 
 struct StudioNativeNavigationNodeCard: View {
+    struct Badge: Identifiable {
+        let id = UUID()
+        let text: String
+        let color: Color
+    }
+
     let view: StudioNativeDocument.ViewItem
     let isSelected: Bool
     let isRoot: Bool
     let incomingCount: Int
+    let badges: [Badge]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -437,6 +459,19 @@ struct StudioNativeNavigationNodeCard: View {
                 StudioPillLabel(text: StudioStrings.outgoingCountShort(view.navigatesTo.count))
                 if view.componentsCount > 0 {
                     StudioPillLabel(text: StudioStrings.componentsCountShort(view.componentsCount))
+                }
+            }
+
+            if !badges.isEmpty {
+                HStack(spacing: 8) {
+                    ForEach(badges) { badge in
+                        Text(badge.text)
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(badge.color.opacity(0.14), in: Capsule())
+                            .foregroundStyle(badge.color)
+                    }
                 }
             }
         }

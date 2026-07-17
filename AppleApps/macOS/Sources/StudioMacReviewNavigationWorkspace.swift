@@ -665,6 +665,7 @@ struct StudioMacReviewPage: View {
     let inspectView: (String) -> Void
     @State private var selectedItem: StudioMacReviewSelection?
     @State private var inspectorLayoutMode: StudioPreviewLayoutMode = .focus
+    @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
 
     var body: some View {
         StudioNativePageContainer(
@@ -736,6 +737,7 @@ struct StudioMacReviewPage: View {
                                                     (StudioStrings.states, "\(component.statesCount)"),
                                                     (StudioStrings.source, component.sourcePath.isEmpty ? StudioStrings.missing : StudioStrings.present),
                                                 ],
+                                                badges: proposalBadges(for: component),
                                                 actionTitle: StudioStrings.open + " " + StudioStrings.componentDetail,
                                                 isSelected: selectedItem == .component(component.id)
                                             ) {
@@ -765,6 +767,7 @@ struct StudioMacReviewPage: View {
                                                     (StudioStrings.components, "\(view.componentsCount)"),
                                                     (StudioStrings.source, view.sourcePath.isEmpty ? StudioStrings.missing : StudioStrings.present),
                                                 ],
+                                                badges: proposalBadges(for: view),
                                                 actionTitle: StudioStrings.open + " " + StudioStrings.viewDetail,
                                                 isSelected: selectedItem == .view(view.id)
                                             ) {
@@ -802,6 +805,7 @@ struct StudioMacReviewPage: View {
                     if selectedItem == nil {
                         selectedItem = components.first.map { .component($0.id) } ?? views.first.map { .view($0.id) }
                     }
+                    reloadProposals()
                 }
             }
         }
@@ -824,6 +828,53 @@ struct StudioMacReviewPage: View {
         case let .view(id):
             return views.first(where: { $0.id == id }).map(StudioMacReviewFocusSelection.view) ?? fallback
         }
+    }
+
+    private func proposalBadges(for component: StudioNativeDocument.ComponentItem) -> [StudioNativeReviewCard.Badge] {
+        let matching = proposalArtifacts.filter {
+            $0.matchesComponent(id: component.id) || $0.referencesEvidence(path: component.sourcePath)
+        }
+        return proposalBadges(matching: matching)
+    }
+
+    private func proposalBadges(for view: StudioNativeDocument.ViewItem) -> [StudioNativeReviewCard.Badge] {
+        let matching = proposalArtifacts.filter {
+            $0.matchesView(id: view.id) || $0.referencesEvidence(path: view.sourcePath)
+        }
+        return proposalBadges(matching: matching)
+    }
+
+    private func proposalBadges(matching: [StudioChangeProposalArtifact]) -> [StudioNativeReviewCard.Badge] {
+        guard !matching.isEmpty else {
+            return []
+        }
+
+        let readyCount = matching.filter(\.isReadyProposal).count
+        let previewReadyCount = matching.filter(\.isReadyForApplyPreview).count
+        var badges: [StudioNativeReviewCard.Badge] = [
+            .init(text: StudioStrings.proposalCountSummary(matching.count), color: .accentColor)
+        ]
+
+        if readyCount > 0 {
+            badges.append(.init(text: StudioStrings.proposalReadyCountSummary(readyCount), color: .green))
+        }
+        if previewReadyCount > 0 {
+            badges.append(.init(text: StudioStrings.proposalPreviewReadyCountSummary(previewReadyCount), color: .blue))
+        }
+
+        return badges
+    }
+
+    private func reloadProposals() {
+        proposalArtifacts = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL).artifacts
+    }
+
+    private var repositoryRootURL: URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
     }
 }
 
@@ -967,6 +1018,41 @@ private struct StudioMacReviewFocusInspector: View {
         proposalArtifactIssue = result.issue
     }
 
+    private func proposalBadges(for component: StudioNativeDocument.ComponentItem) -> [StudioNativeReviewCard.Badge] {
+        let matching = proposalArtifacts.filter {
+            $0.matchesComponent(id: component.id) || $0.referencesEvidence(path: component.sourcePath)
+        }
+        return proposalBadges(matching: matching)
+    }
+
+    private func proposalBadges(for view: StudioNativeDocument.ViewItem) -> [StudioNativeReviewCard.Badge] {
+        let matching = proposalArtifacts.filter {
+            $0.matchesView(id: view.id) || $0.referencesEvidence(path: view.sourcePath)
+        }
+        return proposalBadges(matching: matching)
+    }
+
+    private func proposalBadges(matching: [StudioChangeProposalArtifact]) -> [StudioNativeReviewCard.Badge] {
+        guard !matching.isEmpty else {
+            return []
+        }
+
+        let readyCount = matching.filter(\.isReadyProposal).count
+        let previewReadyCount = matching.filter(\.isReadyForApplyPreview).count
+        var badges: [StudioNativeReviewCard.Badge] = [
+            .init(text: StudioStrings.proposalCountSummary(matching.count), color: .accentColor)
+        ]
+
+        if readyCount > 0 {
+            badges.append(.init(text: StudioStrings.proposalReadyCountSummary(readyCount), color: .green))
+        }
+        if previewReadyCount > 0 {
+            badges.append(.init(text: StudioStrings.proposalPreviewReadyCountSummary(previewReadyCount), color: .blue))
+        }
+
+        return badges
+    }
+
     private var repositoryRootURL: URL {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
@@ -1000,6 +1086,7 @@ struct StudioMacNavigationPage: View {
     @Binding var selectedViewID: String?
     let inspectView: (String) -> Void
     @State private var inspectorLayoutMode: StudioPreviewLayoutMode = .focus
+    @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
 
     var body: some View {
         StudioNativePageContainer(
@@ -1062,7 +1149,8 @@ struct StudioMacNavigationPage: View {
                                                     view: view,
                                                     isSelected: view.id == selectedView(in: graph)?.id,
                                                     isRoot: view.id == graph.rootViewID,
-                                                    incomingCount: graph.incoming[view.id]?.count ?? 0
+                                                    incomingCount: graph.incoming[view.id]?.count ?? 0,
+                                                    badges: proposalBadges(for: view)
                                                 )
                                                 .onTapGesture {
                                                     selectedViewID = view.id
@@ -1099,6 +1187,7 @@ struct StudioMacNavigationPage: View {
                 if selectedViewID == nil {
                     selectedViewID = graph.rootViewID
                 }
+                reloadProposals()
             }
         }
     }
@@ -1108,6 +1197,42 @@ struct StudioMacNavigationPage: View {
             return selected
         }
         return graph.viewByID[graph.rootViewID]
+    }
+
+    private func proposalBadges(for view: StudioNativeDocument.ViewItem) -> [StudioNativeNavigationNodeCard.Badge] {
+        let matching = proposalArtifacts.filter {
+            $0.matchesView(id: view.id) || $0.referencesEvidence(path: view.sourcePath)
+        }
+        guard !matching.isEmpty else {
+            return []
+        }
+
+        let readyCount = matching.filter(\.isReadyProposal).count
+        let previewReadyCount = matching.filter(\.isReadyForApplyPreview).count
+        var badges: [StudioNativeNavigationNodeCard.Badge] = [
+            .init(text: StudioStrings.proposalCountSummary(matching.count), color: .accentColor)
+        ]
+
+        if readyCount > 0 {
+            badges.append(.init(text: StudioStrings.proposalReadyCountSummary(readyCount), color: .green))
+        }
+        if previewReadyCount > 0 {
+            badges.append(.init(text: StudioStrings.proposalPreviewReadyCountSummary(previewReadyCount), color: .blue))
+        }
+
+        return badges
+    }
+
+    private var repositoryRootURL: URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+    }
+
+    private func reloadProposals() {
+        proposalArtifacts = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL).artifacts
     }
 }
 
@@ -1326,12 +1451,26 @@ private struct StudioNavigationDetailInspector: View {
         }
         let modalTriggers = view.navigatesTo.filter { $0.type == "sheet" || $0.type == "replace" }.count
         let uniqueTriggers = Set(nonEmptyTriggers)
+        let matchingProposals = proposalArtifacts.filter {
+            $0.matchesView(id: view.id) || $0.referencesEvidence(path: view.sourcePath)
+        }
+        let previewReadyCount = matchingProposals.filter(\.isReadyForApplyPreview).count
 
         return [
             StudioInspectorSummaryItem(label: StudioStrings.trigger, value: "\(uniqueTriggers.count)", tone: uniqueTriggers.isEmpty ? .neutral : .accent),
             StudioInspectorSummaryItem(label: StudioStrings.presentation, value: "\(modalTriggers)", tone: modalTriggers > 0 ? .warning : .neutral),
             StudioInspectorSummaryItem(label: StudioStrings.entryPoints, value: "\(view.entryPoints.count)", tone: view.entryPoints.isEmpty ? .neutral : .success),
-            StudioInspectorSummaryItem(label: StudioStrings.actions, value: "\(view.primaryActions.count + view.secondaryActions.count)", tone: (view.primaryActions.count + view.secondaryActions.count) > 0 ? .success : .neutral)
+            StudioInspectorSummaryItem(label: StudioStrings.actions, value: "\(view.primaryActions.count + view.secondaryActions.count)", tone: (view.primaryActions.count + view.secondaryActions.count) > 0 ? .success : .neutral),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageMatching,
+                value: StudioStrings.resultsCount(matchingProposals.count),
+                tone: matchingProposals.isEmpty ? .neutral : .accent
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalApplyPreviewReadiness,
+                value: StudioStrings.resultsCount(previewReadyCount),
+                tone: previewReadyCount == 0 ? .neutral : .success
+            )
         ]
     }
 

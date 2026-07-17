@@ -2129,6 +2129,20 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Tickets" } }
       }
     },
+    "studio.change_proposal.ready_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "ready" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "ready" } }
+      }
+    },
+    "studio.change_proposal.preview_ready_short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "preview-ready" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "preview-ready" } }
+      }
+    },
     "studio.change_proposal.no_linked_tickets" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2141,6 +2155,27 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld navázaných ticketů, začíná %2$@" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld linked tickets, starting with %2$@" } }
+      }
+    },
+    "studio.change_proposal.count_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld návrhy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld proposals" } }
+      }
+    },
+    "studio.change_proposal.ready_count_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld ready" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld ready" } }
+      }
+    },
+    "studio.change_proposal.preview_ready_count_summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld preview-ready" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld preview-ready" } }
       }
     },
     "studio.change_proposal.touchpoint_summary" : {
