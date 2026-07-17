@@ -227,6 +227,10 @@ struct StudioChangeProposalArtifact: Identifiable, Equatable {
         }
     }
 
+    func referencesAnyEvidence(paths: [String]) -> Bool {
+        paths.contains { referencesEvidence(path: $0) }
+    }
+
     static func scopeKind(for scope: String) -> String {
         if scope.hasPrefix("component:") {
             return "component"
@@ -852,7 +856,7 @@ private struct StudioMacReviewFocusInspector: View {
                             StudioMacProposalArtifactSection(
                                 artifacts: proposalArtifacts,
                                 preferredScope: selectionID,
-                                preferredEvidencePath: component.sourcePath,
+                                preferredEvidencePaths: [component.sourcePath],
                                 loadIssue: proposalArtifactIssue,
                                 reloadProposals: reloadProposals,
                                 inspectComponent: inspectComponent,
@@ -890,7 +894,7 @@ private struct StudioMacReviewFocusInspector: View {
                             StudioMacProposalArtifactSection(
                                 artifacts: proposalArtifacts,
                                 preferredScope: selectionID,
-                                preferredEvidencePath: view.sourcePath,
+                                preferredEvidencePaths: [view.sourcePath],
                                 loadIssue: proposalArtifactIssue,
                                 reloadProposals: reloadProposals,
                                 inspectComponent: inspectComponent,
@@ -1238,7 +1242,7 @@ private struct StudioNavigationDetailInspector: View {
                         StudioMacProposalArtifactSection(
                             artifacts: proposalArtifacts,
                             preferredScope: "view:\(selectedView.id)",
-                            preferredEvidencePath: selectedView.sourcePath,
+                            preferredEvidencePaths: [selectedView.sourcePath],
                             loadIssue: proposalArtifactIssue,
                             reloadProposals: reloadProposals,
                             inspectComponent: nil,
@@ -1606,7 +1610,7 @@ private struct StudioMacChangeProposalCard: View {
 struct StudioMacProposalArtifactSection: View {
     let artifacts: [StudioChangeProposalArtifact]
     let preferredScope: String?
-    let preferredEvidencePath: String?
+    let preferredEvidencePaths: [String]
     let loadIssue: StudioProposalArtifactLoadIssue?
     let reloadProposals: () -> Void
     let inspectComponent: ((String) -> Void)?
@@ -1674,9 +1678,9 @@ struct StudioMacProposalArtifactSection: View {
         let scoped = artifacts.filter { artifact in
             switch scopeFilter {
             case .matchingScope:
-                return preferredScope == nil || artifact.scope == preferredScope
+                return matchesPreferredContext(artifact, exactOnly: true)
             case .relatedScope:
-                return artifact.matchesRelatedScope(preferredScope)
+                return matchesPreferredContext(artifact, exactOnly: false)
             case .allArtifacts:
                 return true
             }
@@ -1776,6 +1780,20 @@ struct StudioMacProposalArtifactSection: View {
         return StudioStrings.noFilteredProposals
     }
 
+    private func matchesPreferredContext(_ artifact: StudioChangeProposalArtifact, exactOnly: Bool) -> Bool {
+        let evidenceMatch = artifact.referencesAnyEvidence(paths: preferredEvidencePaths)
+        if let preferredScope, !preferredScope.isEmpty {
+            if artifact.scope == preferredScope || evidenceMatch {
+                return true
+            }
+            return exactOnly ? false : artifact.matchesRelatedScope(preferredScope)
+        }
+        if !preferredEvidencePaths.isEmpty {
+            return evidenceMatch
+        }
+        return true
+    }
+
     private func statusRank(for status: StudioProposalArtifactStatus) -> Int {
         switch status {
         case .ready:
@@ -1819,6 +1837,8 @@ struct StudioMacProposalArtifactSection: View {
             HStack(spacing: 8) {
                 if artifact.scope == preferredScope {
                     StudioProposalArtifactBadge(text: StudioStrings.proposalFilterMatchingScope, color: .accentColor)
+                } else if artifact.referencesAnyEvidence(paths: preferredEvidencePaths) {
+                    StudioProposalArtifactBadge(text: StudioStrings.proposalEvidenceLinked, color: .green)
                 } else if artifact.matchesRelatedScope(preferredScope) {
                     StudioProposalArtifactBadge(text: StudioStrings.proposalFilterRelatedScope, color: .orange)
                 }
@@ -2108,7 +2128,7 @@ struct StudioMacProposalArtifactsPage: View {
                     StudioMacProposalArtifactSection(
                         artifacts: proposalArtifacts,
                         preferredScope: nil,
-                        preferredEvidencePath: nil,
+                        preferredEvidencePaths: [],
                         loadIssue: proposalArtifactIssue,
                         reloadProposals: reloadProposals,
                         inspectComponent: inspectComponent,

@@ -541,6 +541,8 @@ private struct StudioTokenDetailInspector: View {
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
     @State private var selectedTab: Tab = .preview
+    @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
+    @State private var proposalArtifactIssue: StudioProposalArtifactLoadIssue?
 
     var body: some View {
         Group {
@@ -563,7 +565,9 @@ private struct StudioTokenDetailInspector: View {
         .background(.thinMaterial)
         .onChange(of: selectionID) { _, _ in
             selectedTab = .preview
+            reloadProposals()
         }
+        .onAppear(perform: reloadProposals)
     }
 
     @ViewBuilder
@@ -663,6 +667,28 @@ private struct StudioTokenDetailInspector: View {
                             }
                         }
                     }
+
+                    StudioInspectorSection(title: StudioStrings.proposalLinkageTitle) {
+                        StudioInspectorSummaryGrid(
+                            items: foundationProposalLinkageItems(
+                                artifacts: proposalArtifacts,
+                                evidencePaths: token.sourcePaths
+                            )
+                        )
+                    }
+
+                    StudioMacProposalArtifactSection(
+                        artifacts: proposalArtifacts,
+                        preferredScope: nil,
+                        preferredEvidencePaths: token.sourcePaths,
+                        loadIssue: proposalArtifactIssue,
+                        reloadProposals: reloadProposals,
+                        inspectComponent: inspectComponent,
+                        inspectView: inspectView,
+                        artifactLimit: 6,
+                        selectedArtifactID: nil,
+                        selectArtifact: nil
+                    )
                 }
             }
             .padding(20)
@@ -776,6 +802,28 @@ private struct StudioTokenDetailInspector: View {
                             }
                         }
                     }
+
+                    StudioInspectorSection(title: StudioStrings.proposalLinkageTitle) {
+                        StudioInspectorSummaryGrid(
+                            items: foundationProposalLinkageItems(
+                                artifacts: proposalArtifacts,
+                                evidencePaths: token.sourcePaths
+                            )
+                        )
+                    }
+
+                    StudioMacProposalArtifactSection(
+                        artifacts: proposalArtifacts,
+                        preferredScope: nil,
+                        preferredEvidencePaths: token.sourcePaths,
+                        loadIssue: proposalArtifactIssue,
+                        reloadProposals: reloadProposals,
+                        inspectComponent: inspectComponent,
+                        inspectView: inspectView,
+                        artifactLimit: 6,
+                        selectedArtifactID: nil,
+                        selectArtifact: nil
+                    )
                 }
             }
             .padding(20)
@@ -858,6 +906,20 @@ private struct StudioTokenDetailInspector: View {
         }
     }
 
+    private func reloadProposals() {
+        let result = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL)
+        proposalArtifacts = result.artifacts
+        proposalArtifactIssue = result.issue
+    }
+
+    private var repositoryRootURL: URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+    }
+
     private func humanizedFoundationLabel(_ value: String) -> String {
         value
             .replacingOccurrences(of: "-", with: " ")
@@ -870,6 +932,8 @@ private struct StudioIconDetailInspector: View {
     let token: StudioNativeDocument.IconToken?
     let document: StudioNativeDocument
     let inspectComponent: (String) -> Void
+    @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
+    @State private var proposalArtifactIssue: StudioProposalArtifactLoadIssue?
 
     var body: some View {
         Group {
@@ -945,6 +1009,28 @@ private struct StudioIconDetailInspector: View {
                                     }
                                 }
                             }
+
+                            StudioInspectorSection(title: StudioStrings.proposalLinkageTitle) {
+                                StudioInspectorSummaryGrid(
+                                    items: foundationProposalLinkageItems(
+                                        artifacts: proposalArtifacts,
+                                        evidencePaths: token.sourcePaths
+                                    )
+                                )
+                            }
+
+                            StudioMacProposalArtifactSection(
+                                artifacts: proposalArtifacts,
+                                preferredScope: nil,
+                                preferredEvidencePaths: token.sourcePaths,
+                                loadIssue: proposalArtifactIssue,
+                                reloadProposals: reloadProposals,
+                                inspectComponent: inspectComponent,
+                                inspectView: nil,
+                                artifactLimit: 6,
+                                selectedArtifactID: nil,
+                                selectArtifact: nil
+                            )
                         }
 
                         if !relatedComponents(for: token).isEmpty {
@@ -969,10 +1055,28 @@ private struct StudioIconDetailInspector: View {
             }
         }
         .background(.thinMaterial)
+        .onAppear(perform: reloadProposals)
+        .onChange(of: token?.id) { _, _ in
+            reloadProposals()
+        }
     }
 
     private func relatedComponents(for token: StudioNativeDocument.IconToken) -> [StudioNativeDocument.ComponentItem] {
         document.components.filter { $0.designDependencies.preferredIcons.contains(token.id) }
+    }
+
+    private func reloadProposals() {
+        let result = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL)
+        proposalArtifacts = result.artifacts
+        proposalArtifactIssue = result.issue
+    }
+
+    private var repositoryRootURL: URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
     }
 }
 
@@ -982,6 +1086,8 @@ private struct StudioTypographyDetailInspector: View {
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
     @State private var previewConfiguration = StudioPreviewConfiguration()
+    @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
+    @State private var proposalArtifactIssue: StudioProposalArtifactLoadIssue?
 
     var body: some View {
         Group {
@@ -1001,6 +1107,7 @@ private struct StudioTypographyDetailInspector: View {
             if let token {
                 previewConfiguration = typographyPreviewConfiguration(for: token)
             }
+            reloadProposals()
         }
         .onChange(of: token?.id) { _, _ in
             if let token {
@@ -1008,6 +1115,7 @@ private struct StudioTypographyDetailInspector: View {
             } else {
                 previewConfiguration = StudioPreviewConfiguration()
             }
+            reloadProposals()
         }
     }
 
@@ -1073,6 +1181,28 @@ private struct StudioTypographyDetailInspector: View {
                             }
                         }
                     }
+
+                    StudioInspectorSection(title: StudioStrings.proposalLinkageTitle) {
+                        StudioInspectorSummaryGrid(
+                            items: foundationProposalLinkageItems(
+                                artifacts: proposalArtifacts,
+                                evidencePaths: token.sourcePaths
+                            )
+                        )
+                    }
+
+                    StudioMacProposalArtifactSection(
+                        artifacts: proposalArtifacts,
+                        preferredScope: nil,
+                        preferredEvidencePaths: token.sourcePaths,
+                        loadIssue: proposalArtifactIssue,
+                        reloadProposals: reloadProposals,
+                        inspectComponent: inspectComponent,
+                        inspectView: inspectView,
+                        artifactLimit: 6,
+                        selectedArtifactID: nil,
+                        selectArtifact: nil
+                    )
                 }
 
                 if !componentLinks.isEmpty || !viewLinks.isEmpty {
@@ -1129,6 +1259,20 @@ private struct StudioTypographyDetailInspector: View {
         configuration.coverageLevel = nativeTypographyPreviewCoverage(for: token)
         return configuration
     }
+
+    private func reloadProposals() {
+        let result = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL)
+        proposalArtifacts = result.artifacts
+        proposalArtifactIssue = result.issue
+    }
+
+    private var repositoryRootURL: URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+    }
 }
 
 private struct StudioMetricDetailInspector: View {
@@ -1137,6 +1281,8 @@ private struct StudioMetricDetailInspector: View {
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
     @State private var previewConfiguration = StudioPreviewConfiguration()
+    @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
+    @State private var proposalArtifactIssue: StudioProposalArtifactLoadIssue?
 
     var body: some View {
         Group {
@@ -1156,6 +1302,7 @@ private struct StudioMetricDetailInspector: View {
             if let token {
                 previewConfiguration = metricPreviewConfiguration(for: token)
             }
+            reloadProposals()
         }
         .onChange(of: token?.id) { _, _ in
             if let token {
@@ -1163,6 +1310,7 @@ private struct StudioMetricDetailInspector: View {
             } else {
                 previewConfiguration = StudioPreviewConfiguration()
             }
+            reloadProposals()
         }
     }
 
@@ -1241,6 +1389,28 @@ private struct StudioMetricDetailInspector: View {
                             }
                         }
                     }
+
+                    StudioInspectorSection(title: StudioStrings.proposalLinkageTitle) {
+                        StudioInspectorSummaryGrid(
+                            items: foundationProposalLinkageItems(
+                                artifacts: proposalArtifacts,
+                                evidencePaths: token.sourcePaths
+                            )
+                        )
+                    }
+
+                    StudioMacProposalArtifactSection(
+                        artifacts: proposalArtifacts,
+                        preferredScope: nil,
+                        preferredEvidencePaths: token.sourcePaths,
+                        loadIssue: proposalArtifactIssue,
+                        reloadProposals: reloadProposals,
+                        inspectComponent: inspectComponent,
+                        inspectView: inspectView,
+                        artifactLimit: 6,
+                        selectedArtifactID: nil,
+                        selectArtifact: nil
+                    )
                 }
 
                 if !componentLinks.isEmpty || !viewLinks.isEmpty {
@@ -1305,6 +1475,64 @@ private struct StudioMetricDetailInspector: View {
         configuration.coverageLevel = nativeMetricPreviewCoverage(for: token)
         return configuration
     }
+
+    private func reloadProposals() {
+        let result = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL)
+        proposalArtifacts = result.artifacts
+        proposalArtifactIssue = result.issue
+    }
+
+    private var repositoryRootURL: URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+    }
+}
+
+private func foundationProposalLinkageItems(
+    artifacts: [StudioChangeProposalArtifact],
+    evidencePaths: [String]
+) -> [StudioInspectorSummaryItem] {
+    let matching = artifacts.filter { $0.referencesAnyEvidence(paths: evidencePaths) }
+    let ready = matching.filter(\.isReadyProposal)
+    let linkedTickets = Set(matching.flatMap(\.ticketIDs))
+    let previewReady = matching.filter(\.isReadyForApplyPreview)
+    let healthy = matching.filter { $0.validationFindings.isEmpty }
+
+    return [
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalLinkageMatching,
+            value: StudioStrings.resultsCount(matching.count),
+            tone: matching.isEmpty ? .warning : .accent
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalLinkageReady,
+            value: StudioStrings.resultsCount(ready.count),
+            tone: ready.isEmpty ? .neutral : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalLinkageEvidence,
+            value: StudioStrings.resultsCount(matching.count),
+            tone: matching.isEmpty ? .warning : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalLinkageTickets,
+            value: StudioStrings.resultsCount(linkedTickets.count),
+            tone: linkedTickets.isEmpty ? .warning : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalValidation,
+            value: StudioStrings.resultsCount(healthy.count),
+            tone: healthy.count == matching.count && !matching.isEmpty ? .success : .neutral
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalApplyPreviewReadiness,
+            value: StudioStrings.resultsCount(previewReady.count),
+            tone: previewReady.isEmpty ? .neutral : .success
+        )
+    ]
 }
 
 private struct StudioTonePreviewCard: View {

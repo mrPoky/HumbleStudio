@@ -1,0 +1,68 @@
+{
+  "id": "HS-0017",
+  "title": "Add proposal artifact read-back to native foundation inspectors",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-17",
+  "updated_at": "2026-07-17",
+  "source": "agent",
+  "summary": "Bring proposal linkage and proposal artifact read-back into the native foundation inspectors, and make artifact filtering evidence-aware so non-view/component inspectors can still surface truthful related proposals.",
+  "acceptance_criteria": [
+    "Foundation inspectors expose proposal linkage and proposal artifact read-back where source evidence is available.",
+    "Proposal artifact filtering can match by relevant evidence paths, not only exact component/view scope strings.",
+    "The new native proposal surfaces stay localized and do not regress existing component/view proposal workflows.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0017.json",
+      "note": "HS-0017 ticket schema validated after adding evidence-aware proposal read-back to native foundation inspectors."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after wiring proposal linkage and artifact sections into foundation inspectors and extending artifact context matching."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract validation passed after expanding native proposal workflow parity and typed localization copy."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after the foundation proposal linkage and evidence-aware artifact filtering pass."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacFoundationWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/tickets/HS-0017.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Backlog re-rank after HS-0016: foundation inspectors still lag components/views in proposal read-back parity, and artifact filtering is too scope-only for evidence-backed token inspectors."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0017.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Favor evidence-backed proposal linkage where foundation tokens have source paths but no dedicated proposal scope kind yet.",
+    "Keep root checkout clean after lane claim and release."
+  ]
+}

@@ -427,7 +427,7 @@ private struct StudioComponentDetailInspector: View {
                     StudioMacProposalArtifactSection(
                         artifacts: proposalArtifacts,
                         preferredScope: "component:\(token.id)",
-                        preferredEvidencePath: token.sourcePath,
+                        preferredEvidencePaths: [token.sourcePath],
                         loadIssue: proposalArtifactIssue,
                         reloadProposals: reloadProposals,
                         inspectComponent: nil,
@@ -899,7 +899,7 @@ private struct StudioViewDetailInspector: View {
                     StudioMacProposalArtifactSection(
                         artifacts: proposalArtifacts,
                         preferredScope: "view:\(token.id)",
-                        preferredEvidencePath: token.sourcePath,
+                        preferredEvidencePaths: [token.sourcePath],
                         loadIssue: proposalArtifactIssue,
                         reloadProposals: reloadProposals,
                         inspectComponent: inspectComponent,

@@ -1348,15 +1348,22 @@
     "studio.change_proposal.filter.matching_scope" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přesný scope" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Matching scope" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Shodný kontext" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Matching context" } }
       }
     },
     "studio.change_proposal.filter.related_scope" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Související scope" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Related scope" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Související kontext" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Related context" } }
+      }
+    },
+    "studio.change_proposal.evidence_linked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Navázané na evidenci" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Evidence-linked" } }
       }
     },
     "studio.change_proposal.filter.all_artifacts" : {
