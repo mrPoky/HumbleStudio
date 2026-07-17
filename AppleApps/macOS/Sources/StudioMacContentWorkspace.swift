@@ -182,7 +182,7 @@ private struct StudioComponentCard: View {
                         Text(token.name)
                             .font(.headline)
                             .lineLimit(2)
-                        Text(token.renderer.capitalized)
+                        Text(StudioStrings.rendererLabel(token.renderer))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -295,7 +295,7 @@ private struct StudioComponentDetailInspector: View {
                     Text(token.name)
                         .font(.system(size: 28, weight: .bold))
                         .fixedSize(horizontal: false, vertical: true)
-                    Text(token.group)
+                    Text(StudioStrings.readableLabel(token.group))
                         .font(.caption.weight(.semibold))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
@@ -327,12 +327,12 @@ private struct StudioComponentDetailInspector: View {
                     ),
                     StudioInspectorSummaryItem(
                         label: StudioStrings.renderer,
-                        value: token.renderer.capitalized,
+                        value: StudioStrings.rendererLabel(token.renderer),
                         tone: .neutral
                     ),
                     StudioInspectorSummaryItem(
                         label: StudioStrings.defaultState,
-                        value: token.defaultState.isEmpty ? "—" : token.defaultState,
+                        value: StudioStrings.fallbackValue(token.defaultState),
                         tone: .accent
                     ),
                     StudioInspectorSummaryItem(
@@ -370,9 +370,9 @@ private struct StudioComponentDetailInspector: View {
                     StudioInspectorSection(title: StudioStrings.whatThisIs) {
                         VStack(alignment: .leading, spacing: 10) {
                             StudioKeyValueRow(label: StudioStrings.truth, value: token.snapshot == nil ? StudioStrings.catalogOnly : StudioStrings.referenceSnapshot)
-                            StudioKeyValueRow(label: StudioStrings.group, value: token.group)
-                            StudioKeyValueRow(label: StudioStrings.renderer, value: token.renderer)
-                            StudioKeyValueRow(label: StudioStrings.defaultState, value: token.defaultState.isEmpty ? "—" : token.defaultState)
+                            StudioKeyValueRow(label: StudioStrings.group, value: StudioStrings.readableLabel(token.group))
+                            StudioKeyValueRow(label: StudioStrings.renderer, value: StudioStrings.rendererLabel(token.renderer))
+                            StudioKeyValueRow(label: StudioStrings.defaultState, value: StudioStrings.fallbackValue(token.defaultState))
                             StudioPreviewContractPanel(configuration: previewConfiguration)
                         }
                     }
@@ -396,7 +396,7 @@ private struct StudioComponentDetailInspector: View {
                                         Text(StudioStrings.foundationCategories)
                                             .font(.caption.weight(.semibold))
                                             .foregroundStyle(.secondary)
-                                        FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                                        FlexiblePillStack(items: token.designTokenCategories.map(StudioStrings.designTokenCategoryLabel))
                                     }
                                 }
                             }
@@ -406,9 +406,9 @@ private struct StudioComponentDetailInspector: View {
                 case .contract:
                     StudioInspectorSection(title: StudioStrings.contract) {
                         VStack(alignment: .leading, spacing: 10) {
-                            StudioKeyValueRow(label: StudioStrings.renderer, value: token.renderer)
+                            StudioKeyValueRow(label: StudioStrings.renderer, value: StudioStrings.rendererLabel(token.renderer))
                             StudioKeyValueRow(label: StudioStrings.swiftUILabel, value: token.swiftUI)
-                            StudioKeyValueRow(label: StudioStrings.defaultState, value: token.defaultState.isEmpty ? "—" : token.defaultState)
+                            StudioKeyValueRow(label: StudioStrings.defaultState, value: StudioStrings.fallbackValue(token.defaultState))
                             StudioKeyValueRow(label: StudioStrings.states, value: "\(token.statesCount)")
                             StudioKeyValueRow(label: StudioStrings.designTokens, value: "\(token.designTokenCount)")
                             StudioKeyValueRow(label: StudioStrings.sourceTokens, value: "\(token.sourceTokenCount)")
@@ -483,7 +483,7 @@ private struct StudioComponentDetailInspector: View {
                                     Text(StudioStrings.categories)
                                         .font(.caption.weight(.semibold))
                                         .foregroundStyle(.secondary)
-                                    FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                                    FlexiblePillStack(items: token.designTokenCategories.map(StudioStrings.designTokenCategoryLabel))
                                 }
                             }
                         }
@@ -769,8 +769,8 @@ private struct StudioViewDetailInspector: View {
                     StudioInspectorSection(title: StudioStrings.whatThisIs) {
                         VStack(alignment: .leading, spacing: 10) {
                             StudioKeyValueRow(label: StudioStrings.truth, value: token.snapshot == nil ? StudioStrings.catalogOnly : StudioStrings.referenceSnapshot)
-                            StudioKeyValueRow(label: StudioStrings.presentation, value: token.presentation)
-                            StudioKeyValueRow(label: StudioStrings.defaultState, value: token.defaultState.isEmpty ? "—" : token.defaultState)
+                            StudioKeyValueRow(label: StudioStrings.presentation, value: StudioStrings.navigationKindLabel(token.presentation))
+                            StudioKeyValueRow(label: StudioStrings.defaultState, value: StudioStrings.fallbackValue(token.defaultState))
                             StudioKeyValueRow(label: StudioStrings.linkedComponents, value: "\(token.componentsCount)")
                             StudioPreviewContractPanel(configuration: previewConfiguration)
                         }
@@ -857,7 +857,7 @@ private struct StudioViewDetailInspector: View {
                                     Text(StudioStrings.foundationCategories)
                                         .font(.caption.weight(.semibold))
                                         .foregroundStyle(.secondary)
-                                    FlexiblePillStack(items: token.designTokenCategories.map { $0.capitalized })
+                                    FlexiblePillStack(items: token.designTokenCategories.map(StudioStrings.designTokenCategoryLabel))
                                 }
                             }
                         }

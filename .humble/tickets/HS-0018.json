@@ -1,0 +1,68 @@
+{
+  "id": "HS-0018",
+  "title": "Normalize typed inspector value formatting in native content and foundation workspaces",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-17",
+  "updated_at": "2026-07-17",
+  "source": "agent",
+  "summary": "Replace remaining ad hoc native inspector value strings with shared typed formatting so renderer, presentation, group, type, and empty-state truth stay consistent across the macOS app.",
+  "acceptance_criteria": [
+    "Remaining raw inspector values in the touched content and foundation detail surfaces move to shared typed formatters or shared placeholders.",
+    "The same native concept uses one localized wording across summary cards, detail rows, and inspector pills.",
+    "The slice preserves current inspector behavior while improving truthful native wording and empty-state handling.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0018.json",
+      "note": "HS-0018 ticket schema validated after normalizing shared typed inspector value formatting."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after replacing remaining ad hoc native inspector values with shared typed formatters and placeholders."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract validation passed after extending StudioStrings and the string catalog for the native formatting pass."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after normalizing inspector renderer, presentation, group, type, and empty-state values."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacContentWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacFoundationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/tickets/HS-0018.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 re-rank after HS-0017: content and foundation inspectors still leak raw renderer, presentation, group, kind, and empty placeholder values instead of shared typed native wording."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0018.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Prefer extending StudioStrings with shared formatter helpers instead of scattering new capitalization logic in views.",
+    "Keep root checkout clean after lane claim and release."
+  ]
+}

@@ -36,6 +36,13 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Load" } }
       }
     },
+    "common.none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Žádné" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "None" } }
+      }
+    },
     "common.open" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2743,6 +2750,13 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Renderer" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Renderer" } }
+      }
+    },
+    "studio.content.renderer.uikit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "UIKit" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "UIKit" } }
       }
     },
     "studio.content.default_state" : {

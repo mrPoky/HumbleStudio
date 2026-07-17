@@ -453,7 +453,7 @@ private struct StudioColorCard: View {
                 Text(token.name)
                     .font(.headline)
                     .lineLimit(2)
-                Text(token.group)
+                Text(StudioStrings.foundationGroupLabel(token.group))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 if token.referenceCount > 0 {
@@ -585,7 +585,7 @@ private struct StudioTokenDetailInspector: View {
                     Text(token.name)
                         .font(.system(size: 28, weight: .bold))
                         .fixedSize(horizontal: false, vertical: true)
-                    Text(token.group)
+                    Text(StudioStrings.foundationGroupLabel(token.group))
                         .font(.caption.weight(.semibold))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
@@ -617,7 +617,7 @@ private struct StudioTokenDetailInspector: View {
                     StudioInspectorSection(title: StudioStrings.whatThisIs) {
                         VStack(alignment: .leading, spacing: 10) {
                             StudioKeyValueRow(label: StudioStrings.token, value: token.id)
-                            StudioKeyValueRow(label: StudioStrings.group, value: token.group)
+                            StudioKeyValueRow(label: StudioStrings.group, value: StudioStrings.foundationGroupLabel(token.group))
                             StudioKeyValueRow(label: StudioStrings.variants, value: token.lightHex == token.darkHex ? StudioStrings.sharedLightDarkValue : StudioStrings.distinctLightDarkValues)
                         }
                     }
@@ -710,7 +710,7 @@ private struct StudioTokenDetailInspector: View {
                     Text(token.name)
                         .font(.system(size: 28, weight: .bold))
                         .fixedSize(horizontal: false, vertical: true)
-                    Text(token.group)
+                    Text(StudioStrings.foundationGroupLabel(token.group))
                         .font(.caption.weight(.semibold))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
@@ -832,7 +832,7 @@ private struct StudioTokenDetailInspector: View {
 
     private func colorSummaryItems(for token: StudioNativeDocument.ColorToken) -> [StudioInspectorSummaryItem] {
         [
-            StudioInspectorSummaryItem(label: StudioStrings.group, value: token.group.capitalized, tone: .neutral),
+            StudioInspectorSummaryItem(label: StudioStrings.group, value: StudioStrings.foundationGroupLabel(token.group), tone: .neutral),
             StudioInspectorSummaryItem(label: StudioStrings.references, value: "\(token.referenceCount)", tone: .accent),
             StudioInspectorSummaryItem(
                 label: StudioStrings.variants,
@@ -845,7 +845,7 @@ private struct StudioTokenDetailInspector: View {
 
     private func gradientSummaryItems(for token: StudioNativeDocument.GradientToken) -> [StudioInspectorSummaryItem] {
         [
-            StudioInspectorSummaryItem(label: StudioStrings.group, value: token.group.capitalized, tone: .neutral),
+            StudioInspectorSummaryItem(label: StudioStrings.group, value: StudioStrings.foundationGroupLabel(token.group), tone: .neutral),
             StudioInspectorSummaryItem(label: StudioStrings.type, value: StudioStrings.foundationTokenKindLabel(token.kind), tone: .accent),
             StudioInspectorSummaryItem(label: StudioStrings.references, value: "\(token.referenceCount)", tone: .neutral),
             StudioInspectorSummaryItem(label: StudioStrings.components, value: "\(token.designComponentIDs.count)", tone: .success)
@@ -996,7 +996,7 @@ private struct StudioIconDetailInspector: View {
 
                         StudioInspectorSection(title: StudioStrings.asset) {
                             VStack(alignment: .leading, spacing: 10) {
-                                StudioKeyValueRow(label: StudioStrings.path, value: token.assetPath.isEmpty ? "—" : token.assetPath)
+                                StudioKeyValueRow(label: StudioStrings.path, value: StudioStrings.fallbackValue(token.assetPath))
                                 StudioKeyValueRow(label: StudioStrings.identifier, value: token.id)
                             }
                         }
@@ -1330,7 +1330,7 @@ private struct StudioMetricDetailInspector: View {
                         .font(.system(size: 28, weight: .bold))
                         .fixedSize(horizontal: false, vertical: true)
                     HStack(spacing: 8) {
-                        Text(token.kindLabel)
+                        Text(StudioStrings.foundationTokenKindLabel(token.kind))
                             .font(.caption.weight(.semibold))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
@@ -1357,9 +1357,9 @@ private struct StudioMetricDetailInspector: View {
 
                 StudioInspectorSection(title: StudioStrings.contract) {
                     VStack(alignment: .leading, spacing: 10) {
-                        StudioKeyValueRow(label: StudioStrings.group, value: token.group)
+                        StudioKeyValueRow(label: StudioStrings.group, value: StudioStrings.foundationGroupLabel(token.group))
                         StudioKeyValueRow(label: StudioStrings.value, value: token.value)
-                        StudioKeyValueRow(label: StudioStrings.type, value: token.kindLabel)
+                        StudioKeyValueRow(label: StudioStrings.type, value: StudioStrings.foundationTokenKindLabel(token.kind))
                         StudioKeyValueRow(label: StudioStrings.references, value: "\(token.referenceCount)")
                         StudioPreviewContractPanel(configuration: previewConfiguration)
                     }
@@ -1442,7 +1442,7 @@ private struct StudioMetricDetailInspector: View {
 
     private func metricSummaryItems(for token: StudioNativeDocument.MetricToken, componentCount: Int, viewCount: Int) -> [StudioInspectorSummaryItem] {
         [
-            StudioInspectorSummaryItem(label: StudioStrings.type, value: token.kindLabel, tone: .accent),
+            StudioInspectorSummaryItem(label: StudioStrings.type, value: StudioStrings.foundationTokenKindLabel(token.kind), tone: .accent),
             StudioInspectorSummaryItem(label: StudioStrings.value, value: token.value, tone: .neutral),
             StudioInspectorSummaryItem(label: StudioStrings.references, value: "\(token.referenceCount)", tone: .neutral),
             StudioInspectorSummaryItem(label: StudioStrings.usedBy, value: StudioStrings.itemsCount(componentCount + viewCount), tone: .success)

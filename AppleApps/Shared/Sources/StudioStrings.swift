@@ -39,6 +39,7 @@ enum StudioStrings {
     static let cancel = String(localized: "common.cancel", defaultValue: "Cancel")
     static let close = String(localized: "common.close", defaultValue: "Close")
     static let load = String(localized: "common.load", defaultValue: "Load")
+    static let none = String(localized: "common.none", defaultValue: "None")
     static let current = String(localized: "common.current", defaultValue: "Current")
     static let unknown = String(localized: "common.unknown", defaultValue: "Unknown")
     static let legacyWeb = String(localized: "studio.legacy_web.title", defaultValue: "Legacy Web")
@@ -584,6 +585,45 @@ enum StudioStrings {
         String(localized: "studio.content.default_state_value", defaultValue: "Default: \(value)")
     }
 
+    static func fallbackValue(_ value: String) -> String {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? none : value
+    }
+
+    static func readableLabel(_ rawValue: String) -> String {
+        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        switch trimmed.lowercased() {
+        case "":
+            return none
+        case "swiftui":
+            return swiftUILabel
+        case "uikit":
+            return String(localized: "studio.content.renderer.uikit", defaultValue: "UIKit")
+        default:
+            return trimmed
+                .replacingOccurrences(of: "-", with: " ")
+                .replacingOccurrences(of: "_", with: " ")
+                .capitalized
+        }
+    }
+
+    static func rendererLabel(_ rawValue: String) -> String {
+        readableLabel(rawValue)
+    }
+
+    static func foundationGroupLabel(_ rawValue: String) -> String {
+        switch rawValue.lowercased() {
+        case "color", "colors", "gradient", "gradients", "spacing", "cornerradius", "corner-radius", "corner_radius":
+            return foundationTokenKindLabel(rawValue)
+        default:
+            return readableLabel(rawValue)
+        }
+    }
+
+    static func designTokenCategoryLabel(_ rawValue: String) -> String {
+        foundationGroupLabel(rawValue)
+    }
+
     static func stateValue(_ value: String) -> String {
         String(localized: "studio.content.state_value", defaultValue: "State: \(value)")
     }
@@ -824,10 +864,7 @@ enum StudioStrings {
         case "color":
             return colors
         default:
-            return rawValue
-                .replacingOccurrences(of: "-", with: " ")
-                .replacingOccurrences(of: "_", with: " ")
-                .capitalized
+            return readableLabel(rawValue)
         }
     }
 
@@ -967,10 +1004,7 @@ enum StudioStrings {
         case "root":
             return rootLabel
         default:
-            return rawValue
-                .replacingOccurrences(of: "-", with: " ")
-                .replacingOccurrences(of: "_", with: " ")
-                .capitalized
+            return readableLabel(rawValue)
         }
     }
 
