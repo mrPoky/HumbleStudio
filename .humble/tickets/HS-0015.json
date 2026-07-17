@@ -1,0 +1,38 @@
+{
+  "id": "HS-0015",
+  "title": "Upload app to TestFlight for internal QA",
+  "status": "accepted",
+  "type": "release",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-17",
+  "updated_at": "2026-07-17",
+  "source": "user",
+  "summary": "Create a release slice for HumbleStudio that determines the applicable Apple app target, prepares a signed candidate build, uploads it to App Store Connect/TestFlight, and records durable evidence.",
+  "acceptance_criteria": [
+    "Verify whether the current HumbleStudio native app target is TestFlight-capable before attempting upload work.",
+    "Verify bundle ID, signing setup, marketing version, and build number before archiving.",
+    "Run the strongest practical release or workflow validation and record exact command evidence on this ticket.",
+    "Upload the candidate build to App Store Connect/TestFlight or record the verified not-applicable reason.",
+    "Record latest build visibility, processing state, internal tester availability, or the exact account/tooling blocker."
+  ],
+  "evidence": [],
+  "related_files": [
+    ".humble/tickets/HS-0015.json",
+    "docs/workflow-contract.md",
+    "HumbleStudio.xcodeproj"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan asked to create a TestFlight upload ticket for every repository and mark repositories that already have a TestFlight build as done."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py"
+  ],
+  "agent_notes": [
+    "Do not mark solved until App Store Connect/TestFlight build evidence or a verified account/tooling blocker is recorded."
+  ]
+}
