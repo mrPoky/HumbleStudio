@@ -102,6 +102,10 @@ enum StudioStrings {
     static let recentRemote = String(localized: "studio.source_recovery.recent_remote", defaultValue: "Recent remote")
     static let notAvailableYet = String(localized: "common.not_available_yet", defaultValue: "Not available yet")
     static let currentIssue = String(localized: "studio.source_recovery.current_issue", defaultValue: "Current issue")
+    static let issueCategory = String(localized: "studio.source_recovery.issue_category", defaultValue: "Issue category")
+    static let recoveryPosture = String(localized: "studio.source_recovery.posture", defaultValue: "Recovery posture")
+    static let recoveryChannel = String(localized: "studio.source_recovery.channel", defaultValue: "Best recovery channel")
+    static let recoveryActionWhyLabel = String(localized: "studio.source_recovery.action_why", defaultValue: "Why this action")
     static let recoveryReadinessImportAndURL = String(localized: "studio.source_recovery.readiness.import_and_url", defaultValue: "Import + URL ready")
     static let recoveryReadinessImportOnly = String(localized: "studio.source_recovery.readiness.import_only", defaultValue: "Import ready")
     static let recoveryReadinessURLOnly = String(localized: "studio.source_recovery.readiness.url_only", defaultValue: "URL ready")
@@ -129,6 +133,63 @@ enum StudioStrings {
     }
     static func remoteFetchServerRejected(_ host: String) -> String {
         String(format: String(localized: "studio.source_recovery.remote_fetch_server_rejected", defaultValue: "The remote source at %@ returned an invalid or rejected response."), locale: Locale.current, host)
+    }
+    static func recoveryIssueKindLabel(_ kind: StudioNativeRecoveryIssueKind) -> String {
+        switch kind {
+        case .recentImportBookmark:
+            return String(localized: "studio.source_recovery.kind.recent_import_bookmark", defaultValue: "Recent import bookmark")
+        case .localFile:
+            return String(localized: "studio.source_recovery.kind.local_file", defaultValue: "Local file access")
+        case .remoteFetch:
+            return String(localized: "studio.source_recovery.kind.remote_fetch", defaultValue: "Remote download")
+        case .archive:
+            return String(localized: "studio.source_recovery.kind.archive", defaultValue: "Archive unpacking")
+        case .manifest:
+            return String(localized: "studio.source_recovery.kind.manifest", defaultValue: "Manifest structure")
+        case .decode:
+            return String(localized: "studio.source_recovery.kind.decode", defaultValue: "Manifest decoding")
+        case .platform:
+            return String(localized: "studio.source_recovery.kind.platform", defaultValue: "Platform limitation")
+        case .remoteHydration:
+            return String(localized: "studio.source_recovery.kind.remote_hydration", defaultValue: "Remote hydration")
+        case .localHydration:
+            return String(localized: "studio.source_recovery.kind.local_hydration", defaultValue: "Local hydration")
+        }
+    }
+
+    static func recoveryPostureLabel(_ posture: StudioNativeRecoveryPosture) -> String {
+        switch posture {
+        case .recoverable:
+            return String(localized: "studio.source_recovery.posture.recoverable", defaultValue: "Recoverable")
+        case .degraded:
+            return String(localized: "studio.source_recovery.posture.degraded", defaultValue: "Degraded")
+        case .bundledOnly:
+            return String(localized: "studio.source_recovery.posture.bundled_only", defaultValue: "Bundled-only")
+        }
+    }
+
+    static func recoveryChannelLabel(_ action: StudioRecoveryAction) -> String {
+        switch action {
+        case .reopenRecentImport:
+            return String(localized: "studio.source_recovery.channel.recent_import", defaultValue: "Recent import bookmark")
+        case .reopenRecentRemoteURL:
+            return String(localized: "studio.source_recovery.channel.recent_remote", defaultValue: "Recent remote URL")
+        case .loadBundledStudio:
+            return String(localized: "studio.source_recovery.channel.bundled", defaultValue: "Bundled studio")
+        }
+    }
+
+    static func recoveryActionWhy(_ actionTitle: String, channel: String, posture: String) -> String {
+        String(
+            format: String(
+                localized: "studio.source_recovery.action_why_value",
+                defaultValue: "%1$@ is recommended because %2$@ is currently the safest %3$@ path."
+            ),
+            locale: Locale.current,
+            actionTitle,
+            channel,
+            posture.lowercased()
+        )
     }
     static let previewCoverageTitle = String(localized: "studio.preview_coverage.title", defaultValue: "Preview Coverage")
     static let previewCoverageSubtitle = String(localized: "studio.preview_coverage.subtitle", defaultValue: "How much of the current native surface is exact, contract-driven, or still leaning on fallback.")

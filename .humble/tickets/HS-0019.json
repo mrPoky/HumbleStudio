@@ -1,0 +1,69 @@
+{
+  "id": "HS-0019",
+  "title": "Strengthen typed native recovery issue surfaces",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-17",
+  "updated_at": "2026-07-17",
+  "source": "agent",
+  "summary": "Turn native hydration failures into a richer typed recovery contract so the macOS inspector and source recovery card explain issue category, posture, and safest next step more truthfully.",
+  "acceptance_criteria": [
+    "StudioNativeRecoveryIssue carries richer typed metadata than only title/detail and primary action.",
+    "The macOS recovery inspector and source recovery card expose clearer issue category and recovery posture without changing recovery behavior.",
+    "New recovery wording stays localized through StudioStrings and the shared string catalog.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0019.json",
+      "note": "HS-0019 ticket schema validated after enriching the native recovery issue contract."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Patch hygiene passed after wiring typed recovery category, posture, and action rationale into native recovery surfaces."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract validation passed after extending shared recovery strings and localized catalog entries."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Native macOS build succeeded after strengthening typed native recovery issue surfaces."
+    }
+  ],
+  "related_files": [
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    "AppleApps/macOS/Sources/StudioMacInspectorSupport.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+    ".humble/tickets/HS-0019.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 re-rank after HS-0018: import and reload failure workflow still lands in generic native recovery surfaces instead of clearly typed, truthful recovery UI."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0019.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Keep recovery behavior unchanged; improve truth and specificity first.",
+    "Keep root checkout clean after lane claim and release."
+  ]
+}

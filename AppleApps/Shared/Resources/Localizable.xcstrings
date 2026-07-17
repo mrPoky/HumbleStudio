@@ -575,6 +575,146 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Current issue" } }
       }
     },
+    "studio.source_recovery.issue_category" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kategorie problému" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Issue category" } }
+      }
+    },
+    "studio.source_recovery.posture" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Recovery posture" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recovery posture" } }
+      }
+    },
+    "studio.source_recovery.channel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nejbezpečnější recovery kanál" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Best recovery channel" } }
+      }
+    },
+    "studio.source_recovery.action_why" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Proč tato akce" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Why this action" } }
+      }
+    },
+    "studio.source_recovery.action_why_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ je doporučené, protože %2$@ je teď nejbezpečnější %3$@ cesta." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ is recommended because %2$@ is currently the safest %3$@ path." } }
+      }
+    },
+    "studio.source_recovery.kind.recent_import_bookmark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Bookmark nedávného importu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent import bookmark" } }
+      }
+    },
+    "studio.source_recovery.kind.local_file" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přístup k lokálnímu souboru" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Local file access" } }
+      }
+    },
+    "studio.source_recovery.kind.remote_fetch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Stažení ze vzdáleného zdroje" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remote download" } }
+      }
+    },
+    "studio.source_recovery.kind.archive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Rozbalení archivu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Archive unpacking" } }
+      }
+    },
+    "studio.source_recovery.kind.manifest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Struktura manifestu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Manifest structure" } }
+      }
+    },
+    "studio.source_recovery.kind.decode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Dekódování manifestu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Manifest decoding" } }
+      }
+    },
+    "studio.source_recovery.kind.platform" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Platformní omezení" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Platform limitation" } }
+      }
+    },
+    "studio.source_recovery.kind.remote_hydration" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vzdálená hydratace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remote hydration" } }
+      }
+    },
+    "studio.source_recovery.kind.local_hydration" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lokální hydratace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Local hydration" } }
+      }
+    },
+    "studio.source_recovery.posture.recoverable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obnovitelné" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recoverable" } }
+      }
+    },
+    "studio.source_recovery.posture.degraded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Degradované" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Degraded" } }
+      }
+    },
+    "studio.source_recovery.posture.bundled_only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Jen přibalené studio" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bundled-only" } }
+      }
+    },
+    "studio.source_recovery.channel.recent_import" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Bookmark nedávného importu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent import bookmark" } }
+      }
+    },
+    "studio.source_recovery.channel.recent_remote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nedávné vzdálené URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent remote URL" } }
+      }
+    },
+    "studio.source_recovery.channel.bundled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přibalené studio" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bundled studio" } }
+      }
+    },
     "studio.source_recovery.readiness.import_and_url" : {
       "extractionState" : "manual",
       "localizations" : {

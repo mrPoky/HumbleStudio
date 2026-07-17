@@ -285,7 +285,27 @@ enum StudioRecoveryAction: Equatable {
     }
 }
 
+enum StudioNativeRecoveryIssueKind: Equatable {
+    case recentImportBookmark
+    case localFile
+    case remoteFetch
+    case archive
+    case manifest
+    case decode
+    case platform
+    case remoteHydration
+    case localHydration
+}
+
+enum StudioNativeRecoveryPosture: Equatable {
+    case recoverable
+    case degraded
+    case bundledOnly
+}
+
 struct StudioNativeRecoveryIssue: Equatable {
+    let kind: StudioNativeRecoveryIssueKind
+    let posture: StudioNativeRecoveryPosture
     let title: String
     let detail: String
     let primaryAction: StudioRecoveryAction
@@ -297,6 +317,26 @@ struct StudioNativeRecoveryIssue: Equatable {
 
     var secondaryActionTitles: [String] {
         secondaryActions.map(\.title)
+    }
+
+    var categoryTitle: String {
+        StudioStrings.recoveryIssueKindLabel(kind)
+    }
+
+    var postureTitle: String {
+        StudioStrings.recoveryPostureLabel(posture)
+    }
+
+    var recoveryChannelTitle: String {
+        StudioStrings.recoveryChannelLabel(primaryAction)
+    }
+
+    var actionRationale: String {
+        StudioStrings.recoveryActionWhy(
+            primaryActionTitle,
+            channel: recoveryChannelTitle,
+            posture: postureTitle
+        )
     }
 }
 
@@ -1202,6 +1242,8 @@ final class StudioShellModel: ObservableObject {
             switch sourceError {
             case .recentImportResolutionFailed:
                 return StudioNativeRecoveryIssue(
+                    kind: .recentImportBookmark,
+                    posture: .degraded,
                     title: StudioStrings.recoveryIssueRecentImport,
                     detail: sourceError.localizedDescription,
                     primaryAction: primaryAction,
@@ -1209,6 +1251,8 @@ final class StudioShellModel: ObservableObject {
                 )
             case .localFileUnreadable:
                 return StudioNativeRecoveryIssue(
+                    kind: .localFile,
+                    posture: .degraded,
                     title: StudioStrings.recoveryIssueLocal,
                     detail: sourceError.localizedDescription,
                     primaryAction: primaryAction,
@@ -1216,6 +1260,8 @@ final class StudioShellModel: ObservableObject {
                 )
             case .remoteFetchUnavailable, .remoteFetchTimedOut, .remoteFetchServerRejected:
                 return StudioNativeRecoveryIssue(
+                    kind: .remoteFetch,
+                    posture: .degraded,
                     title: StudioStrings.recoveryIssueRemoteFetch,
                     detail: sourceError.localizedDescription,
                     primaryAction: primaryAction,
@@ -1228,6 +1274,8 @@ final class StudioShellModel: ObservableObject {
             switch importError {
             case .invalidArchive:
                 return StudioNativeRecoveryIssue(
+                    kind: .archive,
+                    posture: .degraded,
                     title: StudioStrings.recoveryIssueArchive,
                     detail: error.localizedDescription,
                     primaryAction: primaryAction,
@@ -1235,6 +1283,8 @@ final class StudioShellModel: ObservableObject {
                 )
             case .missingDesignJSON:
                 return StudioNativeRecoveryIssue(
+                    kind: .manifest,
+                    posture: .degraded,
                     title: StudioStrings.recoveryIssueManifest,
                     detail: error.localizedDescription,
                     primaryAction: primaryAction,
@@ -1242,6 +1292,8 @@ final class StudioShellModel: ObservableObject {
                 )
             case .invalidDesignJSON:
                 return StudioNativeRecoveryIssue(
+                    kind: .decode,
+                    posture: .degraded,
                     title: StudioStrings.recoveryIssueDecode,
                     detail: error.localizedDescription,
                     primaryAction: primaryAction,
@@ -1249,6 +1301,8 @@ final class StudioShellModel: ObservableObject {
                 )
             case .unsupportedBundlePlatform:
                 return StudioNativeRecoveryIssue(
+                    kind: .platform,
+                    posture: .bundledOnly,
                     title: StudioStrings.recoveryIssuePlatform,
                     detail: error.localizedDescription,
                     primaryAction: .loadBundledStudio,
@@ -1258,6 +1312,8 @@ final class StudioShellModel: ObservableObject {
         }
 
         return StudioNativeRecoveryIssue(
+            kind: remote ? .remoteHydration : .localHydration,
+            posture: .recoverable,
             title: remote ? StudioStrings.recoveryIssueRemote : StudioStrings.recoveryIssueLocal,
             detail: error.localizedDescription,
             primaryAction: primaryAction,

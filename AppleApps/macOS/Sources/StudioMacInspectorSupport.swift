@@ -49,7 +49,11 @@ struct StudioNativeRecoveryUnavailableView: View {
             StudioInspectorSection(title: StudioStrings.sourceRecoveryTitle) {
                 VStack(alignment: .leading, spacing: 10) {
                     StudioKeyValueRow(label: StudioStrings.currentIssue, value: issue.title)
+                    StudioKeyValueRow(label: StudioStrings.issueCategory, value: issue.categoryTitle)
+                    StudioKeyValueRow(label: StudioStrings.recoveryPosture, value: issue.postureTitle)
                     StudioKeyValueRow(label: StudioStrings.recommendedNextStep, value: issue.primaryActionTitle)
+                    StudioKeyValueRow(label: StudioStrings.recoveryChannel, value: issue.recoveryChannelTitle)
+                    StudioKeyValueRow(label: StudioStrings.recoveryActionWhyLabel, value: issue.actionRationale)
 
                     if !issue.secondaryActionTitles.isEmpty {
                         StudioKeyValueRow(

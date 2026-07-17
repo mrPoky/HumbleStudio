@@ -613,11 +613,16 @@ private struct StudioMacSourceRecoveryCard: View {
                 sourceCell(title: StudioStrings.currentSource, value: model.sourceSummary, tone: .neutral)
                 sourceCell(title: StudioStrings.preferredRelaunch, value: preferredLaunchLabel, tone: .accent)
                 sourceCell(title: StudioStrings.recommendedNextStep, value: model.recommendedRecoveryActionTitle, tone: model.nativeDocument != nil ? .success : .warning)
+                if let nativeRecoveryIssue = model.nativeRecoveryIssue {
+                    sourceCell(title: StudioStrings.issueCategory, value: nativeRecoveryIssue.categoryTitle, tone: .warning)
+                    sourceCell(title: StudioStrings.recoveryPosture, value: nativeRecoveryIssue.postureTitle, tone: recoveryTone(for: nativeRecoveryIssue.posture))
+                    sourceCell(title: StudioStrings.recoveryChannel, value: nativeRecoveryIssue.recoveryChannelTitle, tone: .accent)
+                }
                 sourceCell(title: StudioStrings.recentImport, value: model.recentImportName ?? StudioStrings.notAvailableYet, tone: model.hasRecentImport ? .success : .warning)
                 sourceCell(title: StudioStrings.recentRemote, value: model.hasRecentRemoteURL ? trimmedRecentRemoteURL : StudioStrings.notAvailableYet, tone: model.hasRecentRemoteURL ? .success : .warning)
             }
 
-            Text(model.recommendedRecoveryDetail)
+            Text(model.nativeRecoveryIssue?.actionRationale ?? model.recommendedRecoveryDetail)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -735,6 +740,17 @@ private struct StudioMacSourceRecoveryCard: View {
     private var trimmedRecentRemoteURL: String {
         let raw = model.recentRemoteURL ?? ""
         return raw.count > 72 ? String(raw.prefix(69)) + "..." : raw
+    }
+
+    private func recoveryTone(for posture: StudioNativeRecoveryPosture) -> StudioInspectorSummaryTone {
+        switch posture {
+        case .recoverable:
+            return .success
+        case .degraded:
+            return .warning
+        case .bundledOnly:
+            return .accent
+        }
     }
 }
 
