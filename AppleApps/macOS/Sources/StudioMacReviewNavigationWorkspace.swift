@@ -2577,6 +2577,7 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                     let repoAuditEntries = repositoryAuditEntries(for: artifact)
                     let matchedRepoEntries = repoAuditEntries.filter(\.exists)
                     let missingRepoEntries = repoAuditEntries.filter { !$0.exists }
+                    let diffPlan = diffPlan(for: artifact, repoAuditEntries: repoAuditEntries)
 
                     VStack(alignment: .leading, spacing: 12) {
                         Text(StudioStrings.proposalApplyPreviewDescription)
@@ -2615,6 +2616,54 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                         StudioKeyValueRow(label: StudioStrings.proposalTouchpoints, value: artifact.touchpointSummary)
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewSourceAudit, value: sourceAuditSummary(for: artifact))
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewNextStep, value: artifact.applyPreviewNextStep)
+
+                        StudioInspectorSection(title: StudioStrings.proposalApplyPreviewDiffPlan) {
+                            VStack(alignment: .leading, spacing: 10) {
+                                StudioInspectorSummaryGrid(items: [
+                                    StudioInspectorSummaryItem(
+                                        label: StudioStrings.proposalApplyPreviewDiffTouches,
+                                        value: StudioStrings.resultsCount(diffPlan.touches.count),
+                                        tone: diffPlan.touches.isEmpty ? .warning : .accent
+                                    ),
+                                    StudioInspectorSummaryItem(
+                                        label: StudioStrings.proposalApplyPreviewDiffTargets,
+                                        value: StudioStrings.resultsCount(diffPlan.targetCandidates.count),
+                                        tone: diffPlan.targetCandidates.isEmpty ? .warning : .success
+                                    ),
+                                    StudioInspectorSummaryItem(
+                                        label: StudioStrings.proposalApplyPreviewDiffPaths,
+                                        value: StudioStrings.resultsCount(diffPlan.repositoryPaths.count),
+                                        tone: diffPlan.repositoryPaths.isEmpty ? .warning : .success
+                                    ),
+                                    StudioInspectorSummaryItem(
+                                        label: StudioStrings.proposalApplyPreviewDiffMetadata,
+                                        value: StudioStrings.resultsCount(diffPlan.metadataGaps.count),
+                                        tone: diffPlan.metadataGaps.isEmpty ? .success : .warning
+                                    )
+                                ])
+
+                                previewDiffList(
+                                    title: StudioStrings.proposalApplyPreviewDiffTouches,
+                                    items: diffPlan.touches,
+                                    emptyMessage: nil
+                                )
+                                previewDiffList(
+                                    title: StudioStrings.proposalApplyPreviewDiffTargets,
+                                    items: diffPlan.targetCandidates,
+                                    emptyMessage: StudioStrings.proposalApplyPreviewDiffNoTargets
+                                )
+                                previewDiffList(
+                                    title: StudioStrings.proposalApplyPreviewDiffPaths,
+                                    items: diffPlan.repositoryPaths,
+                                    emptyMessage: StudioStrings.proposalApplyPreviewDiffNoPaths
+                                )
+                                previewDiffList(
+                                    title: StudioStrings.proposalApplyPreviewDiffMetadata,
+                                    items: diffPlan.metadataGaps,
+                                    emptyMessage: StudioStrings.proposalApplyPreviewDiffNoMetadataGaps
+                                )
+                            }
+                        }
 
                         StudioInspectorSection(title: StudioStrings.proposalApplyPreviewRepoAudit) {
                             VStack(alignment: .leading, spacing: 10) {
@@ -2752,6 +2801,64 @@ private struct StudioMacProposalArtifactDetailPanel: View {
         )
     }
 
+    @ViewBuilder
+    private func previewDiffList(title: String, items: [String], emptyMessage: String?) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            if items.isEmpty {
+                if let emptyMessage {
+                    Text(emptyMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } else {
+                ForEach(items, id: \.self) { item in
+                    Text("• \(item)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    private func diffPlan(
+        for artifact: StudioChangeProposalArtifact,
+        repoAuditEntries: [StudioProposalRepoAuditEntry]
+    ) -> StudioProposalApplyPreviewDiffPlan {
+        var touches = [artifact.applyPreviewTouchSummary]
+        if let scopeTargetID = artifact.scopeTargetID {
+            touches.append(StudioStrings.proposalScopeDisplay(kind: artifact.scopeKindLabel, identifier: scopeTargetID))
+        }
+
+        let structuredTargetItems = artifact.structuredTargets
+            .components(separatedBy: " · ")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        let targetCandidates = uniqueItems([
+            artifact.tokenCandidate.isEmpty ? nil : "Token: \(artifact.tokenCandidate)",
+            artifact.componentCandidate.isEmpty ? nil : "Component: \(artifact.componentCandidate)",
+            artifact.viewCandidate.isEmpty ? nil : "View: \(artifact.viewCandidate)"
+        ].compactMap { $0 } + structuredTargetItems)
+
+        return StudioProposalApplyPreviewDiffPlan(
+            touches: uniqueItems(touches),
+            targetCandidates: targetCandidates,
+            repositoryPaths: uniqueItems(repoAuditEntries.map(\.displayPath)),
+            metadataGaps: artifact.validationFindings
+        )
+    }
+
+    private func uniqueItems(_ items: [String]) -> [String] {
+        var seen: Set<String> = []
+        return items.filter { seen.insert($0).inserted }
+    }
+
     private func evidenceMatchLabel(for artifact: StudioChangeProposalArtifact) -> String {
         isEvidenceMatched(for: artifact)
             ? StudioStrings.proposalApplyPreviewEvidenceMatched
@@ -2845,6 +2952,13 @@ private enum StudioProposalSourceAuditStatus {
     case exact
     case related
     case needsMetadata
+}
+
+private struct StudioProposalApplyPreviewDiffPlan {
+    let touches: [String]
+    let targetCandidates: [String]
+    let repositoryPaths: [String]
+    let metadataGaps: [String]
 }
 
 private struct StudioProposalRepoAuditEntry: Identifiable {

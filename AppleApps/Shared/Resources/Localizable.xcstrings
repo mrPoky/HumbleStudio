@@ -1772,6 +1772,62 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "This preview estimates expected impact and next checks without mutating repository source truth." } }
       }
     },
+    "studio.change_proposal.apply_preview.diff_plan" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Očekávaný diff plán" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Expected Diff Plan" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.diff_touches" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pravděpodobné doteky" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Likely touches" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.diff_targets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kandidáti targetů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Target candidates" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.diff_paths" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Cesty v repozitáři" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Repository paths" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.diff_metadata" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Metadata gapy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Metadata gaps" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.diff_no_metadata_gaps" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "V aktuálním artefaktu už nezůstávají žádné blokující metadata gapy." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No blocking metadata gaps remain in the current artifact." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.diff_no_targets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zatím nejsou deklarované žádné structured target kandidáty." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No structured target candidates are declared yet." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.diff_no_paths" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pro tento artefakt zatím nejdou odvodit žádné repozitářové cesty." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No repository-backed paths could be derived for this artifact yet." } }
+      }
+    },
     "studio.change_proposal.apply_preview.readiness" : {
       "extractionState" : "manual",
       "localizations" : {

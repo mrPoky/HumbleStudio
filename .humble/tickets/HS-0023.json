@@ -1,0 +1,77 @@
+{
+  "id": "HS-0023",
+  "title": "Add diff-oriented proposal apply preview",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-19",
+  "updated_at": "2026-07-19",
+  "source": "agent",
+  "summary": "Extend the native proposal apply preview with a more concrete read-only diff-oriented plan so users can see likely scope touches, target candidates, and metadata gaps before any future automation.",
+  "acceptance_criteria": [
+    "Proposal apply preview shows a diff-oriented summary of likely touches and metadata-backed targets.",
+    "The preview remains read-only and does not imply source files were changed.",
+    "The slice reuses existing proposal artifact metadata instead of inventing a second apply model.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Read-only apply preview now includes a diff-oriented plan that summarizes likely touches, target candidates, repository-backed paths, and remaining metadata gaps."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "The diff plan is derived from existing proposal metadata such as scope, evidence, structured targets, token/component/view candidates, and validation findings, without introducing any write-back behavior."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0023.json",
+      "note": "Validated the ticket schema for the solved slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after the diff-oriented apply preview slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/tickets/HS-0023.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 after HS-0022: extend read-only apply preview with a more precise diff-oriented view."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0023.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Keep the workflow read-only and repo-aware.",
+    "Prefer truthful impact language such as would touch, would compare, and missing metadata."
+  ]
+}
