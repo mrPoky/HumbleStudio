@@ -638,6 +638,47 @@ private enum StudioProposalArtifactCoverageFilter: CaseIterable, Identifiable {
     }
 }
 
+private enum StudioProposalArtifactReadinessFilter: CaseIterable, Identifiable {
+    case all
+    case ready
+    case review
+    case blocked
+
+    var id: Self { self }
+
+    var label: String {
+        switch self {
+        case .all:
+            return StudioStrings.proposalFilterAnyReadiness
+        case .ready:
+            return StudioStrings.proposalApplyPreviewReadinessReady
+        case .review:
+            return StudioStrings.proposalApplyPreviewReadinessReview
+        case .blocked:
+            return StudioStrings.proposalApplyPreviewReadinessBlocked
+        }
+    }
+}
+
+private enum StudioProposalArtifactValidationFilter: CaseIterable, Identifiable {
+    case all
+    case healthy
+    case needsAttention
+
+    var id: Self { self }
+
+    var label: String {
+        switch self {
+        case .all:
+            return StudioStrings.proposalFilterAnyValidation
+        case .healthy:
+            return StudioStrings.proposalValidationHealthy
+        case .needsAttention:
+            return StudioStrings.proposalValidationNeedsAttention
+        }
+    }
+}
+
 private enum StudioProposalArtifactSortOrder: CaseIterable, Identifiable {
     case newest
     case status
@@ -1790,10 +1831,12 @@ struct StudioMacProposalArtifactSection: View {
     let inspectView: ((String) -> Void)?
     let artifactLimit: Int?
     let selectedArtifactID: String?
-    let selectArtifact: ((StudioChangeProposalArtifact) -> Void)?
+    let selectArtifact: ((StudioChangeProposalArtifact?) -> Void)?
     @State private var scopeFilter: StudioProposalArtifactScopeFilter = .matchingScope
     @State private var statusFilter: StudioProposalArtifactStatusFilter = .all
     @State private var coverageFilter: StudioProposalArtifactCoverageFilter = .all
+    @State private var readinessFilter: StudioProposalArtifactReadinessFilter = .all
+    @State private var validationFilter: StudioProposalArtifactValidationFilter = .all
     @State private var sortOrder: StudioProposalArtifactSortOrder = .newest
 
     var body: some View {
@@ -1836,6 +1879,13 @@ struct StudioMacProposalArtifactSection: View {
             if let loadIssue {
                 StudioMacProposalArtifactRecoveryCard(issue: loadIssue)
             }
+        }
+        .onAppear(perform: synchronizeSelectionWithVisibleArtifacts)
+        .onChange(of: filteredArtifacts.map(\.id)) { _, _ in
+            synchronizeSelectionWithVisibleArtifacts()
+        }
+        .onChange(of: selectedArtifactID) { _, _ in
+            synchronizeSelectionWithVisibleArtifacts()
         }
     }
 
@@ -1885,17 +1935,41 @@ struct StudioMacProposalArtifactSection: View {
             }
         }
 
+        let readinessScoped = coverageScoped.filter { artifact in
+            switch readinessFilter {
+            case .all:
+                return true
+            case .ready:
+                return artifact.applyPreviewReadiness == .ready
+            case .review:
+                return artifact.applyPreviewReadiness == .review
+            case .blocked:
+                return artifact.applyPreviewReadiness == .blocked
+            }
+        }
+
+        let validationScoped = readinessScoped.filter { artifact in
+            switch validationFilter {
+            case .all:
+                return true
+            case .healthy:
+                return artifact.validationStatus == .healthy
+            case .needsAttention:
+                return artifact.validationStatus == .needsAttention
+            }
+        }
+
         switch sortOrder {
         case .newest:
-            return coverageScoped.sorted { $0.updatedAt > $1.updatedAt }
+            return validationScoped.sorted { $0.updatedAt > $1.updatedAt }
         case .status:
-            return coverageScoped.sorted {
+            return validationScoped.sorted {
                 statusRank(for: $0.status) == statusRank(for: $1.status)
                     ? $0.updatedAt > $1.updatedAt
                     : statusRank(for: $0.status) < statusRank(for: $1.status)
             }
         case .confidence:
-            return coverageScoped.sorted {
+            return validationScoped.sorted {
                 confidenceRank(for: $0.scopeConfidence) == confidenceRank(for: $1.scopeConfidence)
                     ? $0.updatedAt > $1.updatedAt
                     : confidenceRank(for: $0.scopeConfidence) < confidenceRank(for: $1.scopeConfidence)
@@ -1939,6 +2013,22 @@ struct StudioMacProposalArtifactSection: View {
                 Picker(StudioStrings.proposalSortLabel, selection: $sortOrder) {
                     ForEach(StudioProposalArtifactSortOrder.allCases) { option in
                         Text(option.label).tag(option)
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+
+            HStack(spacing: 12) {
+                Picker(StudioStrings.proposalFilterReadinessLabel, selection: $readinessFilter) {
+                    ForEach(StudioProposalArtifactReadinessFilter.allCases) { filter in
+                        Text(filter.label).tag(filter)
+                    }
+                }
+                .pickerStyle(.menu)
+
+                Picker(StudioStrings.proposalFilterValidationLabel, selection: $validationFilter) {
+                    ForEach(StudioProposalArtifactValidationFilter.allCases) { filter in
+                        Text(filter.label).tag(filter)
                     }
                 }
                 .pickerStyle(.menu)
@@ -2143,6 +2233,17 @@ struct StudioMacProposalArtifactSection: View {
         formatter.timeStyle = .short
         return formatter
     }
+
+    private func synchronizeSelectionWithVisibleArtifacts() {
+        guard let selectArtifact else {
+            return
+        }
+        if let selectedArtifactID,
+           visibleArtifacts.contains(where: { $0.id == selectedArtifactID }) {
+            return
+        }
+        selectArtifact(visibleArtifacts.first)
+    }
 }
 
 private struct StudioMacProposalArtifactRecoveryCard: View {
@@ -2299,6 +2400,26 @@ struct StudioMacProposalArtifactsPage: View {
                     ])
                 }
 
+                StudioInspectorSection(title: StudioStrings.proposalApplyPreviewReadiness) {
+                    StudioInspectorSummaryGrid(items: [
+                        StudioInspectorSummaryItem(
+                            label: StudioStrings.proposalApplyPreviewReadinessReady,
+                            value: StudioStrings.resultsCount(proposalArtifacts.filter { $0.applyPreviewReadiness == .ready }.count),
+                            tone: .success
+                        ),
+                        StudioInspectorSummaryItem(
+                            label: StudioStrings.proposalApplyPreviewReadinessReview,
+                            value: StudioStrings.resultsCount(proposalArtifacts.filter { $0.applyPreviewReadiness == .review }.count),
+                            tone: .warning
+                        ),
+                        StudioInspectorSummaryItem(
+                            label: StudioStrings.proposalApplyPreviewReadinessBlocked,
+                            value: StudioStrings.resultsCount(proposalArtifacts.filter { $0.applyPreviewReadiness == .blocked }.count),
+                            tone: proposalArtifacts.contains(where: { $0.applyPreviewReadiness == .blocked }) ? .warning : .neutral
+                        )
+                    ])
+                }
+
                 HStack(alignment: .top, spacing: 16) {
                     StudioMacProposalArtifactSection(
                         artifacts: proposalArtifacts,
@@ -2311,7 +2432,7 @@ struct StudioMacProposalArtifactsPage: View {
                         artifactLimit: nil,
                         selectedArtifactID: selectedArtifactID,
                         selectArtifact: { artifact in
-                            selectedArtifactID = artifact.id
+                            selectedArtifactID = artifact?.id
                         }
                     )
                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .topLeading)
@@ -2339,11 +2460,10 @@ struct StudioMacProposalArtifactsPage: View {
     }
 
     private var selectedArtifact: StudioChangeProposalArtifact? {
-        if let selectedArtifactID,
-           let artifact = proposalArtifacts.first(where: { $0.id == selectedArtifactID }) {
-            return artifact
+        guard let selectedArtifactID else {
+            return nil
         }
-        return proposalArtifacts.first
+        return proposalArtifacts.first(where: { $0.id == selectedArtifactID })
     }
 
     private var metadataHealthCount: String {

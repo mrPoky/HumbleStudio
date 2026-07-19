@@ -1,0 +1,83 @@
+{
+  "id": "HS-0022",
+  "title": "Strengthen proposal workspace filtering truth",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-19",
+  "updated_at": "2026-07-19",
+  "source": "agent",
+  "summary": "Tighten the native proposal workspace so filtering and summaries reflect validation and apply-preview readiness truth directly, without forcing users to inspect each artifact row by row.",
+  "acceptance_criteria": [
+    "The native proposal workspace can filter proposal artifacts by validation status and apply-preview readiness.",
+    "Workspace summaries reflect readiness and validation truth in a scan-friendly way.",
+    "Selected artifact detail stays aligned with the currently visible filtered artifact set.",
+    "The slice reuses the existing proposal artifact parser and read-only metadata model.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Proposal workspace now filters artifacts by validation status and apply-preview readiness in addition to the existing scope, status, coverage, and sort controls."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Shared artifact selection now synchronizes with the currently visible filtered artifact set so the detail panel does not keep showing an artifact hidden by active filters."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Proposal workspace now shows a dedicated apply-preview readiness summary grid with ready, review, and blocked counts."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0022.json",
+      "note": "Validated the ticket schema for the solved slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after the proposal workspace filtering slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/tickets/HS-0022.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Re-ranked Top 10 after HS-0021: proposal workspace already exists, but filtering truth still underrepresents validation and apply-preview readiness."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0022.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Keep the workflow read-only and repo-aware.",
+    "Prefer shared proposal workspace truth over duplicating readiness logic in separate inspectors."
+  ]
+}

@@ -1485,6 +1485,20 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Coverage filter" } }
       }
     },
+    "studio.change_proposal.filter.readiness" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Filtr preview readiness" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview readiness filter" } }
+      }
+    },
+    "studio.change_proposal.filter.validation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Filtr validace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Validation filter" } }
+      }
+    },
     "studio.change_proposal.sort" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1532,6 +1546,20 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Libovolné pokrytí" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Any coverage" } }
+      }
+    },
+    "studio.change_proposal.filter.any_readiness" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Libovolná readiness" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Any readiness" } }
+      }
+    },
+    "studio.change_proposal.filter.any_validation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Libovolná validace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Any validation" } }
       }
     },
     "studio.change_proposal.sort.newest" : {
