@@ -1842,6 +1842,111 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "No matching native component or view was found in the current import, so snapshot compare cannot be exact yet." } }
       }
     },
+    "studio.change_proposal.apply_preview.current_delta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Souhrn aktuální delty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current Delta Summary" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Shrnuje aktuální native gapy a alignmenty, které by tento proposal musel respektovat před jakýmkoli budoucím apply-oriented workflow." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Summarizes the current native gaps and alignments that this proposal would need to respect before any future apply-oriented workflow." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.posture" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Posture aktuální delty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current delta posture" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.aligned" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zarovnané signály" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Aligned signals" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.gaps" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální gapy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current gaps" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.posture_aligned" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální native truth je zarovnaná" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current native truth is aligned" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.posture_review" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální native truth ještě potřebuje review" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current native truth still needs review" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.posture_blocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální native truth je stále blokovaná" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current native truth is still blocked" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.no_snapshot_gap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální native scope stále nemá referenční snapshot." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current native scope still has no reference snapshot." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.no_source_gap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální native scope stále nemá repozitářovou source path." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current native scope still has no repository-backed source path." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.evidence_gap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Proposal evidence se aktuálně neshoduje s native source path." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal evidence does not currently match the native source path." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.compare_unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální native compare není k dispozici, takže delta summary zatím nemůže jít za proposal metadata." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current native compare is unavailable, so delta summary cannot go beyond proposal metadata yet." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.aligned_snapshot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální native scope už má referenční snapshot." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current native scope already has a reference snapshot." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.aligned_evidence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Proposal evidence už odpovídá aktuální native source path." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal evidence already matches the current native source path." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.coverage_gap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Proposal metadata očekává %@, ale aktuální native coverage je jen %@." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal metadata expects %@, but current native coverage is only %@." } }
+      }
+    },
     "studio.change_proposal.apply_preview.diff_plan" : {
       "extractionState" : "manual",
       "localizations" : {

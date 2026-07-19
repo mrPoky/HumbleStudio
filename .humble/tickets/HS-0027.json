@@ -1,0 +1,77 @@
+{
+  "id": "HS-0027",
+  "title": "Add compare-backed delta summary to proposal apply preview",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-19",
+  "updated_at": "2026-07-19",
+  "source": "agent",
+  "summary": "Extend proposal apply preview with a current delta summary that compares proposal expectations against the live native snapshot compare surface, so the diff plan is no longer metadata-only.",
+  "acceptance_criteria": [
+    "Proposal apply preview exposes a current delta summary derived from the native snapshot compare layer.",
+    "The delta summary highlights truthful gaps such as missing snapshots, weaker-than-expected coverage, or evidence/source mismatches.",
+    "The surface stays read-only and avoids claiming an exact repository diff when only current native truth is available.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Proposal apply preview now shows a current delta summary with posture, aligned signals, and current gaps derived from the native snapshot compare layer."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "The existing diff plan now folds in compare-backed aligned signals and gaps, so apply preview is no longer limited to proposal metadata alone."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0027.json",
+      "note": "Validated the solved ticket schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after the compare-backed delta slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0027.json",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 item 1 after HS-0026: connect diff-oriented apply preview to concrete inspector snapshot comparison instead of a metadata-only plan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0027.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Prefer deriving deltas from current native scope truth rather than inventing repository patch details.",
+    "Keep the new compare-backed summary local to proposal apply preview unless another surface needs the same abstraction."
+  ]
+}

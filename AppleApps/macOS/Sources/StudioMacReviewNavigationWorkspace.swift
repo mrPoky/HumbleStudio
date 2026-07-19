@@ -2788,6 +2788,10 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                             snapshotCompareSection(for: artifact)
                         }
 
+                        StudioInspectorSection(title: StudioStrings.proposalApplyPreviewCurrentDelta) {
+                            currentDeltaSection(for: artifact)
+                        }
+
                         StudioInspectorSection(title: StudioStrings.proposalApplyPreviewDiffPlan) {
                             VStack(alignment: .leading, spacing: 10) {
                                 StudioInspectorSummaryGrid(items: [
@@ -3047,6 +3051,52 @@ private struct StudioMacProposalArtifactDetailPanel: View {
     }
 
     @ViewBuilder
+    private func currentDeltaSection(for artifact: StudioChangeProposalArtifact) -> some View {
+        let summary = currentDeltaSummary(for: artifact)
+
+        VStack(alignment: .leading, spacing: 12) {
+            Text(StudioStrings.proposalApplyPreviewCurrentDeltaDescription)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            StudioInspectorSummaryGrid(items: [
+                StudioInspectorSummaryItem(
+                    label: StudioStrings.proposalApplyPreviewCurrentDeltaPosture,
+                    value: summary.postureLabel,
+                    tone: summary.postureTone
+                ),
+                StudioInspectorSummaryItem(
+                    label: StudioStrings.proposalApplyPreviewCurrentDeltaAligned,
+                    value: StudioStrings.resultsCount(summary.alignedSignals.count),
+                    tone: summary.alignedSignals.isEmpty ? .neutral : .success
+                ),
+                StudioInspectorSummaryItem(
+                    label: StudioStrings.proposalApplyPreviewCurrentDeltaGaps,
+                    value: StudioStrings.resultsCount(summary.gaps.count),
+                    tone: summary.gaps.isEmpty ? .success : .warning
+                ),
+                StudioInspectorSummaryItem(
+                    label: StudioStrings.proposalApplyPreviewReadiness,
+                    value: artifact.applyPreviewReadiness.label,
+                    tone: tone(for: artifact.applyPreviewReadiness)
+                )
+            ])
+
+            previewDiffList(
+                title: StudioStrings.proposalApplyPreviewCurrentDeltaAligned,
+                items: summary.alignedSignals,
+                emptyMessage: nil
+            )
+            previewDiffList(
+                title: StudioStrings.proposalApplyPreviewCurrentDeltaGaps,
+                items: summary.gaps,
+                emptyMessage: nil
+            )
+        }
+    }
+
+    @ViewBuilder
     private func previewDiffList(title: String, items: [String], emptyMessage: String?) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
@@ -3075,10 +3125,12 @@ private struct StudioMacProposalArtifactDetailPanel: View {
         for artifact: StudioChangeProposalArtifact,
         repoAuditEntries: [StudioProposalRepoAuditEntry]
     ) -> StudioProposalApplyPreviewDiffPlan {
+        let deltaSummary = currentDeltaSummary(for: artifact)
         var touches = [artifact.applyPreviewTouchSummary]
         if let scopeTargetID = artifact.scopeTargetID {
             touches.append(StudioStrings.proposalScopeDisplay(kind: artifact.scopeKindLabel, identifier: scopeTargetID))
         }
+        touches.append(contentsOf: deltaSummary.alignedSignals)
 
         let structuredTargetItems = artifact.structuredTargets
             .components(separatedBy: " · ")
@@ -3095,7 +3147,7 @@ private struct StudioMacProposalArtifactDetailPanel: View {
             touches: uniqueItems(touches),
             targetCandidates: targetCandidates,
             repositoryPaths: uniqueItems(repoAuditEntries.map(\.displayPath)),
-            metadataGaps: artifact.validationFindings
+            metadataGaps: uniqueItems(artifact.validationFindings + deltaSummary.gaps)
         )
     }
 
@@ -3168,6 +3220,65 @@ private struct StudioMacProposalArtifactDetailPanel: View {
         default:
             return nil
         }
+    }
+
+    private func currentDeltaSummary(for artifact: StudioChangeProposalArtifact) -> StudioProposalCurrentDeltaSummary {
+        guard let compare = snapshotCompare(for: artifact) else {
+            return StudioProposalCurrentDeltaSummary(
+                postureLabel: StudioStrings.proposalApplyPreviewCurrentDeltaPostureBlocked,
+                postureTone: .warning,
+                alignedSignals: [],
+                gaps: [StudioStrings.proposalApplyPreviewCurrentDeltaCompareUnavailable]
+            )
+        }
+
+        var alignedSignals: [String] = []
+        var gaps: [String] = []
+
+        if compare.snapshotAvailable {
+            alignedSignals.append(StudioStrings.proposalApplyPreviewCurrentDeltaAlignedSnapshot)
+        } else {
+            gaps.append(StudioStrings.proposalApplyPreviewCurrentDeltaNoSnapshotGap)
+        }
+
+        if isEvidenceMatched(for: artifact) {
+            alignedSignals.append(StudioStrings.proposalApplyPreviewCurrentDeltaAlignedEvidence)
+        } else {
+            gaps.append(StudioStrings.proposalApplyPreviewCurrentDeltaEvidenceGap)
+        }
+
+        if compare.sourcePath.isEmpty {
+            gaps.append(StudioStrings.proposalApplyPreviewCurrentDeltaNoSourceGap)
+        }
+
+        if compare.coverageLevel.rawValue != artifact.applyPreviewConfiguration.coverageLevel.rawValue {
+            gaps.append(
+                StudioStrings.proposalApplyPreviewCurrentDeltaCoverageGap(
+                    expected: artifact.applyPreviewConfiguration.coverageLevel.label,
+                    current: compare.coverageLevel.label
+                )
+            )
+        }
+
+        let postureLabel: String
+        let postureTone: StudioInspectorSummaryTone
+        if gaps.isEmpty {
+            postureLabel = StudioStrings.proposalApplyPreviewCurrentDeltaPostureAligned
+            postureTone = .success
+        } else if compare.truthStatus.needsAttention || artifact.applyPreviewReadiness == .blocked {
+            postureLabel = StudioStrings.proposalApplyPreviewCurrentDeltaPostureBlocked
+            postureTone = .warning
+        } else {
+            postureLabel = StudioStrings.proposalApplyPreviewCurrentDeltaPostureReview
+            postureTone = .accent
+        }
+
+        return StudioProposalCurrentDeltaSummary(
+            postureLabel: postureLabel,
+            postureTone: postureTone,
+            alignedSignals: uniqueItems(alignedSignals),
+            gaps: uniqueItems(gaps)
+        )
     }
 
     private func snapshotCompareUnavailableMessage(for artifact: StudioChangeProposalArtifact) -> String {
@@ -3281,6 +3392,13 @@ private struct StudioProposalSnapshotCompare {
     let snapshotURL: URL?
     let snapshotAvailable: Bool
     let placeholderSystemImage: String
+}
+
+private struct StudioProposalCurrentDeltaSummary {
+    let postureLabel: String
+    let postureTone: StudioInspectorSummaryTone
+    let alignedSignals: [String]
+    let gaps: [String]
 }
 
 private struct StudioProposalSnapshotCompareThumbnail: View {
