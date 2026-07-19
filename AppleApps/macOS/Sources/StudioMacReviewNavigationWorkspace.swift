@@ -3093,6 +3093,16 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                 items: summary.gaps,
                 emptyMessage: nil
             )
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text(StudioStrings.proposalApplyPreviewCurrentDeltaFields)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                ForEach(fieldDeltaRows(for: artifact)) { row in
+                    StudioProposalFieldDeltaRow(row: row)
+                }
+            }
         }
     }
 
@@ -3281,6 +3291,60 @@ private struct StudioMacProposalArtifactDetailPanel: View {
         )
     }
 
+    private func fieldDeltaRows(for artifact: StudioChangeProposalArtifact) -> [StudioProposalFieldDeltaRowModel] {
+        guard let compare = snapshotCompare(for: artifact) else {
+            return [
+                StudioProposalFieldDeltaRowModel(
+                    field: StudioStrings.proposalApplyPreviewCurrentDeltaFields,
+                    proposalValue: artifact.coverageDisplayLabel,
+                    currentValue: StudioStrings.proposalApplyPreviewCurrentDeltaCompareUnavailable,
+                    status: .gap
+                )
+            ]
+        }
+
+        let evidenceMatched = isEvidenceMatched(for: artifact)
+        let coverageStatus: StudioProposalFieldDeltaStatus
+        if compare.coverageLevel.rawValue == artifact.applyPreviewConfiguration.coverageLevel.rawValue {
+            coverageStatus = .aligned
+        } else if compare.coverageLevel == .fallbackNeeded {
+            coverageStatus = .gap
+        } else {
+            coverageStatus = .review
+        }
+
+        let snapshotStatus: StudioProposalFieldDeltaStatus = compare.snapshotAvailable ? .aligned : .gap
+        let evidenceStatus: StudioProposalFieldDeltaStatus = evidenceMatched ? .aligned : .gap
+        let sourceStatus: StudioProposalFieldDeltaStatus = compare.sourcePath.isEmpty ? .gap : .aligned
+
+        return [
+            StudioProposalFieldDeltaRowModel(
+                field: StudioStrings.proposalApplyPreviewCurrentDeltaCoverageField,
+                proposalValue: artifact.applyPreviewConfiguration.coverageLevel.label,
+                currentValue: compare.coverageLevel.label,
+                status: coverageStatus
+            ),
+            StudioProposalFieldDeltaRowModel(
+                field: StudioStrings.proposalApplyPreviewCurrentDeltaSnapshotField,
+                proposalValue: artifact.applyPreviewReadiness.label,
+                currentValue: compare.snapshotAvailable ? StudioStrings.present : StudioStrings.missing,
+                status: snapshotStatus
+            ),
+            StudioProposalFieldDeltaRowModel(
+                field: StudioStrings.proposalApplyPreviewCurrentDeltaEvidenceField,
+                proposalValue: artifact.sourceEvidenceSummary,
+                currentValue: evidenceMatchLabel(for: artifact),
+                status: evidenceStatus
+            ),
+            StudioProposalFieldDeltaRowModel(
+                field: StudioStrings.proposalApplyPreviewCurrentDeltaSourceField,
+                proposalValue: StudioStrings.resultsCount(artifact.evidenceItems.count),
+                currentValue: compare.sourcePath.isEmpty ? StudioStrings.notAvailableYet : compare.sourcePath,
+                status: sourceStatus
+            )
+        ]
+    }
+
     private func snapshotCompareUnavailableMessage(for artifact: StudioChangeProposalArtifact) -> String {
         guard document != nil else {
             return StudioStrings.proposalApplyPreviewSnapshotCompareMissingDocument
@@ -3399,6 +3463,63 @@ private struct StudioProposalCurrentDeltaSummary {
     let postureTone: StudioInspectorSummaryTone
     let alignedSignals: [String]
     let gaps: [String]
+}
+
+private enum StudioProposalFieldDeltaStatus {
+    case aligned
+    case review
+    case gap
+
+    var label: String {
+        switch self {
+        case .aligned:
+            return StudioStrings.proposalApplyPreviewCurrentDeltaStatusAligned
+        case .review:
+            return StudioStrings.proposalApplyPreviewCurrentDeltaStatusReview
+        case .gap:
+            return StudioStrings.proposalApplyPreviewCurrentDeltaStatusGap
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .aligned:
+            return .green
+        case .review:
+            return .orange
+        case .gap:
+            return .red
+        }
+    }
+}
+
+private struct StudioProposalFieldDeltaRowModel: Identifiable {
+    let id = UUID()
+    let field: String
+    let proposalValue: String
+    let currentValue: String
+    let status: StudioProposalFieldDeltaStatus
+}
+
+private struct StudioProposalFieldDeltaRow: View {
+    let row: StudioProposalFieldDeltaRowModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 10) {
+                Text(row.field)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Spacer(minLength: 8)
+                StudioProposalArtifactBadge(text: row.status.label, color: row.status.color)
+            }
+
+            StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewCurrentDeltaProposalValue, value: row.proposalValue)
+            StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewCurrentDeltaCurrentValue, value: row.currentValue)
+        }
+        .padding(12)
+        .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
 }
 
 private struct StudioProposalSnapshotCompareThumbnail: View {

@@ -1,0 +1,78 @@
+{
+  "id": "HS-0028",
+  "title": "Add field-level proposal delta rows",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-19",
+  "updated_at": "2026-07-19",
+  "source": "agent",
+  "summary": "Extend proposal apply preview with field-level delta rows that compare proposal metadata against current native truth for coverage, snapshot, evidence, and source context.",
+  "acceptance_criteria": [
+    "Proposal apply preview exposes concrete field-level delta rows instead of only aggregate delta summaries.",
+    "Each row compares proposal-facing value with current native truth and marks the result as aligned, review, or gap.",
+    "The rows stay read-only and only claim fields that can be derived from current native import plus proposal metadata.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Proposal apply preview now renders a field-level delta section for coverage, snapshot truth, evidence linkage, and source path instead of stopping at an aggregate posture summary."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Each field row compares proposal-facing metadata against the current native compare surface and labels the result as aligned, review, or gap without inventing a repository patch."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0028.json",
+      "note": "Validated the solved ticket schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after the field-level proposal delta slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0028.json",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 item 1 after HS-0027: expand current delta summary into explicit field-level deltas between proposal metadata and current native scope truth."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0028.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Keep field-level deltas scoped to values that are already derivable from current native import and proposal metadata.",
+    "Prefer readable compare rows over inventing a fake repository patch model.",
+    "Claimed lane-1 on branch `refactor/hs-0028-add-proposal-field-delta`."
+  ]
+}

@@ -1856,6 +1856,55 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Summarizes the current native gaps and alignments that this proposal would need to respect before any future apply-oriented workflow." } }
       }
     },
+    "studio.change_proposal.apply_preview.current_delta.fields" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Field-level delta" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Field-Level Delta" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.proposal_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Proposal" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.current_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální native" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current native" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.coverage_field" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Coverage" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Coverage" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.snapshot_field" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Snapshot truth" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Snapshot truth" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.evidence_field" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Evidence linkage" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Evidence linkage" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.source_field" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Source path" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source path" } }
+      }
+    },
     "studio.change_proposal.apply_preview.current_delta.posture" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1875,6 +1924,27 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální gapy" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Current gaps" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.status_aligned" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aligned" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Aligned" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.status_review" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Review" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.current_delta.status_gap" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Gap" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gap" } }
       }
     },
     "studio.change_proposal.apply_preview.current_delta.posture_aligned" : {
