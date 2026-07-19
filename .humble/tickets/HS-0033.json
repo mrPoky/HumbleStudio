@@ -1,0 +1,79 @@
+{
+  "id": "HS-0033",
+  "title": "Extend proposal linkage truth across non-proposal inspectors",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-19",
+  "updated_at": "2026-07-19",
+  "source": "agent",
+  "summary": "Share proposal read-back and current-delta truth across content, foundation, and navigation inspectors instead of limiting it to the proposal workspace surfaces.",
+  "acceptance_criteria": [
+    "Shared proposal support exposes reusable read-back, source-audit, and current-delta truth helpers that do not live only behind the proposal detail panel.",
+    "At least content, foundation, and navigation inspectors outside the proposal workspace use the shared proposal linkage truth summaries.",
+    "The updated inspector summaries surface current-delta and source-audit truth, not only raw proposal counts.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Shared proposal support now exposes reusable read-back, source-audit, and current-delta truth helpers instead of keeping that logic only behind the proposal artifact detail panel."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Content, foundation, and navigation inspectors now reuse the shared proposal linkage truth summaries, so their proposal linkage sections surface source-audit and current-delta signal instead of only raw proposal counts."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0033.json",
+      "note": "Validated the solved ticket schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after expanding proposal linkage truth across non-proposal inspectors."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded after the shared proposal truth refactor."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0033.json",
+    "AppleApps/macOS/Sources/StudioMacContentWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacFoundationWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalSupport.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 item 1 after HS-0032: connect proposal artifact read-back and current-delta truth into inspectors outside proposal workspace."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0033.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Initial inspection started in the root checkout before lane preparation; move the implementation into a lane-backed branch before commit and restore the root checkout to clean main.",
+    "Prefer shared proposal truth helpers over per-inspector copy-paste.",
+    "Claimed lane-1 on branch `refactor/hs-0033-proposal-linkage-truth`."
+  ]
+}

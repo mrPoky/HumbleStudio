@@ -1,17 +1,297 @@
 import AppKit
 import SwiftUI
 
+func proposalMatchedScopeSourcePath(
+    for artifact: StudioChangeProposalArtifact,
+    document: StudioNativeDocument?
+) -> String {
+    guard let document else { return "" }
+    switch artifact.scopeKind {
+    case "component":
+        return document.components.first(where: { "component:\($0.id)" == artifact.scope })?.sourcePath ?? ""
+    case "view":
+        return document.views.first(where: { "view:\($0.id)" == artifact.scope })?.sourcePath ?? ""
+    default:
+        return ""
+    }
+}
+
+func proposalEvidenceMatched(
+    for artifact: StudioChangeProposalArtifact,
+    document: StudioNativeDocument?
+) -> Bool {
+    guard let document else { return false }
+    switch artifact.scopeKind {
+    case "component":
+        return artifact.referencesEvidence(path: document.components.first(where: { "component:\($0.id)" == artifact.scope })?.sourcePath)
+    case "view":
+        return artifact.referencesEvidence(path: document.views.first(where: { "view:\($0.id)" == artifact.scope })?.sourcePath)
+    default:
+        return false
+    }
+}
+
+func proposalSnapshotCompare(
+    for artifact: StudioChangeProposalArtifact,
+    document: StudioNativeDocument?
+) -> StudioProposalSnapshotCompare? {
+    guard let document else { return nil }
+    guard let targetID = artifact.scopeTargetID else { return nil }
+
+    switch artifact.scopeKind {
+    case "component":
+        guard let component = document.components.first(where: { $0.id == targetID }) else {
+            return nil
+        }
+        return StudioProposalSnapshotCompare(
+            scopeLabel: StudioStrings.proposalScopeDisplay(kind: artifact.scopeKindLabel, identifier: component.name),
+            truthStatus: nativeComponentTruthStatus(for: component),
+            coverageLevel: nativeComponentPreviewCoverage(for: component),
+            sourcePath: component.sourcePath,
+            primaryStructureLabel: StudioStrings.states,
+            primaryStructureValue: StudioStrings.statesCount(component.statesCount),
+            secondaryStructureLabel: StudioStrings.sourceTokens,
+            secondaryStructureValue: StudioStrings.resultsCount(component.sourceTokenCount),
+            snapshotURL: document.resolvedSnapshotURL(for: component.snapshot, appearance: .dark),
+            snapshotAvailable: component.snapshot != nil,
+            placeholderSystemImage: "photo"
+        )
+    case "view":
+        guard let view = document.views.first(where: { $0.id == targetID }) else {
+            return nil
+        }
+        return StudioProposalSnapshotCompare(
+            scopeLabel: StudioStrings.proposalScopeDisplay(kind: artifact.scopeKindLabel, identifier: view.name),
+            truthStatus: nativeViewTruthStatus(for: view),
+            coverageLevel: nativeViewPreviewCoverage(for: view),
+            sourcePath: view.sourcePath,
+            primaryStructureLabel: StudioStrings.components,
+            primaryStructureValue: StudioStrings.componentsCount(view.componentsCount),
+            secondaryStructureLabel: StudioStrings.navigation,
+            secondaryStructureValue: StudioStrings.linksCount(view.navigationCount),
+            snapshotURL: document.resolvedSnapshotURL(for: view.snapshot, appearance: .dark),
+            snapshotAvailable: view.snapshot != nil,
+            placeholderSystemImage: "rectangle.on.rectangle"
+        )
+    default:
+        return nil
+    }
+}
+
+func proposalCurrentDeltaSummary(
+    for artifact: StudioChangeProposalArtifact,
+    document: StudioNativeDocument?
+) -> StudioProposalCurrentDeltaSummary {
+    guard let compare = proposalSnapshotCompare(for: artifact, document: document) else {
+        return StudioProposalCurrentDeltaSummary(
+            postureLabel: StudioStrings.proposalApplyPreviewCurrentDeltaPostureBlocked,
+            postureTone: .warning,
+            alignedSignals: [],
+            gaps: [StudioStrings.proposalApplyPreviewCurrentDeltaCompareUnavailable]
+        )
+    }
+
+    var alignedSignals: [String] = []
+    var gaps: [String] = []
+
+    if compare.snapshotAvailable {
+        alignedSignals.append(StudioStrings.proposalApplyPreviewCurrentDeltaAlignedSnapshot)
+    } else {
+        gaps.append(StudioStrings.proposalApplyPreviewCurrentDeltaNoSnapshotGap)
+    }
+
+    if proposalEvidenceMatched(for: artifact, document: document) {
+        alignedSignals.append(StudioStrings.proposalApplyPreviewCurrentDeltaAlignedEvidence)
+    } else {
+        gaps.append(StudioStrings.proposalApplyPreviewCurrentDeltaEvidenceGap)
+    }
+
+    if compare.sourcePath.isEmpty {
+        gaps.append(StudioStrings.proposalApplyPreviewCurrentDeltaNoSourceGap)
+    }
+
+    if compare.coverageLevel.rawValue != artifact.applyPreviewConfiguration.coverageLevel.rawValue {
+        gaps.append(
+            StudioStrings.proposalApplyPreviewCurrentDeltaCoverageGap(
+                expected: artifact.applyPreviewConfiguration.coverageLevel.label,
+                current: compare.coverageLevel.label
+            )
+        )
+    }
+
+    let postureLabel: String
+    let postureTone: StudioInspectorSummaryTone
+    if gaps.isEmpty {
+        postureLabel = StudioStrings.proposalApplyPreviewCurrentDeltaPostureAligned
+        postureTone = .success
+    } else if compare.truthStatus.needsAttention || artifact.applyPreviewReadiness == .blocked {
+        postureLabel = StudioStrings.proposalApplyPreviewCurrentDeltaPostureBlocked
+        postureTone = .warning
+    } else {
+        postureLabel = StudioStrings.proposalApplyPreviewCurrentDeltaPostureReview
+        postureTone = .accent
+    }
+
+    return StudioProposalCurrentDeltaSummary(
+        postureLabel: postureLabel,
+        postureTone: postureTone,
+        alignedSignals: uniqueProposalItems(alignedSignals),
+        gaps: uniqueProposalItems(gaps)
+    )
+}
+
+func proposalSourceAuditStatus(
+    for artifact: StudioChangeProposalArtifact,
+    document: StudioNativeDocument?
+) -> StudioProposalSourceAuditStatus {
+    let matchedEvidence = proposalEvidenceMatched(for: artifact, document: document)
+    if matchedEvidence, artifact.scopeTargetID != nil, !artifact.ticketIDs.isEmpty {
+        return .exact
+    }
+    if matchedEvidence || artifact.scopeTargetID != nil || !artifact.ticketIDs.isEmpty {
+        return .related
+    }
+    return .needsMetadata
+}
+
+func uniqueProposalItems(_ items: [String]) -> [String] {
+    var seen: Set<String> = []
+    return items.filter { seen.insert($0).inserted }
+}
+
+func proposalSharedTone(for readiness: StudioProposalApplyPreviewReadiness) -> StudioInspectorSummaryTone {
+    switch readiness {
+    case .ready:
+        return .success
+    case .review:
+        return .warning
+    case .blocked:
+        return .warning
+    }
+}
+
+func proposalSharedTone(for coverage: StudioPreviewCoverageLevel) -> StudioInspectorSummaryTone {
+    switch coverage {
+    case .exact:
+        return .success
+    case .contractDriven:
+        return .accent
+    case .fallbackNeeded:
+        return .warning
+    }
+}
+
+func proposalSourceAuditLabel(
+    for artifact: StudioChangeProposalArtifact,
+    document: StudioNativeDocument?
+) -> String {
+    switch proposalSourceAuditStatus(for: artifact, document: document) {
+    case .exact:
+        return StudioStrings.proposalApplyPreviewSourceAuditExact
+    case .related:
+        return StudioStrings.proposalApplyPreviewSourceAuditRelated
+    case .needsMetadata:
+        return StudioStrings.proposalApplyPreviewSourceAuditNeedsMetadata
+    }
+}
+
+func proposalSourceAuditSummary(
+    for artifact: StudioChangeProposalArtifact,
+    document: StudioNativeDocument?
+) -> String {
+    switch proposalSourceAuditStatus(for: artifact, document: document) {
+    case .exact:
+        return StudioStrings.proposalApplyPreviewSourceAuditSummaryExact
+    case .related:
+        return StudioStrings.proposalApplyPreviewSourceAuditSummaryRelated
+    case .needsMetadata:
+        return StudioStrings.proposalApplyPreviewSourceAuditSummaryNeedsMetadata
+    }
+}
+
+func proposalSourceAuditTone(
+    for artifact: StudioChangeProposalArtifact,
+    document: StudioNativeDocument?
+) -> StudioInspectorSummaryTone {
+    switch proposalSourceAuditStatus(for: artifact, document: document) {
+    case .exact:
+        return .success
+    case .related:
+        return .accent
+    case .needsMetadata:
+        return .warning
+    }
+}
+
+func proposalInspectorLinkageItems(
+    artifacts: [StudioChangeProposalArtifact],
+    document: StudioNativeDocument?,
+    scope: String? = nil,
+    evidencePaths: [String]
+) -> [StudioInspectorSummaryItem] {
+    let normalizedEvidencePaths = evidencePaths.filter { !$0.isEmpty }
+    let matching = artifacts.filter { artifact in
+        let scopeMatches = scope.map { artifact.scope == $0 } ?? true
+        let evidenceMatches = normalizedEvidencePaths.isEmpty ? false : artifact.referencesAnyEvidence(paths: normalizedEvidencePaths)
+        return scopeMatches || evidenceMatches
+    }
+    let ready = matching.filter(\.isReadyProposal)
+    let evidenceMatched = matching.filter { artifact in
+        normalizedEvidencePaths.contains { artifact.referencesEvidence(path: $0) }
+    }
+    let linkedTickets = Set(matching.flatMap(\.ticketIDs))
+    let previewReady = matching.filter(\.isReadyForApplyPreview)
+    let sourceAuditExact = matching.filter { proposalSourceAuditStatus(for: $0, document: document) == .exact }
+    let deltaAligned = matching.filter { proposalCurrentDeltaSummary(for: $0, document: document).gaps.isEmpty }
+    let deltaGaps = matching.filter { !proposalCurrentDeltaSummary(for: $0, document: document).gaps.isEmpty }
+
+    return [
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalLinkageMatching,
+            value: StudioStrings.resultsCount(matching.count),
+            tone: matching.isEmpty ? .warning : .accent
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalLinkageReady,
+            value: StudioStrings.resultsCount(ready.count),
+            tone: ready.isEmpty ? .neutral : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalLinkageEvidence,
+            value: StudioStrings.resultsCount(evidenceMatched.count),
+            tone: evidenceMatched.isEmpty ? .warning : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalApplyPreviewSourceAudit,
+            value: StudioStrings.resultsCount(sourceAuditExact.count),
+            tone: sourceAuditExact.isEmpty ? .warning : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalApplyPreviewCurrentDeltaAligned,
+            value: StudioStrings.resultsCount(deltaAligned.count),
+            tone: deltaAligned.isEmpty ? .neutral : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalApplyPreviewCurrentDeltaGaps,
+            value: StudioStrings.resultsCount(deltaGaps.count),
+            tone: deltaGaps.isEmpty ? .success : .warning
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalLinkageTickets,
+            value: StudioStrings.resultsCount(linkedTickets.count),
+            tone: linkedTickets.isEmpty ? .warning : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalApplyPreviewReadiness,
+            value: StudioStrings.resultsCount(previewReady.count),
+            tone: previewReady.isEmpty ? .neutral : .success
+        )
+    ]
+}
+
 extension StudioMacProposalArtifactDetailPanel {
     func matchedScopeSourcePath(for artifact: StudioChangeProposalArtifact) -> String {
-        guard let document else { return "" }
-        switch artifact.scopeKind {
-        case "component":
-            return document.components.first(where: { "component:\($0.id)" == artifact.scope })?.sourcePath ?? ""
-        case "view":
-            return document.views.first(where: { "view:\($0.id)" == artifact.scope })?.sourcePath ?? ""
-        default:
-            return ""
-        }
+        proposalMatchedScopeSourcePath(for: artifact, document: document)
     }
 
     func repositoryAuditEntries(for artifact: StudioChangeProposalArtifact) -> [StudioProposalRepoAuditEntry] {
@@ -237,15 +517,7 @@ extension StudioMacProposalArtifactDetailPanel {
     }
 
     func isEvidenceMatched(for artifact: StudioChangeProposalArtifact) -> Bool {
-        guard let document else { return false }
-        switch artifact.scopeKind {
-        case "component":
-            return artifact.referencesEvidence(path: document.components.first(where: { "component:\($0.id)" == artifact.scope })?.sourcePath)
-        case "view":
-            return artifact.referencesEvidence(path: document.views.first(where: { "view:\($0.id)" == artifact.scope })?.sourcePath)
-        default:
-            return false
-        }
+        proposalEvidenceMatched(for: artifact, document: document)
     }
 
     func evidenceMatchTone(for artifact: StudioChangeProposalArtifact) -> StudioInspectorSummaryTone {
@@ -253,106 +525,11 @@ extension StudioMacProposalArtifactDetailPanel {
     }
 
     func snapshotCompare(for artifact: StudioChangeProposalArtifact) -> StudioProposalSnapshotCompare? {
-        guard let document else { return nil }
-        guard let targetID = artifact.scopeTargetID else { return nil }
-
-        switch artifact.scopeKind {
-        case "component":
-            guard let component = document.components.first(where: { $0.id == targetID }) else {
-                return nil
-            }
-            return StudioProposalSnapshotCompare(
-                scopeLabel: StudioStrings.proposalScopeDisplay(kind: artifact.scopeKindLabel, identifier: component.name),
-                truthStatus: nativeComponentTruthStatus(for: component),
-                coverageLevel: nativeComponentPreviewCoverage(for: component),
-                sourcePath: component.sourcePath,
-                primaryStructureLabel: StudioStrings.states,
-                primaryStructureValue: StudioStrings.statesCount(component.statesCount),
-                secondaryStructureLabel: StudioStrings.sourceTokens,
-                secondaryStructureValue: StudioStrings.resultsCount(component.sourceTokenCount),
-                snapshotURL: document.resolvedSnapshotURL(for: component.snapshot, appearance: .dark),
-                snapshotAvailable: component.snapshot != nil,
-                placeholderSystemImage: "photo"
-            )
-        case "view":
-            guard let view = document.views.first(where: { $0.id == targetID }) else {
-                return nil
-            }
-            return StudioProposalSnapshotCompare(
-                scopeLabel: StudioStrings.proposalScopeDisplay(kind: artifact.scopeKindLabel, identifier: view.name),
-                truthStatus: nativeViewTruthStatus(for: view),
-                coverageLevel: nativeViewPreviewCoverage(for: view),
-                sourcePath: view.sourcePath,
-                primaryStructureLabel: StudioStrings.components,
-                primaryStructureValue: StudioStrings.componentsCount(view.componentsCount),
-                secondaryStructureLabel: StudioStrings.navigation,
-                secondaryStructureValue: StudioStrings.linksCount(view.navigationCount),
-                snapshotURL: document.resolvedSnapshotURL(for: view.snapshot, appearance: .dark),
-                snapshotAvailable: view.snapshot != nil,
-                placeholderSystemImage: "rectangle.on.rectangle"
-            )
-        default:
-            return nil
-        }
+        proposalSnapshotCompare(for: artifact, document: document)
     }
 
     func currentDeltaSummary(for artifact: StudioChangeProposalArtifact) -> StudioProposalCurrentDeltaSummary {
-        guard let compare = snapshotCompare(for: artifact) else {
-            return StudioProposalCurrentDeltaSummary(
-                postureLabel: StudioStrings.proposalApplyPreviewCurrentDeltaPostureBlocked,
-                postureTone: .warning,
-                alignedSignals: [],
-                gaps: [StudioStrings.proposalApplyPreviewCurrentDeltaCompareUnavailable]
-            )
-        }
-
-        var alignedSignals: [String] = []
-        var gaps: [String] = []
-
-        if compare.snapshotAvailable {
-            alignedSignals.append(StudioStrings.proposalApplyPreviewCurrentDeltaAlignedSnapshot)
-        } else {
-            gaps.append(StudioStrings.proposalApplyPreviewCurrentDeltaNoSnapshotGap)
-        }
-
-        if isEvidenceMatched(for: artifact) {
-            alignedSignals.append(StudioStrings.proposalApplyPreviewCurrentDeltaAlignedEvidence)
-        } else {
-            gaps.append(StudioStrings.proposalApplyPreviewCurrentDeltaEvidenceGap)
-        }
-
-        if compare.sourcePath.isEmpty {
-            gaps.append(StudioStrings.proposalApplyPreviewCurrentDeltaNoSourceGap)
-        }
-
-        if compare.coverageLevel.rawValue != artifact.applyPreviewConfiguration.coverageLevel.rawValue {
-            gaps.append(
-                StudioStrings.proposalApplyPreviewCurrentDeltaCoverageGap(
-                    expected: artifact.applyPreviewConfiguration.coverageLevel.label,
-                    current: compare.coverageLevel.label
-                )
-            )
-        }
-
-        let postureLabel: String
-        let postureTone: StudioInspectorSummaryTone
-        if gaps.isEmpty {
-            postureLabel = StudioStrings.proposalApplyPreviewCurrentDeltaPostureAligned
-            postureTone = .success
-        } else if compare.truthStatus.needsAttention || artifact.applyPreviewReadiness == .blocked {
-            postureLabel = StudioStrings.proposalApplyPreviewCurrentDeltaPostureBlocked
-            postureTone = .warning
-        } else {
-            postureLabel = StudioStrings.proposalApplyPreviewCurrentDeltaPostureReview
-            postureTone = .accent
-        }
-
-        return StudioProposalCurrentDeltaSummary(
-            postureLabel: postureLabel,
-            postureTone: postureTone,
-            alignedSignals: uniqueItems(alignedSignals),
-            gaps: uniqueItems(gaps)
-        )
+        proposalCurrentDeltaSummary(for: artifact, document: document)
     }
 
     func fieldDeltaRows(for artifact: StudioChangeProposalArtifact) -> [StudioProposalFieldDeltaRowModel] {
@@ -429,69 +606,27 @@ extension StudioMacProposalArtifactDetailPanel {
     }
 
     func sourceAuditLabel(for artifact: StudioChangeProposalArtifact) -> String {
-        switch sourceAuditStatus(for: artifact) {
-        case .exact:
-            return StudioStrings.proposalApplyPreviewSourceAuditExact
-        case .related:
-            return StudioStrings.proposalApplyPreviewSourceAuditRelated
-        case .needsMetadata:
-            return StudioStrings.proposalApplyPreviewSourceAuditNeedsMetadata
-        }
+        proposalSourceAuditLabel(for: artifact, document: document)
     }
 
     func sourceAuditSummary(for artifact: StudioChangeProposalArtifact) -> String {
-        switch sourceAuditStatus(for: artifact) {
-        case .exact:
-            return StudioStrings.proposalApplyPreviewSourceAuditSummaryExact
-        case .related:
-            return StudioStrings.proposalApplyPreviewSourceAuditSummaryRelated
-        case .needsMetadata:
-            return StudioStrings.proposalApplyPreviewSourceAuditSummaryNeedsMetadata
-        }
+        proposalSourceAuditSummary(for: artifact, document: document)
     }
 
     func sourceAuditTone(for artifact: StudioChangeProposalArtifact) -> StudioInspectorSummaryTone {
-        switch sourceAuditStatus(for: artifact) {
-        case .exact:
-            return .success
-        case .related:
-            return .accent
-        case .needsMetadata:
-            return .warning
-        }
+        proposalSourceAuditTone(for: artifact, document: document)
     }
 
     func sourceAuditStatus(for artifact: StudioChangeProposalArtifact) -> StudioProposalSourceAuditStatus {
-        let matchedEvidence = isEvidenceMatched(for: artifact)
-        if matchedEvidence, artifact.scopeTargetID != nil, !artifact.ticketIDs.isEmpty {
-            return .exact
-        }
-        if matchedEvidence || artifact.scopeTargetID != nil || !artifact.ticketIDs.isEmpty {
-            return .related
-        }
-        return .needsMetadata
+        proposalSourceAuditStatus(for: artifact, document: document)
     }
 
     func tone(for readiness: StudioProposalApplyPreviewReadiness) -> StudioInspectorSummaryTone {
-        switch readiness {
-        case .ready:
-            return .success
-        case .review:
-            return .warning
-        case .blocked:
-            return .warning
-        }
+        proposalSharedTone(for: readiness)
     }
 
     func tone(for coverage: StudioPreviewCoverageLevel) -> StudioInspectorSummaryTone {
-        switch coverage {
-        case .exact:
-            return .success
-        case .contractDriven:
-            return .accent
-        case .fallbackNeeded:
-            return .warning
-        }
+        proposalSharedTone(for: coverage)
     }
 }
 

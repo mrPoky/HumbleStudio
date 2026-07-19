@@ -672,6 +672,7 @@ private struct StudioTokenDetailInspector: View {
                         StudioInspectorSummaryGrid(
                             items: foundationProposalLinkageItems(
                                 artifacts: proposalArtifacts,
+                                document: document,
                                 evidencePaths: token.sourcePaths
                             )
                         )
@@ -807,6 +808,7 @@ private struct StudioTokenDetailInspector: View {
                         StudioInspectorSummaryGrid(
                             items: foundationProposalLinkageItems(
                                 artifacts: proposalArtifacts,
+                                document: document,
                                 evidencePaths: token.sourcePaths
                             )
                         )
@@ -1014,6 +1016,7 @@ private struct StudioIconDetailInspector: View {
                                 StudioInspectorSummaryGrid(
                                     items: foundationProposalLinkageItems(
                                         artifacts: proposalArtifacts,
+                                        document: document,
                                         evidencePaths: token.sourcePaths
                                     )
                                 )
@@ -1186,6 +1189,7 @@ private struct StudioTypographyDetailInspector: View {
                         StudioInspectorSummaryGrid(
                             items: foundationProposalLinkageItems(
                                 artifacts: proposalArtifacts,
+                                document: document,
                                 evidencePaths: token.sourcePaths
                             )
                         )
@@ -1394,6 +1398,7 @@ private struct StudioMetricDetailInspector: View {
                         StudioInspectorSummaryGrid(
                             items: foundationProposalLinkageItems(
                                 artifacts: proposalArtifacts,
+                                document: document,
                                 evidencePaths: token.sourcePaths
                             )
                         )
@@ -1493,46 +1498,14 @@ private struct StudioMetricDetailInspector: View {
 
 private func foundationProposalLinkageItems(
     artifacts: [StudioChangeProposalArtifact],
+    document: StudioNativeDocument,
     evidencePaths: [String]
 ) -> [StudioInspectorSummaryItem] {
-    let matching = artifacts.filter { $0.referencesAnyEvidence(paths: evidencePaths) }
-    let ready = matching.filter(\.isReadyProposal)
-    let linkedTickets = Set(matching.flatMap(\.ticketIDs))
-    let previewReady = matching.filter(\.isReadyForApplyPreview)
-    let healthy = matching.filter { $0.validationFindings.isEmpty }
-
-    return [
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalLinkageMatching,
-            value: StudioStrings.resultsCount(matching.count),
-            tone: matching.isEmpty ? .warning : .accent
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalLinkageReady,
-            value: StudioStrings.resultsCount(ready.count),
-            tone: ready.isEmpty ? .neutral : .success
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalLinkageEvidence,
-            value: StudioStrings.resultsCount(matching.count),
-            tone: matching.isEmpty ? .warning : .success
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalLinkageTickets,
-            value: StudioStrings.resultsCount(linkedTickets.count),
-            tone: linkedTickets.isEmpty ? .warning : .success
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalValidation,
-            value: StudioStrings.resultsCount(healthy.count),
-            tone: healthy.count == matching.count && !matching.isEmpty ? .success : .neutral
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalApplyPreviewReadiness,
-            value: StudioStrings.resultsCount(previewReady.count),
-            tone: previewReady.isEmpty ? .neutral : .success
-        )
-    ]
+    proposalInspectorLinkageItems(
+        artifacts: artifacts,
+        document: document,
+        evidencePaths: evidencePaths
+    )
 }
 
 private struct StudioTonePreviewCard: View {

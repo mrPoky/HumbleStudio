@@ -1107,6 +1107,7 @@ struct StudioMacNavigationPage: View {
                     .opacity(0.35)
 
                 StudioNavigationDetailInspector(
+                    document: document,
                     graph: graph,
                     selectedView: selectedView(in: graph),
                     layoutMode: inspectorLayoutMode,
@@ -1173,6 +1174,7 @@ struct StudioMacNavigationPage: View {
 }
 
 private struct StudioNavigationDetailInspector: View {
+    let document: StudioNativeDocument
     let graph: NativeNavigationGraph
     let selectedView: StudioNativeDocument.ViewItem?
     let layoutMode: StudioPreviewLayoutMode
@@ -1416,39 +1418,12 @@ private struct StudioNavigationDetailInspector: View {
     }
 
     private func proposalLinkageItems(for view: StudioNativeDocument.ViewItem) -> [StudioInspectorSummaryItem] {
-        let matching = proposalArtifacts.filter { $0.scope == "view:\(view.id)" }
-        let ready = matching.filter { $0.status == .ready }
-        let evidenceMatched = matching.filter { $0.referencesEvidence(path: view.sourcePath) }
-        let linkedTickets = Set(matching.flatMap(\.ticketIDs))
-        let previewReady = matching.filter { $0.applyPreviewReadiness == .ready }
-
-        return [
-            StudioInspectorSummaryItem(
-                label: StudioStrings.proposalLinkageMatching,
-                value: StudioStrings.resultsCount(matching.count),
-                tone: matching.isEmpty ? .warning : .accent
-            ),
-            StudioInspectorSummaryItem(
-                label: StudioStrings.proposalLinkageReady,
-                value: StudioStrings.resultsCount(ready.count),
-                tone: ready.isEmpty ? .neutral : .success
-            ),
-            StudioInspectorSummaryItem(
-                label: StudioStrings.proposalLinkageEvidence,
-                value: StudioStrings.resultsCount(evidenceMatched.count),
-                tone: evidenceMatched.isEmpty ? .warning : .success
-            ),
-            StudioInspectorSummaryItem(
-                label: StudioStrings.proposalLinkageTickets,
-                value: StudioStrings.resultsCount(linkedTickets.count),
-                tone: linkedTickets.isEmpty ? .warning : .success
-            ),
-            StudioInspectorSummaryItem(
-                label: StudioStrings.proposalApplyPreviewReadiness,
-                value: StudioStrings.resultsCount(previewReady.count),
-                tone: previewReady.isEmpty ? .neutral : .success
-            )
-        ]
+        proposalInspectorLinkageItems(
+            artifacts: proposalArtifacts,
+            document: document,
+            scope: "view:\(view.id)",
+            evidencePaths: [view.sourcePath]
+        )
     }
 
     private func selectedViewStackContext(for view: StudioNativeDocument.ViewItem) -> StudioPreviewStackContext {
