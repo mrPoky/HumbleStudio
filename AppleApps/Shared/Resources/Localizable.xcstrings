@@ -1730,6 +1730,20 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Inspect Scope" } }
       }
     },
+    "studio.change_proposal.open_review_focus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít review focus" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Review Focus" } }
+      }
+    },
+    "studio.change_proposal.open_navigation_focus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít navigation focus" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Navigation Focus" } }
+      }
+    },
     "studio.change_proposal.validation" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -1,0 +1,79 @@
+{
+  "id": "HS-0025",
+  "title": "Add direct jump flow from proposal artifacts into native review focus",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-19",
+  "updated_at": "2026-07-19",
+  "source": "agent",
+  "summary": "Extend proposal artifact surfaces so a saved markdown proposal can jump directly into the matching native review or navigation focus instead of stopping at a generic component or view detail.",
+  "acceptance_criteria": [
+    "Proposal artifact surfaces expose a direct jump action into the matching native focus workflow.",
+    "The jump target is chosen truthfully from existing scope metadata rather than guessed from unrelated state.",
+    "The UX clearly distinguishes review/navigation focus jumps from the existing generic scope inspection action.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Proposal artifact list and detail surfaces now expose explicit direct-focus actions that route component-scoped artifacts into review focus and view-scoped artifacts into navigation focus while preserving the existing Inspect Scope action."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Localized native labels were added for the new focus-jump actions so the proposal and review surfaces stay on the typed StudioStrings path."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0025.json",
+      "note": "Validated the solved ticket schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after the direct focus jump slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacWorkspaceView.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    ".humble/tickets/HS-0025.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 item 1 after HS-0024: add direct jump flow from proposal artifacts into matching review/navigation focus."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0025.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Reuse existing review and navigation selection models instead of adding a parallel proposal-only router.",
+    "Keep scope jump language truthful when a direct focus target is unavailable."
+  ]
+}

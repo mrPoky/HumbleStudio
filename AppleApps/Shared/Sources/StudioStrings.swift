@@ -286,6 +286,8 @@ enum StudioStrings {
     static let proposalWorkspaceSelected = String(localized: "studio.change_proposal.workspace.selected", defaultValue: "Selected")
     static let proposalWorkspaceChooseArtifact = String(localized: "studio.change_proposal.workspace.choose_artifact", defaultValue: "Choose artifact")
     static let inspectProposalScope = String(localized: "studio.change_proposal.inspect_scope", defaultValue: "Inspect Scope")
+    static let openProposalReviewFocus = String(localized: "studio.change_proposal.open_review_focus", defaultValue: "Open Review Focus")
+    static let openProposalNavigationFocus = String(localized: "studio.change_proposal.open_navigation_focus", defaultValue: "Open Navigation Focus")
     static let proposalValidation = String(localized: "studio.change_proposal.validation", defaultValue: "Validation")
     static let proposalValidationHealthy = String(localized: "studio.change_proposal.validation_healthy", defaultValue: "Metadata complete")
     static let proposalValidationNeedsAttention = String(localized: "studio.change_proposal.validation_needs_attention", defaultValue: "Needs metadata")

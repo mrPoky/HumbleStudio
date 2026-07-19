@@ -212,8 +212,11 @@ struct StudioMacWorkspaceDetailContent: View {
     @Binding var selectedIconID: String?
     @Binding var selectedTypographyID: String?
     @Binding var selectedMetricSelection: StudioNativeMetricSelection?
+    @Binding var selectedReviewSelection: StudioMacReviewSelection?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
+    let openComponentReviewFocus: (String) -> Void
+    let openViewNavigationFocus: (String) -> Void
     let loadSupportedApp: (StudioSupportedAppSource) -> Void
 
     var body: some View {
@@ -253,6 +256,7 @@ struct StudioMacWorkspaceDetailContent: View {
                 document: model.nativeDocument,
                 nativeErrorMessage: model.nativeErrorMessage,
                 nativeRecoveryIssue: model.nativeRecoveryIssue,
+                selectedItem: $selectedReviewSelection,
                 inspectComponent: inspectComponent,
                 inspectView: inspectView
             )
@@ -268,7 +272,9 @@ struct StudioMacWorkspaceDetailContent: View {
             StudioMacProposalArtifactsPage(
                 document: model.nativeDocument,
                 inspectComponent: inspectComponent,
-                inspectView: inspectView
+                inspectView: inspectView,
+                openComponentReviewFocus: openComponentReviewFocus,
+                openViewNavigationFocus: openViewNavigationFocus
             )
         case .icons:
             StudioMacIconsPage(

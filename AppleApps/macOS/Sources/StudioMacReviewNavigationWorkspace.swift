@@ -707,9 +707,9 @@ struct StudioMacReviewPage: View {
     let document: StudioNativeDocument?
     let nativeErrorMessage: String?
     let nativeRecoveryIssue: StudioNativeRecoveryIssue?
+    @Binding var selectedItem: StudioMacReviewSelection?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
-    @State private var selectedItem: StudioMacReviewSelection?
     @State private var inspectorLayoutMode: StudioPreviewLayoutMode = .focus
     @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
 
@@ -924,7 +924,7 @@ struct StudioMacReviewPage: View {
     }
 }
 
-private enum StudioMacReviewSelection: Equatable {
+enum StudioMacReviewSelection: Equatable {
     case component(String)
     case view(String)
 }
@@ -1918,6 +1918,8 @@ struct StudioMacProposalArtifactSection: View {
     let reloadProposals: () -> Void
     let inspectComponent: ((String) -> Void)?
     let inspectView: ((String) -> Void)?
+    let openComponentReviewFocus: ((String) -> Void)?
+    let openViewNavigationFocus: ((String) -> Void)?
     let artifactLimit: Int?
     let selectedArtifactID: String?
     let selectArtifact: ((StudioChangeProposalArtifact?) -> Void)?
@@ -1927,6 +1929,34 @@ struct StudioMacProposalArtifactSection: View {
     @State private var readinessFilter: StudioProposalArtifactReadinessFilter = .all
     @State private var validationFilter: StudioProposalArtifactValidationFilter = .all
     @State private var sortOrder: StudioProposalArtifactSortOrder = .newest
+
+    init(
+        artifacts: [StudioChangeProposalArtifact],
+        preferredScope: String?,
+        preferredEvidencePaths: [String],
+        loadIssue: StudioProposalArtifactLoadIssue?,
+        reloadProposals: @escaping () -> Void,
+        inspectComponent: ((String) -> Void)?,
+        inspectView: ((String) -> Void)?,
+        openComponentReviewFocus: ((String) -> Void)? = nil,
+        openViewNavigationFocus: ((String) -> Void)? = nil,
+        artifactLimit: Int?,
+        selectedArtifactID: String?,
+        selectArtifact: ((StudioChangeProposalArtifact?) -> Void)?
+    ) {
+        self.artifacts = artifacts
+        self.preferredScope = preferredScope
+        self.preferredEvidencePaths = preferredEvidencePaths
+        self.loadIssue = loadIssue
+        self.reloadProposals = reloadProposals
+        self.inspectComponent = inspectComponent
+        self.inspectView = inspectView
+        self.openComponentReviewFocus = openComponentReviewFocus
+        self.openViewNavigationFocus = openViewNavigationFocus
+        self.artifactLimit = artifactLimit
+        self.selectedArtifactID = selectedArtifactID
+        self.selectArtifact = selectArtifact
+    }
 
     var body: some View {
         StudioInspectorSection(title: StudioStrings.proposalArtifactsTitle) {
@@ -2179,6 +2209,28 @@ struct StudioMacProposalArtifactSection: View {
         }
     }
 
+    private func focusAction(for artifact: StudioChangeProposalArtifact) -> ((String) -> Void)? {
+        switch artifact.scopeKind {
+        case "component":
+            return openComponentReviewFocus
+        case "view":
+            return openViewNavigationFocus
+        default:
+            return nil
+        }
+    }
+
+    private func focusActionTitle(for artifact: StudioChangeProposalArtifact) -> String {
+        switch artifact.scopeKind {
+        case "component":
+            return StudioStrings.openProposalReviewFocus
+        case "view":
+            return StudioStrings.openProposalNavigationFocus
+        default:
+            return StudioStrings.inspectProposalScope
+        }
+    }
+
     @ViewBuilder
     private func artifactRow(_ artifact: StudioChangeProposalArtifact) -> some View {
         HStack(alignment: .top, spacing: 10) {
@@ -2285,6 +2337,13 @@ struct StudioMacProposalArtifactSection: View {
                 }
                 .buttonStyle(.borderedProminent)
             }
+
+            if let focusAction = focusAction(for: artifact), let targetID = artifact.scopeTargetID {
+                Button(focusActionTitle(for: artifact)) {
+                    focusAction(targetID)
+                }
+                .buttonStyle(.bordered)
+            }
         }
     }
 
@@ -2364,6 +2423,8 @@ struct StudioMacProposalArtifactsPage: View {
     let document: StudioNativeDocument?
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
+    let openComponentReviewFocus: (String) -> Void
+    let openViewNavigationFocus: (String) -> Void
     @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
     @State private var proposalArtifactIssue: StudioProposalArtifactLoadIssue?
     @State private var selectedArtifactID: String?
@@ -2518,6 +2579,8 @@ struct StudioMacProposalArtifactsPage: View {
                         reloadProposals: reloadProposals,
                         inspectComponent: inspectComponent,
                         inspectView: inspectView,
+                        openComponentReviewFocus: openComponentReviewFocus,
+                        openViewNavigationFocus: openViewNavigationFocus,
                         artifactLimit: nil,
                         selectedArtifactID: selectedArtifactID,
                         selectArtifact: { artifact in
@@ -2531,7 +2594,9 @@ struct StudioMacProposalArtifactsPage: View {
                         document: document,
                         repositoryRootURL: repositoryRootURL,
                         inspectComponent: inspectComponent,
-                        inspectView: inspectView
+                        inspectView: inspectView,
+                        openComponentReviewFocus: openComponentReviewFocus,
+                        openViewNavigationFocus: openViewNavigationFocus
                     )
                     .frame(width: 360, alignment: .topLeading)
                 }
@@ -2607,6 +2672,8 @@ private struct StudioMacProposalArtifactDetailPanel: View {
     let repositoryRootURL: URL
     let inspectComponent: (String) -> Void
     let inspectView: (String) -> Void
+    let openComponentReviewFocus: (String) -> Void
+    let openViewNavigationFocus: (String) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -2646,11 +2713,22 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                             }
                         }
 
-                        if let inspectAction = inspectAction(for: artifact), let targetID = artifact.scopeTargetID {
-                            Button(StudioStrings.inspectProposalScope) {
-                                inspectAction(targetID)
+                        if let targetID = artifact.scopeTargetID {
+                            HStack(spacing: 10) {
+                                if let focusAction = focusAction(for: artifact) {
+                                    Button(focusActionTitle(for: artifact)) {
+                                        focusAction(targetID)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                }
+
+                                if let inspectAction = inspectAction(for: artifact) {
+                                    Button(StudioStrings.inspectProposalScope) {
+                                        inspectAction(targetID)
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
                             }
-                            .buttonStyle(.borderedProminent)
                         }
                     }
                 } else {
@@ -2827,6 +2905,28 @@ private struct StudioMacProposalArtifactDetailPanel: View {
             return inspectView
         default:
             return nil
+        }
+    }
+
+    private func focusAction(for artifact: StudioChangeProposalArtifact) -> ((String) -> Void)? {
+        switch artifact.scopeKind {
+        case "component":
+            return openComponentReviewFocus
+        case "view":
+            return openViewNavigationFocus
+        default:
+            return nil
+        }
+    }
+
+    private func focusActionTitle(for artifact: StudioChangeProposalArtifact) -> String {
+        switch artifact.scopeKind {
+        case "component":
+            return StudioStrings.openProposalReviewFocus
+        case "view":
+            return StudioStrings.openProposalNavigationFocus
+        default:
+            return StudioStrings.inspectProposalScope
         }
     }
 

@@ -8,6 +8,7 @@ struct StudioMacWorkspaceView: View {
     @State private var isDropTargeted = false
     @State private var componentAppearance: StudioNativeAppearance = .dark
     @State private var viewAppearance: StudioNativeAppearance = .dark
+    @State private var reviewSelection: StudioMacReviewSelection?
     @State private var routeSession = StudioMacWorkspaceRouteSession()
     @State private var sourceSession = StudioMacWorkspaceSourceSession()
 
@@ -129,8 +130,11 @@ struct StudioMacWorkspaceView: View {
             selectedIconID: iconIDBinding,
             selectedTypographyID: typographyIDBinding,
             selectedMetricSelection: metricSelectionBinding,
+            selectedReviewSelection: $reviewSelection,
             inspectComponent: inspectComponent,
             inspectView: inspectView,
+            openComponentReviewFocus: openComponentReviewFocus,
+            openViewNavigationFocus: openViewNavigationFocus,
             loadSupportedApp: loadSupportedApp
         )
     }
@@ -224,6 +228,17 @@ struct StudioMacWorkspaceView: View {
     private func inspectView(_ viewID: String) {
         routeSession.recordQuickOpenKey("view:\(viewID)")
         routeSession.applyRoute(.views(viewID), document: model.nativeDocument)
+    }
+
+    private func openComponentReviewFocus(_ componentID: String) {
+        reviewSelection = .component(componentID)
+        routeSession.recordQuickOpenKey("review:component:\(componentID)")
+        routeSession.applyRoute(.review, document: model.nativeDocument)
+    }
+
+    private func openViewNavigationFocus(_ viewID: String) {
+        routeSession.recordQuickOpenKey("navigation:\(viewID)")
+        routeSession.applyRoute(.navigation(viewID), document: model.nativeDocument)
     }
 
     private func inspectToken(_ tokenSelection: StudioNativeTokenSelection) {
