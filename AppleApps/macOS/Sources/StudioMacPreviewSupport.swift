@@ -197,9 +197,40 @@ struct StudioPreviewConfiguration: Equatable {
     var coverageLevel: StudioPreviewCoverageLevel = .contractDriven
     var showSafeAreas = true
     var showDeviceFrame = true
+    var breadcrumbTrail: [String] = []
+    var currentStep: Int?
+    var totalSteps: Int?
+    var modalDepth: Int = 1
+    var contractNote: String?
 
     var sizeClasses: (horizontal: StudioPreviewSizeClass, vertical: StudioPreviewSizeClass) {
         device.sizeClasses(for: orientation)
+    }
+
+    var resolvedBreadcrumbTrail: [String] {
+        let cleaned = breadcrumbTrail
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return cleaned.isEmpty ? stackContext.breadcrumbLabels : cleaned
+    }
+
+    var resolvedCurrentStep: Int? {
+        guard let currentStep, currentStep > 0 else { return nil }
+        return currentStep
+    }
+
+    var resolvedTotalSteps: Int? {
+        if let totalSteps, totalSteps > 0 {
+            if let resolvedCurrentStep {
+                return max(totalSteps, resolvedCurrentStep)
+            }
+            return totalSteps
+        }
+        return resolvedCurrentStep
+    }
+
+    var resolvedModalDepth: Int {
+        max(modalDepth, 1)
     }
 
     var contractSummary: String {
@@ -221,6 +252,30 @@ struct StudioPreviewConfiguration: Equatable {
             modalLayering: modalLayering,
             stackContext: stackContext
         )
+    }
+
+    var breadcrumbSummary: String {
+        StudioStrings.previewBreadcrumbTrailSummary(resolvedBreadcrumbTrail)
+    }
+
+    var flowProgressSummary: String {
+        StudioStrings.previewFlowProgressSummary(
+            currentStep: resolvedCurrentStep,
+            totalSteps: resolvedTotalSteps
+        )
+    }
+
+    var modalContextSummary: String {
+        StudioStrings.previewModalContextSummary(
+            depth: resolvedModalDepth,
+            presentationMode: presentationMode,
+            layering: modalLayering
+        )
+    }
+
+    var contractNoteSummary: String {
+        let trimmed = contractNote?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return trimmed.isEmpty ? StudioStrings.previewContractDerivedFromModel : trimmed
     }
 
     static func viewDefault(presentation: String) -> StudioPreviewConfiguration {
@@ -379,12 +434,17 @@ struct StudioPreviewSurface<Content: View>: View {
             if configuration.presentationMode == .sheet {
                 Color.black.opacity(appearance == .light ? 0.08 : 0.22)
 
+                ForEach(Array(backgroundModalOffsets.enumerated()), id: \.offset) { _, offset in
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(appearance == .light ? Color.white.opacity(0.72) : Color(hex: "#1D2943").opacity(0.92))
+                        .frame(width: sheetSize.width, height: sheetSize.height)
+                        .offset(x: offset.width, y: offset.height)
+                        .shadow(color: .black.opacity(appearance == .light ? 0.06 : 0.18), radius: 12, y: 6)
+                }
+
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .fill(appearance == .light ? Color.white : Color(hex: "#19233A"))
-                    .frame(
-                        width: max(canvasSize.width * 0.82, min(canvasSize.width - 28, canvasSize.width * 0.92)),
-                        height: max(canvasSize.height * 0.72, min(canvasSize.height - 36, canvasSize.height * 0.84))
-                    )
+                    .frame(width: sheetSize.width, height: sheetSize.height)
                     .overlay {
                         content()
                             .padding(14)
@@ -395,9 +455,15 @@ struct StudioPreviewSurface<Content: View>: View {
                                 .fill(Color.secondary.opacity(0.25))
                                 .frame(width: 42, height: 5)
 
-                            if showsDismissControl {
-                                HStack {
-                                    Spacer(minLength: 0)
+                            HStack(alignment: .center, spacing: 8) {
+                                if let flowBadgeText {
+                                    previewBadge(text: flowBadgeText)
+                                }
+                                if configuration.resolvedModalDepth > 1 {
+                                    previewBadge(text: StudioStrings.previewLayerBadge(configuration.resolvedModalDepth))
+                                }
+                                Spacer(minLength: 0)
+                                if showsDismissControl {
                                     Circle()
                                         .fill(Color.secondary.opacity(0.16))
                                         .frame(width: 24, height: 24)
@@ -467,11 +533,11 @@ struct StudioPreviewSurface<Content: View>: View {
                                 .font(.caption.weight(.semibold))
                         }
                         HStack(spacing: 6) {
-                            ForEach(configuration.stackContext.breadcrumbLabels, id: \.self) { label in
+                            ForEach(configuration.resolvedBreadcrumbTrail, id: \.self) { label in
                                 Text(label)
-                                    .font(.caption2.weight(label == "Current" ? .semibold : .regular))
-                                    .foregroundStyle(label == "Current" ? .primary : .secondary)
-                                if label != configuration.stackContext.breadcrumbLabels.last {
+                                    .font(.caption2.weight(label == configuration.resolvedBreadcrumbTrail.last ? .semibold : .regular))
+                                    .foregroundStyle(label == configuration.resolvedBreadcrumbTrail.last ? .primary : .secondary)
+                                if label != configuration.resolvedBreadcrumbTrail.last {
                                     Image(systemName: "chevron.right")
                                         .font(.caption2)
                                         .foregroundStyle(.tertiary)
@@ -480,11 +546,13 @@ struct StudioPreviewSurface<Content: View>: View {
                         }
                         .lineLimit(1)
                         Spacer(minLength: 0)
-                        if showsDismissControl {
-                            Circle()
-                                .fill(Color.secondary.opacity(0.14))
-                                .frame(width: 20, height: 20)
-                        } else {
+                        HStack(spacing: 6) {
+                            if let flowBadgeText {
+                                previewBadge(text: flowBadgeText)
+                            }
+                            if configuration.resolvedModalDepth > 1 {
+                                previewBadge(text: StudioStrings.previewLayerBadge(configuration.resolvedModalDepth))
+                            }
                             Circle()
                                 .fill(Color.secondary.opacity(0.14))
                                 .frame(width: 20, height: 20)
@@ -606,6 +674,37 @@ struct StudioPreviewSurface<Content: View>: View {
     private var showsFullScreenDismissControl: Bool {
         configuration.presentationMode == .fullScreenCover && !showsNavigationBar
     }
+
+    private var sheetSize: CGSize {
+        CGSize(
+            width: max(canvasSize.width * 0.82, min(canvasSize.width - 28, canvasSize.width * 0.92)),
+            height: max(canvasSize.height * 0.72, min(canvasSize.height - 36, canvasSize.height * 0.84))
+        )
+    }
+
+    private var backgroundModalOffsets: [CGSize] {
+        guard configuration.resolvedModalDepth > 1 else { return [] }
+        return Array(1..<configuration.resolvedModalDepth).map { layerIndex in
+            CGSize(width: 0, height: CGFloat((configuration.resolvedModalDepth - layerIndex) * 8))
+        }
+    }
+
+    private var flowBadgeText: String? {
+        guard let currentStep = configuration.resolvedCurrentStep else { return nil }
+        return StudioStrings.previewStepBadge(
+            currentStep: currentStep,
+            totalSteps: configuration.resolvedTotalSteps
+        )
+    }
+
+    private func previewBadge(text: String) -> some View {
+        Text(text)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.secondary.opacity(0.12), in: Capsule())
+            .foregroundStyle(.secondary)
+    }
 }
 
 private struct StudioPreviewHeader: View {
@@ -681,6 +780,9 @@ struct StudioPreviewContractPanel: View {
 
             StudioKeyValueRow(label: StudioStrings.previewContract, value: configuration.contractSummary)
             StudioKeyValueRow(label: StudioStrings.previewBehaviorModel, value: configuration.behaviorSummary)
+            StudioKeyValueRow(label: StudioStrings.previewFlowPath, value: configuration.breadcrumbSummary)
+            StudioKeyValueRow(label: StudioStrings.previewFlowProgress, value: configuration.flowProgressSummary)
+            StudioKeyValueRow(label: StudioStrings.previewModalContext, value: configuration.modalContextSummary)
             StudioKeyValueRow(
                 label: StudioStrings.previewSafeArea,
                 value: StudioStrings.previewSafeAreaInsets(
@@ -690,6 +792,7 @@ struct StudioPreviewContractPanel: View {
                 )
             )
             StudioKeyValueRow(label: StudioStrings.previewStackContext, value: configuration.stackContext.summary)
+            StudioKeyValueRow(label: StudioStrings.previewContractNoteLabel, value: configuration.contractNoteSummary)
             StudioKeyValueRow(label: StudioStrings.previewCoverageNote, value: configuration.coverageLevel.summary)
         }
         .padding(14)

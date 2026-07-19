@@ -487,6 +487,10 @@ enum StudioStrings {
     static let previewScale = String(localized: "studio.preview.scale", defaultValue: "Preview scale")
     static let previewContract = String(localized: "studio.preview.contract", defaultValue: "Preview contract")
     static let previewBehaviorModel = String(localized: "studio.preview.behavior_model", defaultValue: "Behavior model")
+    static let previewFlowPath = String(localized: "studio.preview.flow_path", defaultValue: "Flow path")
+    static let previewFlowProgress = String(localized: "studio.preview.flow_progress", defaultValue: "Flow progress")
+    static let previewModalContext = String(localized: "studio.preview.modal_context", defaultValue: "Modal context")
+    static let previewContractNoteLabel = String(localized: "studio.preview.contract_note_label", defaultValue: "Contract note")
     static let previewCoverageNote = String(localized: "studio.preview.coverage_note", defaultValue: "Coverage note")
     static let previewSizeClasses = String(localized: "studio.preview.size_classes", defaultValue: "Size classes")
     static let previewBreadcrumbDetail = String(localized: "studio.preview.breadcrumb.detail", defaultValue: "Detail")
@@ -1035,6 +1039,11 @@ enum StudioStrings {
     }
 
     static let previewSafeArea = String(localized: "studio.preview.safe_area", defaultValue: "Safe area insets")
+    static let previewContractDerivedFromModel = String(localized: "studio.preview.contract_note.default", defaultValue: "This preview is driven by native contract data rather than a live runtime capture.")
+    static let previewProposalInferenceNote = String(localized: "studio.preview.contract_note.proposal_inference", defaultValue: "Proposal apply preview infers its flow context from saved scope and evidence, not from a live runtime navigation session.")
+    static let previewNavigationGraphNote = String(localized: "studio.preview.contract_note.navigation_graph", defaultValue: "Flow context is derived from the exported navigation graph and matches the currently known route structure.")
+    static let previewNavigationGraphApproximationNote = String(localized: "studio.preview.contract_note.navigation_graph_approximation", defaultValue: "Flow context is derived from the exported navigation graph, but visual behavior still remains partly contract-driven.")
+    static let previewComponentUsageInferenceNote = String(localized: "studio.preview.contract_note.component_usage", defaultValue: "Component flow context is inferred from usage relationships rather than a screen-level runtime path.")
 
     static func previewSafeAreaInsets(top: Int, bottom: Int, horizontal: Int) -> String {
         String(
@@ -1046,6 +1055,80 @@ enum StudioStrings {
             top,
             bottom,
             horizontal
+        )
+    }
+
+    static func previewBreadcrumbTrailSummary(_ labels: [String]) -> String {
+        let cleaned = labels
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        guard !cleaned.isEmpty else {
+            return notAvailableYet
+        }
+        return cleaned.joined(separator: " -> ")
+    }
+
+    static func previewFlowProgressSummary(currentStep: Int?, totalSteps: Int?) -> String {
+        guard let currentStep else {
+            return notAvailableYet
+        }
+        if let totalSteps {
+            return String(
+                format: String(localized: "studio.preview.flow_progress_value", defaultValue: "Step %1$lld of %2$lld"),
+                locale: Locale.current,
+                currentStep,
+                totalSteps
+            )
+        }
+        return String(
+            format: String(localized: "studio.preview.flow_progress_current_only", defaultValue: "Step %lld"),
+            locale: Locale.current,
+            currentStep
+        )
+    }
+
+    static func previewModalContextSummary(
+        depth: Int,
+        presentationMode: StudioPreviewPresentationMode,
+        layering: StudioPreviewModalLayering
+    ) -> String {
+        let normalizedDepth = max(depth, 1)
+        if presentationMode == .push {
+            return String(localized: "studio.preview.modal_context.inline_route", defaultValue: "No extra modal layer is modeled beyond the active route.")
+        }
+        return String(
+            format: String(
+                localized: "studio.preview.modal_context.layered_value",
+                defaultValue: "%1$lld visible layers with %2$@ presentation and %3$@ layering."
+            ),
+            locale: Locale.current,
+            normalizedDepth,
+            previewPresentationModeLabel(presentationMode).lowercased(),
+            previewModalLayeringLabel(layering).lowercased()
+        )
+    }
+
+    static func previewStepBadge(currentStep: Int, totalSteps: Int?) -> String {
+        if let totalSteps {
+            return String(
+                format: String(localized: "studio.preview.step_badge", defaultValue: "Step %1$lld/%2$lld"),
+                locale: Locale.current,
+                currentStep,
+                totalSteps
+            )
+        }
+        return String(
+            format: String(localized: "studio.preview.step_badge_current_only", defaultValue: "Step %lld"),
+            locale: Locale.current,
+            currentStep
+        )
+    }
+
+    static func previewLayerBadge(_ depth: Int) -> String {
+        String(
+            format: String(localized: "studio.preview.layer_badge", defaultValue: "%lld layers"),
+            locale: Locale.current,
+            max(depth, 1)
         )
     }
 

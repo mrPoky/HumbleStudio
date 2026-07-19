@@ -995,6 +995,34 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Behavior model" } }
       }
     },
+    "studio.preview.flow_path" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Flow cesta" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Flow path" } }
+      }
+    },
+    "studio.preview.flow_progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Postup flow" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Flow progress" } }
+      }
+    },
+    "studio.preview.modal_context" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kontext modalu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Modal context" } }
+      }
+    },
+    "studio.preview.contract_note_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Poznámka ke kontraktu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Contract note" } }
+      }
+    },
     "studio.preview.coverage_note" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3557,11 +3585,95 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Safe area insets" } }
       }
     },
+    "studio.preview.contract_note.default" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Toto preview je řízené nativními kontraktovými daty, ne živým runtime záznamem." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This preview is driven by native contract data rather than a live runtime capture." } }
+      }
+    },
+    "studio.preview.contract_note.proposal_inference" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Apply preview návrhu odvozuje flow kontext ze scope a evidence, ne ze živé runtime navigační session." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal apply preview infers its flow context from saved scope and evidence, not from a live runtime navigation session." } }
+      }
+    },
+    "studio.preview.contract_note.navigation_graph" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kontext flow je odvozený z exportovaného navigation graphu a odpovídá aktuálně známé route struktuře." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Flow context is derived from the exported navigation graph and matches the currently known route structure." } }
+      }
+    },
+    "studio.preview.contract_note.navigation_graph_approximation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kontext flow je odvozený z exportovaného navigation graphu, ale vizuální chování je stále částečně kontraktové." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Flow context is derived from the exported navigation graph, but visual behavior still remains partly contract-driven." } }
+      }
+    },
+    "studio.preview.contract_note.component_usage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Flow kontext komponenty je odvozený z usage vztahů, ne z runtime cesty obrazovkou." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Component flow context is inferred from usage relationships rather than a screen-level runtime path." } }
+      }
+    },
     "studio.preview.safe_area_insets" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nahoře %lld pt · Dole %lld pt · Vodorovně %lld pt" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Top %lld pt · Bottom %lld pt · Horizontal %lld pt" } }
+      }
+    },
+    "studio.preview.flow_progress_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Krok %1$lld z %2$lld" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Step %1$lld of %2$lld" } }
+      }
+    },
+    "studio.preview.flow_progress_current_only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Krok %lld" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Step %lld" } }
+      }
+    },
+    "studio.preview.modal_context.inline_route" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Mimo aktivní route se nemodeluje žádná další modal vrstva." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No extra modal layer is modeled beyond the active route." } }
+      }
+    },
+    "studio.preview.modal_context.layered_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld viditelné vrstvy s %2$@ prezentací a %3$@ vrstvením." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld visible layers with %2$@ presentation and %3$@ layering." } }
+      }
+    },
+    "studio.preview.step_badge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Krok %1$lld/%2$lld" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Step %1$lld/%2$lld" } }
+      }
+    },
+    "studio.preview.step_badge_current_only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Krok %lld" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Step %lld" } }
+      }
+    },
+    "studio.preview.layer_badge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld vrstvy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld layers" } }
       }
     },
     "studio.preview.stack.stacked" : {

@@ -196,6 +196,11 @@ struct StudioChangeProposalArtifact: Identifiable, Equatable {
         } else if scopeKind == "component" {
             configuration.stackContext = .single
         }
+        configuration.breadcrumbTrail = [StudioStrings.proposalWorkspaceTitle, scopeDisplayLabel, StudioStrings.preview]
+        configuration.currentStep = evidenceItems.isEmpty ? nil : 2
+        configuration.totalSteps = acceptanceChecks.isEmpty ? 2 : 3
+        configuration.modalDepth = configuration.presentationMode == .push ? 1 : 2
+        configuration.contractNote = StudioStrings.previewProposalInferenceNote
         return configuration
     }
 
@@ -1108,14 +1113,27 @@ private struct StudioMacReviewFocusInspector: View {
         configuration.navigationChrome = .none
         configuration.navigationDepth = .root
         configuration.stackContext = getComponentUsageCount(component, in: document) > 0 ? .stacked : .single
+        configuration.breadcrumbTrail = [StudioStrings.components, component.name]
+        configuration.currentStep = 1
+        configuration.totalSteps = getComponentUsageCount(component, in: document) > 0 ? 2 : 1
+        configuration.contractNote = StudioStrings.previewComponentUsageInferenceNote
         return configuration
     }
 
     private func viewConfiguration(for view: StudioNativeDocument.ViewItem) -> StudioPreviewConfiguration {
         var configuration = StudioPreviewConfiguration.viewDefault(presentation: view.presentation)
+        let graph = makeNativeNavigationGraph(document: document)
         configuration.coverageLevel = nativeViewPreviewCoverage(for: view)
         configuration.navigationDepth = view.root ? .root : (view.navigationCount > 1 ? .deep : .detail)
         configuration.stackContext = view.navigationCount > 1 || view.entryPoints.count > 1 ? .branched : (view.root ? .single : .stacked)
+        let breadcrumb = graph.pathToRoot(view.id).compactMap { graph.viewByID[$0]?.name }
+        configuration.breadcrumbTrail = breadcrumb.isEmpty ? configuration.stackContext.breadcrumbLabels : breadcrumb
+        configuration.currentStep = max(configuration.breadcrumbTrail.count, 1)
+        configuration.totalSteps = max(configuration.currentStep ?? 1, (graph.depths.values.max() ?? 0) + 1)
+        configuration.modalDepth = StudioPreviewConfiguration.viewDefault(presentation: view.presentation).presentationMode == .push ? 1 : 2
+        configuration.contractNote = nativeViewPreviewCoverage(for: view) == .exact
+            ? StudioStrings.previewNavigationGraphNote
+            : StudioStrings.previewNavigationGraphApproximationNote
         return configuration
     }
 }
@@ -1469,6 +1487,11 @@ private struct StudioNavigationDetailInspector: View {
         configuration.navigationDepth = (graph.depths[view.id] ?? 0) > 1 ? .deep : (view.id == graph.rootViewID ? .root : .detail)
         configuration.navigationChrome = view.root ? .both : configuration.navigationChrome
         configuration.stackContext = selectedViewStackContext(for: view)
+        configuration.breadcrumbTrail = previewBreadcrumbTrail(for: view)
+        configuration.currentStep = previewCurrentStep(for: view)
+        configuration.totalSteps = previewTotalSteps(for: view)
+        configuration.modalDepth = previewModalDepth(for: view)
+        configuration.contractNote = previewContractNote(for: view)
         return configuration
     }
 
@@ -1559,6 +1582,72 @@ private struct StudioNavigationDetailInspector: View {
             return .single
         }
         return .stacked
+    }
+
+    private func previewBreadcrumbTrail(for view: StudioNativeDocument.ViewItem) -> [String] {
+        let path = graph.pathToRoot(view.id)
+        let names = path.compactMap { graph.viewByID[$0]?.name }
+        return names.isEmpty ? selectedViewStackContext(for: view).breadcrumbLabels : names
+    }
+
+    private func previewCurrentStep(for view: StudioNativeDocument.ViewItem) -> Int {
+        max(previewBreadcrumbTrail(for: view).count, 1)
+    }
+
+    private func previewTotalSteps(for view: StudioNativeDocument.ViewItem) -> Int {
+        let currentDepth = graph.depths[view.id] ?? 0
+        let deepestDepth = furthestReachableDepth(from: view.id, visited: [])
+        let remainingSteps = max(deepestDepth - currentDepth, 0)
+        return max(previewCurrentStep(for: view) + remainingSteps, previewCurrentStep(for: view))
+    }
+
+    private func previewModalDepth(for view: StudioNativeDocument.ViewItem) -> Int {
+        let path = graph.pathToRoot(view.id)
+        guard path.count > 1 else {
+            return configurationModalBaseDepth(for: view)
+        }
+
+        var modalTransitions = 0
+        for pair in zip(path, path.dropFirst()) {
+            let sourceID = pair.0
+            let targetID = pair.1
+            if let edge = graph.viewByID[sourceID]?.navigatesTo.first(where: {
+                $0.targetID == targetID && ($0.type == "sheet" || $0.type == "replace")
+            }) {
+                modalTransitions += edge.type == "replace" ? 1 : 1
+            }
+        }
+
+        return max(1 + modalTransitions, configurationModalBaseDepth(for: view))
+    }
+
+    private func configurationModalBaseDepth(for view: StudioNativeDocument.ViewItem) -> Int {
+        let mode = StudioPreviewConfiguration.viewDefault(presentation: view.presentation).presentationMode
+        return mode == .push ? 1 : 2
+    }
+
+    private func furthestReachableDepth(from viewID: String, visited: Set<String>) -> Int {
+        guard visited.contains(viewID) == false else {
+            return graph.depths[viewID] ?? 0
+        }
+        let currentDepth = graph.depths[viewID] ?? 0
+        guard let view = graph.viewByID[viewID] else {
+            return currentDepth
+        }
+
+        let nextVisited = visited.union([viewID])
+        let childDepths = view.navigatesTo
+            .filter { $0.type != "pop" }
+            .map { furthestReachableDepth(from: $0.targetID, visited: nextVisited) }
+
+        return ([currentDepth] + childDepths).max() ?? currentDepth
+    }
+
+    private func previewContractNote(for view: StudioNativeDocument.ViewItem) -> String {
+        if nativeViewPreviewCoverage(for: view) == .exact {
+            return StudioStrings.previewNavigationGraphNote
+        }
+        return StudioStrings.previewNavigationGraphApproximationNote
     }
 
     private func reloadProposals() {
