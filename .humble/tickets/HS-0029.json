@@ -1,0 +1,77 @@
+{
+  "id": "HS-0029",
+  "title": "Extract proposal delta support from review workspace",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-19",
+  "updated_at": "2026-07-19",
+  "source": "agent",
+  "summary": "Modularize the macOS review/navigation workspace by extracting proposal apply-preview compare and delta support into a focused native source file.",
+  "acceptance_criteria": [
+    "Proposal apply-preview compare and current-delta helpers move out of StudioMacReviewNavigationWorkspace.swift into a dedicated macOS source file.",
+    "The extracted code preserves truthful read-only proposal compare behavior and keeps call sites compiling without root-shell regressions.",
+    "The review workspace file becomes meaningfully smaller and its ownership around proposal delta surfaces becomes clearer.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Proposal apply-preview snapshot compare, current delta, diff-plan and repo-audit support now live in `StudioMacReviewNavigationProposalSupport.swift` instead of staying embedded inside the main review workspace file."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "The extraction kept the apply-preview surface read-only and preserved compare-backed delta behavior while clarifying ownership around proposal-specific helper types."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0029.json",
+      "note": "Validated the solved ticket schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after the proposal support modularization."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded after the extraction."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0029.json",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalSupport.swift",
+    "HumbleStudio.xcodeproj/project.pbxproj"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 item 1 after HS-0028: split StudioMacReviewNavigationWorkspace.swift into smaller proposal/apply-preview and compare-focused macOS files."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0029.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Prefer extracting proposal-specific compare and delta types first instead of mixing broader review queue responsibilities into the same slice.",
+    "Keep behavior unchanged; this is a modularization-first checkpoint."
+  ]
+}
