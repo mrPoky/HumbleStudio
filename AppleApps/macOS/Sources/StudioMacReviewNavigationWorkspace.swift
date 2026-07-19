@@ -2784,6 +2784,10 @@ private struct StudioMacProposalArtifactDetailPanel: View {
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewSourceAudit, value: sourceAuditSummary(for: artifact))
                         StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewNextStep, value: artifact.applyPreviewNextStep)
 
+                        StudioInspectorSection(title: StudioStrings.proposalApplyPreviewSnapshotCompare) {
+                            snapshotCompareSection(for: artifact)
+                        }
+
                         StudioInspectorSection(title: StudioStrings.proposalApplyPreviewDiffPlan) {
                             VStack(alignment: .leading, spacing: 10) {
                                 StudioInspectorSummaryGrid(items: [
@@ -2991,6 +2995,58 @@ private struct StudioMacProposalArtifactDetailPanel: View {
     }
 
     @ViewBuilder
+    private func snapshotCompareSection(for artifact: StudioChangeProposalArtifact) -> some View {
+        if let compare = snapshotCompare(for: artifact) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(StudioStrings.proposalApplyPreviewSnapshotCompareDescription)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                StudioInspectorSummaryGrid(items: [
+                    StudioInspectorSummaryItem(
+                        label: StudioStrings.truth,
+                        value: compare.truthStatus.label,
+                        tone: compare.truthStatus.needsAttention ? .warning : .success
+                    ),
+                    StudioInspectorSummaryItem(
+                        label: StudioStrings.proposalCoverage,
+                        value: compare.coverageLevel.label,
+                        tone: tone(for: compare.coverageLevel)
+                    ),
+                    StudioInspectorSummaryItem(
+                        label: compare.primaryStructureLabel,
+                        value: compare.primaryStructureValue,
+                        tone: .accent
+                    ),
+                    StudioInspectorSummaryItem(
+                        label: compare.secondaryStructureLabel,
+                        value: compare.secondaryStructureValue,
+                        tone: .neutral
+                    )
+                ])
+
+                StudioProposalSnapshotCompareThumbnail(
+                    url: compare.snapshotURL,
+                    appearance: .dark,
+                    systemImage: compare.placeholderSystemImage
+                )
+                .frame(height: 190)
+
+                StudioKeyValueRow(label: StudioStrings.proposalScope, value: compare.scopeLabel)
+                StudioKeyValueRow(label: StudioStrings.snapshot, value: compare.snapshotAvailable ? StudioStrings.present : StudioStrings.missing)
+                StudioKeyValueRow(label: StudioStrings.source, value: compare.sourcePath.isEmpty ? StudioStrings.notAvailableYet : compare.sourcePath)
+                StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewEvidenceMatch, value: evidenceMatchLabel(for: artifact))
+            }
+        } else {
+            Text(snapshotCompareUnavailableMessage(for: artifact))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    @ViewBuilder
     private func previewDiffList(title: String, items: [String], emptyMessage: String?) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
@@ -3068,6 +3124,69 @@ private struct StudioMacProposalArtifactDetailPanel: View {
 
     private func evidenceMatchTone(for artifact: StudioChangeProposalArtifact) -> StudioInspectorSummaryTone {
         isEvidenceMatched(for: artifact) ? .success : .warning
+    }
+
+    private func snapshotCompare(for artifact: StudioChangeProposalArtifact) -> StudioProposalSnapshotCompare? {
+        guard let document else { return nil }
+        guard let targetID = artifact.scopeTargetID else { return nil }
+
+        switch artifact.scopeKind {
+        case "component":
+            guard let component = document.components.first(where: { $0.id == targetID }) else {
+                return nil
+            }
+            return StudioProposalSnapshotCompare(
+                scopeLabel: StudioStrings.proposalScopeDisplay(kind: artifact.scopeKindLabel, identifier: component.name),
+                truthStatus: nativeComponentTruthStatus(for: component),
+                coverageLevel: nativeComponentPreviewCoverage(for: component),
+                sourcePath: component.sourcePath,
+                primaryStructureLabel: StudioStrings.states,
+                primaryStructureValue: StudioStrings.statesCount(component.statesCount),
+                secondaryStructureLabel: StudioStrings.sourceTokens,
+                secondaryStructureValue: StudioStrings.resultsCount(component.sourceTokenCount),
+                snapshotURL: document.resolvedSnapshotURL(for: component.snapshot, appearance: .dark),
+                snapshotAvailable: component.snapshot != nil,
+                placeholderSystemImage: "photo"
+            )
+        case "view":
+            guard let view = document.views.first(where: { $0.id == targetID }) else {
+                return nil
+            }
+            return StudioProposalSnapshotCompare(
+                scopeLabel: StudioStrings.proposalScopeDisplay(kind: artifact.scopeKindLabel, identifier: view.name),
+                truthStatus: nativeViewTruthStatus(for: view),
+                coverageLevel: nativeViewPreviewCoverage(for: view),
+                sourcePath: view.sourcePath,
+                primaryStructureLabel: StudioStrings.components,
+                primaryStructureValue: StudioStrings.componentsCount(view.componentsCount),
+                secondaryStructureLabel: StudioStrings.navigation,
+                secondaryStructureValue: StudioStrings.linksCount(view.navigationCount),
+                snapshotURL: document.resolvedSnapshotURL(for: view.snapshot, appearance: .dark),
+                snapshotAvailable: view.snapshot != nil,
+                placeholderSystemImage: "rectangle.on.rectangle"
+            )
+        default:
+            return nil
+        }
+    }
+
+    private func snapshotCompareUnavailableMessage(for artifact: StudioChangeProposalArtifact) -> String {
+        guard document != nil else {
+            return StudioStrings.proposalApplyPreviewSnapshotCompareMissingDocument
+        }
+        if artifact.scopeTargetID == nil {
+            return StudioStrings.proposalApplyPreviewSnapshotCompareMissingScope
+        }
+        switch artifact.scopeKind {
+        case "component":
+            let targetExists = document?.components.contains(where: { $0.id == artifact.scopeTargetID }) ?? false
+            return targetExists ? StudioStrings.proposalApplyPreviewSnapshotCompareMissingDocument : StudioStrings.proposalApplyPreviewSnapshotCompareMissingScope
+        case "view":
+            let targetExists = document?.views.contains(where: { $0.id == artifact.scopeTargetID }) ?? false
+            return targetExists ? StudioStrings.proposalApplyPreviewSnapshotCompareMissingDocument : StudioStrings.proposalApplyPreviewSnapshotCompareMissingScope
+        default:
+            return StudioStrings.proposalApplyPreviewSnapshotCompareMissingScope
+        }
     }
 
     private func sourceAuditLabel(for artifact: StudioChangeProposalArtifact) -> String {
@@ -3148,6 +3267,68 @@ private struct StudioProposalApplyPreviewDiffPlan {
     let targetCandidates: [String]
     let repositoryPaths: [String]
     let metadataGaps: [String]
+}
+
+private struct StudioProposalSnapshotCompare {
+    let scopeLabel: String
+    let truthStatus: StudioNativeTruthStatus
+    let coverageLevel: StudioPreviewCoverageLevel
+    let sourcePath: String
+    let primaryStructureLabel: String
+    let primaryStructureValue: String
+    let secondaryStructureLabel: String
+    let secondaryStructureValue: String
+    let snapshotURL: URL?
+    let snapshotAvailable: Bool
+    let placeholderSystemImage: String
+}
+
+private struct StudioProposalSnapshotCompareThumbnail: View {
+    let url: URL?
+    let appearance: StudioNativeAppearance
+    let systemImage: String
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(appearance == .light ? Color.white : Color(hex: "#11182B"))
+
+            if let url, url.isFileURL, let image = NSImage(contentsOf: url) {
+                Image(nsImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(14)
+            } else if let url {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .padding(14)
+                    default:
+                        fallback
+                    }
+                }
+            } else {
+                fallback
+            }
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(.quaternary.opacity(0.7), lineWidth: 1)
+        )
+    }
+
+    private var fallback: some View {
+        VStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.system(size: 28, weight: .semibold))
+            Text(StudioStrings.noSnapshot)
+                .font(.caption.weight(.medium))
+        }
+        .foregroundStyle(.secondary)
+    }
 }
 
 private struct StudioProposalRepoAuditEntry: Identifiable {

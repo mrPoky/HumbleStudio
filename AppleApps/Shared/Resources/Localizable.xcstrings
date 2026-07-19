@@ -1814,6 +1814,34 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "This preview estimates expected impact and next checks without mutating repository source truth." } }
       }
     },
+    "studio.change_proposal.apply_preview.snapshot_compare" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Porovnání s aktuálním native snapshotem" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current Native Snapshot Compare" } }
+      }
+    },
+    "studio.change_proposal.apply_preview.snapshot_compare.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Porovnává uložený proposal scope s aktuálním native snapshotem a source truth bez simulace zápisu do repozitáře." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Compares the saved proposal scope against the current native snapshot and source truth without simulating a repository write." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.snapshot_compare.missing_document" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktuální import není k dispozici, takže toto porovnání zatím může zůstat jen na úrovni proposal metadata." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Current import is unavailable, so this compare can only stay at proposal metadata level for now." } }
+      }
+    },
+    "studio.change_proposal.apply_preview.snapshot_compare.missing_scope" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "V aktuálním importu se nenašel odpovídající native component nebo view target, takže snapshot compare zatím nemůže být přesný." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No matching native component or view was found in the current import, so snapshot compare cannot be exact yet." } }
+      }
+    },
     "studio.change_proposal.apply_preview.diff_plan" : {
       "extractionState" : "manual",
       "localizations" : {
