@@ -13,6 +13,7 @@
 		15B721987348ED2EF06949AE /* StudioMacContentWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87907AE1843232106A2FEB0C /* StudioMacContentWorkspace.swift */; };
 		16B53D4A0C9E4F1A8F8A2211 /* StudioMacReviewNavigationProposalArtifactList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B53D490C9E4F1A8F8A2211 /* StudioMacReviewNavigationProposalArtifactList.swift */; };
 		16BE9F6D607CC1A6B5A6DD11 /* StudioMacReviewNavigationProposalWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16BE9F6C607CC1A6B5A6DD11 /* StudioMacReviewNavigationProposalWorkspace.swift */; };
+		16EE1A0B0A83D1A4B7F2AB11 /* StudioMacReviewNavigationProposalArtifactDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16EE1A0A0A83D1A4B7F2AB11 /* StudioMacReviewNavigationProposalArtifactDetail.swift */; };
 		17D2B0D70F6F4C6A9C5D2241 /* StudioMacReviewNavigationProposalSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D2B0D60F6F4C6A9C5D2241 /* StudioMacReviewNavigationProposalSupport.swift */; };
 		168E34340DEDFACB25072A5F /* StudioMacReviewNavigationWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */; };
 		195566F1067AB02DAB2CC384 /* StudioStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F9A4B07E7ED4171D0D81C6 /* StudioStrings.swift */; };
@@ -46,6 +47,7 @@
 		16530D78C8E532F120F4D9F3 /* StudioMacQuickOpenSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacQuickOpenSupport.swift; sourceTree = "<group>"; };
 		16B53D490C9E4F1A8F8A2211 /* StudioMacReviewNavigationProposalArtifactList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacReviewNavigationProposalArtifactList.swift; sourceTree = "<group>"; };
 		16BE9F6C607CC1A6B5A6DD11 /* StudioMacReviewNavigationProposalWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacReviewNavigationProposalWorkspace.swift; sourceTree = "<group>"; };
+		16EE1A0A0A83D1A4B7F2AB11 /* StudioMacReviewNavigationProposalArtifactDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacReviewNavigationProposalArtifactDetail.swift; sourceTree = "<group>"; };
 		17D2B0D60F6F4C6A9C5D2241 /* StudioMacReviewNavigationProposalSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacReviewNavigationProposalSupport.swift; sourceTree = "<group>"; };
 		1A8A49BA2A5A1A28006A9A0B /* StudioSupportedAppCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioSupportedAppCatalog.swift; sourceTree = "<group>"; };
 		2220FA2E450CEBA617B1EF5A /* StudioBundleLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioBundleLocator.swift; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 				5DFAED34B7F05CBCFDFDA23D /* StudioMacPreviewSupport.swift */,
 				16530D78C8E532F120F4D9F3 /* StudioMacQuickOpenSupport.swift */,
 				16B53D490C9E4F1A8F8A2211 /* StudioMacReviewNavigationProposalArtifactList.swift */,
+				16EE1A0A0A83D1A4B7F2AB11 /* StudioMacReviewNavigationProposalArtifactDetail.swift */,
 				16BE9F6C607CC1A6B5A6DD11 /* StudioMacReviewNavigationProposalWorkspace.swift */,
 				17D2B0D60F6F4C6A9C5D2241 /* StudioMacReviewNavigationProposalSupport.swift */,
 				8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */,
@@ -288,6 +291,7 @@
 				76B02EC9E2CE1CB98F5119AE /* StudioMacPreviewSupport.swift in Sources */,
 				0F993A0A240BCADE9816CFEB /* StudioMacQuickOpenSupport.swift in Sources */,
 				16B53D4A0C9E4F1A8F8A2211 /* StudioMacReviewNavigationProposalArtifactList.swift in Sources */,
+				16EE1A0B0A83D1A4B7F2AB11 /* StudioMacReviewNavigationProposalArtifactDetail.swift in Sources */,
 				16BE9F6D607CC1A6B5A6DD11 /* StudioMacReviewNavigationProposalWorkspace.swift in Sources */,
 				17D2B0D70F6F4C6A9C5D2241 /* StudioMacReviewNavigationProposalSupport.swift in Sources */,
 				168E34340DEDFACB25072A5F /* StudioMacReviewNavigationWorkspace.swift in Sources */,

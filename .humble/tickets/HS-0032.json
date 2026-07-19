@@ -1,0 +1,77 @@
+{
+  "id": "HS-0032",
+  "title": "Extract proposal artifact detail panel from review workspace",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-19",
+  "updated_at": "2026-07-19",
+  "source": "agent",
+  "summary": "Modularize the macOS review/navigation workspace by extracting the proposal selected-artifact detail panel into a dedicated native support file.",
+  "acceptance_criteria": [
+    "StudioMacProposalArtifactDetailPanel moves out of StudioMacReviewNavigationWorkspace.swift into its own macOS source file.",
+    "The extracted panel preserves selected artifact summaries, focus actions, apply-preview sections, and repo-audit truth.",
+    "The main review workspace file becomes meaningfully smaller and proposal detail ownership becomes clearer.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "The selected-artifact detail surface now lives in `StudioMacReviewNavigationProposalArtifactDetail.swift` instead of staying embedded in the main review workspace file."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "The extraction preserved selected artifact summaries, focus and inspect actions, apply-preview readiness sections, diff planning, and repo-audit truth while further shrinking `StudioMacReviewNavigationWorkspace.swift`."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0032.json",
+      "note": "Validated the solved ticket schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after the proposal detail extraction."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded after the extraction."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0032.json",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalArtifactDetail.swift",
+    "HumbleStudio.xcodeproj/project.pbxproj"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 item 1 after HS-0031: extract StudioMacProposalArtifactDetailPanel into its own support file."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0032.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Keep the slice focused on the selected-artifact detail surface rather than broader proposal workflow changes.",
+    "Reuse the already extracted proposal workspace and proposal support helpers instead of re-merging responsibilities."
+  ]
+}
