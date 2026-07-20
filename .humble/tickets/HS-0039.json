@@ -1,0 +1,57 @@
+{
+  "id": "HS-0039",
+  "title": "Align portfolio policy contract metadata",
+  "status": "in_progress",
+  "type": "workflow",
+  "priority": "high",
+  "owner": "codex",
+  "created_at": "2026-07-20",
+  "updated_at": "2026-07-20",
+  "source": "humblecontrol",
+  "summary": "Record the canonical no-required-GitHub-Actions branch protection policy in Config/repo-contract.json so local repo rules stay aligned with the HumbleControl-owned portfolio contract.",
+  "acceptance_criteria": [
+    "Config/repo-contract.json declares branch_protection_policy with required_status_checks.contexts=[] and required_status_checks.checks=[].",
+    "Config/repo-contract.json declares github_actions_policy and required_checks_policy forbidding required default-branch GitHub Actions checks by default.",
+    "Config/repo-contract.json declares exceptions=[] and stale_file_policy so local policy drift is ticketed and aligned.",
+    "The repo contract validator and git diff whitespace check pass."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "status": "passed",
+      "note": "Repo contract validation passed after recording portfolio policy metadata."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0039.json",
+      "status": "passed",
+      "note": "Ticket validation passed for the portfolio policy metadata ticket."
+    },
+    {
+      "kind": "command",
+      "path": "git diff --check",
+      "status": "passed",
+      "note": "Whitespace check passed for the portfolio policy metadata diff."
+    }
+  ],
+  "related_files": [
+    "Config/repo-contract.json",
+    ".humble/tickets/HS-0039.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "humblecontrol",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "only_blocking",
+    "source_ref": "HC-0116 portfolio policy audit found missing workflow policy metadata."
+  },
+  "commands": [
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0039.json",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Keep this ticket scoped to metadata alignment; do not edit release/deploy/notarization workflows here."
+  ]
+}

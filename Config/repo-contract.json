@@ -35,6 +35,56 @@
         "lane-4"
       ],
       "reserved_main_checkout": true
+    },
+    "branch_protection_policy": {
+      "default_branch": "main",
+      "required_status_checks": {
+        "strict": true,
+        "contexts": [],
+        "checks": []
+      },
+      "preserve_existing": [
+        "required_linear_history",
+        "enforce_admins",
+        "required_reviews",
+        "conversation_resolution",
+        "restrictions"
+      ],
+      "allow_force_pushes": false,
+      "allow_deletions": false
+    },
+    "github_actions_policy": {
+      "required_default_branch_checks": false,
+      "required_contexts": [],
+      "required_checks": [],
+      "pull_request_gates": "allowed_only_when_not_required_or_approved_exception",
+      "preferred_quality_trigger": "workflow_dispatch",
+      "sensitive_workflow_kinds": [
+        "release",
+        "deploy",
+        "notarization",
+        "app_store",
+        "external_publish"
+      ],
+      "sensitive_workflows_require_explicit_confirmation": true
+    },
+    "allowed_workflow_triggers": {
+      "quality_and_policy_tools": [
+        "workflow_dispatch"
+      ],
+      "pull_request": "allowed_only_when_not_required_or_approved_exception",
+      "push_main": "allowed_only_for_non_blocking_reporting_or_approved_release_deploy"
+    },
+    "required_checks_policy": {
+      "github_actions_required_checks_allowed": false,
+      "default_branch_contexts": [],
+      "default_branch_checks": []
+    },
+    "exceptions": [],
+    "stale_file_policy": {
+      "local_rule_copies": "reference_canonical_contract_or_document_override",
+      "outdated_policy_artifacts": "ticket_and_align",
+      "mirror_drift": "adopt_or_restore_through_humblecontrol"
     }
   },
   "rules": {
