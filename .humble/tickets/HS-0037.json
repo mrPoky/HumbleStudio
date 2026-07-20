@@ -76,6 +76,7 @@
   "agent_notes": [
     "Keep proposal failure messaging truthful about partial reloads versus fully blocked artifact access.",
     "Prefer shared recovery mapping so future proposal inspectors can reuse the same typed surface.",
-    "Claimed lane-1 on branch `refactor/hs-0037-typed-proposal-recovery-surfaces`."
+    "Claimed lane-1 on branch `refactor/hs-0037-typed-proposal-recovery-surfaces`.",
+    "Runner handoff note on July 20, 2026: P0 cleanup of other HumbleStudio Codex tasks could not be completed from this chat because thread-management tools like `list_threads`, `read_thread`, and `set_thread_archived` were not available in the session."
   ]
 }
