@@ -1,0 +1,79 @@
+{
+  "id": "HS-0036",
+  "title": "Add proposal workspace quality summary",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-20",
+  "updated_at": "2026-07-20",
+  "source": "agent",
+  "summary": "Extend the native proposal workspace with a more truthful summary of source evidence health, scope confidence distribution, and inference quality so proposal triage does not stop at readiness and raw validation counts.",
+  "acceptance_criteria": [
+    "Proposal workspace exposes a clear native summary for source evidence health, scope confidence, and inference quality.",
+    "The new summary reuses shared proposal truth helpers instead of duplicating parallel scoring logic only inside the workspace page.",
+    "The summary stays read-only and explains proposal quality without implying write-back safety that the app cannot prove.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Proposal workspace now exposes a dedicated quality summary for source evidence health, scope confidence distribution, and inference quality instead of stopping at readiness and validation counts."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "The new summary reuses shared proposal truth helpers for source audit and derived inference quality, so proposal quality scoring does not live only inside the workspace page."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0036.json",
+      "note": "Validated the solved ticket schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after adding the proposal workspace quality summary."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded after wiring the new quality summary."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0036.json",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalSupport.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 item 1 after HS-0035: add proposal workspace summary for source evidence health, scope confidence, and inference quality breakdown."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0036.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Prefer shared quality helpers over per-page ad hoc scoring.",
+    "Keep inference wording truthful and explicitly bounded to read-only proposal quality.",
+    "Claimed lane-1 on branch `refactor/hs-0036-add-proposal-workspace-quality-summary`."
+  ]
+}

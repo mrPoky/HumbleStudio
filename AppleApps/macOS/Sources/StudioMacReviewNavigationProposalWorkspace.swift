@@ -81,6 +81,18 @@ struct StudioMacProposalArtifactsPage: View {
                     }
                 }
 
+                StudioInspectorSection(title: StudioStrings.proposalWorkspaceQualitySummaryTitle) {
+                    Text(StudioStrings.proposalWorkspaceQualitySummaryDescription)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    StudioInspectorSummaryGrid(items: proposalWorkspaceQualityItems(
+                        artifacts: proposalArtifacts,
+                        document: document
+                    ))
+                }
+
                 StudioInspectorSection(title: StudioStrings.proposalValidation) {
                     StudioInspectorSummaryGrid(items: [
                         StudioInspectorSummaryItem(

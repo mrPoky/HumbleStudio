@@ -1695,6 +1695,20 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Some artifacts still need stronger scope or evidence metadata" } }
       }
     },
+    "studio.change_proposal.workspace.quality_summary.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Souhrn kvality návrhů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal Quality Summary" } }
+      }
+    },
+    "studio.change_proposal.workspace.quality_summary.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ukazuje, jak silně jsou uložené návrhy podložené source evidence, jak jisté je jejich scope mapování a jak důvěryhodně zatím působí jejich read-only inference." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shows how strongly saved proposals are backed by source evidence, how confident their scope mapping is, and how trustworthy their read-only inference currently looks." } }
+      }
+    },
     "studio.change_proposal.workspace.selected_artifact" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2442,6 +2456,27 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vysoká" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "High" } }
+      }
+    },
+    "studio.change_proposal.inference_quality_strong" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Silná inference" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Strong inference" } }
+      }
+    },
+    "studio.change_proposal.inference_quality_review" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Potřebuje review" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needs review" } }
+      }
+    },
+    "studio.change_proposal.inference_quality_weak" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Slabá inference" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weak inference" } }
       }
     },
     "studio.change_proposal.linkage.tickets" : {

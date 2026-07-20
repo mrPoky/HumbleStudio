@@ -289,6 +289,90 @@ func proposalInspectorLinkageItems(
     ]
 }
 
+func proposalInferenceQualityStatus(
+    for artifact: StudioChangeProposalArtifact,
+    document: StudioNativeDocument?
+) -> StudioProposalInferenceQuality {
+    let sourceAudit = proposalSourceAuditStatus(for: artifact, document: document)
+    let deltaSummary = proposalCurrentDeltaSummary(for: artifact, document: document)
+
+    if artifact.applyPreviewReadiness == .blocked || artifact.scopeConfidence == .low || sourceAudit == .needsMetadata {
+        return .weak
+    }
+
+    if artifact.applyPreviewReadiness == .ready,
+       artifact.scopeConfidence == .high,
+       sourceAudit == .exact,
+       deltaSummary.gaps.count <= 1 {
+        return .strong
+    }
+
+    return .review
+}
+
+func proposalWorkspaceQualityItems(
+    artifacts: [StudioChangeProposalArtifact],
+    document: StudioNativeDocument?
+) -> [StudioInspectorSummaryItem] {
+    let exactSourceAudit = artifacts.filter { proposalSourceAuditStatus(for: $0, document: document) == .exact }.count
+    let relatedSourceAudit = artifacts.filter { proposalSourceAuditStatus(for: $0, document: document) == .related }.count
+    let missingSourceAudit = artifacts.filter { proposalSourceAuditStatus(for: $0, document: document) == .needsMetadata }.count
+    let highConfidence = artifacts.filter { $0.scopeConfidence == .high }.count
+    let mediumConfidence = artifacts.filter { $0.scopeConfidence == .medium }.count
+    let lowConfidence = artifacts.filter { $0.scopeConfidence == .low }.count
+    let strongInference = artifacts.filter { proposalInferenceQualityStatus(for: $0, document: document) == .strong }.count
+    let reviewInference = artifacts.filter { proposalInferenceQualityStatus(for: $0, document: document) == .review }.count
+    let weakInference = artifacts.filter { proposalInferenceQualityStatus(for: $0, document: document) == .weak }.count
+
+    return [
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalApplyPreviewSourceAuditExact,
+            value: StudioStrings.resultsCount(exactSourceAudit),
+            tone: exactSourceAudit == 0 ? .neutral : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalApplyPreviewSourceAuditRelated,
+            value: StudioStrings.resultsCount(relatedSourceAudit),
+            tone: relatedSourceAudit == 0 ? .neutral : .accent
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalApplyPreviewSourceAuditNeedsMetadata,
+            value: StudioStrings.resultsCount(missingSourceAudit),
+            tone: missingSourceAudit == 0 ? .success : .warning
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalScopeConfidenceHigh,
+            value: StudioStrings.resultsCount(highConfidence),
+            tone: highConfidence == 0 ? .neutral : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalScopeConfidenceMedium,
+            value: StudioStrings.resultsCount(mediumConfidence),
+            tone: mediumConfidence == 0 ? .neutral : .accent
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalScopeConfidenceLow,
+            value: StudioStrings.resultsCount(lowConfidence),
+            tone: lowConfidence == 0 ? .success : .warning
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalInferenceQualityStrong,
+            value: StudioStrings.resultsCount(strongInference),
+            tone: strongInference == 0 ? .neutral : .success
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalInferenceQualityReview,
+            value: StudioStrings.resultsCount(reviewInference),
+            tone: reviewInference == 0 ? .neutral : .accent
+        ),
+        StudioInspectorSummaryItem(
+            label: StudioStrings.proposalInferenceQualityWeak,
+            value: StudioStrings.resultsCount(weakInference),
+            tone: weakInference == 0 ? .success : .warning
+        )
+    ]
+}
+
 extension StudioMacProposalArtifactDetailPanel {
     func matchedScopeSourcePath(for artifact: StudioChangeProposalArtifact) -> String {
         proposalMatchedScopeSourcePath(for: artifact, document: document)
@@ -665,6 +749,12 @@ enum StudioProposalSourceAuditStatus {
     case exact
     case related
     case needsMetadata
+}
+
+enum StudioProposalInferenceQuality {
+    case strong
+    case review
+    case weak
 }
 
 struct StudioProposalApplyPreviewDiffPlan {
