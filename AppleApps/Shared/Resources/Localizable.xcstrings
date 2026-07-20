@@ -4019,6 +4019,13 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld pt · %@" } }
       }
     },
+    "studio.foundation.typography_scale_weight" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld pt · %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld pt · %@" } }
+      }
+    },
     "studio.foundation.spacing_summary" : {
       "extractionState" : "manual",
       "localizations" : {

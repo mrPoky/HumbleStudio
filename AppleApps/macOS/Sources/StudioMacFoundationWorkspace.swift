@@ -412,7 +412,7 @@ private struct StudioTypographyCard: View {
                     }
                 }
                 Spacer()
-                Text("\(StudioStrings.points(Int(token.size))) · \(token.weight)")
+                Text(StudioStrings.typographyScaleWeight(points: Int(token.size), weight: "\(token.weight)"))
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
@@ -1681,7 +1681,7 @@ private struct StudioTypographyPreviewContent: View {
 
             HStack {
                 Spacer(minLength: 0)
-                Text("\(StudioStrings.points(Int(token.size))) · \(token.weight)")
+                Text(StudioStrings.typographyScaleWeight(points: Int(token.size), weight: "\(token.weight)"))
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)

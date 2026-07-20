@@ -805,6 +805,10 @@ enum StudioStrings {
         String(format: String(localized: "studio.foundation.typography_context", defaultValue: "%lld pt · %@"), locale: Locale.current, points, swiftUI)
     }
 
+    static func typographyScaleWeight(points: Int, weight: String) -> String {
+        String(format: String(localized: "studio.foundation.typography_scale_weight", defaultValue: "%lld pt · %@"), locale: Locale.current, points, weight)
+    }
+
     static func spacingSummary(_ value: String) -> String {
         String(localized: "studio.foundation.spacing_summary", defaultValue: "Spacing · \(value)")
     }

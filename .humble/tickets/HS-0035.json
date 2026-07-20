@@ -1,0 +1,77 @@
+{
+  "id": "HS-0035",
+  "title": "Finish remaining foundation localization cleanup",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-20",
+  "updated_at": "2026-07-20",
+  "source": "agent",
+  "summary": "Replace the remaining user-facing hardcoded typography badge formatting in the native foundation workspace with a typed localized formatter so the cleanup pass closes truthfully.",
+  "acceptance_criteria": [
+    "Remaining user-facing typography badge copy in the native foundation workspace uses typed localization accessors instead of inline string interpolation.",
+    "The formatting stays consistent across card and preview inspector surfaces.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "The remaining user-facing typography badge formatting in the native foundation workspace now uses a shared typed formatter instead of inline string interpolation."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Card and preview surfaces now share one localized scale-and-weight formatter, so the last foundation cleanup point cannot drift across native views."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0035.json",
+      "note": "Validated the solved ticket schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after the remaining foundation localization cleanup."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded after replacing the remaining inline typography badge formatting."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0035.json",
+    "AppleApps/macOS/Sources/StudioMacFoundationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 item 1 after HS-0034: finish the last native hardcoded text cleanup in review/foundation/detail inspector surfaces."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0035.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Keep the slice intentionally small and truthful if inventory really shows only a couple of remaining user-facing literals.",
+    "Prefer one shared formatter so card and preview badge wording cannot drift.",
+    "Claimed lane-1 on branch `refactor/hs-0035-finish-remaining-foundation-localization-cleanup`."
+  ]
+}
