@@ -589,6 +589,7 @@ struct StudioMacReviewPage: View {
     let inspectView: (String) -> Void
     @State private var inspectorLayoutMode: StudioPreviewLayoutMode = .focus
     @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
+    @State private var proposalArtifactIssue: StudioProposalArtifactLoadIssue?
 
     var body: some View {
         StudioNativePageContainer(
@@ -789,7 +790,9 @@ struct StudioMacReviewPage: View {
     }
 
     private func reloadProposals() {
-        proposalArtifacts = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL).artifacts
+        let result = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL)
+        proposalArtifacts = result.artifacts
+        proposalArtifactIssue = result.issue
     }
 
     private var repositoryRootURL: URL {
@@ -1023,6 +1026,7 @@ struct StudioMacNavigationPage: View {
     let inspectView: (String) -> Void
     @State private var inspectorLayoutMode: StudioPreviewLayoutMode = .focus
     @State private var proposalArtifacts: [StudioChangeProposalArtifact] = []
+    @State private var proposalArtifactIssue: StudioProposalArtifactLoadIssue?
 
     var body: some View {
         StudioNativePageContainer(
@@ -1169,7 +1173,9 @@ struct StudioMacNavigationPage: View {
     }
 
     private func reloadProposals() {
-        proposalArtifacts = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL).artifacts
+        let result = StudioChangeProposalArtifact.loadResult(from: repositoryRootURL)
+        proposalArtifacts = result.artifacts
+        proposalArtifactIssue = result.issue
     }
 }
 

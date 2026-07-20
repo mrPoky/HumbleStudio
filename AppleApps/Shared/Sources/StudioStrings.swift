@@ -364,10 +364,22 @@ enum StudioStrings {
     static let proposalArtifactsIssueMissingDirectoryTitle = String(localized: "studio.change_proposal.issue.missing_directory.title", defaultValue: "Proposal folder not created yet")
     static let proposalArtifactsIssueUnreadableDirectoryTitle = String(localized: "studio.change_proposal.issue.unreadable_directory.title", defaultValue: "Proposal folder could not be read")
     static let proposalArtifactsIssueUnreadableArtifactTitle = String(localized: "studio.change_proposal.issue.unreadable_artifact.title", defaultValue: "Proposal file could not be read")
+    static let proposalArtifactsIssuePartialReloadTitle = String(localized: "studio.change_proposal.issue.partial_reload.title", defaultValue: "Proposal reload finished with gaps")
     static let proposalArtifactsIssueDirectoryNotFolder = String(localized: "studio.change_proposal.issue.directory_not_folder", defaultValue: "Expected a folder, but found another item instead.")
     static let proposalArtifactsIssueMissingDirectoryRecovery = String(localized: "studio.change_proposal.issue.missing_directory.recovery", defaultValue: "Save the first proposal to the repository to create `docs/change-proposals/`, then refresh this inspector.")
     static let proposalArtifactsIssueUnreadableDirectoryRecovery = String(localized: "studio.change_proposal.issue.unreadable_directory.recovery", defaultValue: "Check repository access or branch state, then refresh proposals.")
     static let proposalArtifactsIssueUnreadableArtifactRecovery = String(localized: "studio.change_proposal.issue.unreadable_artifact.recovery", defaultValue: "Open the affected markdown file, fix encoding or content access, then refresh proposals.")
+    static let proposalArtifactsRecoveryCategoryRepoSetup = String(localized: "studio.change_proposal.issue.category.repo_setup", defaultValue: "Repository setup")
+    static let proposalArtifactsRecoveryCategoryDirectoryAccess = String(localized: "studio.change_proposal.issue.category.directory_access", defaultValue: "Proposal directory access")
+    static let proposalArtifactsRecoveryCategoryArtifactAccess = String(localized: "studio.change_proposal.issue.category.artifact_access", defaultValue: "Proposal markdown access")
+    static let proposalArtifactsRecoveryPostureBlocked = String(localized: "studio.change_proposal.issue.posture.blocked", defaultValue: "Blocked")
+    static let proposalArtifactsRecoveryPostureDegraded = String(localized: "studio.change_proposal.issue.posture.degraded", defaultValue: "Partially degraded")
+    static let proposalArtifactsRecoveryChannelRepoFolder = String(localized: "studio.change_proposal.issue.channel.repo_folder", defaultValue: "Repository proposal folder")
+    static let proposalArtifactsRecoveryChannelMarkdownFile = String(localized: "studio.change_proposal.issue.channel.markdown_file", defaultValue: "Proposal markdown file")
+    static let proposalArtifactsRecoveryPrimaryActionCreateFolder = String(localized: "studio.change_proposal.issue.primary_action.create_folder", defaultValue: "Create the first repo proposal")
+    static let proposalArtifactsRecoveryPrimaryActionCheckDirectory = String(localized: "studio.change_proposal.issue.primary_action.check_directory", defaultValue: "Check folder access and refresh")
+    static let proposalArtifactsRecoveryPrimaryActionRepairArtifact = String(localized: "studio.change_proposal.issue.primary_action.repair_artifact", defaultValue: "Repair the affected markdown artifact")
+    static let proposalArtifactsRecoveryLoadedArtifacts = String(localized: "studio.change_proposal.issue.loaded_artifacts", defaultValue: "Loaded artifacts")
     static let proposalScope = String(localized: "studio.change_proposal.scope", defaultValue: "Scope")
     static let proposalCoverage = String(localized: "studio.change_proposal.coverage", defaultValue: "Coverage")
     static let proposalEvidence = String(localized: "studio.change_proposal.evidence", defaultValue: "Evidence")
@@ -451,6 +463,21 @@ enum StudioStrings {
     }
     static func proposalArtifactsIssueUnreadableArtifactDetail(_ fileName: String, _ reason: String) -> String {
         String(localized: "studio.change_proposal.issue.unreadable_artifact.detail", defaultValue: "HumbleStudio skipped \(fileName) while reloading proposal artifacts. Reason: \(reason)")
+    }
+    static func proposalArtifactsIssuePartialReloadDetail(_ count: Int, _ detail: String) -> String {
+        String(localized: "studio.change_proposal.issue.partial_reload.detail", defaultValue: "HumbleStudio still loaded \(count) proposal artifact(s), but part of the reload degraded. Latest issue: \(detail)")
+    }
+    static func proposalArtifactsRecoveryActionWhy(_ actionTitle: String, channel: String, posture: String) -> String {
+        String(
+            format: String(
+                localized: "studio.change_proposal.issue.action_why_value",
+                defaultValue: "%1$@ is recommended because %2$@ is currently in a %3$@ state."
+            ),
+            locale: Locale.current,
+            actionTitle,
+            channel,
+            posture.lowercased()
+        )
     }
     static let inspectorFocus = String(localized: "studio.inspector.focus", defaultValue: "Inspector focus")
     static let needsReview = String(localized: "studio.review.needs_review", defaultValue: "Needs Review")

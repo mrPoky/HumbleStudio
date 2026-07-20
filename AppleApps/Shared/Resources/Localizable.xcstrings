@@ -2262,6 +2262,13 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal file could not be read" } }
       }
     },
+    "studio.change_proposal.issue.partial_reload.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obnovení návrhů doběhlo s mezerami" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal reload finished with gaps" } }
+      }
+    },
     "studio.change_proposal.issue.directory_not_folder" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2288,6 +2295,83 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevři dotčený markdown soubor, oprav kódování nebo přístup k obsahu a potom návrhy obnov." } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Open the affected markdown file, fix encoding or content access, then refresh proposals." } }
+      }
+    },
+    "studio.change_proposal.issue.category.repo_setup" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nastavení repozitáře" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Repository setup" } }
+      }
+    },
+    "studio.change_proposal.issue.category.directory_access" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přístup ke složce s návrhy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal directory access" } }
+      }
+    },
+    "studio.change_proposal.issue.category.artifact_access" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přístup k markdown návrhu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal markdown access" } }
+      }
+    },
+    "studio.change_proposal.issue.posture.blocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Blokované" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Blocked" } }
+      }
+    },
+    "studio.change_proposal.issue.posture.degraded" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Částečně degradované" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Partially degraded" } }
+      }
+    },
+    "studio.change_proposal.issue.channel.repo_folder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Repozitářová složka s návrhy" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Repository proposal folder" } }
+      }
+    },
+    "studio.change_proposal.issue.channel.markdown_file" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Markdown soubor návrhu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal markdown file" } }
+      }
+    },
+    "studio.change_proposal.issue.primary_action.create_folder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vytvořit první repo návrh" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create the first repo proposal" } }
+      }
+    },
+    "studio.change_proposal.issue.primary_action.check_directory" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkontrolovat přístup ke složce a obnovit" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check folder access and refresh" } }
+      }
+    },
+    "studio.change_proposal.issue.primary_action.repair_artifact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Opravit dotčený markdown artefakt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Repair the affected markdown artifact" } }
+      }
+    },
+    "studio.change_proposal.issue.loaded_artifacts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načtené artefakty" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loaded artifacts" } }
       }
     },
     "studio.change_proposal.scope" : {
@@ -2652,6 +2736,20 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio při obnově artefaktů návrhů přeskočilo %1$@. Důvod: %2$@" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio skipped %1$@ while reloading proposal artifacts. Reason: %2$@" } }
+      }
+    },
+    "studio.change_proposal.issue.partial_reload.detail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio pořád načetlo %1$lld artefaktů návrhů, ale část obnovy byla degradovaná. Poslední problém: %2$@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio still loaded %1$lld proposal artifact(s), but part of the reload degraded. Latest issue: %2$@" } }
+      }
+    },
+    "studio.change_proposal.issue.action_why_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ je doporučené, protože %2$@ je teď ve stavu %3$@." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ is recommended because %2$@ is currently in a %3$@ state." } }
       }
     },
     "studio.change_proposal.evidence_summary" : {

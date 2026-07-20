@@ -1,6 +1,86 @@
 import AppKit
 import SwiftUI
 
+enum StudioProposalArtifactsRecoveryPosture {
+    case blocked
+    case degraded
+
+    var label: String {
+        switch self {
+        case .blocked:
+            return StudioStrings.proposalArtifactsRecoveryPostureBlocked
+        case .degraded:
+            return StudioStrings.proposalArtifactsRecoveryPostureDegraded
+        }
+    }
+}
+
+struct StudioProposalArtifactsRecoverySurface {
+    let issue: StudioProposalArtifactLoadIssue
+    let loadedArtifactCount: Int
+
+    var posture: StudioProposalArtifactsRecoveryPosture {
+        loadedArtifactCount == 0 ? .blocked : .degraded
+    }
+
+    var title: String {
+        posture == .blocked ? issue.title : StudioStrings.proposalArtifactsIssuePartialReloadTitle
+    }
+
+    var detail: String {
+        posture == .blocked
+            ? issue.detail
+            : StudioStrings.proposalArtifactsIssuePartialReloadDetail(loadedArtifactCount, issue.detail)
+    }
+
+    var categoryTitle: String {
+        switch issue {
+        case .missingDirectory:
+            return StudioStrings.proposalArtifactsRecoveryCategoryRepoSetup
+        case .unreadableDirectory:
+            return StudioStrings.proposalArtifactsRecoveryCategoryDirectoryAccess
+        case .unreadableArtifact:
+            return StudioStrings.proposalArtifactsRecoveryCategoryArtifactAccess
+        }
+    }
+
+    var recoveryChannelTitle: String {
+        switch issue {
+        case .missingDirectory, .unreadableDirectory:
+            return StudioStrings.proposalArtifactsRecoveryChannelRepoFolder
+        case .unreadableArtifact:
+            return StudioStrings.proposalArtifactsRecoveryChannelMarkdownFile
+        }
+    }
+
+    var primaryActionTitle: String {
+        switch issue {
+        case .missingDirectory:
+            return StudioStrings.proposalArtifactsRecoveryPrimaryActionCreateFolder
+        case .unreadableDirectory:
+            return StudioStrings.proposalArtifactsRecoveryPrimaryActionCheckDirectory
+        case .unreadableArtifact:
+            return StudioStrings.proposalArtifactsRecoveryPrimaryActionRepairArtifact
+        }
+    }
+
+    var actionRationale: String {
+        StudioStrings.proposalArtifactsRecoveryActionWhy(
+            primaryActionTitle,
+            channel: recoveryChannelTitle,
+            posture: posture.label
+        )
+    }
+}
+
+func proposalRecoverySurface(
+    issue: StudioProposalArtifactLoadIssue?,
+    loadedArtifactCount: Int
+) -> StudioProposalArtifactsRecoverySurface? {
+    guard let issue else { return nil }
+    return StudioProposalArtifactsRecoverySurface(issue: issue, loadedArtifactCount: loadedArtifactCount)
+}
+
 func proposalMatchedScopeSourcePath(
     for artifact: StudioChangeProposalArtifact,
     document: StudioNativeDocument?

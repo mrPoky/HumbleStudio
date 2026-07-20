@@ -209,8 +209,8 @@ struct StudioMacProposalArtifactSection: View {
                 artifactList
             }
 
-            if let loadIssue {
-                StudioMacProposalArtifactRecoveryCard(issue: loadIssue)
+            if let recoverySurface = proposalRecoverySurface(issue: loadIssue, loadedArtifactCount: artifacts.count) {
+                StudioMacProposalArtifactRecoveryCard(surface: recoverySurface)
             }
         }
         .onAppear(perform: synchronizeSelectionWithVisibleArtifacts)
@@ -609,20 +609,32 @@ struct StudioMacProposalArtifactSection: View {
 }
 
 struct StudioMacProposalArtifactRecoveryCard: View {
-    let issue: StudioProposalArtifactLoadIssue
+    let surface: StudioProposalArtifactsRecoverySurface
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label(issue.title, systemImage: "exclamationmark.triangle")
+            Label(surface.title, systemImage: "exclamationmark.triangle")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.orange)
 
-            Text(issue.detail)
+            Text(surface.detail)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            StudioKeyValueRow(label: StudioStrings.recommendedNextStep, value: issue.recoverySuggestion)
+            StudioInspectorSummaryGrid(items: [
+                StudioInspectorSummaryItem(label: StudioStrings.issueCategory, value: surface.categoryTitle, tone: .warning),
+                StudioInspectorSummaryItem(label: StudioStrings.recoveryPosture, value: surface.posture.label, tone: .warning),
+                StudioInspectorSummaryItem(label: StudioStrings.recoveryChannel, value: surface.recoveryChannelTitle, tone: .accent),
+                StudioInspectorSummaryItem(
+                    label: StudioStrings.proposalArtifactsRecoveryLoadedArtifacts,
+                    value: StudioStrings.resultsCount(surface.loadedArtifactCount),
+                    tone: surface.loadedArtifactCount == 0 ? .warning : .success
+                )
+            ])
+            StudioKeyValueRow(label: StudioStrings.recommendedNextStep, value: surface.primaryActionTitle)
+            StudioKeyValueRow(label: StudioStrings.recoveryActionWhyLabel, value: surface.actionRationale)
+            StudioKeyValueRow(label: StudioStrings.nextSteps, value: surface.issue.recoverySuggestion)
         }
         .padding(14)
         .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
