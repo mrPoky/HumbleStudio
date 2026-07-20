@@ -1,0 +1,76 @@
+{
+  "id": "HS-0034",
+  "title": "Deepen proposal apply preview compare truth",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-07-20",
+  "updated_at": "2026-07-20",
+  "source": "agent",
+  "summary": "Extend the native proposal apply preview with more concrete compare truth for scope identity, structural signals, and current native context so the inspector shows exactly what aligns or drifts before any future apply workflow.",
+  "acceptance_criteria": [
+    "Proposal apply preview exposes deeper compare rows beyond summary posture and field-level deltas.",
+    "The new compare truth stays read-only and only uses proposal metadata plus current native import data already available in the app.",
+    "The richer compare surface helps users see concrete scope, structure, snapshot, or source-context alignment without implying a repository patch.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Proposal apply preview now surfaces deeper compare truth for scope, truth status, and structural signals instead of stopping at posture-only and the first four delta fields."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "The current native snapshot compare now also exposes primary and secondary structure values directly, while field-level delta rows compare proposal-facing scope, truth, touchpoints, and structured targets against current native truth."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0034.json",
+      "note": "Validated the solved ticket schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract still passes after deepening proposal apply preview compare truth."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded after extending the compare rows."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0034.json",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalSupport.swift"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 item 1 after HS-0033: deepen apply preview with more concrete diff-oriented compare for snapshot and preview details, not only summary and field rows."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0034.json",
+    "git diff --check",
+    "python3 Scripts/validate_repo_contract.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build"
+  ],
+  "agent_notes": [
+    "Keep the slice read-only and truthful; do not invent a patch application model.",
+    "Prefer concrete compare rows that explain exact native alignment or drift.",
+    "Claimed lane-1 on branch `refactor/hs-0034-deepen-proposal-apply-preview-compare-truth`."
+  ]
+}

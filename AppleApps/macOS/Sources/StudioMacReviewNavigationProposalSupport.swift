@@ -384,6 +384,8 @@ extension StudioMacProposalArtifactDetailPanel {
                 StudioKeyValueRow(label: StudioStrings.proposalScope, value: compare.scopeLabel)
                 StudioKeyValueRow(label: StudioStrings.snapshot, value: compare.snapshotAvailable ? StudioStrings.present : StudioStrings.missing)
                 StudioKeyValueRow(label: StudioStrings.source, value: compare.sourcePath.isEmpty ? StudioStrings.notAvailableYet : compare.sourcePath)
+                StudioKeyValueRow(label: compare.primaryStructureLabel, value: compare.primaryStructureValue)
+                StudioKeyValueRow(label: compare.secondaryStructureLabel, value: compare.secondaryStructureValue)
                 StudioKeyValueRow(label: StudioStrings.proposalApplyPreviewEvidenceMatch, value: evidenceMatchLabel(for: artifact))
             }
         } else {
@@ -557,13 +559,30 @@ extension StudioMacProposalArtifactDetailPanel {
         let snapshotStatus: StudioProposalFieldDeltaStatus = compare.snapshotAvailable ? .aligned : .gap
         let evidenceStatus: StudioProposalFieldDeltaStatus = evidenceMatched ? .aligned : .gap
         let sourceStatus: StudioProposalFieldDeltaStatus = compare.sourcePath.isEmpty ? .gap : .aligned
+        let truthStatus: StudioProposalFieldDeltaStatus = compare.truthStatus.needsAttention ? .review : .aligned
+        let scopeStatus: StudioProposalFieldDeltaStatus = compare.scopeLabel.isEmpty ? .gap : .aligned
+        let primaryStructureStatus: StudioProposalFieldDeltaStatus = artifact.touchpoints.isEmpty ? .gap : .review
+        let secondaryStructureStatus: StudioProposalFieldDeltaStatus = artifact.hasStructuredTargets ? .review : .gap
+        let proposalStructureValue = artifact.structuredTargets.isEmpty ? artifact.diffContextSummary : artifact.structuredTargets
 
         return [
+            StudioProposalFieldDeltaRowModel(
+                field: StudioStrings.proposalScope,
+                proposalValue: artifact.scope,
+                currentValue: compare.scopeLabel,
+                status: scopeStatus
+            ),
             StudioProposalFieldDeltaRowModel(
                 field: StudioStrings.proposalApplyPreviewCurrentDeltaCoverageField,
                 proposalValue: artifact.applyPreviewConfiguration.coverageLevel.label,
                 currentValue: compare.coverageLevel.label,
                 status: coverageStatus
+            ),
+            StudioProposalFieldDeltaRowModel(
+                field: StudioStrings.truthStatus,
+                proposalValue: artifact.applyPreviewReadiness.label,
+                currentValue: compare.truthStatus.label,
+                status: truthStatus
             ),
             StudioProposalFieldDeltaRowModel(
                 field: StudioStrings.proposalApplyPreviewCurrentDeltaSnapshotField,
@@ -576,6 +595,18 @@ extension StudioMacProposalArtifactDetailPanel {
                 proposalValue: artifact.sourceEvidenceSummary,
                 currentValue: evidenceMatchLabel(for: artifact),
                 status: evidenceStatus
+            ),
+            StudioProposalFieldDeltaRowModel(
+                field: compare.primaryStructureLabel,
+                proposalValue: artifact.touchpointSummary,
+                currentValue: compare.primaryStructureValue,
+                status: primaryStructureStatus
+            ),
+            StudioProposalFieldDeltaRowModel(
+                field: compare.secondaryStructureLabel,
+                proposalValue: proposalStructureValue,
+                currentValue: compare.secondaryStructureValue,
+                status: secondaryStructureStatus
             ),
             StudioProposalFieldDeltaRowModel(
                 field: StudioStrings.proposalApplyPreviewCurrentDeltaSourceField,
