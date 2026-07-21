@@ -1,12 +1,12 @@
 {
   "id": "HS-0038",
   "title": "Tie review queue and navigation audit to proposal scope truth",
-  "status": "proposed",
+  "status": "solved",
   "type": "refactor",
   "priority": "high",
-  "owner": "Codex",
+  "owner": "codex",
   "created_at": "2026-07-20",
-  "updated_at": "2026-07-20",
+  "updated_at": "2026-07-21",
   "source": "agent",
   "summary": "Tighten the relationship between native review queue, navigation audit, proposal scopes, and linked ticket truth so proposal artifacts stop living beside inspection and instead become first-class routing evidence for what needs review next.",
   "acceptance_criteria": [
@@ -25,10 +25,50 @@
       "kind": "note",
       "status": "passed",
       "note": "Known separate blocker: archival cleanup of other HumbleStudio Codex tasks still depends on unavailable thread-management tools in the originating runner session."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_humble_tickets.py",
+      "status": "passed",
+      "note": "Validated all 39 HS tickets after closing HS-0038."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "status": "passed",
+      "note": "Repo contract validation passed after refreshing status truth for the slice."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "status": "passed",
+      "note": "Web fallback integrity stayed green; this slice did not change fallback assets."
+    },
+    {
+      "kind": "command",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only",
+      "status": "passed",
+      "note": "Repo-local workflow wrapper passed tickets, contract, script compile, web fallback, and diff hygiene checks."
+    },
+    {
+      "kind": "command",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+      "status": "passed",
+      "note": "Targeted macOS debug build passed after wiring shared proposal scope truth into review and navigation surfaces."
+    },
+    {
+      "kind": "command",
+      "path": "./script/build_and_run.sh --native-ci",
+      "status": "passed",
+      "note": "Repo-documented native CI build-only path passed in lane-1."
     }
   ],
   "related_files": [
+    ".humble/status/current.json",
     ".humble/tickets/HS-0038.json",
+    "docs/next-slices.md",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/macOS/Sources/StudioMacInspectorSupport.swift",
     "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
     "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalSupport.swift",
     "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalWorkspace.swift"
@@ -41,11 +81,19 @@
     "source_ref": "Top 10 Next Slices handoff after HS-0037: tie review queue and navigation audit more tightly to proposal scopes and linked ticket truth."
   },
   "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 -m py_compile Scripts/*.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
     "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0038.json",
-    "git diff --check"
+    "git diff --check",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+    "./script/build_and_run.sh --native-ci"
   ],
   "agent_notes": [
     "This ticket preserves the highest-value next slice so the runner chat can be archived without losing backlog truth.",
-    "If a new runner is started, begin here after re-checking repo state and any newly available thread cleanup tools."
+    "If a new runner is started, begin here after re-checking repo state and any newly available thread cleanup tools.",
+    "Claimed lane-1 on branch `refactor/hs-0038-proposal-scope-truth` for the proposal scope truth native review slice."
   ]
 }

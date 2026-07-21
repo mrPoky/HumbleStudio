@@ -344,6 +344,10 @@ struct StudioNativeReviewCard: View {
     let isSelected: Bool
     let action: () -> Void
 
+    private var displayBadges: [Badge] {
+        [Badge(text: coverageLevel.rawValue, color: coverageLevel.color)] + badges
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .top, spacing: 12) {
@@ -367,14 +371,8 @@ struct StudioNativeReviewCard: View {
                     .foregroundStyle(status.color)
             }
 
-            HStack(spacing: 8) {
-                Text(coverageLevel.rawValue)
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(coverageLevel.color.opacity(0.14), in: Capsule())
-                    .foregroundStyle(coverageLevel.color)
-                ForEach(badges) { badge in
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 112), spacing: 8)], alignment: .leading, spacing: 8) {
+                ForEach(displayBadges) { badge in
                     Text(badge.text)
                         .font(.caption.weight(.semibold))
                         .padding(.horizontal, 10)
@@ -382,15 +380,15 @@ struct StudioNativeReviewCard: View {
                         .background(badge.color.opacity(0.14), in: Capsule())
                         .foregroundStyle(badge.color)
                 }
-                Spacer(minLength: 0)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(reason)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            HStack(spacing: 16) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 118), spacing: 12)], alignment: .leading, spacing: 12) {
                 ForEach(evidence, id: \.0) { item in
                     StudioKeyValueRow(label: item.0, value: item.1)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -463,7 +461,7 @@ struct StudioNativeNavigationNodeCard: View {
             }
 
             if !badges.isEmpty {
-                HStack(spacing: 8) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 8)], alignment: .leading, spacing: 8) {
                     ForEach(badges) { badge in
                         Text(badge.text)
                             .font(.caption.weight(.semibold))
@@ -473,6 +471,7 @@ struct StudioNativeNavigationNodeCard: View {
                             .foregroundStyle(badge.color)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(14)

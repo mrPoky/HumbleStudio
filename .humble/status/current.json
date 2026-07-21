@@ -1,17 +1,18 @@
 {
   "app": "HumbleStudio",
   "status_version": 1,
-  "last_refreshed": "2026-07-16",
+  "last_refreshed": "2026-07-21",
   "summary": {
-    "overall_percent": 79,
+    "overall_percent": 82,
     "confidence": "medium",
-    "headline": "HumbleStudio now has a working hybrid design viewer plus repo-local workflow operations, a repo-aware supported-app web loader, and native proposal inspectors that understand ticket linkage and read-only source audit truth.",
+    "headline": "HumbleStudio now has a working hybrid design viewer plus native review and navigation surfaces that carry proposal scope, linked ticket, source-audit, and read-only apply readiness truth directly in the inspection flow.",
     "notes": [
       "Percentages are directional maturity estimates, not precise scorecards.",
       "Repo-owned status belongs in this file so shared tooling reads repo truth instead of replacing it.",
       "The new HS ticket store should own future non-trivial HumbleStudio work.",
       "The web and native loaders can now truthfully offer a small supported-app catalog, including direct load and transparent URL-prefill paths.",
-      "Read-only workflow surfaces should stay truthful and avoid mutating repo state implicitly."
+      "Read-only workflow surfaces should stay truthful and avoid mutating repo state implicitly.",
+      "Review queue and navigation audit cards now reuse shared proposal scope truth instead of each inferring proposal linkage independently."
     ]
   },
   "refresh_cadence": {
@@ -63,17 +64,22 @@
     {
       "command": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
       "status": "passed",
-      "summary": "The native macOS workspace still builds after adding proposal ticket linkage, source audit summaries, and localized parity copy."
+      "summary": "The native macOS workspace builds after tying review queue and navigation audit surfaces to shared proposal scope truth."
+    },
+    {
+      "command": "./script/build_and_run.sh --native-ci",
+      "status": "passed",
+      "summary": "The repo-documented native CI path regenerated the project and completed a build-only macOS sanity pass for HS-0038."
     }
   ],
   "operating_layers": [
     {
       "id": "native-workspace",
       "label": "Native workspace",
-      "percent": 78,
+      "percent": 81,
       "status": "healthy",
-      "signal": "The macOS workspace is now the primary truthful surface for inspection, proposal artifacts, ticket linkage, and read-only apply audit context.",
-      "next_move": "Keep extending proposal linkage and localization truth across the remaining inspectors instead of falling back to repo-only workflow visibility."
+      "signal": "The macOS workspace is now the primary truthful surface for inspection, proposal artifacts, ticket linkage, source-audit posture, and read-only apply guidance.",
+      "next_move": "Move the same explicit truth discipline into preview geometry, safe-area behavior, and remaining native fidelity gaps."
     },
     {
       "id": "web-fallback",
@@ -95,52 +101,52 @@
   "top_gaps": [
     {
       "rank": 1,
-      "title": "Continue converting remaining hardcoded macOS inspector copy to StudioStrings in foundation and review details",
+      "title": "Verify preview safe-area geometry in the running macOS inspector across portrait and landscape devices",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 2,
-      "title": "Deepen proposal artifact read-back across more native inspectors and truth surfaces",
+      "title": "Model safe-area-aware preview chrome so navigation, tab, and dismiss controls honor selected device insets",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 3,
-      "title": "Add stronger read-only apply audit mapping against current repo files and candidate source paths",
+      "title": "Add preview surface geometry tests for orientation, device canvas, size class, and safe-area selections",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 4,
-      "title": "Promote the new workflow scripts into stronger routine use and build a minimal release/pre-promotion wrapper",
-      "recommended_ticket_status": "accepted"
+      "title": "Refine sheet geometry by device class, detent shape, and landscape behavior",
+      "recommended_ticket_status": "proposed"
     },
     {
       "rank": 5,
-      "title": "Exercise the new HS ticket, lane, proposal-linkage, local-check, and native ticket-readback workflow on the next real implementation slice",
-      "recommended_ticket_status": "accepted"
+      "title": "Make full-screen cover behavior explicit in the preview contract and canvas affordances",
+      "recommended_ticket_status": "proposed"
     },
     {
       "rank": 6,
-      "title": "Add proposal/ticket summary context to more review queue focus surfaces",
+      "title": "Improve navigation preview fidelity by deriving breadcrumb and back affordances from exported navigation edges",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 7,
-      "title": "Dotáhnout explicitní error surfaces pro import/reload failure typy i mimo proposal artifacts",
+      "title": "Complete the most visible component native preview gaps that still require fallback support",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 8,
-      "title": "Učesat zbývající localized/native truth kolem parity narrative a foundation detail copy",
+      "title": "Complete view native preview gaps using exported snapshot and navigation evidence",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 9,
-      "title": "Rozšířit supported-app catalog o repo-owned metadata jako preferred mode, availability checks, a případné demo/source badges bez rozbití truthfulness",
+      "title": "Add a repeatable native preview visual verification note alongside the build workflow",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 10,
-      "title": "Připravit promotion této větve na main podle canonical happy path, až budou web picker a native proposal slices považované za dostatečně uzavřené",
+      "title": "Prepare HS-0015 TestFlight upload only after the native preview QA matrix is truthful enough for internal review",
       "recommended_ticket_status": "proposed"
     }
   ]

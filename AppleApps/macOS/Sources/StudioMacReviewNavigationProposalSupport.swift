@@ -303,70 +303,241 @@ func proposalSourceAuditTone(
     }
 }
 
+struct StudioProposalScopeTruth {
+    struct Badge: Identifiable {
+        let id = UUID()
+        let text: String
+        let color: Color
+    }
+
+    let matchingArtifacts: [StudioChangeProposalArtifact]
+    let exactScopeCount: Int
+    let evidenceLinkedCount: Int
+    let relatedScopeCount: Int
+    let linkedTicketIDs: [String]
+    let readyCount: Int
+    let previewReadyCount: Int
+    let sourceAuditExactCount: Int
+    let sourceAuditRelatedCount: Int
+    let sourceAuditNeedsMetadataCount: Int
+    let deltaGapCount: Int
+    let validationGapCount: Int
+    let hasScopeContext: Bool
+    let hasEvidenceContext: Bool
+
+    var hasMatchingProposals: Bool {
+        !matchingArtifacts.isEmpty
+    }
+
+    var ticketSummary: String {
+        if linkedTicketIDs.isEmpty {
+            return StudioStrings.proposalNoLinkedTickets
+        }
+        if linkedTicketIDs.count == 1 {
+            return linkedTicketIDs[0]
+        }
+        return StudioStrings.proposalTicketSummary(count: linkedTicketIDs.count, firstTicket: linkedTicketIDs[0])
+    }
+
+    var sourceAuditLabel: String {
+        guard hasMatchingProposals else {
+            return StudioStrings.none
+        }
+        if sourceAuditExactCount > 0 {
+            return StudioStrings.proposalApplyPreviewSourceAuditExact
+        }
+        if sourceAuditRelatedCount > 0 {
+            return StudioStrings.proposalApplyPreviewSourceAuditRelated
+        }
+        return StudioStrings.proposalApplyPreviewSourceAuditNeedsMetadata
+    }
+
+    var sourceAuditTone: StudioInspectorSummaryTone {
+        guard hasMatchingProposals else {
+            return .neutral
+        }
+        if sourceAuditExactCount > 0 {
+            return .success
+        }
+        if sourceAuditRelatedCount > 0 {
+            return .accent
+        }
+        return .warning
+    }
+
+    var readOnlyGuidance: String {
+        guard hasMatchingProposals else {
+            return StudioStrings.proposalScopeTruthGuidanceMissing
+        }
+        if previewReadyCount > 0, validationGapCount == 0, deltaGapCount == 0 {
+            return StudioStrings.proposalScopeTruthGuidanceReady
+        }
+        return StudioStrings.proposalScopeTruthGuidanceReview
+    }
+
+    var badgeSignals: [Badge] {
+        guard hasMatchingProposals else {
+            return []
+        }
+
+        var badges: [Badge] = [
+            Badge(text: StudioStrings.proposalCountSummary(matchingArtifacts.count), color: .accentColor)
+        ]
+        if exactScopeCount > 0 {
+            badges.append(Badge(text: StudioStrings.proposalExactScopeCountSummary(exactScopeCount), color: .green))
+        }
+        if evidenceLinkedCount > 0 {
+            badges.append(Badge(text: StudioStrings.proposalEvidenceLinkedCountSummary(evidenceLinkedCount), color: .green))
+        }
+        if !linkedTicketIDs.isEmpty {
+            badges.append(Badge(text: StudioStrings.proposalTicketCountSummary(linkedTicketIDs.count), color: .purple))
+        }
+        if readyCount > 0 {
+            badges.append(Badge(text: StudioStrings.proposalReadyCountSummary(readyCount), color: .green))
+        }
+        if previewReadyCount > 0 {
+            badges.append(Badge(text: StudioStrings.proposalPreviewReadyCountSummary(previewReadyCount), color: .blue))
+        }
+        if sourceAuditExactCount > 0 {
+            badges.append(Badge(text: StudioStrings.proposalSourceAuditedCountSummary(sourceAuditExactCount), color: .green))
+        }
+        return badges
+    }
+
+    var reviewEvidenceRows: [(String, String)] {
+        [
+            (StudioStrings.proposalLinkageMatching, StudioStrings.resultsCount(matchingArtifacts.count)),
+            (StudioStrings.proposalScopeTruthExact, StudioStrings.resultsCount(exactScopeCount)),
+            (StudioStrings.proposalLinkageTickets, ticketSummary),
+            (StudioStrings.proposalApplyPreviewSourceAudit, sourceAuditLabel)
+        ]
+    }
+
+    var summaryItems: [StudioInspectorSummaryItem] {
+        [
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageMatching,
+                value: StudioStrings.resultsCount(matchingArtifacts.count),
+                tone: hasMatchingProposals ? .accent : .warning
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalScopeTruthExact,
+                value: StudioStrings.resultsCount(exactScopeCount),
+                tone: exactScopeCount == 0 ? (hasScopeContext ? .warning : .neutral) : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageEvidence,
+                value: StudioStrings.resultsCount(evidenceLinkedCount),
+                tone: evidenceLinkedCount == 0 ? (hasEvidenceContext ? .warning : .neutral) : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalScopeTruthRelated,
+                value: StudioStrings.resultsCount(relatedScopeCount),
+                tone: relatedScopeCount == 0 ? .neutral : .accent
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageTickets,
+                value: StudioStrings.resultsCount(linkedTicketIDs.count),
+                tone: linkedTicketIDs.isEmpty ? .warning : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalApplyPreviewSourceAudit,
+                value: sourceAuditLabel,
+                tone: sourceAuditTone
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalApplyPreviewCurrentDeltaGaps,
+                value: StudioStrings.resultsCount(deltaGapCount),
+                tone: deltaGapCount == 0 ? .success : .warning
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalApplyPreviewReadiness,
+                value: StudioStrings.resultsCount(previewReadyCount),
+                tone: previewReadyCount == 0 ? .neutral : .success
+            )
+        ]
+    }
+}
+
+func proposalScopeTruth(
+    artifacts: [StudioChangeProposalArtifact],
+    document: StudioNativeDocument?,
+    scope: String?,
+    evidencePaths: [String],
+    includeRelatedScope: Bool = false
+) -> StudioProposalScopeTruth {
+    let normalizedScope = scope?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    let normalizedEvidencePaths = evidencePaths
+        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .filter { !$0.isEmpty }
+    let matchesAllArtifacts = normalizedScope.isEmpty && normalizedEvidencePaths.isEmpty
+
+    var exactScopeCount = 0
+    var evidenceLinkedCount = 0
+    var relatedScopeCount = 0
+    var seenArtifactIDs: Set<String> = []
+    var matchingArtifacts: [StudioChangeProposalArtifact] = []
+
+    for artifact in artifacts {
+        let exactScopeMatch = !normalizedScope.isEmpty && artifact.scope == normalizedScope
+        let evidenceMatch = artifact.referencesAnyEvidence(paths: normalizedEvidencePaths)
+        let relatedScopeMatch = includeRelatedScope
+            && !normalizedScope.isEmpty
+            && !exactScopeMatch
+            && !evidenceMatch
+            && artifact.matchesRelatedScope(normalizedScope)
+
+        if exactScopeMatch {
+            exactScopeCount += 1
+        }
+        if evidenceMatch {
+            evidenceLinkedCount += 1
+        }
+        if relatedScopeMatch {
+            relatedScopeCount += 1
+        }
+        if matchesAllArtifacts || exactScopeMatch || evidenceMatch || relatedScopeMatch {
+            guard seenArtifactIDs.insert(artifact.id).inserted else {
+                continue
+            }
+            matchingArtifacts.append(artifact)
+        }
+    }
+
+    let linkedTicketIDs = uniqueProposalItems(matchingArtifacts.flatMap(\.ticketIDs)).sorted()
+    let sourceAuditStatuses = matchingArtifacts.map { proposalSourceAuditStatus(for: $0, document: document) }
+
+    return StudioProposalScopeTruth(
+        matchingArtifacts: matchingArtifacts,
+        exactScopeCount: exactScopeCount,
+        evidenceLinkedCount: evidenceLinkedCount,
+        relatedScopeCount: relatedScopeCount,
+        linkedTicketIDs: linkedTicketIDs,
+        readyCount: matchingArtifacts.filter(\.isReadyProposal).count,
+        previewReadyCount: matchingArtifacts.filter(\.isReadyForApplyPreview).count,
+        sourceAuditExactCount: sourceAuditStatuses.filter { $0 == .exact }.count,
+        sourceAuditRelatedCount: sourceAuditStatuses.filter { $0 == .related }.count,
+        sourceAuditNeedsMetadataCount: sourceAuditStatuses.filter { $0 == .needsMetadata }.count,
+        deltaGapCount: matchingArtifacts.filter { !proposalCurrentDeltaSummary(for: $0, document: document).gaps.isEmpty }.count,
+        validationGapCount: matchingArtifacts.filter { $0.validationStatus == .needsAttention }.count,
+        hasScopeContext: !normalizedScope.isEmpty,
+        hasEvidenceContext: !normalizedEvidencePaths.isEmpty
+    )
+}
+
 func proposalInspectorLinkageItems(
     artifacts: [StudioChangeProposalArtifact],
     document: StudioNativeDocument?,
     scope: String? = nil,
     evidencePaths: [String]
 ) -> [StudioInspectorSummaryItem] {
-    let normalizedEvidencePaths = evidencePaths.filter { !$0.isEmpty }
-    let matching = artifacts.filter { artifact in
-        let scopeMatches = scope.map { artifact.scope == $0 } ?? true
-        let evidenceMatches = normalizedEvidencePaths.isEmpty ? false : artifact.referencesAnyEvidence(paths: normalizedEvidencePaths)
-        return scopeMatches || evidenceMatches
-    }
-    let ready = matching.filter(\.isReadyProposal)
-    let evidenceMatched = matching.filter { artifact in
-        normalizedEvidencePaths.contains { artifact.referencesEvidence(path: $0) }
-    }
-    let linkedTickets = Set(matching.flatMap(\.ticketIDs))
-    let previewReady = matching.filter(\.isReadyForApplyPreview)
-    let sourceAuditExact = matching.filter { proposalSourceAuditStatus(for: $0, document: document) == .exact }
-    let deltaAligned = matching.filter { proposalCurrentDeltaSummary(for: $0, document: document).gaps.isEmpty }
-    let deltaGaps = matching.filter { !proposalCurrentDeltaSummary(for: $0, document: document).gaps.isEmpty }
-
-    return [
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalLinkageMatching,
-            value: StudioStrings.resultsCount(matching.count),
-            tone: matching.isEmpty ? .warning : .accent
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalLinkageReady,
-            value: StudioStrings.resultsCount(ready.count),
-            tone: ready.isEmpty ? .neutral : .success
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalLinkageEvidence,
-            value: StudioStrings.resultsCount(evidenceMatched.count),
-            tone: evidenceMatched.isEmpty ? .warning : .success
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalApplyPreviewSourceAudit,
-            value: StudioStrings.resultsCount(sourceAuditExact.count),
-            tone: sourceAuditExact.isEmpty ? .warning : .success
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalApplyPreviewCurrentDeltaAligned,
-            value: StudioStrings.resultsCount(deltaAligned.count),
-            tone: deltaAligned.isEmpty ? .neutral : .success
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalApplyPreviewCurrentDeltaGaps,
-            value: StudioStrings.resultsCount(deltaGaps.count),
-            tone: deltaGaps.isEmpty ? .success : .warning
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalLinkageTickets,
-            value: StudioStrings.resultsCount(linkedTickets.count),
-            tone: linkedTickets.isEmpty ? .warning : .success
-        ),
-        StudioInspectorSummaryItem(
-            label: StudioStrings.proposalApplyPreviewReadiness,
-            value: StudioStrings.resultsCount(previewReady.count),
-            tone: previewReady.isEmpty ? .neutral : .success
-        )
-    ]
+    proposalScopeTruth(
+        artifacts: artifacts,
+        document: document,
+        scope: scope,
+        evidencePaths: evidencePaths
+    )
+    .summaryItems
 }
 
 func proposalInferenceQualityStatus(

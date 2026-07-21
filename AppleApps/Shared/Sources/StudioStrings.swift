@@ -438,6 +438,23 @@ enum StudioStrings {
     static func proposalPreviewReadyCountSummary(_ count: Int) -> String {
         String(localized: "studio.change_proposal.preview_ready_count_summary", defaultValue: "\(count) preview-ready")
     }
+    static func proposalTicketCountSummary(_ count: Int) -> String {
+        String(localized: "studio.change_proposal.ticket_count_summary", defaultValue: "\(count) tickets")
+    }
+    static func proposalExactScopeCountSummary(_ count: Int) -> String {
+        String(localized: "studio.change_proposal.exact_scope_count_summary", defaultValue: "\(count) exact-scope")
+    }
+    static func proposalEvidenceLinkedCountSummary(_ count: Int) -> String {
+        String(localized: "studio.change_proposal.evidence_linked_count_summary", defaultValue: "\(count) evidence-linked")
+    }
+    static func proposalSourceAuditedCountSummary(_ count: Int) -> String {
+        String(localized: "studio.change_proposal.source_audited_count_summary", defaultValue: "\(count) source-audited")
+    }
+    static let proposalScopeTruthExact = String(localized: "studio.change_proposal.scope_truth.exact", defaultValue: "Exact-scope")
+    static let proposalScopeTruthRelated = String(localized: "studio.change_proposal.scope_truth.related", defaultValue: "Related-scope")
+    static let proposalScopeTruthGuidanceReady = String(localized: "studio.change_proposal.scope_truth.guidance_ready", defaultValue: "Read-only review can start from the ready proposal artifacts before any source write-back is considered.")
+    static let proposalScopeTruthGuidanceReview = String(localized: "studio.change_proposal.scope_truth.guidance_review", defaultValue: "Saved proposals exist for this scope, but their metadata or current native delta still needs review before apply planning.")
+    static let proposalScopeTruthGuidanceMissing = String(localized: "studio.change_proposal.scope_truth.guidance_missing", defaultValue: "No saved proposal currently maps to this scope, so keep the audit read-only and capture a proposal before planning source changes.")
     static func proposalScopeDisplay(kind: String, identifier: String?) -> String {
         let resolvedIdentifier = identifier?.trimmingCharacters(in: .whitespacesAndNewlines)
         if let resolvedIdentifier, !resolvedIdentifier.isEmpty {

@@ -660,8 +660,8 @@ struct StudioMacReviewPage: View {
                                                     (StudioStrings.snapshot, component.snapshot == nil ? StudioStrings.missing : StudioStrings.present),
                                                     (StudioStrings.states, "\(component.statesCount)"),
                                                     (StudioStrings.source, component.sourcePath.isEmpty ? StudioStrings.missing : StudioStrings.present),
-                                                ],
-                                                badges: proposalBadges(for: component),
+                                                ] + proposalTruth(for: component, document: document).reviewEvidenceRows,
+                                                badges: proposalBadges(for: component, document: document),
                                                 actionTitle: StudioStrings.open + " " + StudioStrings.componentDetail,
                                                 isSelected: selectedItem == .component(component.id)
                                             ) {
@@ -690,8 +690,8 @@ struct StudioMacReviewPage: View {
                                                     (StudioStrings.snapshot, view.snapshot == nil ? StudioStrings.missing : StudioStrings.present),
                                                     (StudioStrings.components, "\(view.componentsCount)"),
                                                     (StudioStrings.source, view.sourcePath.isEmpty ? StudioStrings.missing : StudioStrings.present),
-                                                ],
-                                                badges: proposalBadges(for: view),
+                                                ] + proposalTruth(for: view, document: document).reviewEvidenceRows,
+                                                badges: proposalBadges(for: view, document: document),
                                                 actionTitle: StudioStrings.open + " " + StudioStrings.viewDetail,
                                                 isSelected: selectedItem == .view(view.id)
                                             ) {
@@ -754,39 +754,46 @@ struct StudioMacReviewPage: View {
         }
     }
 
-    private func proposalBadges(for component: StudioNativeDocument.ComponentItem) -> [StudioNativeReviewCard.Badge] {
-        let matching = proposalArtifacts.filter {
-            $0.matchesComponent(id: component.id) || $0.referencesEvidence(path: component.sourcePath)
-        }
-        return proposalBadges(matching: matching)
+    private func proposalTruth(
+        for component: StudioNativeDocument.ComponentItem,
+        document: StudioNativeDocument
+    ) -> StudioProposalScopeTruth {
+        proposalScopeTruth(
+            artifacts: proposalArtifacts,
+            document: document,
+            scope: "component:\(component.id)",
+            evidencePaths: [component.sourcePath]
+        )
     }
 
-    private func proposalBadges(for view: StudioNativeDocument.ViewItem) -> [StudioNativeReviewCard.Badge] {
-        let matching = proposalArtifacts.filter {
-            $0.matchesView(id: view.id) || $0.referencesEvidence(path: view.sourcePath)
-        }
-        return proposalBadges(matching: matching)
+    private func proposalTruth(
+        for view: StudioNativeDocument.ViewItem,
+        document: StudioNativeDocument
+    ) -> StudioProposalScopeTruth {
+        proposalScopeTruth(
+            artifacts: proposalArtifacts,
+            document: document,
+            scope: "view:\(view.id)",
+            evidencePaths: [view.sourcePath]
+        )
     }
 
-    private func proposalBadges(matching: [StudioChangeProposalArtifact]) -> [StudioNativeReviewCard.Badge] {
-        guard !matching.isEmpty else {
-            return []
+    private func proposalBadges(
+        for component: StudioNativeDocument.ComponentItem,
+        document: StudioNativeDocument
+    ) -> [StudioNativeReviewCard.Badge] {
+        proposalTruth(for: component, document: document).badgeSignals.map {
+            StudioNativeReviewCard.Badge(text: $0.text, color: $0.color)
         }
+    }
 
-        let readyCount = matching.filter(\.isReadyProposal).count
-        let previewReadyCount = matching.filter(\.isReadyForApplyPreview).count
-        var badges: [StudioNativeReviewCard.Badge] = [
-            .init(text: StudioStrings.proposalCountSummary(matching.count), color: .accentColor)
-        ]
-
-        if readyCount > 0 {
-            badges.append(.init(text: StudioStrings.proposalReadyCountSummary(readyCount), color: .green))
+    private func proposalBadges(
+        for view: StudioNativeDocument.ViewItem,
+        document: StudioNativeDocument
+    ) -> [StudioNativeReviewCard.Badge] {
+        proposalTruth(for: view, document: document).badgeSignals.map {
+            StudioNativeReviewCard.Badge(text: $0.text, color: $0.color)
         }
-        if previewReadyCount > 0 {
-            badges.append(.init(text: StudioStrings.proposalPreviewReadyCountSummary(previewReadyCount), color: .blue))
-        }
-
-        return badges
     }
 
     private func reloadProposals() {
@@ -1090,7 +1097,7 @@ struct StudioMacNavigationPage: View {
                                                     isSelected: view.id == selectedView(in: graph)?.id,
                                                     isRoot: view.id == graph.rootViewID,
                                                     incomingCount: graph.incoming[view.id]?.count ?? 0,
-                                                    badges: proposalBadges(for: view)
+                                                    badges: proposalBadges(for: view, document: document)
                                                 )
                                                 .onTapGesture {
                                                     selectedViewID = view.id
@@ -1140,28 +1147,18 @@ struct StudioMacNavigationPage: View {
         return graph.viewByID[graph.rootViewID]
     }
 
-    private func proposalBadges(for view: StudioNativeDocument.ViewItem) -> [StudioNativeNavigationNodeCard.Badge] {
-        let matching = proposalArtifacts.filter {
-            $0.matchesView(id: view.id) || $0.referencesEvidence(path: view.sourcePath)
-        }
-        guard !matching.isEmpty else {
-            return []
-        }
-
-        let readyCount = matching.filter(\.isReadyProposal).count
-        let previewReadyCount = matching.filter(\.isReadyForApplyPreview).count
-        var badges: [StudioNativeNavigationNodeCard.Badge] = [
-            .init(text: StudioStrings.proposalCountSummary(matching.count), color: .accentColor)
-        ]
-
-        if readyCount > 0 {
-            badges.append(.init(text: StudioStrings.proposalReadyCountSummary(readyCount), color: .green))
-        }
-        if previewReadyCount > 0 {
-            badges.append(.init(text: StudioStrings.proposalPreviewReadyCountSummary(previewReadyCount), color: .blue))
-        }
-
-        return badges
+    private func proposalBadges(
+        for view: StudioNativeDocument.ViewItem,
+        document: StudioNativeDocument
+    ) -> [StudioNativeNavigationNodeCard.Badge] {
+        proposalScopeTruth(
+            artifacts: proposalArtifacts,
+            document: document,
+            scope: "view:\(view.id)",
+            evidencePaths: [view.sourcePath]
+        )
+        .badgeSignals
+        .map { StudioNativeNavigationNodeCard.Badge(text: $0.text, color: $0.color) }
     }
 
     private var repositoryRootURL: URL {
@@ -1254,7 +1251,16 @@ private struct StudioNavigationDetailInspector: View {
                         }
 
                         StudioInspectorSection(title: StudioStrings.proposalLinkageTitle) {
-                            StudioInspectorSummaryGrid(items: proposalLinkageItems(for: selectedView))
+                            let scopeTruth = proposalTruth(for: selectedView)
+
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text(scopeTruth.readOnlyGuidance)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+
+                                StudioInspectorSummaryGrid(items: proposalLinkageItems(for: selectedView))
+                            }
                         }
 
                         if let incoming = graph.incoming[selectedView.id], !incoming.isEmpty {
@@ -1400,10 +1406,7 @@ private struct StudioNavigationDetailInspector: View {
         }
         let modalTriggers = view.navigatesTo.filter { $0.type == "sheet" || $0.type == "replace" }.count
         let uniqueTriggers = Set(nonEmptyTriggers)
-        let matchingProposals = proposalArtifacts.filter {
-            $0.matchesView(id: view.id) || $0.referencesEvidence(path: view.sourcePath)
-        }
-        let previewReadyCount = matchingProposals.filter(\.isReadyForApplyPreview).count
+        let scopeTruth = proposalTruth(for: view)
 
         return [
             StudioInspectorSummaryItem(label: StudioStrings.trigger, value: "\(uniqueTriggers.count)", tone: uniqueTriggers.isEmpty ? .neutral : .accent),
@@ -1412,24 +1415,38 @@ private struct StudioNavigationDetailInspector: View {
             StudioInspectorSummaryItem(label: StudioStrings.actions, value: "\(view.primaryActions.count + view.secondaryActions.count)", tone: (view.primaryActions.count + view.secondaryActions.count) > 0 ? .success : .neutral),
             StudioInspectorSummaryItem(
                 label: StudioStrings.proposalLinkageMatching,
-                value: StudioStrings.resultsCount(matchingProposals.count),
-                tone: matchingProposals.isEmpty ? .neutral : .accent
+                value: StudioStrings.resultsCount(scopeTruth.matchingArtifacts.count),
+                tone: scopeTruth.hasMatchingProposals ? .accent : .neutral
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalLinkageTickets,
+                value: StudioStrings.resultsCount(scopeTruth.linkedTicketIDs.count),
+                tone: scopeTruth.linkedTicketIDs.isEmpty ? .neutral : .success
+            ),
+            StudioInspectorSummaryItem(
+                label: StudioStrings.proposalApplyPreviewSourceAudit,
+                value: scopeTruth.sourceAuditLabel,
+                tone: scopeTruth.sourceAuditTone
             ),
             StudioInspectorSummaryItem(
                 label: StudioStrings.proposalApplyPreviewReadiness,
-                value: StudioStrings.resultsCount(previewReadyCount),
-                tone: previewReadyCount == 0 ? .neutral : .success
+                value: StudioStrings.resultsCount(scopeTruth.previewReadyCount),
+                tone: scopeTruth.previewReadyCount == 0 ? .neutral : .success
             )
         ]
     }
 
-    private func proposalLinkageItems(for view: StudioNativeDocument.ViewItem) -> [StudioInspectorSummaryItem] {
-        proposalInspectorLinkageItems(
+    private func proposalTruth(for view: StudioNativeDocument.ViewItem) -> StudioProposalScopeTruth {
+        proposalScopeTruth(
             artifacts: proposalArtifacts,
             document: document,
             scope: "view:\(view.id)",
             evidencePaths: [view.sourcePath]
         )
+    }
+
+    private func proposalLinkageItems(for view: StudioNativeDocument.ViewItem) -> [StudioInspectorSummaryItem] {
+        proposalTruth(for: view).summaryItems
     }
 
     private func selectedViewStackContext(for view: StudioNativeDocument.ViewItem) -> StudioPreviewStackContext {
