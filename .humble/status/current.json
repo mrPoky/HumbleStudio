@@ -1,18 +1,19 @@
 {
   "app": "HumbleStudio",
   "status_version": 1,
-  "last_refreshed": "2026-07-21",
+  "last_refreshed": "2026-07-22",
   "summary": {
-    "overall_percent": 82,
+    "overall_percent": 83,
     "confidence": "medium",
-    "headline": "HumbleStudio now has a working hybrid design viewer plus native review and navigation surfaces that carry proposal scope, linked ticket, source-audit, and read-only apply readiness truth directly in the inspection flow.",
+    "headline": "HumbleStudio now has a working hybrid design viewer plus native review and navigation surfaces that carry proposal scope truth, and safe-area-aware native preview chrome driven by selected device geometry.",
     "notes": [
       "Percentages are directional maturity estimates, not precise scorecards.",
       "Repo-owned status belongs in this file so shared tooling reads repo truth instead of replacing it.",
       "The new HS ticket store should own future non-trivial HumbleStudio work.",
       "The web and native loaders can now truthfully offer a small supported-app catalog, including direct load and transparent URL-prefill paths.",
       "Read-only workflow surfaces should stay truthful and avoid mutating repo state implicitly.",
-      "Review queue and navigation audit cards now reuse shared proposal scope truth instead of each inferring proposal linkage independently."
+      "Review queue and navigation audit cards now reuse shared proposal scope truth instead of each inferring proposal linkage independently.",
+      "Native preview chrome now models selected-device safe-area geometry instead of only displaying raw inset metadata."
     ]
   },
   "refresh_cadence": {
@@ -29,7 +30,7 @@
     {
       "command": "python3 Scripts/validate_humble_tickets.py",
       "status": "passed",
-      "summary": "Validated the repo-native HS ticket surface and first onboarding ticket."
+      "summary": "Validated the repo-native HS ticket surface."
     },
     {
       "command": "python3 Scripts/humble_doctor.py --strict",
@@ -39,47 +40,47 @@
     {
       "command": "python3 Scripts/render_humble_tickets.py --limit 5",
       "status": "passed",
-      "summary": "The repo-native ticket board now renders HS tickets together with lane occupancy from local repo truth."
+      "summary": "The repo-native ticket board renders HS tickets together with lane occupancy from local repo truth."
     },
     {
       "command": "python3 Scripts/humble_status.py",
       "status": "passed",
-      "summary": "The repo-native status surface now renders current git, ticket, worktree, and lane context on top of `.humble/status/current.json`."
+      "summary": "The repo-native status surface renders current git, ticket, worktree, and lane context on top of `.humble/status/current.json`."
     },
     {
       "command": "python3 Scripts/render_humble_status.py",
       "status": "passed",
-      "summary": "The repo-native status summary now has a reader-friendly text and Mermaid renderer for review and planning."
+      "summary": "The repo-native status summary has a reader-friendly text and Mermaid renderer for review and planning."
     },
     {
       "command": "python3 Scripts/check_web_fallback.py",
       "status": "passed",
-      "summary": "The static web fallback now has an explicit script-based integrity check for local assets, markup anchors, bundled JSON fixtures, and the supported-app picker anchor."
+      "summary": "The static web fallback has an explicit script-based integrity check for local assets, markup anchors, bundled JSON fixtures, and the supported-app picker anchor."
     },
     {
       "command": "bash Scripts/run_local_checks.sh --workflow-only",
       "status": "passed",
-      "summary": "HumbleStudio now has a single repo-local workflow gate for ticket, contract, web fallback, script compilation, and diff hygiene checks."
+      "summary": "HumbleStudio has a single repo-local workflow gate for ticket, contract, web fallback, script compilation, and diff hygiene checks."
     },
     {
       "command": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
       "status": "passed",
-      "summary": "The native macOS workspace builds after tying review queue and navigation audit surfaces to shared proposal scope truth."
+      "summary": "The native macOS workspace builds after tying review/navigation surfaces to proposal scope truth and after adding safe-area-aware preview chrome geometry."
     },
     {
       "command": "./script/build_and_run.sh --native-ci",
       "status": "passed",
-      "summary": "The repo-documented native CI path regenerated the project and completed a build-only macOS sanity pass for HS-0038."
+      "summary": "The repo-documented native CI path completed build-only macOS sanity passes for HS-0038 and HS-0040."
     }
   ],
   "operating_layers": [
     {
       "id": "native-workspace",
       "label": "Native workspace",
-      "percent": 81,
+      "percent": 83,
       "status": "healthy",
-      "signal": "The macOS workspace is now the primary truthful surface for inspection, proposal artifacts, ticket linkage, source-audit posture, and read-only apply guidance.",
-      "next_move": "Move the same explicit truth discipline into preview geometry, safe-area behavior, and remaining native fidelity gaps."
+      "signal": "The macOS workspace is now the primary truthful surface for inspection, proposal artifacts, ticket linkage, source-audit posture, read-only apply guidance, and contract-driven preview chrome geometry.",
+      "next_move": "Verify the preview safe-area geometry visually in the running inspector, then add geometry tests so phone and tablet chrome placement stays stable."
     },
     {
       "id": "web-fallback",
@@ -95,58 +96,58 @@
       "percent": 71,
       "status": "healthy",
       "signal": "The repository now has contract, ticket, status, lane, proposal-linkage, and local check surfaces, but it still needs routine operational use.",
-      "next_move": "Use the new ticket allocator, lane starter, and local check wrapper on the next real implementation slice instead of staying in manual workflow mode."
+      "next_move": "Use the ticket allocator, lane starter, and local check wrapper on the next real implementation slice instead of staying in manual workflow mode."
     }
   ],
   "top_gaps": [
     {
       "rank": 1,
-      "title": "Verify preview safe-area geometry in the running macOS inspector across portrait and landscape devices",
+      "title": "Verify preview safe-area geometry in the running macOS inspector across phone and tablet portrait/landscape selections",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 2,
-      "title": "Model safe-area-aware preview chrome so navigation, tab, and dismiss controls honor selected device insets",
+      "title": "Add preview surface geometry tests for orientation, canvas sizing, size classes, safe-area selections, and derived chrome offsets",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 3,
-      "title": "Add preview surface geometry tests for orientation, device canvas, size class, and safe-area selections",
+      "title": "Refine sheet geometry by device class with compact and regular detent behavior",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 4,
-      "title": "Refine sheet geometry by device class, detent shape, and landscape behavior",
+      "title": "Make full-screen cover behavior explicit in the preview contract and canvas",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 5,
-      "title": "Make full-screen cover behavior explicit in the preview contract and canvas affordances",
-      "recommended_ticket_status": "proposed"
-    },
-    {
-      "rank": 6,
       "title": "Improve navigation preview fidelity by deriving breadcrumb and back affordances from exported navigation edges",
       "recommended_ticket_status": "proposed"
     },
     {
-      "rank": 7,
-      "title": "Complete the most visible component native preview gaps that still require fallback support",
+      "rank": 6,
+      "title": "Complete component native preview gaps by prioritizing frequently used fallback-needed components",
       "recommended_ticket_status": "proposed"
     },
     {
-      "rank": 8,
+      "rank": 7,
       "title": "Complete view native preview gaps using exported snapshot and navigation evidence",
       "recommended_ticket_status": "proposed"
     },
     {
+      "rank": 8,
+      "title": "Add a repeatable native preview verification note for the manual QA matrix",
+      "recommended_ticket_status": "proposed"
+    },
+    {
       "rank": 9,
-      "title": "Add a repeatable native preview visual verification note alongside the build workflow",
+      "title": "Prepare HS-0015 TestFlight upload after the native preview QA matrix is truthful enough for internal review",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 10,
-      "title": "Prepare HS-0015 TestFlight upload only after the native preview QA matrix is truthful enough for internal review",
+      "title": "Deepen proposal scope and source-audit parity across remaining non-proposal inspector truth surfaces",
       "recommended_ticket_status": "proposed"
     }
   ]

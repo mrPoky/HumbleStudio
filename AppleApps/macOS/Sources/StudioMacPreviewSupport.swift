@@ -146,6 +146,48 @@ struct StudioPreviewSafeAreaInsets: Equatable, Hashable {
     let horizontal: CGFloat
 }
 
+struct StudioPreviewChromeGeometry: Equatable {
+    let safeArea: StudioPreviewSafeAreaInsets
+    let topContentInset: CGFloat
+    let bottomContentInset: CGFloat
+    let horizontalContentInset: CGFloat
+    let navigationBarHeight: CGFloat
+    let navigationContentHeight: CGFloat
+    let tabBarHeight: CGFloat
+    let tabContentHeight: CGFloat
+    let fullScreenDismissTopInset: CGFloat
+    let fullScreenDismissHorizontalInset: CGFloat
+    let sheetChromeTopInset: CGFloat
+    let sheetChromeHorizontalInset: CGFloat
+
+    init(configuration: StudioPreviewConfiguration) {
+        let safeArea = configuration.device.safeAreaInsets(for: configuration.orientation)
+        let showsNavigation = configuration.navigationChrome == .navigationBar || configuration.navigationChrome == .both
+        let showsTab = configuration.navigationChrome == .tabBar || configuration.navigationChrome == .both
+        let showsFullScreenDismiss = configuration.presentationMode == .fullScreenCover && !showsNavigation
+        let edgeInset = max(14, safeArea.horizontal + 14)
+        let navigationContentHeight: CGFloat = 52
+        let tabContentHeight: CGFloat = 58
+
+        self.safeArea = safeArea
+        self.navigationContentHeight = navigationContentHeight
+        self.tabContentHeight = tabContentHeight
+        self.navigationBarHeight = showsNavigation ? safeArea.top + navigationContentHeight : 0
+        self.tabBarHeight = showsTab ? tabContentHeight + safeArea.bottom : 0
+        self.horizontalContentInset = edgeInset
+        self.topContentInset = showsNavigation
+            ? safeArea.top + navigationContentHeight + 6
+            : safeArea.top + (showsFullScreenDismiss ? 52 : 14)
+        self.bottomContentInset = showsTab
+            ? tabContentHeight + safeArea.bottom + 12
+            : safeArea.bottom + 14
+        self.fullScreenDismissTopInset = safeArea.top + 14
+        self.fullScreenDismissHorizontalInset = edgeInset
+        self.sheetChromeTopInset = max(10, min(24, safeArea.top + 8))
+        self.sheetChromeHorizontalInset = 12 + min(safeArea.horizontal, 20)
+    }
+}
+
 enum StudioPreviewCatalog {
     static let devices: [StudioPreviewDevice] = [
         StudioPreviewDevice(
@@ -205,6 +247,14 @@ struct StudioPreviewConfiguration: Equatable {
 
     var sizeClasses: (horizontal: StudioPreviewSizeClass, vertical: StudioPreviewSizeClass) {
         device.sizeClasses(for: orientation)
+    }
+
+    var safeAreaInsets: StudioPreviewSafeAreaInsets {
+        device.safeAreaInsets(for: orientation)
+    }
+
+    var chromeGeometry: StudioPreviewChromeGeometry {
+        StudioPreviewChromeGeometry(configuration: self)
     }
 
     var resolvedBreadcrumbTrail: [String] {
@@ -447,7 +497,9 @@ struct StudioPreviewSurface<Content: View>: View {
                     .frame(width: sheetSize.width, height: sheetSize.height)
                     .overlay {
                         content()
-                            .padding(14)
+                            .padding(.top, chromeGeometry.sheetChromeTopInset + 42)
+                            .padding(.horizontal, chromeGeometry.sheetChromeHorizontalInset)
+                            .padding(.bottom, 14)
                     }
                     .overlay(alignment: .top) {
                         VStack(spacing: 10) {
@@ -475,15 +527,15 @@ struct StudioPreviewSurface<Content: View>: View {
                                 }
                             }
                         }
-                        .padding(.top, 10)
-                        .padding(.horizontal, 12)
+                        .padding(.top, chromeGeometry.sheetChromeTopInset)
+                        .padding(.horizontal, chromeGeometry.sheetChromeHorizontalInset)
                     }
                     .shadow(color: .black.opacity(appearance == .light ? 0.12 : 0.28), radius: 18, y: 10)
             } else {
                 content()
-                    .padding(.top, topChromePadding)
-                    .padding(.bottom, bottomChromePadding)
-                    .padding(.horizontal, 14)
+                    .padding(.top, chromeGeometry.topContentInset)
+                    .padding(.bottom, chromeGeometry.bottomContentInset)
+                    .padding(.horizontal, chromeGeometry.horizontalContentInset)
             }
         }
         .overlay(alignment: .top) {
@@ -525,8 +577,8 @@ struct StudioPreviewSurface<Content: View>: View {
         VStack(spacing: 0) {
             Rectangle()
                 .fill(appearance == .light ? Color.white.opacity(0.92) : Color.black.opacity(0.22))
-                .frame(height: 52)
-                .overlay {
+                .frame(height: chromeGeometry.navigationBarHeight)
+                .overlay(alignment: .bottom) {
                     HStack(spacing: 10) {
                         if configuration.navigationDepth != .root {
                             Image(systemName: "chevron.left")
@@ -558,7 +610,8 @@ struct StudioPreviewSurface<Content: View>: View {
                                 .frame(width: 20, height: 20)
                         }
                     }
-                    .padding(.horizontal, 14)
+                    .frame(height: chromeGeometry.navigationContentHeight)
+                    .padding(.horizontal, chromeGeometry.horizontalContentInset)
                 }
             Divider()
         }
@@ -573,8 +626,8 @@ struct StudioPreviewSurface<Content: View>: View {
                 .frame(width: 28, height: 28)
                 .background(Color.secondary.opacity(0.14), in: Circle())
         }
-        .padding(.top, 14)
-        .padding(.horizontal, 14)
+        .padding(.top, chromeGeometry.fullScreenDismissTopInset)
+        .padding(.horizontal, chromeGeometry.fullScreenDismissHorizontalInset)
     }
 
     private var previewTabBar: some View {
@@ -582,8 +635,8 @@ struct StudioPreviewSurface<Content: View>: View {
             Divider()
             Rectangle()
                 .fill(appearance == .light ? Color.white.opacity(0.94) : Color.black.opacity(0.24))
-                .frame(height: 58)
-                .overlay {
+                .frame(height: chromeGeometry.tabBarHeight)
+                .overlay(alignment: .top) {
                     HStack {
                         ForEach(0..<4, id: \.self) { _ in
                             Spacer(minLength: 0)
@@ -598,6 +651,8 @@ struct StudioPreviewSurface<Content: View>: View {
                             Spacer(minLength: 0)
                         }
                     }
+                    .frame(height: chromeGeometry.tabContentHeight)
+                    .padding(.horizontal, chromeGeometry.horizontalContentInset)
                 }
         }
     }
@@ -636,14 +691,6 @@ struct StudioPreviewSurface<Content: View>: View {
         configuration.navigationChrome == .tabBar || configuration.navigationChrome == .both
     }
 
-    private var topChromePadding: CGFloat {
-        showsNavigationBar || configuration.presentationMode == .fullScreenCover ? 58 : 14
-    }
-
-    private var bottomChromePadding: CGFloat {
-        showsTabBar ? 70 : 14
-    }
-
     private func fittedFrameSize(baseSize: CGSize, in available: CGSize) -> CGSize {
         let widthRatio = max((available.width - 20) / max(baseSize.width, 1), 0.1)
         let heightRatio = max((available.height - 20) / max(baseSize.height, 1), 0.1)
@@ -660,6 +707,10 @@ struct StudioPreviewSurface<Content: View>: View {
 
     private var canvasSize: CGSize {
         configuration.device.canvasSize(for: configuration.orientation)
+    }
+
+    private var chromeGeometry: StudioPreviewChromeGeometry {
+        configuration.chromeGeometry
     }
 
     private func scaled(_ value: CGFloat, from reference: CGFloat, to previewLength: CGFloat) -> CGFloat {
@@ -786,9 +837,17 @@ struct StudioPreviewContractPanel: View {
             StudioKeyValueRow(
                 label: StudioStrings.previewSafeArea,
                 value: StudioStrings.previewSafeAreaInsets(
-                    top: Int(configuration.device.safeAreaInsets(for: configuration.orientation).top),
-                    bottom: Int(configuration.device.safeAreaInsets(for: configuration.orientation).bottom),
-                    horizontal: Int(configuration.device.safeAreaInsets(for: configuration.orientation).horizontal)
+                    top: Int(configuration.safeAreaInsets.top),
+                    bottom: Int(configuration.safeAreaInsets.bottom),
+                    horizontal: Int(configuration.safeAreaInsets.horizontal)
+                )
+            )
+            StudioKeyValueRow(
+                label: StudioStrings.previewAppliedChrome,
+                value: StudioStrings.previewAppliedChromeOffsets(
+                    top: Int(configuration.chromeGeometry.topContentInset),
+                    bottom: Int(configuration.chromeGeometry.bottomContentInset),
+                    horizontal: Int(configuration.chromeGeometry.horizontalContentInset)
                 )
             )
             StudioKeyValueRow(label: StudioStrings.previewStackContext, value: configuration.stackContext.summary)

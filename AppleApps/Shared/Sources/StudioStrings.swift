@@ -1125,6 +1125,7 @@ enum StudioStrings {
     }
 
     static let previewSafeArea = String(localized: "studio.preview.safe_area", defaultValue: "Safe area insets")
+    static let previewAppliedChrome = String(localized: "studio.preview.applied_chrome", defaultValue: "Applied chrome offsets")
     static let previewContractDerivedFromModel = String(localized: "studio.preview.contract_note.default", defaultValue: "This preview is driven by native contract data rather than a live runtime capture.")
     static let previewProposalInferenceNote = String(localized: "studio.preview.contract_note.proposal_inference", defaultValue: "Proposal apply preview infers its flow context from saved scope and evidence, not from a live runtime navigation session.")
     static let previewNavigationGraphNote = String(localized: "studio.preview.contract_note.navigation_graph", defaultValue: "Flow context is derived from the exported navigation graph and matches the currently known route structure.")
@@ -1136,6 +1137,19 @@ enum StudioStrings {
             format: String(
                 localized: "studio.preview.safe_area_insets",
                 defaultValue: "Top %lld pt · Bottom %lld pt · Horizontal %lld pt"
+            ),
+            locale: Locale.current,
+            top,
+            bottom,
+            horizontal
+        )
+    }
+
+    static func previewAppliedChromeOffsets(top: Int, bottom: Int, horizontal: Int) -> String {
+        String(
+            format: String(
+                localized: "studio.preview.applied_chrome_offsets",
+                defaultValue: "Content top %lld pt · Bottom %lld pt · Horizontal guard %lld pt"
             ),
             locale: Locale.current,
             top,

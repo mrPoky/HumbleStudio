@@ -1,0 +1,103 @@
+{
+  "id": "HS-0040",
+  "title": "Model safe-area-aware preview chrome",
+  "status": "solved",
+  "type": "refactor",
+  "priority": "high",
+  "owner": "codex",
+  "created_at": "2026-07-21",
+  "updated_at": "2026-07-22",
+  "source": "agent",
+  "summary": "Advance the native preview surface so selected device safe-area insets actively shape preview navigation, tab, and modal chrome placement instead of only appearing as inspector metadata.",
+  "acceptance_criteria": [
+    "Preview surface derives reusable chrome geometry from the selected device, orientation, presentation mode, and safe-area inset contract.",
+    "Navigation, tab, and dismiss preview affordances respect the derived safe-area chrome geometry on phone and tablet portrait/landscape previews.",
+    "Preview contract inspector exposes the applied safe-area chrome offsets so visual review can distinguish modeled geometry from raw inset metadata.",
+    "Ticket validation, patch hygiene, repo contract validation, and a targeted HumbleStudioMac debug build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Created from the 2026-07-21 Top 10 runway after HS-0038; highest implementation item is safe-area-aware preview chrome."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Added StudioPreviewChromeGeometry so preview chrome derives top, bottom, and horizontal content guards from the selected device safe-area contract."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Navigation bars, tab bars, full-screen dismiss controls, and sheet chrome now use the derived geometry instead of fixed preview padding."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Preview Contract now exposes applied chrome offsets alongside raw safe-area inset metadata in localized copy."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings >/tmp/humblestudio-localizable-check.json",
+      "note": "Validated the edited string catalog as JSON after adding applied chrome strings."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0040.json",
+      "note": "Validated the HS-0040 ticket schema before closure."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract validation passed with HS-0040 present."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Confirmed patch hygiene and whitespace correctness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+      "note": "Targeted HumbleStudioMac debug build succeeded after the safe-area chrome model change."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "./script/build_and_run.sh --native-ci",
+      "note": "Repo-native native CI wrapper succeeded after the safe-area chrome model change."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0040.json",
+    "AppleApps/macOS/Sources/StudioMacPreviewSupport.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationWorkspace.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    "docs/next-slices.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "agent_self_assigned",
+    "interaction_mode": "agent_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Top 10 Next Slices 2026-07-21 item 2: model safe-area-aware preview chrome."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0040.json",
+    "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings >/tmp/humblestudio-localizable-check.json",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+    "./script/build_and_run.sh --native-ci"
+  ],
+  "agent_notes": [
+    "Keep this as a truthful geometry model, not a claim of runtime simulator execution.",
+    "Use existing preview support types and localized strings before adding new surface patterns."
+  ]
+}

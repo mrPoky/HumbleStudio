@@ -3935,6 +3935,13 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Safe area insets" } }
       }
     },
+    "studio.preview.applied_chrome" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aplikované chrome offsety" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Applied chrome offsets" } }
+      }
+    },
     "studio.preview.contract_note.default" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3975,6 +3982,13 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nahoře %lld pt · Dole %lld pt · Vodorovně %lld pt" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Top %lld pt · Bottom %lld pt · Horizontal %lld pt" } }
+      }
+    },
+    "studio.preview.applied_chrome_offsets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obsah nahoře %lld pt · Dole %lld pt · Vodorovná ochrana %lld pt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Content top %lld pt · Bottom %lld pt · Horizontal guard %lld pt" } }
       }
     },
     "studio.preview.flow_progress_value" : {
