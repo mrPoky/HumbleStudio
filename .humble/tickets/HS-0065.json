@@ -1,0 +1,126 @@
+{
+  "id": "HS-0065",
+  "title": "Ship a polished Board milestone and define Architect absorption boundaries",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-25",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Deliver one polished standalone product milestone for internal visual product, design, diagram, and proposal workspace: open repository-backed product truth, edit a screen or diagram, review a proposal, hand it to Codex, and reconcile implementation. The slice must prove user value, UI/UX quality, performance, accessibility, recovery, and the declared monetization or non-monetization posture.",
+  "acceptance_criteria": [
+    "The slice is centered on one complete journey: open repository-backed product truth, edit a screen or diagram, review a proposal, hand it to Codex, and reconcile implementation.",
+    "Document the current user problem, baseline evidence, intended outcome, and success signal before changing UI or architecture.",
+    "Define one obvious entry point and a clear completion or safe-abort state.",
+    "Loading, empty, error, offline, stale, permission-denied, partial, and recovery states are designed intentionally rather than falling through to generic copy.",
+    "The visual hierarchy, spacing, typography, color, motion, controls, and feedback use repository-owned design tokens and components.",
+    "The journey is usable with relevant accessibility technologies and input modes.",
+    "English and Czech or the repository's declared locales receive equivalent meaning and correctly formatted dynamic values.",
+    "The journey stays inside the approved performance budgets and includes before-and-after evidence for its critical interactions.",
+    "Diagnostics and product feedback remain privacy-safe, explicit, and proportionate to the repository role.",
+    "Monetization follows `internal-now-optional-commercialization-later`; if monetization is not applicable, the UX contains no artificial upgrade or revenue pressure.",
+    "Agent or automation assistance is optional, transparent, reversible, and never required for the basic user value.",
+    "No cross-application integration or product merger is introduced unless the journey itself proves a concrete need.",
+    "Focused behavior tests and visual or runtime evidence cover the normal, failure, and recovery paths.",
+    "The implementation does not bundle unrelated architecture cleanup.",
+    "Repo-owned status, product documentation, and evidence are refreshed after the slice.",
+    "The strongest practical repository gate passes with zero app-owned warnings.",
+    "Document the current fusion posture: Likely destination for selected Architect capabilities; Board and design editing remain its core.",
+    "Identify which capabilities belong to the standalone product, which could become a shared module, and which must remain isolated by permissions or data ownership.",
+    "Any proposed absorption has an incremental pilot, migration plan, rollback, and user-facing mental-model review; no merger is performed in this ticket."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    ".humble/tickets/HS-0065.json",
+    ".notes/humblestudio-professionalization-review-2026-07-25.md"
+  ],
+  "blocked_by": {
+    "reason": "The professional baseline must be established before the flagship product slice.",
+    "unblock_condition": "HS-0064 is solved or an equivalent reviewed baseline exists."
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 8: re-evaluate Waves 1-7, keep applications professionally developed, and avoid forced cross-app integration."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Wave 8 professionalization ticket.",
+    "Standalone product excellence is the default; cross-app behavior is optional and evidence-driven.",
+    "Do not introduce monetization when the repository classification says it is internal, personal, or portfolio-only.",
+    "Do not hide performance regressions or app-owned warnings.",
+    "Product role: internal visual product, design, diagram, and proposal workspace.",
+    "Monetization posture: internal-now-optional-commercialization-later.",
+    "Fusion posture: Likely destination for selected Architect capabilities; Board and design editing remain its core..",
+    "Portfolio Professionalization Wave 8.",
+    "Non-scope: do not introduce unrelated cross-app integration, product merger, release, deployment, or monetization mechanics.",
+    "Alternative considered and rejected: applying one universal integration or monetization model to every app would damage product focus and ownership.",
+    "Wave 10 final rationalization: active-professionalization; portfolio band next. Professional quality and flagship scope feed the Wave 10 charter and baseline.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `reconcile with current repository before implementation`. Professional quality, product role, performance, accessibility, agents, and monetization fit remain required baselines.",
+    "Wave 13 human-validation reassessment: `retain-professional-baseline` / `now` / priority `high`. Professional baseline is required before user validation or release claims.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Professional baseline is required before user validation or release claims."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created after portfolio-wide reassessment of Waves 1-7 and current default-branch reconciliation. Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `reconcile with current repository before implementation`. Professional quality, product role, performance, accessibility, agents, and monetization fit remain required baselines."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0064",
+      "note": "The flagship slice consumes the professional quality, performance, and role profile."
+    }
+  ]
+}

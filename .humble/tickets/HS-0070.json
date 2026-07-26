@@ -1,0 +1,157 @@
+{
+  "id": "HS-0070",
+  "title": "Deliver the HumbleStudio flagship journey v1",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Deliver and prove the repository flagship milestone: Deliver one polished standalone product milestone for internal visual product, design, diagram, and proposal workspace: open repository-backed product truth, edit a screen or diagram, review a proposal, hand it to Codex, and reconcile implementation. The slice must prove user value, UI/UX quality, performance, accessibility, recovery, and the declared monetization or non-monetization posture.",
+  "acceptance_criteria": [
+    "Deliver the repository flagship scope as one coherent product milestone: Deliver one polished standalone product milestone for internal visual product, design, diagram, and proposal workspace: open repository-backed product truth, edit a screen or diagram, review a proposal, hand it to Codex, and reconcile implementation. The slice must prove user value, UI/UX quality, performance, accessibility, recovery, and the declared monetization or non-monetization posture.",
+    "Begin from the ratified product charter and current user problem rather than from the existing screen structure.",
+    "Define one obvious entry point, a bounded set of decisions, and a clear meaningful completion state.",
+    "Remove or defer secondary complexity that distracts from the primary outcome.",
+    "Design and implement normal, loading, empty, error, stale, offline, permission-denied, partial, retry, interruption, and recovery states.",
+    "Use repository-owned design tokens, components, content language, and interaction patterns while preserving the product identity.",
+    "Meet the repository accessibility, localization, and reduced-motion requirements.",
+    "Meet performance budgets for launch or open, the critical interaction path, memory, storage, network, and background work as applicable.",
+    "Preserve privacy, consent, credential, support, and data-lifecycle boundaries.",
+    "Make agent or automation assistance optional, transparent, reversible, and unnecessary for core value.",
+    "Apply monetization posture `internal-now-optional-commercialization-later` without dark patterns or paywalling safety, recovery, or owned data.",
+    "Capture behavior-focused tests and closest-practical runtime evidence for the complete journey.",
+    "Add an adversarial test or review that attempts to break the most important product claim.",
+    "Verify restart, replay, duplicate event, and stale-version behavior where relevant.",
+    "Define rollout or local adoption evidence and explicit safe-stop criteria.",
+    "Update user-facing documentation, support guidance, status, and product evidence after implementation.",
+    "Do not introduce unrelated cross-app integration or product merger.",
+    "Keep the implementation bounded to one reviewable roadmap milestone.",
+    "Complete zero-warning verification and record every unexecuted external gate.",
+    "Produce a post-milestone review comparing intended and observed product value."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "PROFESSIONALIZATION_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "ASSURANCE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "WAVE_8_REASSESSMENT.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "PROFESSIONALIZATION_REVIEW.md",
+    "ASSURANCE_REVIEW.md",
+    "WAVE_8_REASSESSMENT.md",
+    ".humble/tickets/HS-0070.json",
+    ".notes/humblestudio-capstone-review-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "The capstone scope depends on reviewed earlier-wave foundations.",
+    "unblock_condition": "The following tickets are solved or equivalent evidence exists: HS-0068, HS-0069, HS-0065, HS-0067"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 10 as the largest and most thorough final planning wave across the entire portfolio."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Capstone and Operating System Wave 10.",
+    "Non-scope: do not release, deploy, merge products, mutate external data, delete, restore, or enable monetization from this planning ticket.",
+    "Alternative considered and rejected: adding more disconnected ambitious features without charter, capacity, assurance, and product evidence would make the portfolio less trustworthy.",
+    "Wave 10 is a realization and rationalization layer, not a reason to keep expanding the backlog indefinitely.",
+    "Lifecycle disposition: build.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-charter-input`, relevance `next`, current priority `medium`, execution gate `use as governing context, not another parallel backlog`. Portfolio and product charters remain decision inputs, while Wave 11 and Wave 12 own implementation and completion.",
+    "Wave 13 human-validation reassessment: `retain-product-charter-input` / `next` / priority `high`. Product role, lifecycle, and investment decisions frame the validation program.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Product role, lifecycle, and investment decisions frame the validation program."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created after final Waves 1-9 rationalization and current-head verification. Wave 12 deep reassessment: decision `retain-charter-input`, relevance `next`, current priority `medium`, execution gate `use as governing context, not another parallel backlog`. Portfolio and product charters remain decision inputs, while Wave 11 and Wave 12 own implementation and completion."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0068",
+      "note": "Required capstone prerequisite."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0069",
+      "note": "Required capstone prerequisite."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0065",
+      "note": "Required capstone prerequisite."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0067",
+      "note": "Required capstone prerequisite."
+    }
+  ]
+}

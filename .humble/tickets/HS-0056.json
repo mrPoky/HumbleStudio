@@ -1,0 +1,145 @@
+{
+  "id": "HS-0056",
+  "title": "Add crash recovery, workspace snapshots, and migration evidence",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "medium",
+  "owner": null,
+  "created_at": "2026-07-25",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Board and Studio workspace editing can recover from crashes, interrupted saves, corrupt assets, schema changes, stale imported truth, and failed proposal generation without silently losing or overwriting user work.",
+  "acceptance_criteria": [
+    "A repository-owned versioned stewardship contract defines the exact domain records, source of truth, ownership boundary, compatibility policy, and unsupported capabilities for this slice.",
+    "Every exported record uses repository-qualified identity, producer revision, explicit timestamps, deterministic canonical serialization, content integrity, and correction/supersession links.",
+    "Fields are classified by visibility and sensitivity; secrets, credentials, personal paths, full URLs, precise locations, private media names, health/family/customer narrative, and unrelated payloads are excluded or conservatively redacted by default.",
+    "Lifecycle states distinguish active, stale, unavailable, partial, corrected, superseded, revoked, expired, inaccessible, corrupt, unsupported-version, and deleted/tombstoned posture without mapping missing data to success.",
+    "Retention, export, backup, restore, correction, deletion, revocation, and derived-data invalidation are explicit and domain-specific; unsupported operations are declared rather than implied.",
+    "A generated quality/support evidence snapshot identifies what was checked, with which rule/tool version, against which source revision and environment, what was omitted, and when the evidence expires.",
+    "Generation and retry are deterministic and idempotent for unchanged source state; repeated execution cannot duplicate domain actions or silently rewrite earlier receipts.",
+    "Migration preserves historical identity and evidence, handles newer or unknown schema conservatively, and creates a safety copy or forward-only warning before irreversible transformation.",
+    "Offline and local operation remain useful; HumbleControl and cross-app consumers are optional readers and never become a runtime dependency for the domain feature.",
+    "No restore, deletion, correction, upload, support handoff, or external mutation occurs without a human-readable preview and validation by the repository/domain owner.",
+    "Fixtures cover normal, empty, stale, unavailable dependency, partial data, duplicate, corrupt, unsupported version, redacted, correction, deletion/revocation, interruption, and recovery.",
+    "The producer can conform to Quality Evidence, Data Lifecycle, Support Bundle, Artifact Envelope, registry, and intent/receipt protocols while remaining independently testable.",
+    "Recovery uses atomic primary saves, journals or checkpoints, bounded versioned snapshots, asset integrity, and explicit clean/dirty/recovered/conflicted document state.",
+    "Opening after interruption previews recovered commands, missing assets, stale source references, migration changes, and the exact base revision before applying recovery.",
+    "Migration and recovery produce durable evidence with source/target schema, command IDs, rejected operations, safety copy, and user decision.",
+    "The strongest repository-native tests, builds, static checks, migration/fixture checks, contract validation, and diff hygiene pass with zero app-owned warnings."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Existing HumbleStudio source, contract, ticket, test, or documentation surface that anchors Portfolio Stewardship Wave 4 ticket HS-0056."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Existing HumbleStudio source, contract, ticket, test, or documentation surface that anchors Portfolio Stewardship Wave 4 ticket HS-0056."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0043.json",
+      "status": "pending",
+      "note": "Existing HumbleStudio source, contract, ticket, test, or documentation surface that anchors Portfolio Stewardship Wave 4 ticket HS-0056."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0045.json",
+      "status": "pending",
+      "note": "Existing HumbleStudio source, contract, ticket, test, or documentation surface that anchors Portfolio Stewardship Wave 4 ticket HS-0056."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0049.json",
+      "status": "pending",
+      "note": "Existing HumbleStudio source, contract, ticket, test, or documentation surface that anchors Portfolio Stewardship Wave 4 ticket HS-0056."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0054.json",
+      "status": "pending",
+      "note": "Existing HumbleStudio source, contract, ticket, test, or documentation surface that anchors Portfolio Stewardship Wave 4 ticket HS-0056."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps",
+      "status": "pending",
+      "note": "Existing HumbleStudio source, contract, ticket, test, or documentation surface that anchors Portfolio Stewardship Wave 4 ticket HS-0056."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "docs/change-marking-contract.md",
+    ".humble/tickets/HS-0043.json",
+    ".humble/tickets/HS-0045.json",
+    ".humble/tickets/HS-0049.json",
+    ".humble/tickets/HS-0054.json",
+    "AppleApps",
+    ".notes/humblestudio-stewardship-review-2026-07-25.md",
+    ".notes/humblestudio-stewardship-findings-2026-07-25.json",
+    ".humble/tickets/HS-0056.json"
+  ],
+  "blocked_by": {
+    "reason": "Required local stewardship foundations and shared portfolio contracts must be solved and validated first.",
+    "unblock_condition": "Solve and verify: HS-0043, HS-0045, HS-0049, HS-0054, mrPoky/HumbleControl#HC-0167, mrPoky/HumbleControl#HC-0168, mrPoky/HumbleControl#HC-0171"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Portfolio Stewardship Wave 4 for HumbleStudio, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Stewardship Wave 4; repository-owned technical stewardship contract.",
+    "Estimated effort: L, approximately 8-20 focused working hours after prerequisites; split only when evidence proves a stable smaller boundary.",
+    "Implementation risk: medium-high because lifecycle, privacy, recovery, support, release, or learning semantics can affect durable user trust.",
+    "Cross-repository platform prerequisites: mrPoky/HumbleControl#HC-0167, mrPoky/HumbleControl#HC-0168, mrPoky/HumbleControl#HC-0171.",
+    "Non-scope: Do not implement cloud sync or multiplayer, retain unbounded full-document history, silently apply recovered AI changes, or overwrite newer imported source truth.",
+    "Alternative considered and rejected: Autosave one latest JSON file — a single mutable snapshot cannot distinguish clean save, partial write, stale source, migration, or recoverable command history.",
+    "Do not weaken the application, fabricate evidence, convert unavailable data to success, hide warnings, broaden consent, or centralize domain ownership to satisfy this ticket.",
+    "Close only after repository-native tests/builds, fixture and migration evidence, accessibility/privacy review where applicable, and zero app-owned warnings.",
+    "Wave 8 portfolio reassessment: retain; priority band next. Data lifecycle, recovery, supportability, and transparent learning are professional product requirements.",
+    "Wave 10 final rationalization: retain-operational; portfolio band later. Lifecycle, recovery, support, and transparent feedback remain professional operations work.",
+    "Wave 11 execution reconciliation: `supporting-input`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-supporting`, relevance `next`, current priority `medium`, execution gate `sequence behind current correctness and the bounded delivery program`. Lifecycle, privacy, recovery, support, and transparent learning remain professional requirements.",
+    "Wave 13 human-validation reassessment: `retain-operational-input` / `next` / priority `medium`. Lifecycle, privacy, recovery, support, and feedback are required for trustworthy beta use.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Lifecycle, privacy, recovery, support, and feedback are required for trustworthy beta use."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Portfolio Stewardship Wave 4; requires delta review against the current default branch and repository-native verification before publication. Wave 12 deep reassessment: decision `retain-supporting`, relevance `next`, current priority `medium`, execution gate `sequence behind current correctness and the bounded delivery program`. Lifecycle, privacy, recovery, support, and transparent learning remain professional requirements."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0043",
+      "note": "Required local Wave 1-3 foundation."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0045",
+      "note": "Required local Wave 1-3 foundation."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0049",
+      "note": "Required local Wave 1-3 foundation."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0054",
+      "note": "Required local Wave 1-3 foundation."
+    }
+  ]
+}

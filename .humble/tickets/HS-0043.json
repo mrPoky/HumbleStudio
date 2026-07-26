@@ -1,0 +1,97 @@
+{
+  "id": "HS-0043",
+  "title": "Persist a versioned Board document",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "critical",
+  "owner": null,
+  "created_at": "2026-07-24",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Mutating imported design truth directly would destroy provenance; storing only final coordinates would make undo, AI proposals and safe write-back difficult to audit. Introduce a separate Codable BoardDocument with schema version, stable object IDs, layers, source links and command-based operation history, while imported StudioNativeDocument remains read-only.",
+  "acceptance_criteria": [
+    "A Codable BoardDocument owns schema version, pages, layers, objects, source metadata and document preferences independently from StudioNativeDocument.",
+    "Board files save atomically, reload byte-equivalent semantic state and preserve unknown optional fields or fail with a clear unsupported-version posture.",
+    "Schema migration tests cover the initial version plus one synthetic older fixture.",
+    "Operation history stores validated commands or transaction summaries needed for undo, proposal diff and attribution without serializing SwiftUI state.",
+    "Imported design truth is referenced, never copied into mutable source-owned fields without an explicit snapshot type.",
+    "Corrupt, newer-version and missing-asset documents produce distinct recovery states.",
+    "BoardCore tests, native build and repository checks pass."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift:14-228",
+      "status": "pending",
+      "note": "StudioNativeDocument is an imported inspection projection."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md:15-20",
+      "status": "pending",
+      "note": "Authoring intent must remain separate from exported truth."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md:57-62",
+      "status": "pending",
+      "note": "Auditable proposal trails and later write-back are explicit future goals."
+    }
+  ],
+  "related_files": [
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "BoardCore",
+    "docs/change-marking-contract.md",
+    ".notes/humblestudio-board-architecture-review-2026-07-24.md",
+    ".humble/tickets/HS-0043.json"
+  ],
+  "blocked_by": {
+    "reason": "Required Board foundation must be solved first.",
+    "unblock_condition": "Solve: HS-0041, HS-0042"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "HumbleStudio Board architecture finding HS-BAR-003, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Architecture finding: HS-BAR-003.",
+    "Estimated effort: L, 10-20 hours.",
+    "Implementation risk: medium-high.",
+    "Board changes must remain proposal-first and must not mutate source truth unless a future separately accepted apply contract permits it.",
+    "Do not broaden this slice into real-time collaboration, arbitrary source rewrite or a provider-specific AI architecture.",
+    "Rejected alternative: Add mutable position fields to StudioNativeDocument — That mixes source truth with user-authored workspace state.",
+    "Wave 8 portfolio reassessment: retain; priority band now. Repository correctness, warning cleanliness, tests, and source-of-truth repairs remain the highest-value foundation.",
+    "Wave 10 final rationalization: active-foundation; portfolio band now. Correctness, safety, warning cleanup, source truth, and deterministic tests remain active prerequisites.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `critical`, execution gate `fresh repository delta review and current evidence`. Repository correctness, source-of-truth repair, warning cleanliness, tests, and safety remain direct prerequisites.",
+    "Wave 13 human-validation reassessment: `retain-correctness` / `now` / priority `critical`. Correctness, architecture, tests, warning cleanup, and repository truth remain immediate prerequisites.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Correctness, architecture, tests, warning cleanup, and repository truth remain immediate prerequisites."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Derived from the Board architecture review with evidence, alternatives, effort, risk and dependency order. Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `critical`, execution gate `fresh repository delta review and current evidence`. Repository correctness, source-of-truth repair, warning cleanliness, tests, and safety remain direct prerequisites."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0041",
+      "note": "Required Board foundation."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0042",
+      "note": "Required Board foundation."
+    }
+  ]
+}

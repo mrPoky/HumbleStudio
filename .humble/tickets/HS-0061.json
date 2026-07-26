@@ -1,0 +1,158 @@
+{
+  "id": "HS-0061",
+  "title": "Add an evidence-aware design alternative explorer",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "medium",
+  "owner": null,
+  "created_at": "2026-07-25",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Let a designer compare multiple screen, component and flow alternatives against responsive, accessibility and repository constraints before selecting a proposal.",
+  "acceptance_criteria": [
+    "The experience starts from a concrete user question and the smallest useful decision, not a generic chat surface or exhaustive setup.",
+    "Every recommendation references the exact scenario, state, evidence, source revision and constraints used to derive it.",
+    "The UI separates observed fact, user input, derived signal, heuristic, forecast, preference and policy.",
+    "Confidence, uncertainty, missing evidence, stale input, unsupported state and model or rule disagreement are visible before a user decides.",
+    "At least one meaningful alternative and a no-action or gather-more-evidence path are available with trade-offs.",
+    "The user can edit assumptions and constraints, rerun the scenario, accept, reject, postpone or preserve a dissenting alternative.",
+    "No recommendation executes a command, changes source truth, sends data, controls hardware, schedules an external action or grants permission automatically.",
+    "The accepted choice creates an immutable decision receipt with scope, rationale, source scenario, affected objects and revocation or correction posture.",
+    "Offline, stale, partial, blocked, inconclusive, failed and recovered states remain distinct and never appear as successful recommendation output.",
+    "Sensitive health, family, customer, financial, media, credential or location data remains local or explicitly consent-scoped and minimized.",
+    "The experience avoids manipulation, shame, artificial urgency, hidden tracking, forced personalization and false precision.",
+    "Explicit feedback distinguishes factual correction, preference, perceived outcome, uncertainty, safety concern and product suggestion.",
+    "Accessibility covers keyboard or platform navigation, screen-reader hierarchy, scalable text, non-color status cues, reduced motion and accessible explanations.",
+    "Locale-aware copy, dates, times, currencies, units and pluralization are verified for supported languages.",
+    "Deterministic tests and visual/runtime fixtures cover normal, minimal-data, stale, offline, conflicting, rejected, reset and recovery paths.",
+    "The strongest repository-native test, build, accessibility, scenario and zero-warning gates pass.",
+    "The explorer shows baseline and alternatives side by side with exact constraint, source and behavior differences.",
+    "Critique distinguishes deterministic violation, design heuristic, product assumption and missing evidence.",
+    "The user can preserve rejected alternatives and rationale as design-decision evidence.",
+    "Selecting an alternative generates a structured proposal and never initiates Codex work without a separate accepted ticket and Work Package."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Repository-owned source, contract, prior ticket or fixture that anchors Portfolio Intelligence & Simulation Wave 6 ticket HS-0061."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources",
+      "status": "pending",
+      "note": "Repository-owned source, contract, prior ticket or fixture that anchors Portfolio Intelligence & Simulation Wave 6 ticket HS-0061."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Repository-owned source, contract, prior ticket or fixture that anchors Portfolio Intelligence & Simulation Wave 6 ticket HS-0061."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Repository-owned source, contract, prior ticket or fixture that anchors Portfolio Intelligence & Simulation Wave 6 ticket HS-0061."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Repository-owned source, contract, prior ticket or fixture that anchors Portfolio Intelligence & Simulation Wave 6 ticket HS-0061."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0052.json",
+      "status": "pending",
+      "note": "Repository-owned source, contract, prior ticket or fixture that anchors Portfolio Intelligence & Simulation Wave 6 ticket HS-0061."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0053.json",
+      "status": "pending",
+      "note": "Repository-owned source, contract, prior ticket or fixture that anchors Portfolio Intelligence & Simulation Wave 6 ticket HS-0061."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0060.json",
+      "status": "pending",
+      "note": "Repository-owned source, contract, prior ticket or fixture that anchors Portfolio Intelligence & Simulation Wave 6 ticket HS-0061."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0058.json",
+      "status": "pending",
+      "note": "Repository-owned source, contract, prior ticket or fixture that anchors Portfolio Intelligence & Simulation Wave 6 ticket HS-0061."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0059.json",
+      "status": "pending",
+      "note": "Repository-owned source, contract, prior ticket or fixture that anchors Portfolio Intelligence & Simulation Wave 6 ticket HS-0061."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AppleApps/Shared/Sources",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "project.yml",
+    ".humble/tickets/HS-0052.json",
+    ".humble/tickets/HS-0053.json",
+    ".humble/tickets/HS-0060.json",
+    ".humble/tickets/HS-0058.json",
+    ".humble/tickets/HS-0059.json",
+    ".notes/humblestudio-intelligence-review-2026-07-25.md",
+    ".humble/tickets/HS-0061.json"
+  ],
+  "blocked_by": {
+    "reason": "Scenario and explainable-intelligence work must build on current local foundations and shared Humble intelligence contracts.",
+    "unblock_condition": "Solve or freshly reconcile local: HS-0060, HS-0059; portfolio: mrPoky/HumbleControl#HC-0182, mrPoky/HumbleControl#HC-0183."
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Portfolio Intelligence & Simulation Wave 6 for HumbleStudio, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Intelligence & Simulation Wave 6; evidence-backed scenario and explainable-decision planning ticket.",
+    "Estimated effort: L to XL after all prerequisites; split implementation into bounded Work Packages.",
+    "Implementation risk: medium-high because deterministic replay, privacy, uncertainty and product decisions must remain honest.",
+    "External portfolio prerequisites: mrPoky/HumbleControl#HC-0182, mrPoky/HumbleControl#HC-0183.",
+    "Non-scope: Do not create an unconstrained general-purpose chatbot, auto-execute recommendations, or infer sensitive facts not explicitly provided by the user or domain contract.",
+    "Alternative considered and rejected: Show a single opaque AI recommendation — rejected because the user needs evidence, assumptions, alternatives, uncertainty, control and a durable decision record.",
+    "Run a fresh delta review against the current default branch before publication or implementation.",
+    "Wave 8 portfolio reassessment: retain-conditional; priority band later. Replay and scenario evidence can reduce risk, but it must follow deterministic core behavior and real evidence.",
+    "Wave 10 final rationalization: retain-research-with-cap; portfolio band later. Keep a bounded scenario and decision-support runway where it reduces material risk.",
+    "Wave 11 execution reconciliation: `optional-reference-or-research`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-research`, relevance `later`, current priority `medium`, execution gate `real baseline, deterministic scenario, and no displacement of active delivery`. Replay and simulation can reduce material risk after deterministic behavior and current evidence exist.",
+    "Wave 13 human-validation reassessment: `retain-risk-research` / `later` / priority `medium`. Simulation and recommendations follow real product evidence, not precede it.",
+    "Final Wave 14 validity review: `valid-research-or-reference`; publication `publish-as-proposed-backlog`; implementation sequence `later`. Simulation and recommendations follow real product evidence, not precede it."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Admitted as a Wave 6 intelligence/simulation proposal against the packaged audited revision; current HEAD requires delta review. Wave 12 deep reassessment: decision `retain-research`, relevance `later`, current priority `medium`, execution gate `real baseline, deterministic scenario, and no displacement of active delivery`. Replay and simulation can reduce material risk after deterministic behavior and current evidence exist."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0060",
+      "note": "Required local prerequisite for Wave 6."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0059",
+      "note": "Required local prerequisite for Wave 6."
+    }
+  ]
+}

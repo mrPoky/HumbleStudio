@@ -1,0 +1,120 @@
+{
+  "id": "HS-0066",
+  "title": "Verify document, undo, migration, and source-link invariants",
+  "status": "proposed",
+  "type": "qa",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Create a repository-owned assurance plan for internal visual product, design, diagram, and proposal workspace. Make it continuously knowable whether this claim is correct: Board documents, commands, undo and redo, source references, assets, migrations, proposals, and recovery remain deterministic and non-destructive.",
+  "acceptance_criteria": [
+    "Document the critical product claim: Board documents, commands, undo and redo, source references, assets, migrations, proposals, and recovery remain deterministic and non-destructive.",
+    "Map the claim to repository role `internal visual product, design, diagram, and proposal workspace` and exclude irrelevant portfolio-wide requirements.",
+    "Assign stable IDs to critical invariants, requirements, and user-visible claims.",
+    "Identify code, data, schema, configuration, service, hardware, and content owners for every invariant.",
+    "Classify every invariant by failure impact and required verification risk level.",
+    "Map each invariant to proportionate static, unit, integration, migration, UI, performance, accessibility, privacy, security, hardware, or runtime evidence.",
+    "Add negative, malformed-input, interruption, stale-data, permission-denied, and recovery scenarios for the highest risks.",
+    "Record whether evidence is synthetic, fixture-backed, local, simulator, device, hardware, staged, or production-like.",
+    "Define evidence invalidation triggers for source, dependency, schema, environment, configuration, toolchain, and requirement changes.",
+    "Never infer passing state from missing, not-run, blocked, unavailable, or stale evidence.",
+    "Connect warning, lint, build, test, and performance failures to assurance state without suppression.",
+    "Define independent review requirements proportionate to risk.",
+    "Define rollback, restore, compensation, or safe-stop evidence for harmful failure.",
+    "Publish a machine-readable verification plan and coverage graph owned by this repository.",
+    "Represent monetization posture `internal-now-optional-commercialization-later` only where it adds real entitlement, billing, ad, marketplace, or release invariants.",
+    "Refresh repository status with assurance gaps and evidence freshness.",
+    "Run the strongest practical repository-native gates and record unavailable runtime proof honestly.",
+    "Finish with zero app-owned warnings."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    ".humble/tickets/HS-0066.json",
+    ".notes/humblestudio-assurance-review-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "Required professional baseline or feature scope must be reviewed before assurance work closes.",
+    "unblock_condition": "Solve or provide equivalent evidence for: HS-0064"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 9 to make it continuously knowable whether planned and implemented work is actually correct."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Continuous Assurance Wave 9.",
+    "Non-scope: do not implement unrelated product features, cross-app integrations, releases, deployments, or destructive operations.",
+    "Alternative considered and rejected: counting files, tests, or green builds without requirement, risk, freshness, and runtime linkage would create false confidence.",
+    "Passing evidence must be revision-pinned and limitations explicit.",
+    "Critical claim: Board documents, commands, undo and redo, source references, assets, migrations, proposals, and recovery remain deterministic and non-destructive.",
+    "Wave 10 final rationalization: active-assurance; portfolio band next. Verification and critical-journey proof remain required before capstone claims.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `current verification plan and evidence freshness`. Critical claims and user journeys need revision-pinned proof before release or long-term use claims.",
+    "Wave 13 human-validation reassessment: `retain-assurance-prerequisite` / `now` / priority `high`. Current claims need revision-pinned evidence before beta or launch validation.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Current claims need revision-pinned evidence before beta or launch validation."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created in Wave 9 to make professional standards and critical journeys continuously verifiable. Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `current verification plan and evidence freshness`. Critical claims and user journeys need revision-pinned proof before release or long-term use claims."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0064",
+      "note": "Required Wave 9 prerequisite."
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "id": "HS-0078",
+  "title": "Build the game board device matrix and layout diagnostics",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Visualize board occupancy, minimum cells, safe areas, chrome pressure, input zones, scaling, orientation, and accessibility across target devices.",
+  "acceptance_criteria": [
+    "Visualize board occupancy, minimum cells, safe areas, chrome pressure, input zones, scaling, orientation, and accessibility across target devices.",
+    "Keep repository-owned product and domain truth outside HumbleControl.",
+    "Use repository-qualified identities for applications, tickets, capabilities, fixtures, releases, and evidence.",
+    "Distinguish planned, current, stale, blocked, unavailable, not-run, unknown, and passed states.",
+    "Define versioning, migration, compatibility, and deprecation from the first schema version.",
+    "Document the exact boundary between shared portfolio infrastructure and game-owned behavior.",
+    "Support Sudoku and Kakuro as real fixtures before claiming generality.",
+    "Support planning-only future repositories without pretending they exist or are authorized.",
+    "Add deterministic validation for malformed, old, new, missing, and conflicting inputs.",
+    "Preserve historical decisions through supersession instead of rewriting them.",
+    "Expose readable human output and a machine-readable contract.",
+    "Provide accessibility and localization for every user-facing control or report.",
+    "Measure performance on the current portfolio fixture before enforcing a budget.",
+    "Do not grant permissions or execute repository creation merely because a plan exists.",
+    "Record all unavailable external, device, App Store, or user-research evidence honestly.",
+    "Integrate with existing ticket, assurance, performance, agent, release, and lifecycle contracts.",
+    "Pass focused tests, repository contract validation, ticket validation, and diff hygiene.",
+    "Finish with zero app-owned warnings."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 12 evidence or implementation surface."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 12 evidence or implementation surface."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 12 evidence or implementation surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 12 evidence or implementation surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 12 evidence or implementation surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 12 evidence or implementation surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/next-slices.md",
+      "status": "pending",
+      "note": "Wave 12 evidence or implementation surface."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "docs/next-slices.md",
+    ".humble/tickets/HS-0078.json",
+    ".notes/humblestudio-wave-12-review-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "Wave 12 prerequisites and portfolio game gates must be satisfied before this ticket can close.",
+    "unblock_condition": "Required tickets or qualified gates: mrPoky/HumbleControl#HC-0226"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 12, a deep reanalysis of every prior ticket, an urgent Kakuro board fix, and gated planning for new game repositories after Sudoku reaches 100% completion."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Game Foundation & Completion Wave 12.",
+    "Non-scope: do not release, deploy, create paid products, enable external ads, create GitHub repositories, migrate data, or start new game implementation without the explicit gate.",
+    "Alternative considered and rejected: cloning HumbleSudoku into many repositories before Sudoku is complete would multiply defects, warnings, and product debt.",
+    "Every completed implementation must leave zero app-owned warnings.",
+    "Qualified cross-repository gates: mrPoky/HumbleControl#HC-0226.",
+    "Wave 13 human-validation reassessment: `retain-game-gate` / `next` / priority `high`. Wave 12 game completion and board-first gates remain active.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Wave 12 game completion and board-first gates remain active."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Wave 12 implementation or portfolio gate ticket."
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "id": "HS-0063",
+  "title": "Build a visual automation composer with validation preview",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "medium",
+  "owner": null,
+  "created_at": "2026-07-25",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Create a Board experience where a user drags app capabilities into a flow, connects typed inputs and outputs, previews permissions and failure branches, replays scenarios and exports an accepted recipe for HumbleControl review.",
+  "acceptance_criteria": [
+    "The automation recipe has a qualified ID, schema version, owner, purpose, sensitivity, lifecycle state and explicit participating capability versions.",
+    "Triggers, conditions, transformations, actions, approval checkpoints, compensation paths and terminal outcomes are represented as a typed graph rather than executable prose.",
+    "The user can preview all data fields, repositories, applications, permissions, external effects and retention implications before enabling the recipe.",
+    "The primary user journey is: Start from a template or blank Board, discover compatible capabilities, connect a flow, resolve type and policy errors, simulate normal and failure paths and submit a proposal rather than executing it.",
+    "A deterministic dry-run replays normal, offline, stale, duplicate, partial, timeout, cancellation, permission-denied and unsupported-version scenarios without real side effects.",
+    "The recipe declares idempotence keys and deduplication rules so retries or duplicate events cannot create repeated tasks, messages, payments, writes or imports.",
+    "Partial acceptance and partial failure remain visible per step; a successful early step never hides a failed or blocked later action.",
+    "The user can pause, disable, amend, supersede or revoke the recipe without deleting historical receipts or rewriting completed domain events.",
+    "Permission and consent are evaluated at enable time and again immediately before each sensitive action; revoked or expired authority blocks the action.",
+    "External communication, financial writes, hardware control, public publication, deletion, restore and health-adjacent recommendations always retain their required interactive checkpoints.",
+    "Offline execution uses only capabilities that declare an offline contract; queued work exposes expiry, retry and conflict posture rather than pretending completion.",
+    "Every run emits step-level receipts, quality evidence, source revisions, outcomes, limitations and a clear correlation to the recipe and user decision.",
+    "The experience explains why a trigger matched, why an action is proposed or skipped and what evidence or rule produced the result.",
+    "Accessible keyboard/navigation support, Dynamic Type or platform-equivalent scaling, localization and reduced-motion behavior cover the complete setup and review flow.",
+    "Privacy-safe adoption evidence distinguishes eligibility, exposure, activation, first value, failure, opt-out and support need without collecting unrelated content.",
+    "Fixtures and focused tests cover enablement, preview, confirmation, success, failure, compensation, restart/resume, revocation and recipe migration.",
+    "Repository-native build, tests, conformance checks and the strongest practical zero-warning gate pass."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0063 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0063 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": "BoardCore",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0063 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0063 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0054.json",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0063 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0060.json",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0063 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0062.json",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0063 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0061.json",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0063 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": ".notes/humblestudio-composability-review-2026-07-25.md",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0063 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0063.json",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0063 in HumbleStudio."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "BoardCore",
+    "docs/change-marking-contract.md",
+    ".humble/tickets/HS-0054.json",
+    ".humble/tickets/HS-0060.json",
+    ".humble/tickets/HS-0062.json",
+    ".humble/tickets/HS-0061.json",
+    ".notes/humblestudio-composability-review-2026-07-25.md",
+    ".humble/tickets/HS-0063.json"
+  ],
+  "blocked_by": {
+    "reason": "Composability work must build on current repository-owned artifacts, scenario evidence and shared Humble capability contracts.",
+    "unblock_condition": "Solve or freshly reconcile local: HS-0062, HS-0061."
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Portfolio Composability & Automation Wave 7 for HumbleStudio, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Composability & Automation Wave 7; repository-owned capability and safe automation planning ticket.",
+    "Estimated effort: L to XL after all prerequisites; split implementation into bounded Work Packages.",
+    "Implementation risk: medium-high; safety class: visual-authoring.",
+    "External portfolio prerequisites: mrPoky/HumbleControl#HC-0186, mrPoky/HumbleControl#HC-0187, mrPoky/HumbleControl#HC-0189.",
+    "Non-scope: Do not execute the visual flow, grant permissions, hide incompatible edges or mutate app source truth from the composer.",
+    "Alternative considered and rejected: Draw automations as generic diagram nodes — rejected because generic nodes cannot prove schema compatibility, permission requirements, error routing or executable identity.",
+    "Run a fresh delta review against the current default branch before publication or implementation.",
+    "Wave 8 portfolio reassessment: retain-conditional; priority band later. Capability and automation contracts may support the professional environment, but each application remains independent by default.",
+    "Wave 10 final rationalization: consolidate-into-agent-platform; portfolio band later. Keep capability and automation contracts as bounded platform work, not app-wide requirements.",
+    "Wave 11 execution reconciliation: `optional-reference-or-research`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-research`, relevance `later`, current priority `medium`, execution gate `bounded platform pilot with explicit permissions`. Capability and automation contracts may support the platform environment but remain optional until concrete operators exist.",
+    "Wave 13 human-validation reassessment: `retain-platform-research` / `later` / priority `medium`. Generic capability and automation layers remain optional until dogfooding proves value.",
+    "Final Wave 14 validity review: `valid-research-or-reference`; publication `publish-as-proposed-backlog`; implementation sequence `later`. Generic capability and automation layers remain optional until dogfooding proves value."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Admitted as a Wave 7 composability/automation proposal against the packaged audited revision; current HEAD requires delta review. Wave 12 deep reassessment: decision `retain-research`, relevance `later`, current priority `medium`, execution gate `bounded platform pilot with explicit permissions`. Capability and automation contracts may support the platform environment but remain optional until concrete operators exist."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0062",
+      "note": "Required local prerequisite for Wave 7."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0061",
+      "note": "Required local prerequisite for Wave 7."
+    }
+  ]
+}

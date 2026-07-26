@@ -1,0 +1,126 @@
+{
+  "id": "HS-0067",
+  "title": "Prove Board edit-to-implementation reconciliation",
+  "status": "proposed",
+  "type": "qa",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Build repeatable, revision-pinned proof for the flagship journey of internal visual product, design, diagram, and proposal workspace: open repository-backed design truth, edit a screen or diagram, undo and redo, save and reopen, create a proposal, hand it off, and reconcile implementation.",
+  "acceptance_criteria": [
+    "Define the exact critical journey: open repository-backed design truth, edit a screen or diagram, undo and redo, save and reopen, create a proposal, hand it off, and reconcile implementation.",
+    "Link the journey to the critical claim: Board documents, commands, undo and redo, source references, assets, migrations, proposals, and recovery remain deterministic and non-destructive.",
+    "Record starting state, inputs, identities, configuration, locale, clock, and deterministic fixture data.",
+    "Verify the normal path from entry to meaningful completion with behavior-focused assertions.",
+    "Verify loading, empty, stale, offline, permission-denied, partial, failure, retry, interruption, and safe-abort states where applicable.",
+    "Verify persistence across restart and prevent duplicate side effects on replay.",
+    "Verify malformed or adversarial input cannot corrupt state or bypass safety rules.",
+    "Verify accessibility semantics, focus or keyboard behavior where relevant, scaling, contrast, reduced motion, and input alternatives.",
+    "Verify declared locales and dynamic formatting without relying only on screenshots.",
+    "Capture before-and-after performance evidence for critical interactions and memory or throughput risks.",
+    "Verify privacy, security, consent, credential, and data-minimization boundaries.",
+    "Verify monetization posture `internal-now-optional-commercialization-later` only if applicable, without dark patterns.",
+    "Capture the closest practical runtime proof and label remaining simulator, fixture, hardware, staging, or external limitations.",
+    "Attach a revision-pinned evidence receipt linking requirements, tests, runtime proof, and reviewer.",
+    "Add an adversarial review that attempts to falsify the journey’s most important claim.",
+    "Define a repeatable regression sentinel or re-verification command.",
+    "Do not add unrelated cross-app integration or product fusion to satisfy proof.",
+    "Update status and product documentation only after evidence is current.",
+    "Finish with zero app-owned warnings."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 9 source surface for requirement, invariant, risk, or runtime-proof mapping."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    ".humble/tickets/HS-0067.json",
+    ".notes/humblestudio-assurance-review-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "Required professional baseline or feature scope must be reviewed before assurance work closes.",
+    "unblock_condition": "Solve or provide equivalent evidence for: HS-0066, HS-0065"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 9 to make it continuously knowable whether planned and implemented work is actually correct."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Continuous Assurance Wave 9.",
+    "Non-scope: do not implement unrelated product features, cross-app integrations, releases, deployments, or destructive operations.",
+    "Alternative considered and rejected: counting files, tests, or green builds without requirement, risk, freshness, and runtime linkage would create false confidence.",
+    "Passing evidence must be revision-pinned and limitations explicit.",
+    "Critical journey: open repository-backed design truth, edit a screen or diagram, undo and redo, save and reopen, create a proposal, hand it off, and reconcile implementation.",
+    "Wave 10 final rationalization: active-assurance; portfolio band next. Verification and critical-journey proof remain required before capstone claims.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `current verification plan and evidence freshness`. Critical claims and user journeys need revision-pinned proof before release or long-term use claims.",
+    "Wave 13 human-validation reassessment: `retain-assurance-prerequisite` / `now` / priority `high`. Current claims need revision-pinned evidence before beta or launch validation.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Current claims need revision-pinned evidence before beta or launch validation."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created in Wave 9 to make professional standards and critical journeys continuously verifiable. Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `current verification plan and evidence freshness`. Critical claims and user journeys need revision-pinned proof before release or long-term use claims."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0066",
+      "note": "Required Wave 9 prerequisite."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0065",
+      "note": "Required Wave 9 prerequisite."
+    }
+  ]
+}

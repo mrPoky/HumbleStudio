@@ -1,0 +1,181 @@
+{
+  "id": "HS-0087",
+  "title": "Build support, trust, and recovery knowledge for internal visual product, design, diagram, and proposal workspace",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "medium",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Make common questions, failure states, recovery, diagnostics, privacy, and support expectations understandable for `internal visual product, design, diagram, and proposal workspace`.",
+  "acceptance_criteria": [
+    "Build a support and trust model for `internal visual product, design, diagram, and proposal workspace` centered on `open repository-backed design truth, place screens and diagram objects, select and transform them, connect flows, inspect source context, and save`.",
+    "Inventory likely user questions, setup problems, data issues, errors, external blockers, and recovery needs.",
+    "Provide concise in-product help at the point of need rather than only a large external manual.",
+    "Define known-issue, outage, stale-data, hardware, billing, permission, and unsupported-state communication where relevant.",
+    "Provide safe export of version, configuration, evidence, and redacted diagnostics.",
+    "Preview every support bundle field and exclude credentials and unnecessary private data.",
+    "Define support severity, triage, owner, response posture, and escalation.",
+    "Separate product defect, misunderstanding, external service, device or hardware, account, billing, data, and feature request.",
+    "Connect support evidence to repository revision, release, ticket, and finding.",
+    "Provide recovery or next action for every known failure state.",
+    "Document backup, restore, correction, deletion, entitlement, billing, or migration support where applicable.",
+    "Provide accessible and localized support content.",
+    "Keep support content versioned and mark stale advice.",
+    "Provide a privacy and retention policy for support evidence.",
+    "Allow the user to withdraw or delete optional support attachments where possible.",
+    "Create repeatable fixtures for common support scenarios.",
+    "Feed validated recurring issues into proposed findings without auto-prioritizing by volume alone.",
+    "Measure support burden and time-to-resolution without recording unrelated user behavior.",
+    "Define sunset and archive behavior for obsolete versions.",
+    "Do not imply human support availability that does not exist.",
+    "Verify support flows and redaction.",
+    "Finish with zero app-owned warnings."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "PROFESSIONALIZATION_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "ASSURANCE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "WAVE_8_REASSESSMENT.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/next-slices.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/status/current.json",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "repo_manifest.json",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "CAPSTONE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "DELIVERY_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "PROFESSIONALIZATION_REVIEW.md",
+    "ASSURANCE_REVIEW.md",
+    "WAVE_8_REASSESSMENT.md",
+    "docs/next-slices.md",
+    ".humble/status/current.json",
+    "repo_manifest.json",
+    "CAPSTONE_REVIEW.md",
+    "DELIVERY_REVIEW.md",
+    ".humble/tickets/HS-0087.json",
+    ".notes/humblestudio-human-validation-review-2026-07-26.md",
+    ".notes/humblestudio-product-validation-program-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "Wave 13 validation follows current product, professional, assurance, and implementation readiness.",
+    "unblock_condition": "Solve or provide current equivalent evidence for: HS-0074, HS-0069"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested a mega Wave 13 focused on human validation, product excellence, beta learning, support, distribution, and launch decisions."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Human Validation & Product Launch Wave 13.",
+    "Non-scope: do not release, deploy, sign, publish, enable billing or ads, operate hardware, write NAS data, migrate users, merge products, or create future game repositories.",
+    "Alternative considered and rejected: relying on internal confidence, green builds, or download counts without observed user or operator value would create false product certainty.",
+    "Research, telemetry, and feedback must remain privacy-safe, versioned, and optional where the product role requires it.",
+    "Final Wave 14 validity review: `valid-after-sudoku`; publication `publish-as-proposed-backlog`; implementation sequence `after-sudoku`. Human validation remains valuable after the product implementation prerequisites and Sudoku priority."
+  ],
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0074",
+      "note": "Current product or assurance prerequisite for Wave 13 validation."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0069",
+      "note": "Current product or assurance prerequisite for Wave 13 validation."
+    }
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Wave 13 product-validation ticket derived from the repository charter, delivery program, assurance plan, and lifecycle disposition."
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "id": "HS-0054",
+  "title": "Publish portable Studio workspace packages",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "medium",
+  "owner": null,
+  "created_at": "2026-07-24",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "A Studio Board, linked imported truth, component instances, overrides, proposals, evidence, and unresolved conflicts can travel as one versioned package with stable identity and revision lineage instead of remaining machine-local editor state.",
+  "acceptance_criteria": [
+    "A versioned `studio_workspace` payload is defined as an explicit repository-owned schema and is carried inside the shared Humble Artifact Envelope rather than an untyped metadata dictionary.",
+    "The envelope uses a repository-qualified artifact ID, artifact kind, schema version, producer repository, producer revision, created/observed timestamps, content hash, visibility, sensitivity, freshness, and source evidence references.",
+    "The repository remains the semantic source of truth for the payload; HumbleControl may index and route the artifact but cannot reinterpret or overwrite domain fields.",
+    "The workspace package distinguishes imported source snapshots, user-authored board state, derived previews, pending proposals, accepted proposals, and external implementation receipts.",
+    "Linked repository artifacts retain qualified IDs, pinned revisions, last-known snapshots, and stale/missing/conflict states.",
+    "Board assets use integrity metadata and relative package paths; bookmarks, credentials, absolute paths, and private source are never embedded.",
+    "Opening offline is supported from the package snapshot and never silently refreshes linked repositories.",
+    "Serialization is deterministic for unchanged semantic state, round-trips without data loss, and has fixtures for valid, missing, corrupt, unsupported-version, unknown-extension, and intentionally redacted payloads.",
+    "Publication is idempotent: republishing the same qualified artifact revision produces no duplicate, while changed content requires a new revision or explicit supersession link.",
+    "Offline opening uses the artifact snapshot and reports unavailable live sources without silently refreshing or changing the stored content.",
+    "Visibility and sensitivity are field-aware; secrets, credentials, raw local absolute paths, unrelated personal data, and unapproved private evidence are excluded by default.",
+    "Schema migration and compatibility behavior are documented, testable, and conservative; unsupported data fails with an actionable state rather than partial silent decoding.",
+    "The producer passes the shared conformance fixtures from `mrPoky/HumbleControl#HC-0165` plus its repository-native tests, build, contract, and diff gates with zero app-owned warnings.",
+    "The completed ticket records one generated example artifact, validation output, artifact hash, producer revision, and a human-readable explanation of what downstream consumers may and may not assume."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0052.json",
+      "status": "pending",
+      "note": "Wave 2 foundation ticket HS-0052 defines the local technical or user-experience prerequisite."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0053.json",
+      "status": "pending",
+      "note": "Wave 2 foundation ticket HS-0053 defines the local technical or user-experience prerequisite."
+    },
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Repository-owned source or contract surface used to verify this convergence scope against the audited revision."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Repository-owned source or contract surface used to verify this convergence scope against the audited revision."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources",
+      "status": "pending",
+      "note": "Repository-owned source or contract surface used to verify this convergence scope against the audited revision."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Repository-owned source or contract surface used to verify this convergence scope against the audited revision."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "docs/change-marking-contract.md",
+    "AppleApps/Shared/Sources",
+    "AppleApps/macOS/Sources",
+    ".humble/tickets/HS-0052.json",
+    ".notes/humblestudio-convergence-review-2026-07-24.md",
+    ".notes/humblestudio-convergence-findings-2026-07-24.json",
+    ".humble/tickets/HS-0054.json"
+  ],
+  "blocked_by": {
+    "reason": "The local Wave 2 technical foundation and shared Humble artifact contracts must be solved before publishing this artifact family.",
+    "unblock_condition": "Solve and verify HS-0052; coordinate with mrPoky/HumbleControl#HC-0161, HC-0162, and HC-0165."
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Portfolio Convergence Wave 3 for HumbleStudio, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Convergence Wave 3; repository-owned artifact producer ticket.",
+    "Estimated effort: L-XL, approximately 5-10 focused working days after prerequisites.",
+    "Implementation risk: high because identity, compatibility, privacy, and downstream assumptions become durable contracts.",
+    "User outcome: A Studio Board, linked imported truth, component instances, overrides, proposals, evidence, and unresolved conflicts can travel as one versioned package with stable identity and revision lineage instead of remaining machine-local editor state.",
+    "External portfolio prerequisites: mrPoky/HumbleControl#HC-0161, mrPoky/HumbleControl#HC-0162, mrPoky/HumbleControl#HC-0165.",
+    "Non-scope: do not centralize domain truth in HumbleControl, add cloud synchronization, expose secrets or private history, or introduce direct cross-repository writes.",
+    "Alternative considered and rejected: exchange ad hoc JSON or deep links without a shared envelope — this cannot preserve revision, provenance, visibility, consent, compatibility, or idempotency.",
+    "Do not claim live interoperability until producer conformance, consumer conformance, one end-to-end fixture, and repository-native verification have passed.",
+    "Wave 8 portfolio reassessment: retain-conditional; priority band later. Optional platform interoperability remains useful, but independent product quality now takes precedence and no merger is implied.",
+    "Wave 10 final rationalization: consolidate-into-fusion-program; portfolio band later. Keep only as input to the reversible platform fusion program.",
+    "Wave 11 execution reconciliation: `optional-reference-or-research`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-optional`, relevance `later`, current priority `medium`, execution gate `proven product need and explicit consented boundary`. Cross-application work remains conditional and must not displace standalone product quality or the game completion gates.",
+    "Wave 13 human-validation reassessment: `retain-platform-reference` / `later` / priority `medium`. Cross-app work is valid only when a validated user or operator need exists.",
+    "Final Wave 14 validity review: `valid-research-or-reference`; publication `publish-as-proposed-backlog`; implementation sequence `later`. Cross-app work is valid only when a validated user or operator need exists."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Admitted as a Wave 3 convergence artifact ticket; re-run delta review when repository HEAD advances. Wave 12 deep reassessment: decision `retain-optional`, relevance `later`, current priority `medium`, execution gate `proven product need and explicit consented boundary`. Cross-application work remains conditional and must not displace standalone product quality or the game completion gates."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0052",
+      "note": "Local technical north-star foundation for this artifact family."
+    }
+  ]
+}

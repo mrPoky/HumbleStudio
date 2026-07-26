@@ -1,0 +1,148 @@
+{
+  "id": "HS-0071",
+  "title": "Decide the HumbleStudio standalone, module, or absorption path",
+  "status": "proposed",
+  "type": "design",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Run a reversible evidence-backed platform-role pilot for HumbleStudio instead of assuming that overlap requires a merger.",
+  "acceptance_criteria": [
+    "Evaluate the current standalone and fusion posture: Likely destination for selected Architect capabilities; Board and design editing remain its core.",
+    "Inventory unique, duplicated, shared, and obsolete capabilities with evidence.",
+    "Define the user mental model and navigation impact of standalone, companion, module, and absorption alternatives.",
+    "Map data ownership, permissions, credentials, filesystems, network, and destructive operations for every alternative.",
+    "Measure code duplication, performance, test burden, release cadence, support burden, and failure blast radius.",
+    "Choose one reversible pilot smaller than a full merger.",
+    "Define exact module API, host boundary, source ownership, and fallback to standalone operation.",
+    "Preserve repository-qualified identity and evidence lineage during the pilot.",
+    "Do not move private or destructive domain ownership into HumbleControl merely for convenience.",
+    "Define migration, rollback, uninstall, and data-export posture before the pilot starts.",
+    "Define success, failure, stop, and reconsideration criteria.",
+    "Run the pilot with representative workflows and performance evidence.",
+    "Collect product and operator feedback without implying a final merger decision.",
+    "Compare the pilot with the standalone baseline.",
+    "Issue an explicit decision: remain separate, share library, embed module, absorb, or retire.",
+    "Any irreversible next step requires a new repo-owned ticket and Jan approval.",
+    "Update the portfolio fusion map and each affected repository charter.",
+    "Keep public Website and private product boundaries intact.",
+    "Validate the decision artifact and all affected contracts.",
+    "Finish the pilot without app-owned warnings."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "PROFESSIONALIZATION_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "ASSURANCE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "WAVE_8_REASSESSMENT.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "PROFESSIONALIZATION_REVIEW.md",
+    "ASSURANCE_REVIEW.md",
+    "WAVE_8_REASSESSMENT.md",
+    ".humble/tickets/HS-0071.json",
+    ".notes/humblestudio-capstone-review-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "The capstone scope depends on reviewed earlier-wave foundations.",
+    "unblock_condition": "The following tickets are solved or equivalent evidence exists: HS-0068, HS-0070"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 10 as the largest and most thorough final planning wave across the entire portfolio."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Capstone and Operating System Wave 10.",
+    "Non-scope: do not release, deploy, merge products, mutate external data, delete, restore, or enable monetization from this planning ticket.",
+    "Alternative considered and rejected: adding more disconnected ambitious features without charter, capacity, assurance, and product evidence would make the portfolio less trustworthy.",
+    "Wave 10 is a realization and rationalization layer, not a reason to keep expanding the backlog indefinitely.",
+    "Portfolio-wide dependency: mrPoky/HumbleControl#HC-0211.",
+    "Current fusion posture: Likely destination for selected Architect capabilities; Board and design editing remain its core..",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-charter-input`, relevance `next`, current priority `medium`, execution gate `use as governing context, not another parallel backlog`. Portfolio and product charters remain decision inputs, while Wave 11 and Wave 12 own implementation and completion.",
+    "Wave 13 human-validation reassessment: `retain-product-charter-input` / `next` / priority `high`. Product role, lifecycle, and investment decisions frame the validation program.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Product role, lifecycle, and investment decisions frame the validation program."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created after final Waves 1-9 rationalization and current-head verification. Wave 12 deep reassessment: decision `retain-charter-input`, relevance `next`, current priority `medium`, execution gate `use as governing context, not another parallel backlog`. Portfolio and product charters remain decision inputs, while Wave 11 and Wave 12 own implementation and completion."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0068",
+      "note": "Required capstone prerequisite."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0070",
+      "note": "Required capstone prerequisite."
+    }
+  ]
+}

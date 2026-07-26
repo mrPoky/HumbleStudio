@@ -1,0 +1,181 @@
+{
+  "id": "HS-0085",
+  "title": "Run moderated usability, accessibility, and localization study for deliver linked screen and diagram editing",
+  "status": "proposed",
+  "type": "qa",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Observe real or representative operators completing `open repository-backed design truth, place screens and diagram objects, select and transform them, connect flows, inspect source context, and save` and convert usability, accessibility, localization, and trust evidence into proposed findings.",
+  "acceptance_criteria": [
+    "Run a moderated or structured dogfood study over the complete journey: open repository-backed design truth, place screens and diagram objects, select and transform them, connect flows, inspect source context, and save.",
+    "Use a current revision and record device, OS, build, data fixture, locale, and accessibility settings.",
+    "Test at least the primary path, one realistic failure, and one recovery path.",
+    "Measure whether participants can state the current state, next action, and consequence of the action.",
+    "Capture task completion, critical errors, assistance, hesitation, backtracking, and abandonment.",
+    "Capture qualitative confidence and trust separately from task success.",
+    "Include VoiceOver or semantic review, keyboard or alternative input where relevant, scaling, contrast, focus, and reduced motion.",
+    "Include Czech and English or the repository's declared locale set with long and dynamic content.",
+    "Include compact and representative large device or window conditions.",
+    "Include offline, stale, permission-denied, or unavailable-service posture when the product supports them.",
+    "Do not expose credentials, private archives, customer, family, health, financial, or unreleased data to participants unnecessarily.",
+    "Use screen, interaction, and accessibility evidence only with prior consent.",
+    "Separate observed issue, severity, frequency, confidence, product impact, and suggested smallest safe fix.",
+    "Do not turn personal preference into a critical defect without contract or outcome evidence.",
+    "Compare findings against performance and assurance evidence.",
+    "Record contradictions and participant differences rather than hiding them.",
+    "Allow inconclusive results and request additional evidence where necessary.",
+    "Produce prioritized proposed findings with explicit non-scope.",
+    "Verify the study tooling and evidence export independently.",
+    "Store research evidence according to declared retention and withdrawal rules.",
+    "Update product review artifacts without starting implementation automatically.",
+    "Finish with zero app-owned warnings."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "PROFESSIONALIZATION_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "ASSURANCE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "WAVE_8_REASSESSMENT.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/next-slices.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/status/current.json",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "repo_manifest.json",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "CAPSTONE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "DELIVERY_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 13 product validation, research, beta, support, or launch evidence surface."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "PROFESSIONALIZATION_REVIEW.md",
+    "ASSURANCE_REVIEW.md",
+    "WAVE_8_REASSESSMENT.md",
+    "docs/next-slices.md",
+    ".humble/status/current.json",
+    "repo_manifest.json",
+    "CAPSTONE_REVIEW.md",
+    "DELIVERY_REVIEW.md",
+    ".humble/tickets/HS-0085.json",
+    ".notes/humblestudio-human-validation-review-2026-07-26.md",
+    ".notes/humblestudio-product-validation-program-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "Wave 13 validation follows current product, professional, assurance, and implementation readiness.",
+    "unblock_condition": "Solve or provide current equivalent evidence for: HS-0067, HS-0073"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested a mega Wave 13 focused on human validation, product excellence, beta learning, support, distribution, and launch decisions."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Human Validation & Product Launch Wave 13.",
+    "Non-scope: do not release, deploy, sign, publish, enable billing or ads, operate hardware, write NAS data, migrate users, merge products, or create future game repositories.",
+    "Alternative considered and rejected: relying on internal confidence, green builds, or download counts without observed user or operator value would create false product certainty.",
+    "Research, telemetry, and feedback must remain privacy-safe, versioned, and optional where the product role requires it.",
+    "Final Wave 14 validity review: `valid-after-sudoku`; publication `publish-as-proposed-backlog`; implementation sequence `after-sudoku`. Human validation remains valuable after the product implementation prerequisites and Sudoku priority."
+  ],
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0067",
+      "note": "Current product or assurance prerequisite for Wave 13 validation."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0073",
+      "note": "Current product or assurance prerequisite for Wave 13 validation."
+    }
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Wave 13 product-validation ticket derived from the repository charter, delivery program, assurance plan, and lifecycle disposition."
+  }
+}

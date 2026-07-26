@@ -1,0 +1,138 @@
+{
+  "id": "HS-0062",
+  "title": "Represent capabilities and automation recipes as typed Board objects",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "medium",
+  "owner": null,
+  "created_at": "2026-07-25",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Extend BoardCore with versioned capability, trigger, condition, action, policy and receipt nodes so cross-app automations can be visually composed without reducing them to untyped boxes and arrows.",
+  "acceptance_criteria": [
+    "The repository publishes a versioned capability descriptor with a repository-qualified capability ID, owning repository/revision, schema version, purpose, maturity and deprecation state.",
+    "Inputs, outputs and errors reference typed artifact or domain schemas with explicit sensitivity, retention, freshness and provenance rather than opaque dictionaries.",
+    "The first published descriptor covers these repository-owned capabilities: place capability nodes; connect typed recipe edges; inspect compatibility and permissions; export a validated automation proposal.",
+    "Preconditions, postconditions, invariants, forbidden states and documented side effects are separated and machine-readable.",
+    "The descriptor declares required read, write, execute, network, credential, hardware, external communication and destructive permissions individually; capability availability never grants them.",
+    "Synchronous, asynchronous, streaming and long-running behavior is explicit together with timeout, cancellation, retry, deduplication, ordering and idempotence semantics.",
+    "A deterministic dry-run or scenario adapter exercises the capability without live mutation and labels synthetic, fixture, simulator, device, hardware and production evidence honestly.",
+    "Compatibility ranges cover capability version, payload schemas, platform/runtime requirements, required peer capabilities and known incompatible combinations.",
+    "Unknown versions, stale descriptors, revoked capabilities, missing dependencies, partial availability and unsupported environments have explicit refusal or fallback behavior.",
+    "A capability result emits a typed receipt and quality evidence with stable observation IDs, limitations and correlation to the originating Work Package or handoff.",
+    "User-facing name, purpose, risk summary and confirmation copy are localized and accessible; machine identifiers never become the only explanation.",
+    "Descriptor generation is derived from repository-owned source or validated fixtures and does not create a second manually maintained source of truth.",
+    "No raw application database, credentials or unrelated private payload is copied into HumbleControl, the registry or another application.",
+    "Contract updates invalidate or supersede affected registry and digital-twin projections instead of silently changing the meaning of an existing version.",
+    "Canonical fixtures cover success, missing permission, stale input, duplicate request, timeout, cancellation, unsupported version, partial result and revoked capability.",
+    "Producer conformance, repository-native tests, documentation, artifact checks and the strongest practical zero-warning gate pass."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0062 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0062 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": "BoardCore",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0062 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0062 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0054.json",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0062 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0060.json",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0062 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": ".notes/humblestudio-composability-review-2026-07-25.md",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0062 in HumbleStudio."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0062.json",
+      "status": "pending",
+      "note": "Repository-owned source, prior contract or fixture that anchors Portfolio Composability & Automation Wave 7 ticket HS-0062 in HumbleStudio."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "BoardCore",
+    "docs/change-marking-contract.md",
+    ".humble/tickets/HS-0054.json",
+    ".humble/tickets/HS-0060.json",
+    ".notes/humblestudio-composability-review-2026-07-25.md",
+    ".humble/tickets/HS-0062.json"
+  ],
+  "blocked_by": {
+    "reason": "Composability work must build on current repository-owned artifacts, scenario evidence and shared Humble capability contracts.",
+    "unblock_condition": "Solve or freshly reconcile local: HS-0054, HS-0060."
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Portfolio Composability & Automation Wave 7 for HumbleStudio, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Composability & Automation Wave 7; repository-owned capability and safe automation planning ticket.",
+    "Estimated effort: L to XL after all prerequisites; split implementation into bounded Work Packages.",
+    "Implementation risk: medium-high; safety class: visual-authoring.",
+    "External portfolio prerequisites: mrPoky/HumbleControl#HC-0185, mrPoky/HumbleControl#HC-0188.",
+    "Non-scope: Do not execute the visual flow, grant permissions, hide incompatible edges or mutate app source truth from the composer.",
+    "Alternative considered and rejected: Draw automations as generic diagram nodes — rejected because generic nodes cannot prove schema compatibility, permission requirements, error routing or executable identity.",
+    "Run a fresh delta review against the current default branch before publication or implementation.",
+    "Wave 8 portfolio reassessment: retain-conditional; priority band later. Capability and automation contracts may support the professional environment, but each application remains independent by default.",
+    "Wave 10 final rationalization: consolidate-into-agent-platform; portfolio band later. Keep capability and automation contracts as bounded platform work, not app-wide requirements.",
+    "Wave 11 execution reconciliation: `optional-reference-or-research`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-research`, relevance `later`, current priority `medium`, execution gate `bounded platform pilot with explicit permissions`. Capability and automation contracts may support the platform environment but remain optional until concrete operators exist.",
+    "Wave 13 human-validation reassessment: `retain-platform-research` / `later` / priority `medium`. Generic capability and automation layers remain optional until dogfooding proves value.",
+    "Final Wave 14 validity review: `valid-research-or-reference`; publication `publish-as-proposed-backlog`; implementation sequence `later`. Generic capability and automation layers remain optional until dogfooding proves value."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Admitted as a Wave 7 composability/automation proposal against the packaged audited revision; current HEAD requires delta review. Wave 12 deep reassessment: decision `retain-research`, relevance `later`, current priority `medium`, execution gate `bounded platform pilot with explicit permissions`. Capability and automation contracts may support the platform environment but remain optional until concrete operators exist."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0054",
+      "note": "Required local prerequisite for Wave 7."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0060",
+      "note": "Required local prerequisite for Wave 7."
+    }
+  ]
+}

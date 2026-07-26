@@ -1,0 +1,97 @@
+{
+  "id": "HS-0044",
+  "title": "Build the interactive infinite canvas foundation",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "critical",
+  "owner": null,
+  "created_at": "2026-07-24",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Combining canvas mechanics, design object editing and repository integration in one slice would make performance and interaction failures impossible to isolate. Build a Board workspace with a tested world/screen transform, pan, cursor-anchored zoom, fit selection, grid and bounded rendering using synthetic objects only.",
+  "acceptance_criteria": [
+    "A dedicated Board workspace can be opened from the macOS navigation without replacing existing inspector and review surfaces.",
+    "The viewport uses explicit world-to-screen transforms and supports pan, cursor-anchored zoom, zoom limits, reset and fit-all.",
+    "A grid and origin remain stable through pan and zoom; viewport state can be restored per Board document.",
+    "Rendering and hit testing operate on a visible-object query rather than iterating an unbounded scene blindly.",
+    "Keyboard, trackpad and mouse interactions are abstracted into editor intents with accessible toolbar equivalents for core navigation.",
+    "Deterministic tests cover transform round trips, zoom anchoring, viewport restoration and visibility queries.",
+    "A synthetic 1,000-object fixture remains interactive under the documented initial performance budget."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md:48-55",
+      "status": "pending",
+      "note": "Current native priorities are inspector and preview fidelity."
+    },
+    {
+      "kind": "note",
+      "path": "README.md:100-106",
+      "status": "pending",
+      "note": "Current native surfaces are sidebar, queue, detail and preview inspection."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources/StudioMacContentWorkspace.swift:-",
+      "status": "pending",
+      "note": "The current content workspace is the integration point for inspector navigation, not an infinite canvas contract."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacContentWorkspace.swift",
+    "AppleApps/macOS/Sources/Board",
+    "BoardCore",
+    ".notes/humblestudio-board-architecture-review-2026-07-24.md",
+    ".humble/tickets/HS-0044.json"
+  ],
+  "blocked_by": {
+    "reason": "Required Board foundation must be solved first.",
+    "unblock_condition": "Solve: HS-0042, HS-0043"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "HumbleStudio Board architecture finding HS-BAR-004, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Architecture finding: HS-BAR-004.",
+    "Estimated effort: L, 12-24 hours.",
+    "Implementation risk: medium-high.",
+    "Board changes must remain proposal-first and must not mutate source truth unless a future separately accepted apply contract permits it.",
+    "Do not broaden this slice into real-time collaboration, arbitrary source rewrite or a provider-specific AI architecture.",
+    "Rejected alternative: Use a giant SwiftUI ZStack with direct offsets — It does not establish stable world coordinates, scalable hit testing or viewport persistence.",
+    "Wave 8 portfolio reassessment: retain; priority band now. Repository correctness, warning cleanliness, tests, and source-of-truth repairs remain the highest-value foundation.",
+    "Wave 10 final rationalization: active-foundation; portfolio band now. Correctness, safety, warning cleanup, source truth, and deterministic tests remain active prerequisites.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `critical`, execution gate `fresh repository delta review and current evidence`. Repository correctness, source-of-truth repair, warning cleanliness, tests, and safety remain direct prerequisites.",
+    "Wave 13 human-validation reassessment: `retain-correctness` / `now` / priority `critical`. Correctness, architecture, tests, warning cleanup, and repository truth remain immediate prerequisites.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Correctness, architecture, tests, warning cleanup, and repository truth remain immediate prerequisites."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Derived from the Board architecture review with evidence, alternatives, effort, risk and dependency order. Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `critical`, execution gate `fresh repository delta review and current evidence`. Repository correctness, source-of-truth repair, warning cleanliness, tests, and safety remain direct prerequisites."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0042",
+      "note": "Required Board foundation."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0043",
+      "note": "Required Board foundation."
+    }
+  ]
+}

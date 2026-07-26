@@ -1,0 +1,133 @@
+{
+  "id": "HS-0055",
+  "title": "Complete the Architect to implementation round trip",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "medium",
+  "owner": null,
+  "created_at": "2026-07-24",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "A user can import an Architect ProductSpec, place linked capabilities and screens on a Studio Board, propose visual/flow changes, hand an approved implementation package to Control/Codex, and reconcile the resulting code and screenshots against the original design.",
+  "acceptance_criteria": [
+    "The journey starts from one explicit accepted `studio_workspace` artifact revision and identifies every intended consumer before any downstream change is proposed.",
+    "A human-readable preview shows the exact data fields, actions, visibility, sensitivity, freshness, expected effects, target repositories/apps, and permissions involved.",
+    "The user can accept all, accept selected scope, edit permitted local fields, defer, reject, or revoke; partial acceptance creates a derived handoff rather than mutating the source artifact.",
+    "The handoff uses a stable intent ID, source artifact ID/revision, target capability, requested action, idempotency key, expiry, approval/consent references, and expected receipt contract.",
+    "Studio shows which ProductSpec decisions and capabilities are represented, omitted, changed, or still unresolved.",
+    "The implementation handoff contains selected screens, component/constraint data, acceptance criteria, source targets, evidence requirements, and explicit non-scope.",
+    "Returned implementation evidence is compared three ways: original imported truth, approved Studio proposal, and implemented repository revision.",
+    "Divergence creates reviewable findings or ProductSpec amendments; Studio never silently declares code and design synchronized.",
+    "No consumer writes directly into another repository or application database; each target validates and imports through its own domain boundary and remains usable when the other app is absent.",
+    "Every accepted target returns a durable receipt with accepted fields/actions, rejected fields/actions, created/updated local IDs, warnings, source revision, target revision, and status.",
+    "Repeated delivery, retry after interruption, partial success, offline queuing, changed source revision, changed target capability, duplicate import, and conflicting local edits are deterministic and user-visible.",
+    "Update, supersession, correction, expiry, and revocation are explicit follow-up intents; a successful earlier handoff is never silently rewritten.",
+    "The UI represents unavailable, waiting-for-consent, queued, delivered, partially accepted, rejected, conflicted, revoked, and stale states distinctly and never colors unavailable as success.",
+    "The entire journey supports keyboard/navigation accessibility, Dynamic Type or platform-equivalent scaling, Czech/English copy where the app supports those locales, and reduced-motion behavior where relevant.",
+    "Telemetry is minimal and privacy-preserving: it records coarse journey state and failure class, not payload contents, personal identifiers, secrets, raw paths, full URLs, or health/family/customer narrative.",
+    "Deterministic producer/consumer fixtures and end-to-end tests cover normal, stale, offline, duplicate, partial, conflict, rejection, revocation, and recovery paths.",
+    "The strongest repository-native tests, builds, contract checks, artifact conformance, UI/runtime evidence, and diff gates pass with zero app-owned warnings."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0052.json",
+      "status": "pending",
+      "note": "Wave 2 foundation ticket HS-0052 defines the local technical or user-experience prerequisite."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0053.json",
+      "status": "pending",
+      "note": "Wave 2 foundation ticket HS-0053 defines the local technical or user-experience prerequisite."
+    },
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Repository-owned source or contract surface used to verify this convergence scope against the audited revision."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Repository-owned source or contract surface used to verify this convergence scope against the audited revision."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources",
+      "status": "pending",
+      "note": "Repository-owned source or contract surface used to verify this convergence scope against the audited revision."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Repository-owned source or contract surface used to verify this convergence scope against the audited revision."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0054.json",
+      "status": "pending",
+      "note": "The repository-owned producer artifact is required before the handoff journey."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "docs/change-marking-contract.md",
+    "AppleApps/Shared/Sources",
+    "AppleApps/macOS/Sources",
+    ".humble/tickets/HS-0054.json",
+    ".humble/tickets/HS-0053.json",
+    ".humble/tickets/HS-0055.json"
+  ],
+  "blocked_by": {
+    "reason": "The local producer artifact, local signature experience, shared handoff protocol, registry, and consumer capability must exist first.",
+    "unblock_condition": "Solve and verify HS-0054 and HS-0053; coordinate with mrPoky/HumbleControl#HC-0163, mrPoky/HumbleControl#HC-0164, mrPoky/HumbleControl#HC-0165, mrPoky/HumbleArchitect#HA-0012, mrPoky/HumbleWebsite#HWE-0093."
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Portfolio Convergence Wave 3 journey for HumbleStudio, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Convergence Wave 3; explicit cross-application user journey ticket.",
+    "Estimated effort: XL, approximately 7-14 focused working days after producer and protocol prerequisites.",
+    "Implementation risk: high because the slice crosses product, privacy, compatibility, offline, and ownership boundaries.",
+    "User outcome: A user can import an Architect ProductSpec, place linked capabilities and screens on a Studio Board, propose visual/flow changes, hand an approved implementation package to Control/Codex, and reconcile the resulting code and screenshots against the original design.",
+    "External portfolio prerequisites: mrPoky/HumbleControl#HC-0163, mrPoky/HumbleControl#HC-0164, mrPoky/HumbleControl#HC-0165, mrPoky/HumbleArchitect#HA-0012, mrPoky/HumbleWebsite#HWE-0093.",
+    "Non-scope: do not add background auto-import, silent cross-app mutation, cloud accounts, shared global databases, or implicit consent.",
+    "Alternative considered and rejected: provide only an Open-in-app deep link — a deep link cannot express data minimization, partial acceptance, idempotency, offline recovery, receipts, revocation, or conflict handling.",
+    "Ship one narrow end-to-end fixture and receipt loop before adding more consumers or broader automation.",
+    "Wave 8 portfolio reassessment: retain-conditional; priority band later. Optional platform interoperability remains useful, but independent product quality now takes precedence and no merger is implied.",
+    "Wave 10 final rationalization: consolidate-into-fusion-program; portfolio band later. Keep only as input to the reversible platform fusion program.",
+    "Wave 11 execution reconciliation: `optional-reference-or-research`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-optional`, relevance `later`, current priority `medium`, execution gate `proven product need and explicit consented boundary`. Cross-application work remains conditional and must not displace standalone product quality or the game completion gates.",
+    "Wave 13 human-validation reassessment: `retain-platform-reference` / `later` / priority `medium`. Cross-app work is valid only when a validated user or operator need exists.",
+    "Final Wave 14 validity review: `valid-research-or-reference`; publication `publish-as-proposed-backlog`; implementation sequence `later`. Cross-app work is valid only when a validated user or operator need exists."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Admitted as a Wave 3 convergence journey; requires fresh producer/consumer delta review before implementation. Wave 12 deep reassessment: decision `retain-optional`, relevance `later`, current priority `medium`, execution gate `proven product need and explicit consented boundary`. Cross-application work remains conditional and must not displace standalone product quality or the game completion gates."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0054",
+      "note": "The source app must publish the typed artifact first."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0053",
+      "note": "The local signature user experience must exist before cross-app composition."
+    }
+  ]
+}
