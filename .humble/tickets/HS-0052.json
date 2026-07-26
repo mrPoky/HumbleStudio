@@ -1,0 +1,137 @@
+{
+  "id": "HS-0052",
+  "title": "Add reusable component instances and layout constraints",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "medium",
+  "owner": null,
+  "created_at": "2026-07-24",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Without component instances, variants, constraints, and override semantics, edits cannot express design-system consistency or safely map back to repo-owned components.",
+  "acceptance_criteria": [
+    "Definitions and instances have stable IDs, schema-versioned payloads, source/reference revisions, variant axes, named slots, allowed overrides, and deterministic fallback for missing definitions.",
+    "Constraints support pinned edges, fixed/fill/hug sizing, min/max bounds, alignment, spacing, and nested stack layout with deterministic geometry independent from SwiftUI view state.",
+    "Changing a definition produces a previewable instance impact set and never overwrites local overrides silently.",
+    "Imported repo components can be represented as locked source definitions with Board-local variants/overrides until a later proposal is accepted.",
+    "Detach is explicit, undoable, and records provenance; detached objects no longer pretend to track the source component.",
+    "A stress fixture covers nested instances, variant swaps, missing source revision, cyclic definition rejection, large instance counts, and migration from freeform artboard objects.",
+    "The new boundary is represented by explicit typed models or protocols and is not hidden inside a view, global singleton, or loosely typed metadata dictionary.",
+    "Deterministic tests cover the normal path plus stale, missing, invalid, offline, and recovery behavior appropriate to the capability.",
+    "Migration and compatibility behavior is explicit; existing persisted or exported data either continues to load or fails with an actionable unsupported-version state.",
+    "The implementation records before-and-after architecture evidence and names any intentionally retained compatibility surface or follow-up.",
+    "The strongest practical repository-native build, test, lint, contract, and diff gates pass with zero app-owned warnings; warnings are not hidden by suppression or threshold changes."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0042.json",
+      "status": "pending",
+      "note": "BoardCore provides the tested platform-independent domain boundary."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0043.json",
+      "status": "pending",
+      "note": "Versioned document persistence is required for definitions and migrations."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0045.json",
+      "status": "pending",
+      "note": "All instance edits must flow through commands and history."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0047.json",
+      "status": "pending",
+      "note": "Linked screen artboards provide the primary consumer for component instances."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Imported components/views already retain stable IDs and source evidence."
+    }
+  ],
+  "related_files": [
+    "BoardCore",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources/Board",
+    ".humble/tickets/HS-0042.json",
+    ".humble/tickets/HS-0043.json",
+    ".humble/tickets/HS-0045.json",
+    ".humble/tickets/HS-0047.json",
+    ".notes/humblestudio-evolution-review-2026-07-24.md",
+    ".notes/humblestudio-evolution-findings-2026-07-24.json",
+    ".humble/tickets/HS-0052.json"
+  ],
+  "blocked_by": {
+    "reason": "The required foundation tickets must be solved before this evolution slice begins.",
+    "unblock_condition": "Solve and verify: HS-0042, HS-0043, HS-0044, HS-0045, HS-0047, HS-0049"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Portfolio Evolution Wave 2 for HumbleStudio, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Evolution Wave 2; technical north-star ticket.",
+    "Estimated effort: XL, 6-10 focused working days",
+    "Implementation risk: high",
+    "User outcome: A designer can place one real project component across several screens, update shared properties intentionally, override only allowed fields, and see which instances drift from the source contract.",
+    "Non-scope: Do not implement every CSS/Auto Layout behavior, real-time collaboration, or direct SwiftUI source rewrite.",
+    "Alternative considered and rejected: Treat repeated elements as copied groups — copies cannot preserve shared identity, controlled overrides, source drift, or impact previews.",
+    "Do not broaden the slice into unrelated cleanup, framework migration, release publication, or source-of-truth changes outside the ticket.",
+    "Wave 8 portfolio reassessment: retain; priority band next. The technical north star and signature journey remain useful after the professional baseline is established.",
+    "Wave 10 final rationalization: merge-into-product-roadmap; portfolio band next. North-star and flagship work is consolidated into the repository charter and capstone journey.",
+    "Wave 11 execution reconciliation: `supporting-input`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-supporting`, relevance `next`, current priority `medium`, execution gate `use as product context, not as a parallel implementation stream`. Product north-star and flagship intent remain useful, but implementation is now owned by Wave 11 and completion work.",
+    "Wave 13 human-validation reassessment: `retain-product-evidence` / `next` / priority `medium`. Product north-star and flagship journey remain useful research and design inputs.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Product north-star and flagship journey remain useful research and design inputs."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Admitted as a second-wave product/technical evolution ticket after the architecture-foundation backlog; re-check evidence when repository HEAD advances. Wave 12 deep reassessment: decision `retain-supporting`, relevance `next`, current priority `medium`, execution gate `use as product context, not as a parallel implementation stream`. Product north-star and flagship intent remain useful, but implementation is now owned by Wave 11 and completion work."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0042",
+      "note": "Required foundation for this evolution slice."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0043",
+      "note": "Required foundation for this evolution slice."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0044",
+      "note": "Required foundation for this evolution slice."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0045",
+      "note": "Required foundation for this evolution slice."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0047",
+      "note": "Required foundation for this evolution slice."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0049",
+      "note": "Required foundation for this evolution slice."
+    }
+  ]
+}

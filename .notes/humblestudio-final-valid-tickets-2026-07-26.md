@@ -1,0 +1,49 @@
+# Final Valid Tickets
+
+- `HS-0041` — Define the HumbleStudio Board product contract — `valid` — `critical`
+- `HS-0042` — Create a tested BoardCore module — `valid` — `critical`
+- `HS-0043` — Persist a versioned Board document — `valid` — `critical`
+- `HS-0044` — Build the interactive infinite canvas foundation — `valid` — `critical`
+- `HS-0045` — Add command-based selection and editing — `valid` — `critical`
+- `HS-0046` — Add typed diagram nodes and semantic edges — `valid` — `high`
+- `HS-0047` — Place linked screen artboards on the Board — `valid` — `high`
+- `HS-0048` — Generate reviewed proposals from Board edits — `valid` — `high`
+- `HS-0049` — Package Boards inside humblebundle exports — `valid` — `high`
+- `HS-0050` — Add revision-aware repository artifact nodes — `valid` — `high`
+- `HS-0051` — Add AI-generated Board edit proposals — `valid` — `high`
+- `HS-0052` — Add reusable component instances and layout constraints — `valid` — `medium`
+- `HS-0053` — Create a round-trip screen proposal workflow — `valid` — `medium`
+- `HS-0054` — Publish portable Studio workspace packages — `valid-research-or-reference` — `medium`
+- `HS-0055` — Complete the Architect to implementation round trip — `valid-research-or-reference` — `medium`
+- `HS-0056` — Add crash recovery, workspace snapshots, and migration evidence — `valid` — `medium`
+- `HS-0057` — Create a usability evidence and design decision review workspace — `valid` — `medium`
+- `HS-0060` — Simulate layout, constraints and user flows — `valid-research-or-reference` — `medium`
+- `HS-0061` — Add an evidence-aware design alternative explorer — `valid-research-or-reference` — `medium`
+- `HS-0062` — Represent capabilities and automation recipes as typed Board objects — `valid-research-or-reference` — `medium`
+- `HS-0063` — Build a visual automation composer with validation preview — `valid-research-or-reference` — `medium`
+- `HS-0064` — Define native editor performance, accessibility, and agent-integration budgets — `valid` — `high`
+- `HS-0065` — Ship a polished Board milestone and define Architect absorption boundaries — `valid` — `high`
+- `HS-0066` — Verify document, undo, migration, and source-link invariants — `valid` — `high`
+- `HS-0067` — Prove Board edit-to-implementation reconciliation — `valid` — `high`
+- `HS-0068` — Ratify the HumbleStudio product charter and 12-month roadmap — `valid` — `high`
+- `HS-0069` — Close the HumbleStudio professional baseline and release gate — `valid` — `high`
+- `HS-0070` — Deliver the HumbleStudio flagship journey v1 — `valid` — `high`
+- `HS-0071` — Decide the HumbleStudio standalone, module, or absorption path — `valid` — `high`
+- `HS-0072` — Implement the BoardCore document and editor engine — `valid` — `high`
+- `HS-0073` — Deliver linked screen and diagram editing — `valid` — `high`
+- `HS-0074` — Integrate proposal, Codex handoff, and reconciliation — `valid` — `high`
+- `HS-0075` — Prove editor performance, accessibility, and crash recovery — `valid` — `high`
+- `HS-0076` — Run the HumbleArchitect absorption pilot — `valid` — `high`
+- `HS-0077` — Define the reusable game design contract and board preview model — `valid` — `high`
+- `HS-0078` — Build the game board device matrix and layout diagnostics — `valid` — `high`
+- `HS-0079` — Create game flow, tutorial, progression, and App Store storyboard templates — `valid` — `high`
+- `HS-0080` — Create the shared game component and asset library with provenance — `valid` — `high`
+- `HS-0081` — Integrate planned-game repository proposals and Codex handoff — `valid` — `high`
+- `HS-0082` — Validate the user problem and evidence behind deliver linked screen and diagram editing — `valid-after-sudoku` — `high`
+- `HS-0083` — Refine information architecture, visual hierarchy, and content for deliver linked screen and diagram editing — `valid-after-sudoku` — `high`
+- `HS-0084` — Deliver first-use onboarding and activation for deliver linked screen and diagram editing — `valid-after-sudoku` — `high`
+- `HS-0085` — Run moderated usability, accessibility, and localization study for deliver linked screen and diagram editing — `valid-after-sudoku` — `high`
+- `HS-0086` — Run a privacy-safe beta or dogfood cohort for deliver linked screen and diagram editing — `valid-after-sudoku` — `medium`
+- `HS-0087` — Build support, trust, and recovery knowledge for internal visual product, design, diagram, and proposal workspace — `valid-after-sudoku` — `medium`
+- `HS-0088` — Run internal dogfooding and module-adoption rollout — `valid-after-sudoku` — `high`
+- `HS-0089` — Run the 30-day outcome and investment review for internal visual product, design, diagram, and proposal workspace — `valid-after-sudoku` — `medium`

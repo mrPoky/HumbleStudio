@@ -1,0 +1,155 @@
+{
+  "id": "HS-0075",
+  "title": "Prove editor performance, accessibility, and crash recovery",
+  "status": "proposed",
+  "type": "qa",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Produce release- or local-use-grade evidence: measure pan, zoom, hit testing, selection, large boards, memory, save, reopen, migration, crash recovery, keyboard, and VoiceOver.",
+  "acceptance_criteria": [
+    "Prove the measured outcome: measure pan, zoom, hit testing, selection, large boards, memory, save, reopen, migration, crash recovery, keyboard, and VoiceOver.",
+    "Create a revision-pinned verification plan linking claims, invariants, risk, methods, and evidence.",
+    "Measure a baseline before setting or enforcing numeric budgets.",
+    "Record host or device, OS, architecture, toolchain, configuration, data fixture, sample count, distribution, and limitations.",
+    "Distinguish static, unit, integration, fixture, simulator, device, hardware, staging, distributed, and real-use evidence.",
+    "Verify the flagship journey and its highest-risk failure and recovery paths.",
+    "Measure launch or startup, critical interaction or command latency, memory, storage, network or I/O, and long-run stability as appropriate.",
+    "Measure accessibility and localization behavior in relevant runtimes.",
+    "Verify privacy, security, entitlement, billing, ads, filesystem, hardware, or external-service constraints where applicable.",
+    "Attempt to falsify at least one critical claim through adversarial review.",
+    "Use an independent reviewer for high-risk or critical behavior.",
+    "Record stale, blocked, unavailable, not-run, and not-applicable evidence separately.",
+    "Define evidence invalidation triggers for source, dependency, toolchain, configuration, fixture, and requirement changes.",
+    "Define a repeatable regression sentinel or local re-verification command.",
+    "Verify cancellation, timeout, retry, rollback, recovery, or safe stop.",
+    "Compare result changes without attributing causality unsupported by evidence.",
+    "Record all app-owned warnings as failures unless a narrow unexpired exception exists.",
+    "Produce a human-readable proof report and machine-readable evidence artifact.",
+    "Update release or local-use readiness only when evidence supports it.",
+    "Do not release, deploy, sign, upload, or mutate external systems in this ticket.",
+    "Finish with zero app-owned warnings."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "PROFESSIONALIZATION_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "ASSURANCE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "WAVE_8_REASSESSMENT.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "PROFESSIONALIZATION_REVIEW.md",
+    "ASSURANCE_REVIEW.md",
+    "WAVE_8_REASSESSMENT.md",
+    ".humble/tickets/HS-0075.json",
+    ".notes/humblestudio-delivery-review-2026-07-26.md",
+    ".notes/humblestudio-implementation-program-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "Wave 11 implementation starts only after the current repository delta and prerequisite planning work are reconciled.",
+    "unblock_condition": "The following tickets are solved, amended, or represented by equivalent current evidence: HS-0073, HS-0074, HS-0067"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 11 to be at least as large and thorough as Wave 10 and to translate the complete plan into implementation-ready delivery programs."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Implementation & Delivery Wave 11.",
+    "Non-scope: do not perform release, deployment, signing, external publication, destructive data operation, irreversible migration, or product merger.",
+    "Alternative considered and rejected: creating another abstract planning layer without implementable milestones would continue planning instead of delivering value.",
+    "Every implementation slice must be small, reviewable, evidence-backed, and warning-free.",
+    "Product role: internal visual product, design, diagram, and proposal workspace.",
+    "Lifecycle: build.",
+    "Monetization: internal-now-optional-commercialization-later.",
+    "Wave 12 deep reassessment: decision `retain-active-input`, relevance `now`, current priority `high`, execution gate `fresh delta review and portfolio WIP capacity`. Wave 11 remains the implementation program; Wave 12 narrows immediate game and completion priorities without replacing all delivery work.",
+    "Wave 13 human-validation reassessment: `retain-implementation-entry` / `now` / priority `high`. Wave 11 is the implementation entry point and must precede beta or outcome studies.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Wave 11 is the implementation entry point and must precede beta or outcome studies."
+  ],
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0073",
+      "note": "Required current planning or assurance input for this delivery program."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0074",
+      "note": "Required current planning or assurance input for this delivery program."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0067",
+      "note": "Required current planning or assurance input for this delivery program."
+    }
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created as an implementation-ready Wave 11 program ticket derived from the final capstone, assurance, and repository role. Wave 12 deep reassessment: decision `retain-active-input`, relevance `now`, current priority `high`, execution gate `fresh delta review and portfolio WIP capacity`. Wave 11 remains the implementation program; Wave 12 narrows immediate game and completion priorities without replacing all delivery work."
+  }
+}

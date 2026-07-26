@@ -1,0 +1,152 @@
+{
+  "id": "HS-0069",
+  "title": "Close the HumbleStudio professional baseline and release gate",
+  "status": "proposed",
+  "type": "qa",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Prove that internal visual product, design, diagram, and proposal workspace meets its declared professional, performance, accessibility, data-safety, agent, and assurance baseline.",
+  "acceptance_criteria": [
+    "Reconcile all open and proposed foundation, professionalization, and assurance tickets against current main.",
+    "Close or explicitly defer broken functionality, data-safety, privacy, security, warning, and test-trust gaps before claiming baseline completion.",
+    "Run the strongest practical static, build, unit, integration, migration, accessibility, localization, and runtime gates appropriate to the repository.",
+    "End with zero app-owned warnings; suppressions and threshold increases require narrow reviewed exceptions with expiry.",
+    "Record representative performance baselines and adopt repository-owned budgets for critical journeys and resource risks.",
+    "Verify loading, empty, error, offline, stale, permission-denied, interruption, and recovery behavior for the primary product surfaces.",
+    "Verify persistence, export/import, backup/restore, migration, or idempotence boundaries where the product owns durable state.",
+    "Define privacy, credential, logging, diagnostic, retention, deletion, and support-bundle boundaries.",
+    "Verify accessibility and localization through behavior and runtime evidence, not only source inspection.",
+    "Publish a current verification plan and coverage graph for critical invariants.",
+    "Classify remaining gaps by risk and distinguish unavailable evidence from failure.",
+    "Add an independent or adversarial review proportionate to the highest remaining risk.",
+    "Capture the closest practical runtime proof: browser, device, hardware, filesystem fixture, local process, or distributed build as applicable.",
+    "Verify monetization-specific invariants only when the declared model `internal-now-optional-commercialization-later` requires them.",
+    "Publish the repository agent/runtime profile and prove that undeclared tools or permissions are rejected.",
+    "Refresh release, rollback, support, and external-service posture without performing release actions.",
+    "Ensure status, tickets, documentation, evidence, and code tell the same story.",
+    "Record every gate not run and why.",
+    "Define a regression-sentinel or repeatable re-verification command for each critical invariant.",
+    "Mark the professional baseline complete only when current evidence supports the claim."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "PROFESSIONALIZATION_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "ASSURANCE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "WAVE_8_REASSESSMENT.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "PROFESSIONALIZATION_REVIEW.md",
+    "ASSURANCE_REVIEW.md",
+    "WAVE_8_REASSESSMENT.md",
+    ".humble/tickets/HS-0069.json",
+    ".notes/humblestudio-capstone-review-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "The capstone scope depends on reviewed earlier-wave foundations.",
+    "unblock_condition": "The following tickets are solved or equivalent evidence exists: HS-0068, HS-0064, HS-0066"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 10 as the largest and most thorough final planning wave across the entire portfolio."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Capstone and Operating System Wave 10.",
+    "Non-scope: do not release, deploy, merge products, mutate external data, delete, restore, or enable monetization from this planning ticket.",
+    "Alternative considered and rejected: adding more disconnected ambitious features without charter, capacity, assurance, and product evidence would make the portfolio less trustworthy.",
+    "Wave 10 is a realization and rationalization layer, not a reason to keep expanding the backlog indefinitely.",
+    "Lifecycle disposition: build.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-charter-input`, relevance `next`, current priority `medium`, execution gate `use as governing context, not another parallel backlog`. Portfolio and product charters remain decision inputs, while Wave 11 and Wave 12 own implementation and completion.",
+    "Wave 13 human-validation reassessment: `retain-product-charter-input` / `next` / priority `high`. Product role, lifecycle, and investment decisions frame the validation program.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Product role, lifecycle, and investment decisions frame the validation program."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created after final Waves 1-9 rationalization and current-head verification. Wave 12 deep reassessment: decision `retain-charter-input`, relevance `next`, current priority `medium`, execution gate `use as governing context, not another parallel backlog`. Portfolio and product charters remain decision inputs, while Wave 11 and Wave 12 own implementation and completion."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0068",
+      "note": "Required capstone prerequisite."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0064",
+      "note": "Required capstone prerequisite."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0066",
+      "note": "Required capstone prerequisite."
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "id": "HS-0064",
+  "title": "Define native editor performance, accessibility, and agent-integration budgets",
+  "status": "proposed",
+  "type": "workflow",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-25",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Create a repository-owned professional profile for internal visual product, design, diagram, and proposal workspace. The profile must make functionality, architecture, warning cleanliness, performance, accessibility, localization, data safety, agent use, release posture, and monetization suitability explicit.",
+  "acceptance_criteria": [
+    "Record the repository's product role, primary user, primary job, and intentionally unsupported use cases.",
+    "Capture the strongest current build, test, lint, warning, and status evidence at the reviewed revision before setting new budgets.",
+    "Define the critical user journeys and the repository-owned evidence required to claim that each remains functional.",
+    "Measure a representative performance baseline before assigning numeric launch, interaction, memory, storage, network, energy, scan, or hardware budgets.",
+    "Define a no-regression policy and an expiry-based exception process instead of hiding warnings or raising thresholds.",
+    "Ensure the strongest practical verification completes with zero app-owned warnings.",
+    "Define accessibility requirements appropriate to the product, including semantics, keyboard or alternative input where relevant, scaling, contrast, focus, and reduced motion.",
+    "Define localization and content-quality requirements, including formatting, truncation, grammatical context, and missing-key behavior.",
+    "Document data ownership, privacy, security, retention, export, correction, deletion, backup, restore, and support boundaries where applicable.",
+    "Define diagnostics and support evidence that is useful without exposing credentials or unnecessary private data.",
+    "Publish a repository agent/runtime profile that states whether agents are used, which local or remote models and tools are allowed, and which operations always need human approval.",
+    "Define the repository's release, migration, rollback, and external-service posture without performing release work in this ticket.",
+    "Record monetization classification as `internal-now-optional-commercialization-later` and do not add revenue mechanics that conflict with that classification.",
+    "Refresh repo-owned status and documentation so unknown, unavailable, stale, blocked, and not-run states remain distinct from passed.",
+    "Add focused contract or fixture tests for the professional profile and its machine-readable projection.",
+    "Run the repository-native validation commands and record exactly what was not executed because of environment, credentials, hardware, or external blockers."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 8 source surface to inspect at the current reviewed revision."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    ".humble/tickets/HS-0064.json",
+    ".notes/humblestudio-professionalization-review-2026-07-25.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 8: re-evaluate Waves 1-7, keep applications professionally developed, and avoid forced cross-app integration."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Wave 8 professionalization ticket.",
+    "Standalone product excellence is the default; cross-app behavior is optional and evidence-driven.",
+    "Do not introduce monetization when the repository classification says it is internal, personal, or portfolio-only.",
+    "Do not hide performance regressions or app-owned warnings.",
+    "Product role: internal visual product, design, diagram, and proposal workspace.",
+    "Monetization posture: internal-now-optional-commercialization-later.",
+    "Fusion posture: Likely destination for selected Architect capabilities; Board and design editing remain its core..",
+    "Portfolio Professionalization Wave 8.",
+    "Non-scope: do not introduce unrelated cross-app integration, product merger, release, deployment, or monetization mechanics.",
+    "Alternative considered and rejected: applying one universal integration or monetization model to every app would damage product focus and ownership.",
+    "Wave 10 final rationalization: active-professionalization; portfolio band next. Professional quality and flagship scope feed the Wave 10 charter and baseline.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `reconcile with current repository before implementation`. Professional quality, product role, performance, accessibility, agents, and monetization fit remain required baselines.",
+    "Wave 13 human-validation reassessment: `retain-professional-baseline` / `now` / priority `high`. Professional baseline is required before user validation or release claims.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Professional baseline is required before user validation or release claims."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created after portfolio-wide reassessment of Waves 1-7 and current default-branch reconciliation. Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `reconcile with current repository before implementation`. Professional quality, product role, performance, accessibility, agents, and monetization fit remain required baselines."
+  }
+}

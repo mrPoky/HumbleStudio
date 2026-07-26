@@ -1,0 +1,93 @@
+{
+  "id": "HS-0046",
+  "title": "Add typed diagram nodes and semantic edges",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-24",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Without typed nodes, ports and edges, moving a node breaks connectors and diagrams cannot distinguish navigation, dependency, ownership or data flow. Add typed diagram nodes, ports, semantic edges, orthogonal routing baseline, labels and deterministic serialization on top of BoardCore.",
+  "acceptance_criteria": [
+    "BoardCore defines typed DiagramNode, Port and SemanticEdge payloads without coupling them to SwiftUI views.",
+    "Edges attach to ports and remain connected when nodes move, resize, group or change z-order.",
+    "The first router supports deterministic straight and orthogonal paths with visible fallback when no clean route exists.",
+    "Edges support labels and at least navigation, dependency, ownership and data-flow semantics.",
+    "Keyboard-accessible commands create, reconnect and delete edges; invalid self or duplicate relationships follow documented policy.",
+    "Serialization and geometry tests cover port resolution, node movement, routing and missing-node recovery.",
+    "The existing imported navigation map can be projected into read-only Board diagram objects without losing trigger/type metadata."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md:81-90",
+      "status": "pending",
+      "note": "Imported views already expose semantic navigation targets."
+    },
+    {
+      "kind": "note",
+      "path": "README.md:139-146",
+      "status": "pending",
+      "note": "The current web navigation map renders a narrow set of semantic edge types."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift:135-169",
+      "status": "pending",
+      "note": "ViewItem already retains navigation target, trigger and type metadata."
+    }
+  ],
+  "related_files": [
+    "BoardCore",
+    "AppleApps/macOS/Sources/Board",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "js/renderers.js",
+    ".notes/humblestudio-board-architecture-review-2026-07-24.md",
+    ".humble/tickets/HS-0046.json"
+  ],
+  "blocked_by": {
+    "reason": "Required Board foundation must be solved first.",
+    "unblock_condition": "Solve: HS-0045"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "HumbleStudio Board architecture finding HS-BAR-006, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Architecture finding: HS-BAR-006.",
+    "Estimated effort: L, 12-24 hours.",
+    "Implementation risk: medium.",
+    "Board changes must remain proposal-first and must not mutate source truth unless a future separately accepted apply contract permits it.",
+    "Do not broaden this slice into real-time collaboration, arbitrary source rewrite or a provider-specific AI architecture.",
+    "Rejected alternative: Persist connector endpoints as absolute points only — Connections would not survive node movement or shape changes.",
+    "Wave 8 portfolio reassessment: retain; priority band now. Repository correctness, warning cleanliness, tests, and source-of-truth repairs remain the highest-value foundation.",
+    "Wave 10 final rationalization: active-foundation; portfolio band now. Correctness, safety, warning cleanup, source truth, and deterministic tests remain active prerequisites.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `fresh repository delta review and current evidence`. Repository correctness, source-of-truth repair, warning cleanliness, tests, and safety remain direct prerequisites.",
+    "Wave 13 human-validation reassessment: `retain-correctness` / `now` / priority `high`. Correctness, architecture, tests, warning cleanup, and repository truth remain immediate prerequisites.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Correctness, architecture, tests, warning cleanup, and repository truth remain immediate prerequisites."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Derived from the Board architecture review with evidence, alternatives, effort, risk and dependency order. Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `fresh repository delta review and current evidence`. Repository correctness, source-of-truth repair, warning cleanliness, tests, and safety remain direct prerequisites."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0045",
+      "note": "Required Board foundation."
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "id": "HS-0068",
+  "title": "Ratify the HumbleStudio product charter and 12-month roadmap",
+  "status": "proposed",
+  "type": "design",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Convert the existing product, professionalization, and assurance work into one repository-owned charter for internal visual product, design, diagram, and proposal workspace.",
+  "acceptance_criteria": [
+    "Ratify the repository purpose as: internal visual product, design, diagram, and proposal workspace.",
+    "Name the primary user, primary job, top three user outcomes, and intentionally unsupported use cases.",
+    "Adopt a 12-month product horizon grounded in the existing flagship scope: Deliver one polished standalone product milestone for internal visual product, design, diagram, and proposal workspace: open repository-backed product truth, edit a screen or diagram, review a proposal, hand it to Codex, and reconcile implementation. The slice must prove user value, UI/UX quality, performance, accessibility, recovery, and the declared monetization or non-monetization posture.",
+    "Define one north-star outcome, a small set of supporting signals, and guardrails that prevent metric gaming.",
+    "Separate user value, engineering maturity, operational readiness, and business value instead of using one percentage.",
+    "Record the monetization posture as `internal-now-optional-commercialization-later` and the evidence required before it can change.",
+    "Record the current fusion posture: Likely destination for selected Architect capabilities; Board and design editing remain its core.",
+    "Define product boundaries, owned data, external dependencies, and the responsibilities that must remain outside this repository.",
+    "Define lifecycle disposition, review cadence, and explicit criteria to invest, maintain, consolidate, freeze, or retire.",
+    "Map current Waves 1–9 tickets to product outcomes and identify duplicates, research-only work, and gaps.",
+    "Create a repository-owned 12-month roadmap with no more than three active product bets.",
+    "Define accessibility, localization, privacy, support, and recovery expectations at product level.",
+    "Define which user-facing claims can be public and which remain private or internal.",
+    "Identify assumptions that require user, device, hardware, business, or operational evidence.",
+    "Document the smallest valuable release and the smallest reversible experiment.",
+    "Define decision rights and the changes that always require Jan.",
+    "Publish human-readable and machine-readable charter artifacts.",
+    "Refresh repo-owned status to reference the charter without replacing current operational truth.",
+    "Validate the charter against the current repository revision and open work.",
+    "Complete warning-free repository validation."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "PROFESSIONALIZATION_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "ASSURANCE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    },
+    {
+      "kind": "note",
+      "path": "WAVE_8_REASSESSMENT.md",
+      "status": "pending",
+      "note": "Wave 10 capstone evidence surface."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "PROFESSIONALIZATION_REVIEW.md",
+    "ASSURANCE_REVIEW.md",
+    "WAVE_8_REASSESSMENT.md",
+    ".humble/tickets/HS-0068.json",
+    ".notes/humblestudio-capstone-review-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "The capstone scope depends on reviewed earlier-wave foundations.",
+    "unblock_condition": "The following tickets are solved or equivalent evidence exists: HS-0064"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 10 as the largest and most thorough final planning wave across the entire portfolio."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Capstone and Operating System Wave 10.",
+    "Non-scope: do not release, deploy, merge products, mutate external data, delete, restore, or enable monetization from this planning ticket.",
+    "Alternative considered and rejected: adding more disconnected ambitious features without charter, capacity, assurance, and product evidence would make the portfolio less trustworthy.",
+    "Wave 10 is a realization and rationalization layer, not a reason to keep expanding the backlog indefinitely.",
+    "Lifecycle disposition: build.",
+    "Fusion posture: Likely destination for selected Architect capabilities; Board and design editing remain its core..",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-charter-input`, relevance `next`, current priority `medium`, execution gate `use as governing context, not another parallel backlog`. Portfolio and product charters remain decision inputs, while Wave 11 and Wave 12 own implementation and completion.",
+    "Wave 13 human-validation reassessment: `retain-product-charter-input` / `next` / priority `high`. Product role, lifecycle, and investment decisions frame the validation program.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Product role, lifecycle, and investment decisions frame the validation program."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created after final Waves 1-9 rationalization and current-head verification. Wave 12 deep reassessment: decision `retain-charter-input`, relevance `next`, current priority `medium`, execution gate `use as governing context, not another parallel backlog`. Portfolio and product charters remain decision inputs, while Wave 11 and Wave 12 own implementation and completion."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0064",
+      "note": "Required capstone prerequisite."
+    }
+  ]
+}

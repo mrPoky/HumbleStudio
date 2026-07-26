@@ -1,0 +1,99 @@
+{
+  "id": "HS-0047",
+  "title": "Place linked screen artboards on the Board",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-24",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "A screenshot-only Board would be visually useful but unable to support component inspection, source navigation, proposal targeting or future structured screen editing. Introduce a ScreenArtboard object linked to a ViewItem, with snapshot-underlay mode, component regions, device contract, navigation anchors and source provenance.",
+  "acceptance_criteria": [
+    "A ScreenArtboard object links to a StudioNativeDocument.ViewItem by stable view ID and imported revision.",
+    "The artboard can render snapshot underlay, device frame, safe-area contract, component regions and navigation anchors independently.",
+    "Selecting an artboard exposes view source path, component IDs, states, actions and navigation evidence from imported truth.",
+    "Snapshot-only, structured-overlay and missing-snapshot states are visually and semantically distinct.",
+    "Board overrides never mutate the imported ViewItem and can be reset to imported truth.",
+    "At least one HumbleSudoku or MyVltavaRun fixture places multiple linked screens and navigation anchors on a Board.",
+    "Focused tests cover missing view IDs, refreshed imports, appearance changes and artboard serialization."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md:100-106",
+      "status": "pending",
+      "note": "Native inspection is snapshot-first and contract-driven."
+    },
+    {
+      "kind": "note",
+      "path": "README.md:133-140",
+      "status": "pending",
+      "note": "Views already connect screenshots, components and navigation."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift:135-169",
+      "status": "pending",
+      "note": "ViewItem carries source, components, states, actions, navigation and snapshot evidence."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift:192-205",
+      "status": "pending",
+      "note": "Snapshots are resolved by appearance from imported asset truth."
+    }
+  ],
+  "related_files": [
+    "BoardCore",
+    "AppleApps/macOS/Sources/Board",
+    "AppleApps/macOS/Sources/StudioMacPreviewSupport.swift",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    ".notes/humblestudio-board-architecture-review-2026-07-24.md",
+    ".humble/tickets/HS-0047.json"
+  ],
+  "blocked_by": {
+    "reason": "Required Board foundation must be solved first.",
+    "unblock_condition": "Solve: HS-0045"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "HumbleStudio Board architecture finding HS-BAR-007, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Architecture finding: HS-BAR-007.",
+    "Estimated effort: L, 12-24 hours.",
+    "Implementation risk: medium-high.",
+    "Board changes must remain proposal-first and must not mutate source truth unless a future separately accepted apply contract permits it.",
+    "Do not broaden this slice into real-time collaboration, arbitrary source rewrite or a provider-specific AI architecture.",
+    "Rejected alternative: Place screenshots as generic images — It discards structured view and repository provenance.",
+    "Wave 8 portfolio reassessment: retain; priority band now. Repository correctness, warning cleanliness, tests, and source-of-truth repairs remain the highest-value foundation.",
+    "Wave 10 final rationalization: active-foundation; portfolio band now. Correctness, safety, warning cleanup, source truth, and deterministic tests remain active prerequisites.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `fresh repository delta review and current evidence`. Repository correctness, source-of-truth repair, warning cleanliness, tests, and safety remain direct prerequisites.",
+    "Wave 13 human-validation reassessment: `retain-correctness` / `now` / priority `high`. Correctness, architecture, tests, warning cleanup, and repository truth remain immediate prerequisites.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Correctness, architecture, tests, warning cleanup, and repository truth remain immediate prerequisites."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Derived from the Board architecture review with evidence, alternatives, effort, risk and dependency order. Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `high`, execution gate `fresh repository delta review and current evidence`. Repository correctness, source-of-truth repair, warning cleanliness, tests, and safety remain direct prerequisites."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0045",
+      "note": "Required Board foundation."
+    }
+  ]
+}

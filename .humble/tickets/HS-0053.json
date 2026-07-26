@@ -1,0 +1,121 @@
+{
+  "id": "HS-0053",
+  "title": "Create a round-trip screen proposal workflow",
+  "status": "proposed",
+  "type": "feature",
+  "priority": "medium",
+  "owner": null,
+  "created_at": "2026-07-24",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "This vertical slice is the proof that HumbleStudio can complement Figma: edits remain attached to real components, tokens, navigation, source paths, tickets, and repository revisions rather than becoming isolated mockups.",
+  "acceptance_criteria": [
+    "The session pins repository, source revision, view ID, snapshot, component definitions, navigation evidence, and owning ticket before edits begin.",
+    "Supported edits include at least component instance placement/variant, spacing/layout constraints, token substitution, localized text proposal, and navigation annotation; unsupported edits remain visibly non-applicable.",
+    "Validation detects stale source revision, missing component/token, accessibility/localization risk, constraint conflicts, and changes outside the selected screen scope.",
+    "The handoff artifact contains before/after Board state, screenshots, structured commands/deltas, source targets, acceptance criteria, unresolved decisions, and repository-qualified ticket references.",
+    "Re-importing a newer bundle performs a three-way reconciliation between old source, proposal overrides, and new source and never discards user work silently.",
+    "The first reference fixture uses a real repository export and proves import, edit, proposal, simulated implementation refresh, and resolved/diverged status end to end.",
+    "The complete user journey is demonstrated from entry to a useful, recoverable result, including empty, loading, stale/offline, failure, and retry states.",
+    "The experience uses the repository's localization source of truth, supports Dynamic Type or platform text scaling, exposes meaningful accessibility labels/actions, and respects reduced-motion preferences where motion is present.",
+    "User-visible claims and recommendations remain explainable and conservative; the UI distinguishes observed data, inferred guidance, planned work, and unavailable evidence.",
+    "Focused behavior tests and a repeatable visual or runtime evidence artifact protect the primary journey without relying only on implementation snapshots.",
+    "The strongest practical repository-native build, test, lint, contract, and diff gates pass with zero app-owned warnings; warnings are not hidden by suppression or threshold changes."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "The existing product contract requires proposal-first, auditable authoring."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0048.json",
+      "status": "pending",
+      "note": "Board edits already generate reviewed proposals rather than direct source mutation."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0050.json",
+      "status": "pending",
+      "note": "Revision-aware repository artifacts protect round-trip identity."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0052.json",
+      "status": "pending",
+      "note": "Reusable components and constraints enable meaningful structured screen edits."
+    }
+  ],
+  "related_files": [
+    "docs/change-marking-contract.md",
+    "BoardCore",
+    "AppleApps/macOS/Sources/Board",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalWorkspace.swift",
+    ".humble/tickets/HS-0048.json",
+    ".humble/tickets/HS-0050.json",
+    ".humble/tickets/HS-0052.json",
+    ".notes/humblestudio-evolution-review-2026-07-24.md",
+    ".notes/humblestudio-evolution-findings-2026-07-24.json",
+    ".humble/tickets/HS-0053.json"
+  ],
+  "blocked_by": {
+    "reason": "The required foundation tickets must be solved before this evolution slice begins.",
+    "unblock_condition": "Solve and verify: HS-0047, HS-0048, HS-0050, HS-0052"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Portfolio Evolution Wave 2 for HumbleStudio, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Evolution Wave 2; experience north-star ticket.",
+    "Estimated effort: XL, 6-10 focused working days",
+    "Implementation risk: high",
+    "User outcome: Jan can visually improve a real app screen, hand Codex an exact reviewable change plan, and later see whether the repository implementation matches, diverges, or supersedes the proposal.",
+    "Non-scope: Do not apply changes automatically to source code, claim pixel-perfect reconstruction of arbitrary screenshots, or support every component property in the first vertical slice.",
+    "Alternative considered and rejected: Export a static annotated screenshot and prose task — that loses structured component identity, validation, three-way reconciliation, and machine-readable implementation targets.",
+    "Do not broaden the slice into unrelated cleanup, framework migration, release publication, or source-of-truth changes outside the ticket.",
+    "Wave 8 portfolio reassessment: retain; priority band next. The technical north star and signature journey remain useful after the professional baseline is established.",
+    "Wave 10 final rationalization: merge-into-product-roadmap; portfolio band next. North-star and flagship work is consolidated into the repository charter and capstone journey.",
+    "Wave 11 execution reconciliation: `supporting-input`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-supporting`, relevance `next`, current priority `medium`, execution gate `use as product context, not as a parallel implementation stream`. Product north-star and flagship intent remain useful, but implementation is now owned by Wave 11 and completion work.",
+    "Wave 13 human-validation reassessment: `retain-product-evidence` / `next` / priority `medium`. Product north-star and flagship journey remain useful research and design inputs.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Product north-star and flagship journey remain useful research and design inputs."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Admitted as a second-wave product/technical evolution ticket after the architecture-foundation backlog; re-check evidence when repository HEAD advances. Wave 12 deep reassessment: decision `retain-supporting`, relevance `next`, current priority `medium`, execution gate `use as product context, not as a parallel implementation stream`. Product north-star and flagship intent remain useful, but implementation is now owned by Wave 11 and completion work."
+  },
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0047",
+      "note": "Required foundation for this evolution slice."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0048",
+      "note": "Required foundation for this evolution slice."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0050",
+      "note": "Required foundation for this evolution slice."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0052",
+      "note": "Required foundation for this evolution slice."
+    }
+  ]
+}

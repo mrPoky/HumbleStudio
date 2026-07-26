@@ -1,0 +1,150 @@
+{
+  "id": "HS-0076",
+  "title": "Run the HumbleArchitect absorption pilot",
+  "status": "proposed",
+  "type": "design",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Use current product and operational evidence to make the bounded investment decision: embed one guided specification workflow in Studio and decide companion, shared module, or bounded absorption.",
+  "acceptance_criteria": [
+    "Run the bounded decision program: embed one guided specification workflow in Studio and decide companion, shared module, or bounded absorption.",
+    "Use lifecycle disposition `build` and monetization posture `internal-now-optional-commercialization-later` as hypotheses, not predetermined outcomes.",
+    "Define the user or operator problem, baseline, expected value, investment, risks, and non-goals.",
+    "Identify the minimum reversible pilot and explicit stop criteria.",
+    "Identify the product, architecture, performance, accessibility, privacy, security, support, release, and data implications.",
+    "Estimate implementation, maintenance, infrastructure, model, platform fee, support, and Jan-time costs.",
+    "Define success, failure, uncertainty, and unavailable evidence.",
+    "Measure actual exposure or usage rather than assuming availability equals value.",
+    "Preserve privacy and avoid dark patterns or hidden automation.",
+    "Record qualitative feedback separately from observed behavior.",
+    "Record small-sample and confounding limitations.",
+    "Compare at least one credible alternative, including no change.",
+    "Define migration, compatibility, rollback, and retirement consequences.",
+    "For fusion, preserve standalone rollback and permission boundaries.",
+    "For monetization, cover entitlement, restore, management or cancellation, privacy, support, and App Store implications.",
+    "For personal or internal tools, allow no-monetization or maintenance-only as successful outcomes.",
+    "Do not execute irreversible merge, retirement, price, billing, release, data migration, or publication actions.",
+    "Produce an immutable decision artifact with owner, date, evidence, and reconsideration criteria.",
+    "Update the next 12-month roadmap only after human approval.",
+    "Record follow-up tickets only for accepted next steps.",
+    "Finish the decision review without app-owned warnings in its tooling and artifacts."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "PROFESSIONALIZATION_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "ASSURANCE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "WAVE_8_REASSESSMENT.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "PROFESSIONALIZATION_REVIEW.md",
+    "ASSURANCE_REVIEW.md",
+    "WAVE_8_REASSESSMENT.md",
+    ".humble/tickets/HS-0076.json",
+    ".notes/humblestudio-delivery-review-2026-07-26.md",
+    ".notes/humblestudio-implementation-program-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "Wave 11 implementation starts only after the current repository delta and prerequisite planning work are reconciled.",
+    "unblock_condition": "The following tickets are solved, amended, or represented by equivalent current evidence: HS-0075, HS-0071"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 11 to be at least as large and thorough as Wave 10 and to translate the complete plan into implementation-ready delivery programs."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Implementation & Delivery Wave 11.",
+    "Non-scope: do not perform release, deployment, signing, external publication, destructive data operation, irreversible migration, or product merger.",
+    "Alternative considered and rejected: creating another abstract planning layer without implementable milestones would continue planning instead of delivering value.",
+    "Every implementation slice must be small, reviewable, evidence-backed, and warning-free.",
+    "Product role: internal visual product, design, diagram, and proposal workspace.",
+    "Lifecycle: build.",
+    "Monetization: internal-now-optional-commercialization-later.",
+    "Wave 12 deep reassessment: decision `retain-active-input`, relevance `now`, current priority `high`, execution gate `fresh delta review and portfolio WIP capacity`. Wave 11 remains the implementation program; Wave 12 narrows immediate game and completion priorities without replacing all delivery work.",
+    "Wave 13 human-validation reassessment: `retain-implementation-entry` / `now` / priority `high`. Wave 11 is the implementation entry point and must precede beta or outcome studies.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Wave 11 is the implementation entry point and must precede beta or outcome studies."
+  ],
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0075",
+      "note": "Required current planning or assurance input for this delivery program."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0071",
+      "note": "Required current planning or assurance input for this delivery program."
+    }
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created as an implementation-ready Wave 11 program ticket derived from the final capstone, assurance, and repository role. Wave 12 deep reassessment: decision `retain-active-input`, relevance `now`, current priority `high`, execution gate `fresh delta review and portfolio WIP capacity`. Wave 11 remains the implementation program; Wave 12 narrows immediate game and completion priorities without replacing all delivery work."
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "id": "HS-0041",
+  "title": "Define the HumbleStudio Board product contract",
+  "status": "proposed",
+  "type": "design",
+  "priority": "critical",
+  "owner": null,
+  "created_at": "2026-07-24",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Starting with gestures or drawing primitives would bake storage, identity, source linkage and editing semantics into UI code before the product knows what a Board object means. Define a versioned Board domain and ADR covering document ownership, object kinds, coordinate system, stable identity, source references, proposal state and non-goals.",
+  "acceptance_criteria": [
+    "A versioned Board ADR defines product purpose, primary user workflows, document ownership and explicit non-goals for the first release.",
+    "The domain defines Board, Page, Layer, Object, Transform, Bounds, SourceReference and ObjectKind without importing SwiftUI, AppKit or web types.",
+    "Object kinds distinguish at least freeform shape/text/image, diagram node/edge, screen artboard and repository artifact reference.",
+    "The coordinate system, units, z-order, grouping, stable identity, deletion and unknown-future-object behavior are documented.",
+    "The contract states that imported StudioNativeDocument remains read-only and Board changes remain proposals until a later apply workflow.",
+    "A staged roadmap maps each accepted Board capability to HS tickets and avoids claiming collaboration or source-code editing in MVP.",
+    "Ticket, repo-contract and diff validation pass."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md:59-90",
+      "status": "pending",
+      "note": "The current design contract models imported tokens, components, views and navigation only."
+    },
+    {
+      "kind": "note",
+      "path": "README.md:100-106",
+      "status": "pending",
+      "note": "The native workspace is an inspection and review surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md:3-20",
+      "status": "pending",
+      "note": "Future authoring is explicitly read-only and proposal-first."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md:57-68",
+      "status": "pending",
+      "note": "Write-back and source mutation are explicitly not implemented."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "docs/change-marking-contract.md",
+    "docs/next-slices.md",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    ".notes/humblestudio-board-architecture-review-2026-07-24.md",
+    ".humble/tickets/HS-0041.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "HumbleStudio Board architecture finding HS-BAR-001, requested by Jan."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug CODE_SIGNING_ALLOWED=NO build",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Architecture finding: HS-BAR-001.",
+    "Estimated effort: M, 6-12 hours.",
+    "Implementation risk: medium.",
+    "Board changes must remain proposal-first and must not mutate source truth unless a future separately accepted apply contract permits it.",
+    "Do not broaden this slice into real-time collaboration, arbitrary source rewrite or a provider-specific AI architecture.",
+    "Rejected alternative: Build an infinite canvas first and infer the model later — UI state would become the accidental persistence and collaboration contract.",
+    "Wave 8 portfolio reassessment: retain; priority band now. Repository correctness, warning cleanliness, tests, and source-of-truth repairs remain the highest-value foundation.",
+    "Wave 10 final rationalization: active-foundation; portfolio band now. Correctness, safety, warning cleanup, source truth, and deterministic tests remain active prerequisites.",
+    "Wave 11 execution reconciliation: `required-prerequisite`. Use the Wave 11 implementation program as the delivery entry point while preserving this ticket's evidence and intent.",
+    "Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `critical`, execution gate `fresh repository delta review and current evidence`. Repository correctness, source-of-truth repair, warning cleanliness, tests, and safety remain direct prerequisites.",
+    "Wave 13 human-validation reassessment: `retain-correctness` / `now` / priority `critical`. Correctness, architecture, tests, warning cleanup, and repository truth remain immediate prerequisites.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Correctness, architecture, tests, warning cleanup, and repository truth remain immediate prerequisites."
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Derived from the Board architecture review with evidence, alternatives, effort, risk and dependency order. Wave 12 deep reassessment: decision `retain-required`, relevance `now`, current priority `critical`, execution gate `fresh repository delta review and current evidence`. Repository correctness, source-of-truth repair, warning cleanliness, tests, and safety remain direct prerequisites."
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "id": "HS-0074",
+  "title": "Integrate proposal, Codex handoff, and reconciliation",
+  "status": "proposed",
+  "type": "qa",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-07-26",
+  "updated_at": "2026-07-26",
+  "source": "user",
+  "summary": "Close the principal reliability and recovery gap: produce reviewed BoardCommands and proposals, hand them to implementation, and compare imported baseline, approved change, and final code.",
+  "acceptance_criteria": [
+    "Implement and verify the reliability outcome: produce reviewed BoardCommands and proposals, hand them to implementation, and compare imported baseline, approved change, and final code.",
+    "Identify the critical invariants and the harm caused by violating each one.",
+    "Define authoritative state, derived state, cache, persistence, external source, and projection boundaries.",
+    "Make operations idempotent or explicitly non-repeatable with protected receipts.",
+    "Handle duplicate input, reordering, cancellation, timeout, retry, and out-of-order completion.",
+    "Handle restart, crash, partial write, partial network response, and interrupted migration.",
+    "Handle stale, unavailable, corrupt, unknown-version, and permission-denied inputs.",
+    "Preserve user work and source data whenever the product contract requires it.",
+    "Provide atomic save, transaction, checkpoint, rollback, compensation, restore, or safe stop as appropriate.",
+    "Add deterministic failure injection and recovery fixtures.",
+    "Add migration fixtures from every currently supported persisted format.",
+    "Add security, privacy, credential, and path-traversal tests where relevant.",
+    "Add concurrency and race tests for shared mutable state.",
+    "Add property or invariant tests for mathematical, financial, scheduling, puzzle, or identity domains where applicable.",
+    "Provide user-facing recovery and support evidence without leaking private data.",
+    "Record evidence class and runtime limitations.",
+    "Connect the behavior to the repository assurance plan.",
+    "Update lifecycle, backup, restore, and support documentation.",
+    "Do not weaken validation or suppress warnings to complete the slice.",
+    "Run the strongest practical verification and record environmental blockers.",
+    "Finish with zero app-owned warnings."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "README.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "AGENTS.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "project.yml",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "AppleApps/macOS/Sources",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "PROFESSIONALIZATION_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "ASSURANCE_REVIEW.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    },
+    {
+      "kind": "note",
+      "path": "WAVE_8_REASSESSMENT.md",
+      "status": "pending",
+      "note": "Wave 11 implementation source, contract, evidence, or user-journey surface."
+    }
+  ],
+  "related_files": [
+    "README.md",
+    "AGENTS.md",
+    "project.yml",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/macOS/Sources",
+    "docs/change-marking-contract.md",
+    "PROFESSIONALIZATION_REVIEW.md",
+    "ASSURANCE_REVIEW.md",
+    "WAVE_8_REASSESSMENT.md",
+    ".humble/tickets/HS-0074.json",
+    ".notes/humblestudio-delivery-review-2026-07-26.md",
+    ".notes/humblestudio-implementation-program-2026-07-26.md"
+  ],
+  "blocked_by": {
+    "reason": "Wave 11 implementation starts only after the current repository delta and prerequisite planning work are reconciled.",
+    "unblock_condition": "The following tickets are solved, amended, or represented by equivalent current evidence: HS-0072, HS-0066"
+  },
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "forbidden",
+    "source_ref": "Jan requested Wave 11 to be at least as large and thorough as Wave 10 and to translate the complete plan into implementation-ready delivery programs."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "Portfolio Implementation & Delivery Wave 11.",
+    "Non-scope: do not perform release, deployment, signing, external publication, destructive data operation, irreversible migration, or product merger.",
+    "Alternative considered and rejected: creating another abstract planning layer without implementable milestones would continue planning instead of delivering value.",
+    "Every implementation slice must be small, reviewable, evidence-backed, and warning-free.",
+    "Product role: internal visual product, design, diagram, and proposal workspace.",
+    "Lifecycle: build.",
+    "Monetization: internal-now-optional-commercialization-later.",
+    "Wave 12 deep reassessment: decision `retain-active-input`, relevance `now`, current priority `high`, execution gate `fresh delta review and portfolio WIP capacity`. Wave 11 remains the implementation program; Wave 12 narrows immediate game and completion priorities without replacing all delivery work.",
+    "Wave 13 human-validation reassessment: `retain-implementation-entry` / `now` / priority `high`. Wave 11 is the implementation entry point and must precede beta or outcome studies.",
+    "Final Wave 14 validity review: `valid`; publication `publish-after-fresh-reconciliation`; implementation sequence `after-sudoku`. Wave 11 is the implementation entry point and must precede beta or outcome studies."
+  ],
+  "relationships": [
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0072",
+      "note": "Required current planning or assurance input for this delivery program."
+    },
+    {
+      "kind": "blocked_by_ticket",
+      "ticket": "HS-0066",
+      "note": "Required current planning or assurance input for this delivery program."
+    }
+  ],
+  "validation": {
+    "description_state": "ready",
+    "relevance_state": "valid",
+    "last_reviewed_at": "2026-07-26",
+    "note": "Created as an implementation-ready Wave 11 program ticket derived from the final capstone, assurance, and repository role. Wave 12 deep reassessment: decision `retain-active-input`, relevance `now`, current priority `high`, execution gate `fresh delta review and portfolio WIP capacity`. Wave 11 remains the implementation program; Wave 12 narrows immediate game and completion priorities without replacing all delivery work."
+  }
+}
