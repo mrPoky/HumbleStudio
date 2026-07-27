@@ -1,3 +1,4 @@
 .superpowers/
 icon.png
 .build/
+.DS_Store
