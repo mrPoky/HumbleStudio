@@ -4,7 +4,7 @@ These repo-local rules adopt Jan Pokorny's canonical repository development
 contract from
 `/Users/janpokorny/Coding/personal/apps/HumbleControl/Docs/repo-development-contract.md`
 and the portfolio git workflow from
-`/Users/janpokorny/Coding/PLAYBOOKS/portfolio_git_workflow.md`.
+`/Users/janpokorny/Coding/personal/apps/HumbleControl/Docs/global-rules/portfolio_git_workflow.md`.
 
 If a future rule should apply across multiple repositories, update the
 HumbleControl-owned canonical contract instead of silently forking policy here.
