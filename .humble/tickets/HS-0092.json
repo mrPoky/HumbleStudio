@@ -1,0 +1,129 @@
+{
+  "id": "HS-0092",
+  "title": "Load supported HumbleSudoku from localhost web helper",
+  "status": "solved",
+  "type": "feature",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-08-20",
+  "updated_at": "2026-08-20",
+  "source": "agent",
+  "summary": "Make the web viewer's supported-app HumbleSudoku click path functional on localhost by loading the adjacent local HumbleSudoku bundle through a safe allowlisted helper that can generate the bundle when it is missing.",
+  "acceptance_criteria": [
+    "Running the HumbleStudio web viewer through the local preview helper exposes a localhost endpoint for the supported HumbleSudoku export.",
+    "Clicking HumbleSudoku in the supported-app catalog on localhost attempts the local helper before falling back to the existing raw GitHub URL behavior.",
+    "The localhost helper is allowlisted to HumbleSudoku and the known `Scripts/generate_humble_studio_config.py --bundle` export command instead of accepting arbitrary app ids or commands.",
+    "The helper returns existing exports without regenerating them and can generate a missing export through the allowlisted command.",
+    "The static `index.html` fallback and supported-app URL path remain available when the helper is not running."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "path": "python3 Scripts/test_serve_local_preview.py",
+      "status": "passed",
+      "note": "Local preview helper tests cover existing export reuse, missing export generation, unknown app rejection, missing repository reporting, and API route parsing."
+    },
+    {
+      "kind": "command",
+      "path": "curl -fsSI http://127.0.0.1:18765/api/supported-apps/humble-sudoku/export",
+      "status": "passed",
+      "note": "A running localhost preview helper returned the real HumbleSudoku bundle endpoint with `X-HumbleStudio-Local-Export: 1`, `X-HumbleStudio-App-Id: humble-sudoku`, and `X-HumbleStudio-Generated: 0`."
+    },
+    {
+      "kind": "command",
+      "path": "node --check js/app.js",
+      "status": "passed",
+      "note": "The web loader changes for localhost supported-app loading are syntactically valid."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "status": "passed",
+      "note": "The web fallback integrity check now also verifies the localhost helper contract fragments."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m json.tool .humble/tickets/HS-0092.json",
+      "status": "passed",
+      "note": "The HS-0092 ticket JSON stayed valid before schema validation."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m json.tool .humble/status/current.json",
+      "status": "passed",
+      "note": "The repo status JSON stayed valid after recording the localhost helper slice."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_humble_tickets.py",
+      "status": "passed",
+      "note": "The repo-native HS ticket surface validates with HS-0092 solved."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "status": "passed",
+      "note": "The local repo contract still validates against the shared HumbleControl-owned standard."
+    },
+    {
+      "kind": "command",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only",
+      "status": "passed",
+      "note": "Workflow-only local checks passed for tickets, contract, script compilation, web fallback, and diff hygiene."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m py_compile Scripts/*.py",
+      "status": "passed",
+      "note": "Repo workflow scripts and the new localhost helper test script compile."
+    },
+    {
+      "kind": "command",
+      "path": "git diff --check",
+      "status": "passed",
+      "note": "Patch whitespace hygiene passed."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/humble_doctor.py --repo-root . --strict",
+      "status": "blocked",
+      "note": "Strict doctor is still expected to report the active topic-branch freshness gate until this branch is promoted."
+    }
+  ],
+  "related_files": [
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    ".gitignore",
+    "js/app.js",
+    "js/demo.js",
+    "README.md",
+    ".humble/status/current.json",
+    "docs/next-slices.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan asked to focus mainly on functionality after saying localhost clicks on HumbleSudoku should show HumbleSudoku and create missing files when needed."
+  },
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
+    "node --check js/app.js",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 -m json.tool .humble/tickets/HS-0092.json",
+    "python3 -m json.tool .humble/status/current.json",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 -m py_compile Scripts/*.py",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "This is a localhost helper for HumbleStudio's own local workflow, not a production web server.",
+    "Only HumbleSudoku is allowlisted in this slice. MyVltavaRun and HumbleControl still use the existing URL path until they get verified local export contracts.",
+    "The helper uses an identity header so the browser can distinguish the real helper from a generic static server returning a fallback page.",
+    "The live localhost check used the existing HumbleSudoku bundle and therefore did not regenerate or mutate the adjacent HumbleSudoku repository."
+  ]
+}

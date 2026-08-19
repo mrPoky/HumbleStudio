@@ -5,8 +5,8 @@ Updated: 2026-08-20
 This is the repository-native runway for autonomous HumbleStudio iterations. Work items are ordered by present product value; complete the highest safe item first and rerank after every completed slice.
 
 1. **Extract a shared supported-app source contract** — keep native, web fallback, and any future HumbleControl localhost helper on the same app/source/generator truth instead of duplicating catalogs.
-2. **Add local supported-app resolver tests** — cover existing export, missing export generation, generator failure, missing repository, and source-context handoff to the web bridge.
-3. **Visually verify the HumbleSudoku local supported-app click path** — check the running macOS workspace loads HumbleSudoku locally and reports a recoverable issue if the export cannot be generated.
+2. **Visually verify the web localhost HumbleSudoku click path** — check the running localhost preview loads HumbleSudoku through the helper and falls back clearly when the helper is unavailable.
+3. **Add native supported-app resolver tests** — cover generator failure, missing repository, and source-context handoff from native local imports into the web bridge.
 4. **Add authoring readiness model tests** — cover loaded/missing source, empty proposals, complete metadata, metadata gaps, and the blocked future edit/apply gate introduced by HS-0090.
 5. **Add a source-pinned proposal session summary** — show repository, revision/source path, scope, snapshot, tickets, and validation posture as the bridge between review and future editing.
 6. **Define the first Board document import fixture** — create a small deterministic fixture that can carry imported source truth without enabling editing yet.
@@ -22,3 +22,4 @@ This is the repository-native runway for autonomous HumbleStudio iterations. Wor
 - 2026-07-22 — completed: HS-0040 models preview chrome from selected device safe-area geometry and exposes applied chrome offsets in the Preview Contract panel.
 - 2026-08-20 — completed: HS-0090 adds a native authoring-readiness rail to the proposal workspace so read-only inspection, proposal capture, validation, and future edit/apply gates are visible together.
 - 2026-08-20 — completed: HS-0091 makes the native supported-app HumbleSudoku action local-first and can generate the missing HumbleSudoku bundle through its allowlisted export command.
+- 2026-08-20 — completed: HS-0092 adds a localhost web helper so the HumbleSudoku supported-app click path can load the adjacent local bundle and generate a missing export through the allowlisted command.
