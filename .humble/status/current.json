@@ -3,9 +3,9 @@
   "status_version": 1,
   "last_refreshed": "2026-08-20",
   "summary": {
-    "overall_percent": 86,
+    "overall_percent": 87,
     "confidence": "medium",
-    "headline": "HumbleStudio now has a working hybrid design viewer plus native and localhost local-first HumbleSudoku loading, review, navigation, and proposal surfaces that make the read-only-to-authoring path visible without claiming source write-back yet.",
+    "headline": "HumbleStudio now has a working hybrid design viewer plus native and localhost local-first HumbleSudoku loading, a read-only HumbleControl connection manifest, and proposal surfaces that make the read-only-to-authoring path visible without claiming source write-back yet.",
     "notes": [
       "Percentages are directional maturity estimates, not precise scorecards.",
       "Repo-owned status belongs in this file so shared tooling reads repo truth instead of replacing it.",
@@ -13,6 +13,7 @@
       "The web and native loaders can now truthfully offer a small supported-app catalog, including direct load and transparent URL-prefill paths.",
       "The native supported-app HumbleSudoku action now resolves the adjacent local HumbleSudoku bundle first and can run the allowlisted HumbleSudoku export command when that bundle is missing.",
       "The localhost web preview now exposes a safe allowlisted HumbleSudoku export endpoint, so clicking HumbleSudoku can load the local bundle before falling back to the remote URL.",
+      "The localhost preview now exposes a read-only HumbleControl connection manifest and can serve the local HumbleControl `.humble/design.json` through an allowlisted endpoint.",
       "Read-only workflow surfaces should stay truthful and avoid mutating repo state implicitly.",
       "Review queue and navigation audit cards now reuse shared proposal scope truth instead of each inferring proposal linkage independently.",
       "Native preview chrome now models selected-device safe-area geometry instead of only displaying raw inset metadata.",
@@ -33,7 +34,7 @@
     {
       "command": "python3 Scripts/validate_humble_tickets.py",
       "status": "passed",
-      "summary": "Validated the repo-native HS ticket surface with 90 tickets after adding HS-0092."
+      "summary": "Validated the repo-native HS ticket surface with 91 tickets after adding HS-0093."
     },
     {
       "command": "test -f /Users/janpokorny/Coding/personal/apps/HumbleSudoku/.humble/HumbleSudoku.humblebundle && test -f /Users/janpokorny/Coding/personal/apps/HumbleSudoku/Scripts/generate_humble_studio_config.py",
@@ -43,12 +44,32 @@
     {
       "command": "python3 Scripts/test_serve_local_preview.py",
       "status": "passed",
-      "summary": "The localhost preview helper tests cover existing export reuse, missing export generation, unknown app rejection, missing repository reporting, and API path parsing."
+      "summary": "The localhost preview helper tests cover existing export reuse, missing export generation, HumbleControl JSON export reuse, connection manifest generation, unknown app rejection, missing repository reporting, and API path parsing."
     },
     {
       "command": "curl -fsSI http://127.0.0.1:18765/api/supported-apps/humble-sudoku/export",
       "status": "passed",
       "summary": "A running localhost helper served the real HumbleSudoku bundle endpoint with `X-HumbleStudio-Local-Export: 1`, `X-HumbleStudio-App-Id: humble-sudoku`, and `X-HumbleStudio-Generated: 0`."
+    },
+    {
+      "command": "curl -fsS http://127.0.0.1:18766/api/connections | python3 -m json.tool",
+      "status": "passed",
+      "summary": "A running localhost helper returned the read-only connection index with a HumbleControl connection endpoint."
+    },
+    {
+      "command": "curl -fsS http://127.0.0.1:18766/api/connections/humble-control | python3 -m json.tool",
+      "status": "passed",
+      "summary": "A running localhost helper returned the HumbleControl manifest with HumbleStudio producer metadata and local export descriptors for HumbleControl and HumbleSudoku."
+    },
+    {
+      "command": "curl -fsSI http://127.0.0.1:18766/api/supported-apps/humble-control/export",
+      "status": "passed",
+      "summary": "The HumbleControl local export endpoint returned JSON with `X-HumbleStudio-Local-Export: 1` and `X-HumbleStudio-App-Id: humble-control`."
+    },
+    {
+      "command": "curl -fsS http://127.0.0.1:18766/api/supported-apps/humble-control/export | python3 -c \"import json,sys; data=json.load(sys.stdin); print(data['meta']['name'])\"",
+      "status": "passed",
+      "summary": "The local HumbleControl design export parsed successfully and reported `HumbleControl` as the source name."
     },
     {
       "command": "python3 Scripts/humble_doctor.py --strict",
@@ -73,17 +94,17 @@
     {
       "command": "python3 Scripts/check_web_fallback.py",
       "status": "passed",
-      "summary": "The static web fallback and localhost helper contract stayed internally consistent after adding the HumbleSudoku localhost supported-app path."
+      "summary": "The static web fallback and localhost helper contract stayed internally consistent after adding the HumbleControl connection manifest and local export endpoint."
     },
     {
       "command": "node --check js/app.js",
       "status": "passed",
-      "summary": "The web fallback source-context and localhost supported-app loader changes are syntactically valid."
+      "summary": "The web fallback can syntactically handle bundle and JSON responses from the localhost supported-app helper."
     },
     {
       "command": "bash Scripts/run_local_checks.sh --workflow-only",
       "status": "passed",
-      "summary": "HumbleStudio workflow-only checks passed for tickets, contract, web fallback, script compilation, and diff hygiene after the localhost supported-app helper slice."
+      "summary": "HumbleStudio workflow-only checks passed for tickets, contract, web fallback, script compilation, and diff hygiene after the HumbleControl connection manifest slice."
     },
     {
       "command": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
@@ -108,10 +129,10 @@
     {
       "id": "web-fallback",
       "label": "Web fallback",
-      "percent": 70,
+      "percent": 73,
       "status": "healthy",
-      "signal": "The static viewer remains available as a fallback, and the localhost preview helper now gives HumbleSudoku a local-first supported-app path that can serve or generate the adjacent bundle before the remote URL fallback is used.",
-      "next_move": "Extract the supported-app source catalog into one shared contract before adding more local app resolvers."
+      "signal": "The static viewer remains available as a fallback, and the localhost preview helper now gives HumbleSudoku and HumbleControl local-first supported-app paths plus a read-only manifest that HumbleControl can consume.",
+      "next_move": "Consume the HumbleStudio connection manifest inside HumbleControl, then extract the supported-app source catalog into one shared contract."
     },
     {
       "id": "repo-workflow",
@@ -125,47 +146,47 @@
   "top_gaps": [
     {
       "rank": 1,
-      "title": "Extract a shared supported-app source contract for native, web fallback, and future HumbleControl localhost helpers",
+      "title": "Consume the HumbleStudio connection manifest in HumbleControl",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 2,
-      "title": "Visually verify the web localhost HumbleSudoku click path in a real browser session",
+      "title": "Extract a shared supported-app source contract for native, web fallback, localhost helper, and future HumbleControl connection cards",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 3,
-      "title": "Add native supported-app resolver tests for recovery failures and source-context handoff",
+      "title": "Visually verify the web localhost HumbleSudoku and HumbleControl click paths in a real browser session",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 4,
-      "title": "Add authoring readiness model tests for source, proposal, validation and blocked edit/apply states",
+      "title": "Add native supported-app resolver tests for recovery failures and source-context handoff",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 5,
-      "title": "Add a source-pinned proposal session summary for future edit handoff",
+      "title": "Add authoring readiness model tests for source, proposal, validation and blocked edit/apply states",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 6,
-      "title": "Define the first Board document import fixture without enabling editing yet",
+      "title": "Add a source-pinned proposal session summary for future edit handoff",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 7,
-      "title": "Create the BoardCommand envelope test scaffold",
+      "title": "Define the first Board document import fixture without enabling editing yet",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 8,
-      "title": "Add read-only command preview rows to proposal details",
+      "title": "Create the BoardCommand envelope test scaffold",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 9,
-      "title": "Verify preview safe-area geometry in the running macOS inspector across phone and tablet portrait/landscape selections",
+      "title": "Add read-only command preview rows to proposal details",
       "recommended_ticket_status": "proposed"
     },
     {

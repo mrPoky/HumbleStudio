@@ -1,0 +1,126 @@
+{
+  "id": "HS-0093",
+  "title": "Expose HumbleControl localhost connection manifest",
+  "status": "solved",
+  "type": "feature",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-08-20",
+  "updated_at": "2026-08-20",
+  "source": "agent",
+  "summary": "Start the HumbleStudio-to-HumbleControl connection layer by exposing a read-only localhost manifest that HumbleControl can consume and by making the HumbleControl supported-app card load the local `.humble/design.json` export before the remote URL fallback.",
+  "acceptance_criteria": [
+    "The localhost preview helper exposes a read-only connection index at `/api/connections` and a HumbleControl-specific manifest at `/api/connections/humble-control`.",
+    "The HumbleControl manifest identifies HumbleStudio as the producer, HumbleControl as the intended consumer, and lists supported local export endpoints with source kind, state, repo path, and Studio load URL.",
+    "Clicking HumbleControl in the supported-app catalog on localhost loads `/Users/janpokorny/Coding/personal/apps/HumbleControl/.humble/design.json` through an allowlisted helper endpoint before falling back to the remote raw GitHub URL.",
+    "The HumbleControl local export path is read-only and does not run arbitrary commands or mutate the HumbleControl repository.",
+    "The localhost helper tests and web fallback check cover the HumbleControl resolver and connection manifest contract."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "path": "python3 Scripts/test_serve_local_preview.py",
+      "status": "passed",
+      "note": "Local preview helper tests now cover the connection manifest, HumbleControl JSON export reuse, missing export without generator, and prior HumbleSudoku paths."
+    },
+    {
+      "kind": "command",
+      "path": "curl -fsS http://127.0.0.1:18766/api/connections | python3 -m json.tool",
+      "status": "passed",
+      "note": "A running localhost helper returned a connection index with the HumbleControl connection endpoint."
+    },
+    {
+      "kind": "command",
+      "path": "curl -fsS http://127.0.0.1:18766/api/connections/humble-control | python3 -m json.tool",
+      "status": "passed",
+      "note": "A running localhost helper returned the read-only HumbleControl manifest with HumbleControl and HumbleSudoku export descriptors."
+    },
+    {
+      "kind": "command",
+      "path": "curl -fsSI http://127.0.0.1:18766/api/supported-apps/humble-control/export",
+      "status": "passed",
+      "note": "The HumbleControl export endpoint returned `Content-Type: application/json; charset=utf-8`, `X-HumbleStudio-Local-Export: 1`, and `X-HumbleStudio-App-Id: humble-control`."
+    },
+    {
+      "kind": "command",
+      "path": "curl -fsS http://127.0.0.1:18766/api/supported-apps/humble-control/export | python3 -c \"import json,sys; data=json.load(sys.stdin); print(data['meta']['name'])\"",
+      "status": "passed",
+      "note": "The local HumbleControl design export parsed as JSON and reported `HumbleControl` as the design contract name."
+    },
+    {
+      "kind": "command",
+      "path": "node --check js/app.js",
+      "status": "passed",
+      "note": "The web loader can syntactically handle both bundle and JSON responses from the localhost helper."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "status": "passed",
+      "note": "The web fallback integrity check now verifies HumbleControl resolver and connection manifest fragments."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m py_compile Scripts/*.py",
+      "status": "passed",
+      "note": "The localhost helper and tests compile."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m json.tool .humble/status/current.json >/tmp/hs-status.json && python3 -m json.tool .humble/tickets/HS-0093.json >/tmp/hs-0093.json",
+      "status": "passed",
+      "note": "The repo status file and HS-0093 ticket JSON stayed valid."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_humble_tickets.py",
+      "status": "passed",
+      "note": "The repo-native HS ticket surface validates with HS-0093 solved."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "status": "passed",
+      "note": "The local repo contract still validates against the shared HumbleControl-owned standard."
+    },
+    {
+      "kind": "command",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only",
+      "status": "passed",
+      "note": "Workflow-only local checks passed for tickets, contract, script compilation, web fallback, and diff hygiene."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0093.json",
+    ".humble/status/current.json",
+    "README.md",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    "docs/next-slices.md",
+    "js/app.js",
+    "js/demo.js"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan said he wants to gradually add connections into HumbleControl and asked whether HumbleStudio can be connected."
+  },
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
+    "node --check js/app.js",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 -m py_compile Scripts/*.py",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "This slice intentionally does not change the HumbleControl repository; it gives HumbleControl a stable localhost manifest to consume in a follow-up HC ticket.",
+    "The HumbleControl local export resolver is read-only because the HumbleControl `.humble/design.json` already exists and no generator is configured.",
+    "The manifest is the first connection contract; future slices should move the duplicated web/native supported-app catalog into a shared file before adding more apps."
+  ]
+}
