@@ -300,6 +300,16 @@ enum StudioStrings {
     static let proposalLinkageTickets = String(localized: "studio.change_proposal.linkage.tickets", defaultValue: "Linked tickets")
     static let proposalWorkspaceTitle = String(localized: "studio.change_proposal.workspace.title", defaultValue: "Proposal Workspace")
     static let proposalWorkspaceSubtitle = String(localized: "studio.change_proposal.workspace.subtitle", defaultValue: "Native repository view over saved proposal artifacts, their readiness, and their current linkage back to source truth.")
+    static let proposalAuthoringReadinessTitle = String(localized: "studio.change_proposal.authoring_readiness.title", defaultValue: "Authoring Readiness")
+    static let proposalAuthoringReadinessSubtitle = String(localized: "studio.change_proposal.authoring_readiness.subtitle", defaultValue: "Proposal-first bridge from native inspection toward future command-based edits.")
+    static let proposalAuthoringReadinessEditApplyStage = String(localized: "studio.change_proposal.authoring_readiness.stage.edit_apply", defaultValue: "Edit / apply")
+    static let proposalAuthoringReadinessInspectReady = String(localized: "studio.change_proposal.authoring_readiness.inspect.ready", defaultValue: "Imported source truth is loaded for native review.")
+    static let proposalAuthoringReadinessInspectWaiting = String(localized: "studio.change_proposal.authoring_readiness.inspect.waiting", defaultValue: "Load a bundle or design export before planning proposal work.")
+    static let proposalAuthoringReadinessCaptureReady = String(localized: "studio.change_proposal.authoring_readiness.capture.ready", defaultValue: "Saved proposal artifacts can be reviewed without touching source files.")
+    static let proposalAuthoringReadinessCaptureWaiting = String(localized: "studio.change_proposal.authoring_readiness.capture.waiting", defaultValue: "Capture the first proposal from a review scope to create an auditable trail.")
+    static let proposalAuthoringReadinessValidateReady = String(localized: "studio.change_proposal.authoring_readiness.validate.ready", defaultValue: "Proposal metadata is complete enough for read-only apply preview.")
+    static let proposalAuthoringReadinessValidateWaiting = String(localized: "studio.change_proposal.authoring_readiness.validate.waiting", defaultValue: "Validation starts after at least one proposal artifact exists.")
+    static let proposalAuthoringReadinessApplyBlocked = String(localized: "studio.change_proposal.authoring_readiness.apply.blocked", defaultValue: "Source mutation waits for Board documents and command-based editing through HS-0043, HS-0044, and HS-0045.")
     static let proposalWorkspaceAllArtifacts = String(localized: "studio.change_proposal.workspace.all_artifacts", defaultValue: "All artifacts")
     static let proposalWorkspaceReady = String(localized: "studio.change_proposal.workspace.ready", defaultValue: "Ready")
     static let proposalWorkspaceNeedsRefinement = String(localized: "studio.change_proposal.workspace.needs_refinement", defaultValue: "Needs refinement")
@@ -453,6 +463,9 @@ enum StudioStrings {
     }
     static func proposalTouchpointSummary(count: Int, firstItem: String) -> String {
         String(localized: "studio.change_proposal.touchpoint_summary", defaultValue: "\(count) touchpoints, starting with \(firstItem)")
+    }
+    static func proposalAuthoringReadinessValidateGaps(_ count: Int) -> String {
+        String(localized: "studio.change_proposal.authoring_readiness.validate.gaps", defaultValue: "\(count) proposal artifact(s) still need stronger scope or evidence metadata.")
     }
     static func proposalCountSummary(_ count: Int) -> String {
         String(localized: "studio.change_proposal.count_summary", defaultValue: "\(count) proposals")

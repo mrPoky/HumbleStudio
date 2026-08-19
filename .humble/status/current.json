@@ -1,11 +1,11 @@
 {
   "app": "HumbleStudio",
   "status_version": 1,
-  "last_refreshed": "2026-07-22",
+  "last_refreshed": "2026-08-20",
   "summary": {
-    "overall_percent": 83,
+    "overall_percent": 84,
     "confidence": "medium",
-    "headline": "HumbleStudio now has a working hybrid design viewer plus native review and navigation surfaces that carry proposal scope truth, and safe-area-aware native preview chrome driven by selected device geometry.",
+    "headline": "HumbleStudio now has a working hybrid design viewer plus native review, navigation, and proposal surfaces that make the read-only-to-authoring path visible without claiming source write-back yet.",
     "notes": [
       "Percentages are directional maturity estimates, not precise scorecards.",
       "Repo-owned status belongs in this file so shared tooling reads repo truth instead of replacing it.",
@@ -13,7 +13,8 @@
       "The web and native loaders can now truthfully offer a small supported-app catalog, including direct load and transparent URL-prefill paths.",
       "Read-only workflow surfaces should stay truthful and avoid mutating repo state implicitly.",
       "Review queue and navigation audit cards now reuse shared proposal scope truth instead of each inferring proposal linkage independently.",
-      "Native preview chrome now models selected-device safe-area geometry instead of only displaying raw inset metadata."
+      "Native preview chrome now models selected-device safe-area geometry instead of only displaying raw inset metadata.",
+      "Proposal workspace now exposes an authoring-readiness rail for source inspection, proposal capture, validation, and the blocked future edit/apply gate."
     ]
   },
   "refresh_cadence": {
@@ -25,12 +26,12 @@
     {
       "command": "python3 Scripts/validate_repo_contract.py",
       "status": "passed",
-      "summary": "The local repo contract validated successfully against the HumbleControl-owned shared standard, with only the expected custom-localization warning."
+      "summary": "The local repo contract validated successfully against the HumbleControl-owned shared standard."
     },
     {
       "command": "python3 Scripts/validate_humble_tickets.py",
       "status": "passed",
-      "summary": "Validated the repo-native HS ticket surface."
+      "summary": "Validated the repo-native HS ticket surface with 88 tickets after adding HS-0090."
     },
     {
       "command": "python3 Scripts/humble_doctor.py --strict",
@@ -60,27 +61,27 @@
     {
       "command": "bash Scripts/run_local_checks.sh --workflow-only",
       "status": "passed",
-      "summary": "HumbleStudio has a single repo-local workflow gate for ticket, contract, web fallback, script compilation, and diff hygiene checks."
+      "summary": "HumbleStudio workflow-only checks passed for tickets, contract, web fallback, script compilation, and diff hygiene after the authoring-readiness slice."
     },
     {
       "command": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
       "status": "passed",
-      "summary": "The native macOS workspace builds after tying review/navigation surfaces to proposal scope truth and after adding safe-area-aware preview chrome geometry."
+      "summary": "The native macOS workspace builds after adding the proposal authoring-readiness model and rail UI."
     },
     {
       "command": "./script/build_and_run.sh --native-ci",
       "status": "passed",
-      "summary": "The repo-documented native CI path completed build-only macOS sanity passes for HS-0038 and HS-0040."
+      "summary": "The repo-documented native CI path completed a build-only macOS sanity pass for HS-0090."
     }
   ],
   "operating_layers": [
     {
       "id": "native-workspace",
       "label": "Native workspace",
-      "percent": 83,
+      "percent": 84,
       "status": "healthy",
-      "signal": "The macOS workspace is now the primary truthful surface for inspection, proposal artifacts, ticket linkage, source-audit posture, read-only apply guidance, and contract-driven preview chrome geometry.",
-      "next_move": "Verify the preview safe-area geometry visually in the running inspector, then add geometry tests so phone and tablet chrome placement stays stable."
+      "signal": "The macOS workspace is now the primary truthful surface for inspection, proposal artifacts, ticket linkage, source-audit posture, read-only apply guidance, contract-driven preview chrome geometry, and visible authoring readiness.",
+      "next_move": "Add model tests and a visual verification pass for the authoring-readiness rail before expanding toward command previews."
     },
     {
       "id": "web-fallback",
@@ -93,61 +94,61 @@
     {
       "id": "repo-workflow",
       "label": "Repo workflow",
-      "percent": 71,
+      "percent": 72,
       "status": "healthy",
-      "signal": "The repository now has contract, ticket, status, lane, proposal-linkage, and local check surfaces, but it still needs routine operational use.",
-      "next_move": "Use the ticket allocator, lane starter, and local check wrapper on the next real implementation slice instead of staying in manual workflow mode."
+      "signal": "The repository now has contract, ticket, status, lane, proposal-linkage, local check, and authoring-readiness tracking surfaces.",
+      "next_move": "Keep each authoring/editor step ticketed and evidence-backed so future write-back remains proposal-first."
     }
   ],
   "top_gaps": [
     {
       "rank": 1,
-      "title": "Verify preview safe-area geometry in the running macOS inspector across phone and tablet portrait/landscape selections",
+      "title": "Add authoring readiness model tests for source, proposal, validation and blocked edit/apply states",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 2,
-      "title": "Add preview surface geometry tests for orientation, canvas sizing, size classes, safe-area selections, and derived chrome offsets",
+      "title": "Visually verify the authoring readiness rail in the running macOS workspace",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 3,
-      "title": "Refine sheet geometry by device class with compact and regular detent behavior",
+      "title": "Add a source-pinned proposal session summary for future edit handoff",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 4,
-      "title": "Make full-screen cover behavior explicit in the preview contract and canvas",
+      "title": "Define the first Board document import fixture without enabling editing yet",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 5,
-      "title": "Improve navigation preview fidelity by deriving breadcrumb and back affordances from exported navigation edges",
+      "title": "Create the BoardCommand envelope test scaffold",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 6,
-      "title": "Complete component native preview gaps by prioritizing frequently used fallback-needed components",
+      "title": "Add read-only command preview rows to proposal details",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 7,
-      "title": "Complete view native preview gaps using exported snapshot and navigation evidence",
+      "title": "Verify preview safe-area geometry in the running macOS inspector across phone and tablet portrait/landscape selections",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 8,
-      "title": "Add a repeatable native preview verification note for the manual QA matrix",
+      "title": "Add preview surface geometry tests for orientation, canvas sizing, size classes, safe-area selections and derived chrome offsets",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 9,
-      "title": "Prepare HS-0015 TestFlight upload after the native preview QA matrix is truthful enough for internal review",
+      "title": "Improve navigation preview fidelity by deriving breadcrumb and back affordances from exported navigation edges",
       "recommended_ticket_status": "proposed"
     },
     {
       "rank": 10,
-      "title": "Deepen proposal scope and source-audit parity across remaining non-proposal inspector truth surfaces",
+      "title": "Prepare HS-0015 TestFlight upload after the native preview and authoring-readiness QA matrix is truthful enough for internal review",
       "recommended_ticket_status": "proposed"
     }
   ]

@@ -8,6 +8,7 @@ Current repository convention:
 - proposals are saved under `docs/change-proposals/`
 - the macOS review inspector can read those markdown artifacts back for the matching component or view scope
 - the native proposal workspace can also read linked `HS-####` ids back as repo workflow context when proposals reference them
+- the native proposal workspace exposes an authoring-readiness rail that separates source inspection, proposal capture, validation, and future edit/apply gates
 - proposal capture remains read-only; no proposal mutates exported truth on save
 
 ## Principles
@@ -56,6 +57,7 @@ Preferred metadata additions for native read-back:
 
 - review queues that can open a change proposal directly from a native inspector
 - repo-aware proposal loops where the same artifact can be saved, refreshed, opened, and reviewed again in-app
+- native authoring-readiness surfaces that make the current read-only state and the blocked future edit path visible before any command engine exists
 - authoring trails that stay auditable in git
 - future write-back workflows that can map proposals back to `.humble/design.json` or source files safely
 

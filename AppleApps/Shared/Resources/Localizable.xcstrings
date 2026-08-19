@@ -1611,6 +1611,83 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Read back saved markdown proposals for this scope before planning any apply step." } }
       }
     },
+    "studio.change_proposal.authoring_readiness.apply.blocked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Mutace zdrojů čeká na Board dokumenty a command-based editace přes HS-0043, HS-0044 a HS-0045." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source mutation waits for Board documents and command-based editing through HS-0043, HS-0044, and HS-0045." } }
+      }
+    },
+    "studio.change_proposal.authoring_readiness.capture.ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Uložené artefakty návrhů lze revidovat bez zásahu do source souborů." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Saved proposal artifacts can be reviewed without touching source files." } }
+      }
+    },
+    "studio.change_proposal.authoring_readiness.capture.waiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zachyť první návrh z review scope a vytvoř auditovatelnou stopu." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Capture the first proposal from a review scope to create an auditable trail." } }
+      }
+    },
+    "studio.change_proposal.authoring_readiness.inspect.ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovaná source truth je načtená pro nativní review." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Imported source truth is loaded for native review." } }
+      }
+    },
+    "studio.change_proposal.authoring_readiness.inspect.waiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Než začne proposal práce, načti bundle nebo design export." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Load a bundle or design export before planning proposal work." } }
+      }
+    },
+    "studio.change_proposal.authoring_readiness.stage.edit_apply" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Edit / apply" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit / apply" } }
+      }
+    },
+    "studio.change_proposal.authoring_readiness.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Proposal-first most z nativní inspekce k budoucím command-based editacím." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal-first bridge from native inspection toward future command-based edits." } }
+      }
+    },
+    "studio.change_proposal.authoring_readiness.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Připravenost k authoringu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Authoring Readiness" } }
+      }
+    },
+    "studio.change_proposal.authoring_readiness.validate.gaps" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "%lld artifactů návrhů ještě potřebuje silnější scope nebo evidence metadata." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld proposal artifact(s) still need stronger scope or evidence metadata." } }
+      }
+    },
+    "studio.change_proposal.authoring_readiness.validate.ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Metadata návrhů jsou dost kompletní pro read-only apply preview." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal metadata is complete enough for read-only apply preview." } }
+      }
+    },
+    "studio.change_proposal.authoring_readiness.validate.waiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Validace začne, až existuje aspoň jeden proposal artifact." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Validation starts after at least one proposal artifact exists." } }
+      }
+    },
     "studio.change_proposal.refresh" : {
       "extractionState" : "manual",
       "localizations" : {

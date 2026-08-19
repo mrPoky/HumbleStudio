@@ -624,6 +624,80 @@ func proposalWorkspaceQualityItems(
     ]
 }
 
+struct StudioAuthoringReadinessStage: Identifiable {
+    let id: String
+    let title: String
+    let detail: String
+    let statusLabel: String
+    let systemImage: String
+    let tone: StudioInspectorSummaryTone
+}
+
+func proposalAuthoringReadinessStages(
+    artifacts: [StudioChangeProposalArtifact],
+    document: StudioNativeDocument?
+) -> [StudioAuthoringReadinessStage] {
+    let hasDocument = document != nil
+    let hasArtifacts = artifacts.isEmpty == false
+    let metadataGapCount = artifacts.filter { $0.validationStatus == .needsAttention }.count
+
+    let validationStatus: String
+    let validationDetail: String
+    let validationTone: StudioInspectorSummaryTone
+    if hasArtifacts == false {
+        validationStatus = StudioStrings.notAvailableYet
+        validationDetail = StudioStrings.proposalAuthoringReadinessValidateWaiting
+        validationTone = .neutral
+    } else if metadataGapCount == 0 {
+        validationStatus = StudioStrings.proposalValidationHealthy
+        validationDetail = StudioStrings.proposalAuthoringReadinessValidateReady
+        validationTone = .success
+    } else {
+        validationStatus = StudioStrings.proposalValidationNeedsAttention
+        validationDetail = StudioStrings.proposalAuthoringReadinessValidateGaps(metadataGapCount)
+        validationTone = .warning
+    }
+
+    return [
+        StudioAuthoringReadinessStage(
+            id: "inspect",
+            title: StudioStrings.source,
+            detail: hasDocument
+                ? StudioStrings.proposalAuthoringReadinessInspectReady
+                : StudioStrings.proposalAuthoringReadinessInspectWaiting,
+            statusLabel: hasDocument ? StudioStrings.present : StudioStrings.missing,
+            systemImage: "doc.text.magnifyingglass",
+            tone: hasDocument ? .success : .warning
+        ),
+        StudioAuthoringReadinessStage(
+            id: "capture",
+            title: StudioStrings.proposalArtifactsTitle,
+            detail: hasArtifacts
+                ? StudioStrings.proposalAuthoringReadinessCaptureReady
+                : StudioStrings.proposalAuthoringReadinessCaptureWaiting,
+            statusLabel: hasArtifacts ? StudioStrings.proposalCountSummary(artifacts.count) : StudioStrings.none,
+            systemImage: "square.and.pencil",
+            tone: hasArtifacts ? .accent : .neutral
+        ),
+        StudioAuthoringReadinessStage(
+            id: "validate",
+            title: StudioStrings.proposalValidation,
+            detail: validationDetail,
+            statusLabel: validationStatus,
+            systemImage: "checklist.checked",
+            tone: validationTone
+        ),
+        StudioAuthoringReadinessStage(
+            id: "apply",
+            title: StudioStrings.proposalAuthoringReadinessEditApplyStage,
+            detail: StudioStrings.proposalAuthoringReadinessApplyBlocked,
+            statusLabel: StudioStrings.proposalApplyPreviewReadinessBlocked,
+            systemImage: "arrow.triangle.2.circlepath",
+            tone: .warning
+        )
+    ]
+}
+
 extension StudioMacProposalArtifactDetailPanel {
     func matchedScopeSourcePath(for artifact: StudioChangeProposalArtifact) -> String {
         proposalMatchedScopeSourcePath(for: artifact, document: document)

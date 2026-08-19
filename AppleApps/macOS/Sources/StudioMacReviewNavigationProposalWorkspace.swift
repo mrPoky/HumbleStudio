@@ -49,6 +49,20 @@ struct StudioMacProposalArtifactsPage: View {
                     )
                 }
 
+                StudioInspectorSection(title: StudioStrings.proposalAuthoringReadinessTitle) {
+                    Text(StudioStrings.proposalAuthoringReadinessSubtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    StudioAuthoringReadinessRail(
+                        stages: proposalAuthoringReadinessStages(
+                            artifacts: proposalArtifacts,
+                            document: document
+                        )
+                    )
+                }
+
                 if document != nil {
                     StudioInspectorSection(title: StudioStrings.proposalLinkageTitle) {
                         StudioInspectorSummaryGrid(items: [
@@ -256,5 +270,52 @@ struct StudioMacProposalArtifactsPage: View {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
+    }
+}
+
+private struct StudioAuthoringReadinessRail: View {
+    let stages: [StudioAuthoringReadinessStage]
+
+    private let columns = [
+        GridItem(.adaptive(minimum: 185), spacing: 12, alignment: .top)
+    ]
+
+    var body: some View {
+        LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
+            ForEach(stages) { stage in
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: stage.systemImage)
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(stage.tone.foreground)
+                            .frame(width: 24, height: 24)
+
+                        Spacer(minLength: 8)
+
+                        StudioProposalArtifactBadge(
+                            text: stage.statusLabel,
+                            color: stage.tone.foreground
+                        )
+                    }
+
+                    Text(stage.title)
+                        .font(.subheadline.weight(.semibold))
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(stage.detail)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, minHeight: 142, alignment: .topLeading)
+                .padding(14)
+                .background(stage.tone.background, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(stage.tone.foreground.opacity(0.18), lineWidth: 1)
+                )
+                .accessibilityElement(children: .combine)
+            }
+        }
     }
 }

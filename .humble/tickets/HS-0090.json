@@ -1,0 +1,141 @@
+{
+  "id": "HS-0090",
+  "title": "Add native authoring readiness rail to proposal workspace",
+  "status": "solved",
+  "type": "feature",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-08-20",
+  "updated_at": "2026-08-20",
+  "source": "agent",
+  "summary": "Move HumbleStudio a small step from passive read-only inspection toward a modern proposal-first authoring workspace by surfacing the current authoring mode, readiness gates, and blocked future edit path directly in the native proposal workspace.",
+  "acceptance_criteria": [
+    "The native proposal workspace shows a compact authoring readiness rail that distinguishes inspection, proposal capture, validation, and future apply/edit states.",
+    "The rail is truthful: current repo behavior remains read-only and does not claim source mutation, Board editing, or command execution is available.",
+    "The rail connects future editing to the existing proposal-first contract and blocked Board/command tickets instead of creating a parallel write-back story.",
+    "The change-marking contract records the new native readiness surface as part of the read-only-to-authoring bridge.",
+    "Patch hygiene, ticket validation, workflow checks, and a targeted macOS build pass for the slice."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "path": "docs/change-marking-contract.md",
+      "status": "passed",
+      "note": "The contract now records the native authoring-readiness rail as the read-only-to-authoring bridge."
+    },
+    {
+      "kind": "note",
+      "path": ".humble/tickets/HS-0045.json",
+      "status": "passed",
+      "note": "Real editing remains owned by command-based selection and editing after Board foundation tickets are solved."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings",
+      "status": "passed",
+      "note": "String catalog JSON stayed valid after adding authoring-readiness copy."
+    },
+    {
+      "kind": "command",
+      "path": "rg -n \"L10n\\.\" .",
+      "status": "passed",
+      "note": "No legacy L10n helper usage was introduced."
+    },
+    {
+      "kind": "command",
+      "path": "rg --files -g '*.strings' -g '*.stringsdict'",
+      "status": "passed",
+      "note": "No legacy .strings or .stringsdict localization files were introduced."
+    },
+    {
+      "kind": "command",
+      "path": "git diff --check",
+      "status": "passed",
+      "note": "Patch whitespace hygiene passed after the native readiness rail and docs update."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0090.json",
+      "status": "passed",
+      "note": "The HS-0090 ticket schema validated successfully."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m py_compile Scripts/*.py",
+      "status": "passed",
+      "note": "Repo workflow scripts still compile."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "status": "passed",
+      "note": "Repo contract validation passed after the authoring-readiness slice."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "status": "passed",
+      "note": "Static web fallback integrity stayed green; this slice only changed native and contract surfaces."
+    },
+    {
+      "kind": "command",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only",
+      "status": "passed",
+      "note": "Workflow-only local checks passed with 88 valid tickets."
+    },
+    {
+      "kind": "command",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+      "status": "passed",
+      "note": "The native macOS build passed after adding the readiness model and rail UI."
+    },
+    {
+      "kind": "command",
+      "path": "./script/build_and_run.sh --native-ci",
+      "status": "passed",
+      "note": "The repo-documented native CI path completed a build-only macOS sanity pass for HS-0090."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/humble_doctor.py --repo-root . --strict",
+      "status": "blocked",
+      "note": "Strict doctor remains a branch-freshness gate and, after the commit, reported the expected topic-branch state with 0 dirty paths instead of a product failure."
+    }
+  ],
+  "related_files": [
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacReviewNavigationProposalSupport.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "docs/change-marking-contract.md",
+    "docs/next-slices.md",
+    ".humble/status/current.json",
+    ".humble/tickets/HS-0090.json"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan asked to gradually improve HumbleStudio toward a modern HumbleControl-like world and prepare the interface for eventual edits, not only read-only inspection."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/check_web_fallback.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings",
+    "rg -n \"L10n\\.\" .",
+    "rg --files -g '*.strings' -g '*.stringsdict'",
+    "python3 -m py_compile Scripts/*.py",
+    "git diff --check",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+    "./script/build_and_run.sh --native-ci",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict"
+  ],
+  "agent_notes": [
+    "Keep this as a bridge surface only: no source rewrite, no design.json mutation, no BoardCommand execution.",
+    "Use the readiness rail to make the future edit path discoverable while preserving today's read-only proposal contract.",
+    "Treat HS-0043, HS-0044, and HS-0045 as the authoritative unlock path for actual editing.",
+    "Claimed lane-1 on branch `feat/hs-0090-authoring-readiness-rail`."
+  ]
+}
