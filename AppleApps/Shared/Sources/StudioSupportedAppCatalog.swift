@@ -8,6 +8,9 @@ struct StudioSupportedAppSource: Identifiable, Equatable {
     let sourceKind: String
     let localExportPath: String
     let remoteURL: String
+    let localRepositoryPath: String?
+    let localExportRelativePath: String?
+    let localExportCommand: [String]
     let connectionMode: String
     let prepareEditMode: String
     let scopedPrepareEditPath: String
@@ -20,6 +23,36 @@ struct StudioSupportedAppSource: Identifiable, Equatable {
     var sourceLabel: String {
         "\(name) · \(repo)"
     }
+
+    var hasLocalExportResolver: Bool {
+        localRepositoryPath != nil
+            && localExportRelativePath != nil
+            && !localExportCommand.isEmpty
+    }
+
+    #if os(macOS)
+    var localRepositoryURL: URL? {
+        guard let localRepositoryPath else { return nil }
+        return URL(fileURLWithPath: Self.expandingHomeDirectory(in: localRepositoryPath), isDirectory: true)
+    }
+
+    var localExportURL: URL? {
+        guard let localRepositoryURL, let localExportRelativePath else { return nil }
+        return localRepositoryURL.appendingPathComponent(localExportRelativePath)
+    }
+
+    private static func expandingHomeDirectory(in path: String) -> String {
+        if path == "~" {
+            return FileManager.default.homeDirectoryForCurrentUser.path
+        }
+        if path.hasPrefix("~/") {
+            return FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent(String(path.dropFirst(2)))
+                .path
+        }
+        return path
+    }
+    #endif
 
     var connectionSummary: String {
         "\(sourceKind) · \(connectionMode) · \(prepareEditMode)"
@@ -128,6 +161,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "humblebundle",
             localExportPath: ".humble/HumbleSudoku.humblebundle",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle",
+            localRepositoryPath: "~/Coding/personal/apps/HumbleSudoku",
+            localExportRelativePath: ".humble/HumbleSudoku.humblebundle",
+            localExportCommand: ["python3", "Scripts/generate_humble_studio_config.py", "--bundle"],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/humble-sudoku/prepare-edit",
@@ -145,6 +181,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/MyVltavaRun/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/my-vltava-run/prepare-edit",
@@ -162,6 +201,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleControl/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/humble-control/prepare-edit",
@@ -179,6 +221,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleWorkout/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/humble-workout/prepare-edit",
@@ -196,6 +241,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleKakuro/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/humble-kakuro/prepare-edit",
@@ -213,6 +261,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleCycling/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/humble-cycling/prepare-edit",
@@ -230,6 +281,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleHome/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/humble-home/prepare-edit",
@@ -247,6 +301,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleCook/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/humble-cook/prepare-edit",
@@ -264,6 +321,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleArchitect/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/humble-architect/prepare-edit",
@@ -281,6 +341,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleNAS/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/humble-nas/prepare-edit",
@@ -298,6 +361,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleSubscription/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/humble-subscription/prepare-edit",
@@ -315,6 +381,9 @@ enum StudioSupportedAppCatalog {
             sourceKind: "design.json",
             localExportPath: ".humble/design.json",
             remoteURL: "https://raw.githubusercontent.com/mrPoky/MyFamily/main/.humble/design.json",
+            localRepositoryPath: nil,
+            localExportRelativePath: nil,
+            localExportCommand: [],
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
             scopedPrepareEditPath: "/studio/my-family/prepare-edit",

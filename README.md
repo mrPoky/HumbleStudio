@@ -36,6 +36,7 @@ Hosted niceties included:
 - offers repo-aware one-click loading for a small catalog of known supported apps
 - serves `http://127.0.0.1:8765/api/supported-apps/humble-sudoku/export` as a safe localhost-only bridge to the local HumbleSudoku export
 - serves `http://127.0.0.1:8765/api/supported-apps/humble-control/export` as a read-only bridge to the local HumbleControl design contract
+- the native macOS Sources menu can load HumbleSudoku from `/Users/janpokorny/Coding/personal/apps/HumbleSudoku/.humble/HumbleSudoku.humblebundle`, generating that bundle with the HumbleSudoku export script when it is missing
 - exposes `http://127.0.0.1:8765/api/connections/humble-control` as a read-only connection manifest for HumbleControl
 - exposes `http://127.0.0.1:8765/api/connections/humble-control/prepare-edit` as a no-write prepare-edit contract for HumbleControl proposal/session surfaces
 - supports URL bootstrap via `?bundle=https://...` or `?config=https://...`

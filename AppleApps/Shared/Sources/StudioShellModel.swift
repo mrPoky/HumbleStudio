@@ -248,6 +248,10 @@ enum StudioNativeImportError: LocalizedError {
 enum StudioWorkspaceSourceError: LocalizedError {
     case recentImportResolutionFailed(String)
     case localFileUnreadable(fileName: String, reason: String)
+    case supportedAppLocalRepositoryMissing(appName: String, path: String)
+    case supportedAppLocalGeneratorUnavailable(appName: String, path: String)
+    case supportedAppLocalGeneratorFailed(appName: String, reason: String)
+    case supportedAppLocalExportMissing(appName: String, path: String)
     case remoteFetchUnavailable(host: String)
     case remoteFetchTimedOut(host: String)
     case remoteFetchServerRejected(host: String)
@@ -258,6 +262,14 @@ enum StudioWorkspaceSourceError: LocalizedError {
             return StudioStrings.recentImportResolutionFailed(reason)
         case let .localFileUnreadable(fileName, reason):
             return StudioStrings.localFileReadFailed(fileName, reason)
+        case let .supportedAppLocalRepositoryMissing(appName, path):
+            return StudioStrings.supportedAppLocalRepositoryMissing(appName, path)
+        case let .supportedAppLocalGeneratorUnavailable(appName, path):
+            return StudioStrings.supportedAppLocalGeneratorUnavailable(appName, path)
+        case let .supportedAppLocalGeneratorFailed(appName, reason):
+            return StudioStrings.supportedAppLocalGeneratorFailed(appName, reason)
+        case let .supportedAppLocalExportMissing(appName, path):
+            return StudioStrings.supportedAppLocalExportMissing(appName, path)
         case let .remoteFetchUnavailable(host):
             return StudioStrings.remoteFetchUnavailable(host)
         case let .remoteFetchTimedOut(host):
@@ -266,6 +278,14 @@ enum StudioWorkspaceSourceError: LocalizedError {
             return StudioStrings.remoteFetchServerRejected(host)
         }
     }
+}
+
+struct StudioShellWebSourceContext: Equatable {
+    let type: String
+    let value: String
+    let appID: String?
+    let appName: String?
+    let mode: String?
 }
 
 enum StudioRecoveryAction: Equatable {
@@ -343,7 +363,7 @@ struct StudioNativeRecoveryIssue: Equatable {
 struct StudioShellActions {
     var loadBundledStudio: (() -> Void)?
     var loadDemo: (() -> Void)?
-    var importPayload: ((String, Data) -> Void)?
+    var importPayload: ((String, Data, StudioShellWebSourceContext?) -> Void)?
     var loadRemoteURL: ((String) -> Void)?
     var navigateBack: (() -> Void)?
     var navigateForward: (() -> Void)?
@@ -583,8 +603,83 @@ final class StudioShellModel: ObservableObject {
     }
 
     func loadSupportedApp(_ app: StudioSupportedAppSource) {
+        #if os(macOS)
+        if app.hasLocalExportResolver {
+            loadLocalSupportedApp(app)
+            return
+        }
+        #endif
+
         loadRemoteURL(app.remoteURL, selectedApp: app)
     }
+
+    #if os(macOS)
+    private func loadLocalSupportedApp(_ app: StudioSupportedAppSource) {
+        guard let repositoryURL = app.localRepositoryURL, let exportURL = app.localExportURL else {
+            loadRemoteURL(app.remoteURL, selectedApp: app)
+            return
+        }
+
+        clearError()
+        nativeDocument = nil
+        nativeErrorMessage = nil
+        nativeRecoveryIssue = nil
+        sourceLabel = StudioStrings.supportedAppSource
+        sourceValue = StudioStrings.supportedAppLocalExportValue(app.name)
+        statusLevel = "loading"
+        statusText = StudioStrings.loadingSupportedLocalExport(app.name)
+
+        do {
+            let fileManager = FileManager.default
+            var isDirectory: ObjCBool = false
+            guard fileManager.fileExists(atPath: repositoryURL.path, isDirectory: &isDirectory), isDirectory.boolValue else {
+                throw StudioWorkspaceSourceError.supportedAppLocalRepositoryMissing(
+                    appName: app.name,
+                    path: repositoryURL.path
+                )
+            }
+
+            if !fileManager.fileExists(atPath: exportURL.path) {
+                statusText = StudioStrings.generatingSupportedLocalExport(app.name)
+                try Self.runLocalExportCommand(for: app, repositoryURL: repositoryURL)
+            }
+
+            guard fileManager.fileExists(atPath: exportURL.path) else {
+                throw StudioWorkspaceSourceError.supportedAppLocalExportMissing(
+                    appName: app.name,
+                    path: exportURL.path
+                )
+            }
+
+            let fileData = try Data(contentsOf: exportURL)
+            try rememberRecentImport(for: exportURL)
+            preferredLaunchSource = .recentImport
+            statusText = StudioStrings.importingFileNamed(exportURL.lastPathComponent)
+            actions.importPayload?(
+                exportURL.lastPathComponent,
+                fileData,
+                StudioShellWebSourceContext(
+                    type: "supported-app",
+                    value: exportURL.path,
+                    appID: app.id,
+                    appName: app.name,
+                    mode: "local"
+                )
+            )
+            hydrateNativeDocument(fileName: exportURL.lastPathComponent, data: fileData, sourceURL: exportURL)
+        } catch let sourceError as StudioWorkspaceSourceError {
+            presentSourceFailure(sourceError, sourceErrorContext: .localFile)
+        } catch {
+            presentSourceFailure(
+                StudioWorkspaceSourceError.localFileUnreadable(
+                    fileName: exportURL.lastPathComponent.isEmpty ? exportURL.path : exportURL.lastPathComponent,
+                    reason: error.localizedDescription
+                ),
+                sourceErrorContext: .localFile
+            )
+        }
+    }
+    #endif
 
     private func loadRemoteURL(_ rawValue: String, selectedApp: StudioSupportedAppSource?) {
         let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -703,7 +798,7 @@ final class StudioShellModel: ObservableObject {
             statusLevel = "loading"
             statusText = StudioStrings.importingFileNamed(url.lastPathComponent)
             nativeRecoveryIssue = nil
-            actions.importPayload?(url.lastPathComponent, fileData)
+            actions.importPayload?(url.lastPathComponent, fileData, nil)
             hydrateNativeDocument(fileName: url.lastPathComponent, data: fileData, sourceURL: url)
         } catch {
             presentSourceFailure(
@@ -1249,7 +1344,11 @@ final class StudioShellModel: ObservableObject {
                     primaryAction: primaryAction,
                     secondaryActions: secondaryActions
                 )
-            case .localFileUnreadable:
+            case .localFileUnreadable,
+                 .supportedAppLocalRepositoryMissing,
+                 .supportedAppLocalGeneratorUnavailable,
+                 .supportedAppLocalGeneratorFailed,
+                 .supportedAppLocalExportMissing:
                 return StudioNativeRecoveryIssue(
                     kind: .localFile,
                     posture: .degraded,
@@ -1337,6 +1436,55 @@ final class StudioShellModel: ObservableObject {
 
         return .remoteFetchUnavailable(host: host)
     }
+
+    #if os(macOS)
+    private static func runLocalExportCommand(for app: StudioSupportedAppSource, repositoryURL: URL) throws {
+        guard let command = app.localExportCommand.first else {
+            throw StudioWorkspaceSourceError.supportedAppLocalGeneratorUnavailable(
+                appName: app.name,
+                path: repositoryURL.path
+            )
+        }
+
+        let process = Process()
+        process.currentDirectoryURL = repositoryURL
+        if command.hasPrefix("/") {
+            process.executableURL = URL(fileURLWithPath: command)
+            process.arguments = Array(app.localExportCommand.dropFirst())
+        } else {
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+            process.arguments = app.localExportCommand
+        }
+
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+
+        do {
+            try process.run()
+        } catch {
+            throw StudioWorkspaceSourceError.supportedAppLocalGeneratorUnavailable(
+                appName: app.name,
+                path: command
+            )
+        }
+
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else {
+            let output = String(decoding: outputPipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+            let errorOutput = String(decoding: errorPipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+            let reason = [errorOutput, output]
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+                .joined(separator: "\n")
+            throw StudioWorkspaceSourceError.supportedAppLocalGeneratorFailed(
+                appName: app.name,
+                reason: reason.isEmpty ? "exit status \(process.terminationStatus)" : reason
+            )
+        }
+    }
+    #endif
 
     private func availableRecoveryActions(excluding primaryAction: StudioRecoveryAction) -> [StudioRecoveryAction] {
         let all: [StudioRecoveryAction] = [

@@ -263,8 +263,8 @@
     "studio.remote_source.supported_apps_prompt" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte známou Humble aplikaci a předvyplňte její exportované raw URL, nebo ji načtěte rovnou." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pick a known Humble app to prefill its exported raw URL or load it directly." } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte známou Humble aplikaci. Lokální exporty se při nastavení načítají jako první; URL zůstává jako záloha." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pick a known Humble app. Local exports load first when configured; the URL remains available as a fallback." } }
       }
     },
     "studio.remote_source.supported_app_source" : {
@@ -939,6 +939,34 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio could not read %@. Reason: %@" } }
       }
     },
+    "studio.source_recovery.supported_app_local_repository_missing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio nenašlo lokální repozitář %@ na %@." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio could not find the local %@ repository at %@." } }
+      }
+    },
+    "studio.source_recovery.supported_app_local_generator_unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio nedokázalo spustit exportní příkaz pro %@: %@." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HumbleStudio could not start the %@ export command: %@." } }
+      }
+    },
+    "studio.source_recovery.supported_app_local_generator_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lokální exportní příkaz pro %@ selhal. Důvod: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The %@ local export command failed. Reason: %@" } }
+      }
+    },
+    "studio.source_recovery.supported_app_local_export_missing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lokální export %@ po vygenerování pořád chybí na %@." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The %@ local export is still missing at %@ after generation." } }
+      }
+    },
     "studio.source_recovery.remote_fetch_unavailable" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1464,11 +1492,32 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Importing %@…" } }
       }
     },
+    "studio.status.loading_supported_local_export" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načítám lokální export %@…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading %@ local export…" } }
+      }
+    },
+    "studio.status.generating_supported_local_export" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vytvářím lokální export %@…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Creating %@ local export…" } }
+      }
+    },
     "studio.source.local_file" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lokální soubor" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Local file" } }
+      }
+    },
+    "studio.source.supported_app_local_export_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Lokální export %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ local export" } }
       }
     },
     "studio.source.demo" : {

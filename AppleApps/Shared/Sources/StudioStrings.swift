@@ -32,7 +32,7 @@ enum StudioStrings {
     static let useRecentURL = String(localized: "studio.remote_source.use_recent_url", defaultValue: "Use recent URL")
     static let openRemoteSourceTitle = String(localized: "studio.remote_source.open_title", defaultValue: "Open Remote URL")
     static let supportedAppsTitle = String(localized: "studio.remote_source.supported_apps_title", defaultValue: "Supported apps")
-    static let supportedAppsPrompt = String(localized: "studio.remote_source.supported_apps_prompt", defaultValue: "Pick a known Humble app to prefill its exported raw URL or load it directly.")
+    static let supportedAppsPrompt = String(localized: "studio.remote_source.supported_apps_prompt", defaultValue: "Pick a known Humble app. Local exports load first when configured; the URL remains available as a fallback.")
     static let supportedAppSource = String(localized: "studio.remote_source.supported_app_source", defaultValue: "Supported app")
     static let supportedAppWritesLocked = String(localized: "studio.remote_source.supported_app_writes_locked", defaultValue: "Writes locked")
     static let supportedAppWritesEnabled = String(localized: "studio.remote_source.supported_app_writes_enabled", defaultValue: "Writes enabled")
@@ -149,6 +149,18 @@ enum StudioStrings {
     }
     static func localFileReadFailed(_ fileName: String, _ reason: String) -> String {
         String(format: String(localized: "studio.source_recovery.local_file_read_failed", defaultValue: "HumbleStudio could not read %@. Reason: %@"), locale: Locale.current, fileName, reason)
+    }
+    static func supportedAppLocalRepositoryMissing(_ appName: String, _ path: String) -> String {
+        String(format: String(localized: "studio.source_recovery.supported_app_local_repository_missing", defaultValue: "HumbleStudio could not find the local %@ repository at %@."), locale: Locale.current, appName, path)
+    }
+    static func supportedAppLocalGeneratorUnavailable(_ appName: String, _ path: String) -> String {
+        String(format: String(localized: "studio.source_recovery.supported_app_local_generator_unavailable", defaultValue: "HumbleStudio could not start the %@ export command: %@."), locale: Locale.current, appName, path)
+    }
+    static func supportedAppLocalGeneratorFailed(_ appName: String, _ reason: String) -> String {
+        String(format: String(localized: "studio.source_recovery.supported_app_local_generator_failed", defaultValue: "The %@ local export command failed. Reason: %@"), locale: Locale.current, appName, reason)
+    }
+    static func supportedAppLocalExportMissing(_ appName: String, _ path: String) -> String {
+        String(format: String(localized: "studio.source_recovery.supported_app_local_export_missing", defaultValue: "The %@ local export is still missing at %@ after generation."), locale: Locale.current, appName, path)
     }
     static func remoteFetchUnavailable(_ host: String) -> String {
         String(format: String(localized: "studio.source_recovery.remote_fetch_unavailable", defaultValue: "HumbleStudio could not reach %@ while downloading the remote source."), locale: Locale.current, host)
@@ -567,6 +579,15 @@ enum StudioStrings {
     static let onlyFileOrWebURLSupported = String(localized: "studio.remote_source.only_supported_types", defaultValue: "Only file, http, and https URLs are supported.")
     static let loadingBundledStudio = String(localized: "studio.status.loading_bundled", defaultValue: "Loading bundled studio…")
     static let reloadingStudio = String(localized: "studio.status.reloading", defaultValue: "Reloading studio…")
+    static func loadingSupportedLocalExport(_ appName: String) -> String {
+        String(localized: "studio.status.loading_supported_local_export", defaultValue: "Loading \(appName) local export…")
+    }
+    static func generatingSupportedLocalExport(_ appName: String) -> String {
+        String(localized: "studio.status.generating_supported_local_export", defaultValue: "Creating \(appName) local export…")
+    }
+    static func supportedAppLocalExportValue(_ appName: String) -> String {
+        String(localized: "studio.source.supported_app_local_export_value", defaultValue: "\(appName) local export")
+    }
     static let parityLegacyWebSubtitle = String(localized: "studio.parity.legacy_web_subtitle", defaultValue: "Fallback path for parity gaps, missing native detail, and future write-back workflows.")
     static let parityReviewSubtitle = String(localized: "studio.parity.review_subtitle", defaultValue: "Queue truth is native, but it still surfaces degraded and fallback-risk areas explicitly.")
     static let parityNavigationSubtitle = String(localized: "studio.parity.navigation_subtitle", defaultValue: "Navigation graph is native and contract-aware, with behavior edges still approximated where needed.")

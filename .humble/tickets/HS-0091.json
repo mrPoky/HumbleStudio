@@ -1,0 +1,140 @@
+{
+  "id": "HS-0091",
+  "title": "Load supported HumbleSudoku from local export first",
+  "status": "solved",
+  "type": "feature",
+  "priority": "high",
+  "owner": "Codex",
+  "created_at": "2026-08-20",
+  "updated_at": "2026-08-20",
+  "source": "agent",
+  "summary": "Make the supported-app HumbleSudoku action behave like a localhost/developer workflow by loading the adjacent local HumbleSudoku export first and generating the bundle through the allowlisted HumbleSudoku export script when the file is missing.",
+  "acceptance_criteria": [
+    "Clicking the supported HumbleSudoku app in the native macOS workspace attempts to load `/Users/janpokorny/Coding/personal/apps/HumbleSudoku/.humble/HumbleSudoku.humblebundle` before falling back to any remote URL behavior.",
+    "If the configured HumbleSudoku local bundle is missing, HumbleStudio runs the allowlisted HumbleSudoku `Scripts/generate_humble_studio_config.py --bundle` export command and then imports the generated bundle.",
+    "The web fallback bridge preserves supported-app source context for native local imports instead of reducing the session to an anonymous local file.",
+    "The remote URL path remains available for supported apps without a local export resolver.",
+    "Status, recovery messaging, docs, and Top 10 runway record the local-first HumbleSudoku integration without claiming general edit/write-back support."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "path": "test -f /Users/janpokorny/Coding/personal/apps/HumbleSudoku/.humble/HumbleSudoku.humblebundle && test -f /Users/janpokorny/Coding/personal/apps/HumbleSudoku/Scripts/generate_humble_studio_config.py",
+      "status": "passed",
+      "note": "The configured HumbleSudoku local bundle and allowlisted export script both exist; the missing-file generation path was not forced because that would mutate the adjacent HumbleSudoku repo artifact."
+    },
+    {
+      "kind": "command",
+      "path": "node --check js/app.js",
+      "status": "passed",
+      "note": "The web fallback bridge changes for native supported-app source context are syntactically valid."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings",
+      "status": "passed",
+      "note": "The string catalog stayed valid after adding local supported-app status and recovery messages."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m json.tool .humble/status/current.json",
+      "status": "passed",
+      "note": "The repo status JSON stayed valid after recording the local-first HumbleSudoku integration."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m json.tool .humble/tickets/HS-0091.json",
+      "status": "passed",
+      "note": "The HS-0091 ticket JSON stayed valid before schema validation."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_humble_tickets.py",
+      "status": "passed",
+      "note": "The repo-native HS ticket surface validated successfully with 89 tickets."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "status": "passed",
+      "note": "The local repo contract still validates against the shared HumbleControl-owned standard."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "status": "passed",
+      "note": "The static web fallback integrity check stayed green after the native source-context bridge change."
+    },
+    {
+      "kind": "command",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only",
+      "status": "passed",
+      "note": "Workflow-only local checks passed for tickets, contract, script compilation, web fallback, and diff hygiene."
+    },
+    {
+      "kind": "command",
+      "path": "python3 -m py_compile Scripts/*.py",
+      "status": "passed",
+      "note": "Repo workflow scripts still compile."
+    },
+    {
+      "kind": "command",
+      "path": "git diff --check",
+      "status": "passed",
+      "note": "Patch whitespace hygiene passed."
+    },
+    {
+      "kind": "command",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+      "status": "passed",
+      "note": "The native macOS workspace builds after adding local supported-app loading."
+    },
+    {
+      "kind": "command",
+      "path": "./script/build_and_run.sh --native-ci",
+      "status": "passed",
+      "note": "The repo-documented native CI path completed a build-only macOS sanity pass for HS-0091."
+    },
+    {
+      "kind": "command",
+      "path": "python3 Scripts/humble_doctor.py --repo-root . --strict",
+      "status": "blocked",
+      "note": "After the commit, strict doctor reported the expected active topic-branch freshness gate at 97% with 3 issue(s) and 0 dirty path(s)."
+    }
+  ],
+  "related_files": [
+    "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+    "AppleApps/Shared/Sources/StudioShellModel.swift",
+    "AppleApps/Shared/Sources/StudioWebView.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    "js/app.js",
+    ".humble/status/current.json",
+    "docs/next-slices.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan said localhost clicks on HumbleSudoku should show HumbleSudoku and create missing export files automatically, because the current HumbleStudio/HumbleControl connection is still weak."
+  },
+  "commands": [
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict",
+    "python3 Scripts/check_web_fallback.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings",
+    "python3 -m py_compile Scripts/*.py",
+    "git diff --check",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+    "./script/build_and_run.sh --native-ci"
+  ],
+  "agent_notes": [
+    "This is a local-first supported-app load path, not a generic arbitrary command runner.",
+    "Only HumbleSudoku has an allowlisted local export resolver in this slice; MyVltavaRun and HumbleControl still use the existing remote URL path until they get their own verified local contracts.",
+    "The web fallback can preserve source context from the native bridge, but static browser JavaScript still cannot safely generate local files by itself.",
+    "Native-ci regenerated `HumbleStudio.xcodeproj/project.pbxproj`; keep it in the slice so the checked-in project matches the repo-documented build path."
+  ]
+}

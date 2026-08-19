@@ -22,8 +22,8 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
                 loadDemo: { [weak self] in
                     self?.loadDemo()
                 },
-                importPayload: { [weak self] fileName, data in
-                    self?.loadNativePayload(fileName: fileName, data: data)
+                importPayload: { [weak self] fileName, data, sourceContext in
+                    self?.loadNativePayload(fileName: fileName, data: data, sourceContext: sourceContext)
                 },
                 loadRemoteURL: { [weak self] url in
                     self?.loadRemoteURL(url)
@@ -114,11 +114,12 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
         }
     }
 
-    private func loadNativePayload(fileName: String, data: Data) {
+    private func loadNativePayload(fileName: String, data: Data, sourceContext: StudioShellWebSourceContext?) {
         do {
             let fileNameLiteral = try makeJavaScriptStringLiteral(fileName)
             let dataLiteral = try makeJavaScriptStringLiteral(data.base64EncodedString())
-            runJavaScript("loadNativePayload(\(fileNameLiteral), \(dataLiteral));")
+            let sourceContextLiteral = try makeJavaScriptObjectLiteral(sourceContext)
+            runJavaScript("loadNativePayload(\(fileNameLiteral), \(dataLiteral), \(sourceContextLiteral));")
         } catch {
             model.report(error: error)
         }
@@ -151,6 +152,25 @@ final class StudioWebCoordinator: NSObject, WKNavigationDelegate, WKScriptMessag
         let encoded = try JSONSerialization.data(withJSONObject: [value], options: [])
         let arrayLiteral = String(decoding: encoded, as: UTF8.self)
         return String(arrayLiteral.dropFirst().dropLast())
+    }
+
+    private func makeJavaScriptObjectLiteral(_ sourceContext: StudioShellWebSourceContext?) throws -> String {
+        guard let sourceContext else { return "null" }
+        var payload: [String: String] = [
+            "type": sourceContext.type,
+            "value": sourceContext.value,
+        ]
+        if let appID = sourceContext.appID {
+            payload["appId"] = appID
+        }
+        if let appName = sourceContext.appName {
+            payload["appName"] = appName
+        }
+        if let mode = sourceContext.mode {
+            payload["mode"] = mode
+        }
+        let encoded = try JSONSerialization.data(withJSONObject: payload, options: [.sortedKeys])
+        return String(decoding: encoded, as: UTF8.self)
     }
 }
 
