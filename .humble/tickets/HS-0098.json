@@ -1,0 +1,147 @@
+{
+  "id": "HS-0098",
+  "title": "Align Studio contracts with unified Control workspace",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-20",
+  "updated_at": "2026-08-20",
+  "source": "agent",
+  "summary": "Support the accepted ten-item Control/Studio convergence queue from the Studio side by aligning review artifact routes, native supported-app metadata, apply-boundary naming, and contract snapshot tests.",
+  "acceptance_criteria": [
+    "Studio connection manifests point review artifacts at a readable Control review page.",
+    "Prepare-edit contracts expose both contract-level apply boundary and export-level apply gate without enabling writes.",
+    "Native supported-app rows show the unified workspace path, session path, review page, recovery path, and locked apply state.",
+    "Native strings use StudioStrings and Localizable.xcstrings only.",
+    "Helper tests assert the broader contract snapshot for workspace, review, recovery, apply boundary, and no-write semantics.",
+    "Documentation names the unified workspace and keeps apply locked behind explicit future approval.",
+    "Verification and promotion evidence are recorded before closing the ticket."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/serve_local_preview.py",
+      "note": "Studio manifests now expose controlWorkspaceUrl and point review artifacts to /studio/{appId}/review while keeping apply locked and writes false."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+      "note": "Native supported-app rows now show the unified workspace path alongside session, prepare-edit, review artifact, and locked apply metadata."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "docs/control-edit-boundary.md",
+      "note": "Documentation now names the unified Control workspace, readable review artifact page, browser-local draft boundary, and future approval gate."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/test_serve_local_preview.py",
+      "note": "`python3 Scripts/test_serve_local_preview.py` passed: 14 tests."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/check_web_fallback.py",
+      "note": "`python3 Scripts/check_web_fallback.py` passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps/Shared/Resources/Localizable.xcstrings",
+      "note": "`python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings > /tmp/hs0098-xcstrings.json` passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts",
+      "note": "`python3 -m py_compile Scripts/*.py` passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "HumbleStudio.xcodeproj",
+      "note": "`xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build CODE_SIGNING_ALLOWED=NO` passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "script/build_and_run.sh",
+      "note": "`./script/build_and_run.sh --native-ci` passed; generated project ID churn was discarded because it was not part of the slice."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/run_local_checks.sh",
+      "note": "`bash Scripts/run_local_checks.sh --workflow-only` passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": ".humble/tickets",
+      "note": "`python3 Scripts/validate_humble_tickets.py` passed with 92 tickets."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Config/repo-contract.json",
+      "note": "`python3 Scripts/validate_repo_contract.py` passed."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "Scripts/humble_doctor.py",
+      "note": "`python3 Scripts/humble_doctor.py --repo-root . --strict` reported the expected branch-freshness block while the active topic branch still had 10 dirty paths."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": ".",
+      "note": "`git diff --check` passed."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0098.json",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    "docs/control-edit-boundary.md",
+    "js/demo.js"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan clarified that all ten ranked Control/Studio convergence items should be implemented."
+  },
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings > /tmp/hs0098-xcstrings.json",
+    "python3 -m py_compile Scripts/*.py",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build CODE_SIGNING_ALLOWED=NO",
+    "./script/build_and_run.sh --native-ci",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "The Studio side remains read-only/proposal-first. This ticket must not introduce a source write or unlocked apply path."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0097",
+      "HC-0300"
+    ]
+  }
+}

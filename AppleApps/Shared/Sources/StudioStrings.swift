@@ -36,6 +36,7 @@ enum StudioStrings {
     static let supportedAppSource = String(localized: "studio.remote_source.supported_app_source", defaultValue: "Supported app")
     static let supportedAppWritesLocked = String(localized: "studio.remote_source.supported_app_writes_locked", defaultValue: "Writes locked")
     static let supportedAppWritesEnabled = String(localized: "studio.remote_source.supported_app_writes_enabled", defaultValue: "Writes enabled")
+    static let supportedAppWorkspace = String(localized: "studio.remote_source.supported_app_workspace", defaultValue: "Workspace")
     static let supportedAppScopedPrepareEdit = String(localized: "studio.remote_source.supported_app_scoped_prepare_edit", defaultValue: "Prepare-edit")
     static let supportedAppSessionPath = String(localized: "studio.remote_source.supported_app_session_path", defaultValue: "Session")
     static let supportedAppSessionID = String(localized: "studio.remote_source.supported_app_session_id", defaultValue: "Session ID")

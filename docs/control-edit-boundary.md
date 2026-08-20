@@ -17,9 +17,10 @@ to an aggregate contract.
 Each export descriptor may also include Control-owned routes:
 
 - `controlSessionUrl` for the per-app session dossier
+- `controlWorkspaceUrl` for the unified Control app workspace
 - `controlPrepareEditUrl` for the prepare-edit workbench
 - `controlRecoveryUrl` for no-write recovery JSON
-- `reviewArtifact` for the Control review artifact download surface
+- `reviewArtifact` for the readable Control review page and JSON export
 - `manifestDiff` for the fields Control should compare before review
 - `applyGate` with `status=locked` and write requirements
 
@@ -35,8 +36,9 @@ The first allowed bridge is therefore:
 
 1. HumbleStudio serves source truth and export availability.
 2. HumbleControl renders connection, session, health, and proposal surfaces.
-3. HumbleControl may render prepare-edit workbench, diff, recovery, review
-   artifact, and dry-run contract surfaces.
+3. HumbleControl may render a unified app workspace, prepare-edit workbench,
+   diff, recovery, readable review artifact, local proposal draft, and dry-run
+   contract surfaces.
 4. Any repository write is rejected by default.
 
 This keeps the future HumbleControl/HumbleStudio merge pointed toward one
