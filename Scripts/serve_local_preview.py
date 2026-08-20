@@ -15,7 +15,7 @@ from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Mapping
-from urllib.parse import quote, unquote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -211,6 +211,14 @@ def parse_connection_path(request_path: str) -> str | None:
     return None
 
 
+def parse_prepare_edit_app_id(request_path: str) -> str | None:
+    parsed = urlparse(request_path)
+    values = parse_qs(parsed.query, keep_blank_values=True).get("app")
+    if not values:
+        return None
+    return values[0].strip() or None
+
+
 def export_state(app: SupportedAppExport) -> tuple[str, Path]:
     repo_root = app.repo_path.expanduser().resolve()
     if not repo_root.is_dir():
@@ -255,15 +263,31 @@ def utc_now_iso() -> str:
 def build_prepare_edit_contract(
     base_url: str,
     catalog: Mapping[str, SupportedAppExport] | None = None,
+    app_id: str | None = None,
 ) -> dict[str, object]:
     active_catalog = catalog or SUPPORTED_APP_EXPORTS
+    if app_id:
+        app = active_catalog.get(app_id)
+        if not app:
+            raise LocalPreviewError(
+                HTTPStatus.NOT_FOUND,
+                "unknown_supported_app",
+                f"No prepare-edit contract is configured for supported app '{app_id}'.",
+            )
+        apps = [app]
+    else:
+        apps = sorted(active_catalog.values(), key=lambda item: item.app_id)
+
     exports = [
         build_export_descriptor(app, base_url)
-        for app in sorted(active_catalog.values(), key=lambda item: item.app_id)
+        for app in apps
     ]
     return {
         "schema": PREPARE_EDIT_SCHEMA,
         "generatedAt": utc_now_iso(),
+        "scope": "app" if app_id else "all",
+        "selectedAppId": app_id,
+        "exportCount": len(exports),
         "producer": {
             "app": "HumbleStudio",
             "kind": "localhost-preview",
@@ -433,10 +457,15 @@ class HumbleStudioLocalPreviewHandler(SimpleHTTPRequestHandler):
     def handle_connections(self, connection_id: str, send_body: bool) -> None:
         manifest = build_humble_control_connection_manifest(self.local_base_url())
         if connection_id == "humble-control-prepare-edit":
-            self.send_json_response(
-                build_prepare_edit_contract(self.local_base_url()),
-                send_body=send_body,
-            )
+            try:
+                contract = build_prepare_edit_contract(
+                    self.local_base_url(),
+                    app_id=parse_prepare_edit_app_id(self.path),
+                )
+            except LocalPreviewError as error:
+                self.send_json_error(error)
+                return
+            self.send_json_response(contract, send_body=send_body)
             return
         if connection_id == "humble-control":
             self.send_json_response(manifest, send_body=send_body)

@@ -1,0 +1,122 @@
+{
+  "id": "HS-0096",
+  "title": "Scope prepare-edit contracts by supported app",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-20",
+  "updated_at": "2026-08-20",
+  "source": "agent",
+  "summary": "Make the HumbleStudio localhost prepare-edit endpoint honor the requested app id so HumbleControl receives a precise no-write contract for each supported export.",
+  "acceptance_criteria": [
+    "`/api/connections/humble-control/prepare-edit?app=<id>` returns a contract scoped to the requested supported app.",
+    "Unscoped prepare-edit still returns the aggregate no-write contract for all supported exports.",
+    "Unknown app ids return a clear JSON error without writes or export generation.",
+    "The contract records selectedAppId and exportCount so consumers can distinguish scoped and aggregate payloads.",
+    "Manifest prepareEditUrl values continue to point at per-app scoped contracts.",
+    "Helper tests, web fallback checks, ticket validation, and local workflow checks pass or blocked commands are documented honestly."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/serve_local_preview.py",
+      "note": "Prepare-edit now honors app query scope, records selectedAppId/exportCount, and rejects unknown app ids without writes."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "docs/control-edit-boundary.md",
+      "note": "Documented scoped prepare-edit planning and unknown-app JSON error behavior."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/test_serve_local_preview.py",
+      "note": "Local preview helper tests passed for 13 tests."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "note": "Static web fallback verification passed and now guards selectedAppId/exportCount fragments."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 -m py_compile Scripts/*.py",
+      "note": "Workflow scripts compiled successfully."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only",
+      "note": "Workflow-only local checks passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "curl -sS http://127.0.0.1:8766/api/connections/humble-control/prepare-edit?app=humble-sudoku",
+      "note": "Lane smoke returned scope app, selectedAppId humble-sudoku, exportCount 1, writes:false, and locked apply."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "curl -i -sS http://127.0.0.1:8766/api/connections/humble-control/prepare-edit?app=unknown-app",
+      "note": "Lane smoke returned HTTP 404 JSON error unknown_supported_app for an unknown app id."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py",
+      "note": "Ticket metadata validation passed for 90 tickets."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract validation passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Whitespace diff check passed."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0096.json",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    "docs/control-edit-boundary.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan asked to continue merging HumbleControl and HumbleStudio after the first ten convergence steps."
+  },
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 -m py_compile Scripts/*.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "git diff --check",
+    "curl -sS http://127.0.0.1:8766/api/connections/humble-control/prepare-edit?app=humble-sudoku",
+    "curl -i -sS http://127.0.0.1:8766/api/connections/humble-control/prepare-edit?app=unknown-app"
+  ],
+  "agent_notes": [
+    "Scoped prepare-edit must remain a planning contract only. It must not run export generators or write to supported app repositories."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0095",
+      "HC-0296"
+    ]
+  }
+}
