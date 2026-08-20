@@ -41,12 +41,40 @@ struct StudioSupportedAppSource: Identifiable, Equatable {
         "\(controlWorkspacePath)#recovery"
     }
 
+    var structuredDraftPath: String {
+        "\(controlWorkspacePath)#structured-draft"
+    }
+
+    var patchPreviewPath: String {
+        "\(controlWorkspacePath)#patch-preview"
+    }
+
+    var trustLevelPath: String {
+        "\(controlWorkspacePath)#trust"
+    }
+
+    var connectionRegistryPath: String {
+        "\(controlWorkspacePath)#registry"
+    }
+
+    var nativeParityPath: String {
+        "\(controlWorkspacePath)#native-parity"
+    }
+
     var applyPreviewPath: String {
         "\(controlWorkspacePath)#apply-preview"
     }
 
     var editBoundaryPath: String {
         "\(controlWorkspacePath)#edit-boundary"
+    }
+
+    var safeApplyBoundaryPath: String {
+        "\(controlWorkspacePath)#safe-apply"
+    }
+
+    var authoringSmokePath: String {
+        "\(controlWorkspacePath)#smoke"
     }
 
     var reviewSummary: String {
@@ -393,10 +421,31 @@ private struct StudioSupportedAppRow: View {
                 Text("\(StudioStrings.supportedAppReviewArtifact): \(app.reviewArtifactPath)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppStructuredDraft): \(app.structuredDraftPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppPatchPreview): \(app.patchPreviewPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppTrustLevel): \(app.trustLevelPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppConnectionRegistry): \(app.connectionRegistryPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppNativeParity): \(app.nativeParityPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppApplyPreview): \(app.applyPreviewPath)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppEditBoundary): \(app.editBoundaryPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppSafeApplyBoundary): \(app.safeApplyBoundaryPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppAuthoringSmoke): \(app.authoringSmokePath)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }

@@ -295,6 +295,20 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit boundary" } }
       }
     },
+    "studio.remote_source.supported_app_safe_apply_boundary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Bezpečný apply" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Safe apply" } }
+      }
+    },
+    "studio.remote_source.supported_app_authoring_smoke" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Authoring smoke" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Authoring smoke" } }
+      }
+    },
     "studio.remote_source.supported_app_launch_intent" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -314,6 +328,41 @@
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Review artefakt" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Review artifact" } }
+      }
+    },
+    "studio.remote_source.supported_app_structured_draft" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Strukturovaný draft" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Structured draft" } }
+      }
+    },
+    "studio.remote_source.supported_app_patch_preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Patch preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Patch preview" } }
+      }
+    },
+    "studio.remote_source.supported_app_trust_level" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Úroveň důvěry" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Trust level" } }
+      }
+    },
+    "studio.remote_source.supported_app_connection_registry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Registr spojení" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connection registry" } }
+      }
+    },
+    "studio.remote_source.supported_app_native_parity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nativní parita" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Native parity" } }
       }
     },
     "studio.remote_source.supported_app_workspace" : {

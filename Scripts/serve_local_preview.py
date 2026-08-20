@@ -407,6 +407,84 @@ def build_authoring_session_descriptor(encoded_app_id: str) -> dict[str, object]
     }
 
 
+def build_structured_draft_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.structured-draft.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#structured-draft",
+        "kinds": [
+            "token",
+            "text",
+            "navigation",
+            "asset",
+        ],
+        "writes": False,
+    }
+
+
+def build_patch_preview_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.patch-preview.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#patch-preview",
+        "status": "review-only",
+        "writes": False,
+    }
+
+
+def build_trust_level_descriptor(encoded_app_id: str, state: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.trust-level.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#trust",
+        "level": "apply-locked" if state in {"available", "generatable"} else "read-only",
+        "writes": False,
+    }
+
+
+def build_safe_apply_boundary_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.safe-apply-boundary.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#safe-apply",
+        "status": "locked",
+        "writes": False,
+        "requires": [
+            "repo-native-ticket",
+            "structured-edit-draft",
+            "patch-preview",
+            "review-artifact",
+            "explicit-user-confirmation",
+        ],
+    }
+
+
+def build_native_parity_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.native-parity.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#native-parity",
+        "rows": [
+            "structured-draft",
+            "patch-preview",
+            "trust-level",
+            "safe-apply-boundary",
+            "authoring-smoke",
+        ],
+        "writes": False,
+    }
+
+
+def build_end_to_end_smoke_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.authoring-smoke.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#smoke",
+        "steps": [
+            "connection-manifest",
+            "workspace-route",
+            "structured-edit-draft",
+            "patch-preview",
+            "safe-apply-lock",
+        ],
+        "writes": False,
+    }
+
+
 def build_smoke_check_descriptor(encoded_app_id: str) -> dict[str, object]:
     return {
         "schema": "humble.studio.workspace-smoke.v1",
@@ -478,6 +556,12 @@ def build_export_descriptor(app: SupportedAppExport, base_url: str) -> dict[str,
         "applyPreview": build_apply_preview_descriptor(encoded_app_id),
         "editBoundary": build_edit_boundary_descriptor(encoded_app_id),
         "authoringSession": build_authoring_session_descriptor(encoded_app_id),
+        "structuredDraft": build_structured_draft_descriptor(encoded_app_id),
+        "patchPreview": build_patch_preview_descriptor(encoded_app_id),
+        "trustLevel": build_trust_level_descriptor(encoded_app_id, state),
+        "safeApplyBoundary": build_safe_apply_boundary_descriptor(encoded_app_id),
+        "nativeParity": build_native_parity_descriptor(encoded_app_id),
+        "endToEndSmoke": build_end_to_end_smoke_descriptor(encoded_app_id),
         "smokeCheck": build_smoke_check_descriptor(encoded_app_id),
     }
 
@@ -555,6 +639,13 @@ def build_prepare_edit_contract(
             "recovery-wizard",
             "session-evidence",
             "authoring-session-restore",
+            "structured-edit-draft",
+            "patch-preview",
+            "manifest-trust-levels",
+            "safe-apply-boundary",
+            "connection-registry",
+            "native-parity-contract",
+            "authoring-e2e-smoke",
             "apply-preview",
             "edit-boundary-contract",
             "workspace-smoke",
@@ -584,6 +675,12 @@ def build_prepare_edit_contract(
                 "applyPreview": item["applyPreview"],
                 "editBoundary": item["editBoundary"],
                 "authoringSession": item["authoringSession"],
+                "structuredDraft": item["structuredDraft"],
+                "patchPreview": item["patchPreview"],
+                "trustLevel": item["trustLevel"],
+                "safeApplyBoundary": item["safeApplyBoundary"],
+                "nativeParity": item["nativeParity"],
+                "endToEndSmoke": item["endToEndSmoke"],
                 "smokeCheck": item["smokeCheck"],
                 "operations": [
                     {
@@ -654,6 +751,53 @@ def build_humble_control_connection_manifest(
             "storage": "browser-local",
             "writes": False,
         },
+        "structuredDraft": {
+            "schema": "humble.studio.structured-draft.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#structured-draft",
+            "kinds": [
+                "token",
+                "text",
+                "navigation",
+                "asset",
+            ],
+            "writes": False,
+        },
+        "patchPreview": {
+            "schema": "humble.studio.patch-preview.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#patch-preview",
+            "writes": False,
+        },
+        "trustLevels": {
+            "schema": "humble.studio.trust-levels.index.v1",
+            "controlUrl": "/studio/humble-sudoku#trust",
+            "writes": False,
+        },
+        "safeApplyBoundary": {
+            "schema": "humble.studio.safe-apply-boundary.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#safe-apply",
+            "status": "locked",
+            "writes": False,
+        },
+        "connectionRegistry": {
+            "schema": "humble.studio.connection-registry.index.v1",
+            "controlUrl": "/studio/humble-sudoku#registry",
+            "writes": False,
+        },
+        "nativeParity": {
+            "schema": "humble.studio.native-parity.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#native-parity",
+            "writes": False,
+        },
+        "authoringSmoke": {
+            "schema": "humble.studio.authoring-smoke.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#smoke",
+            "writes": False,
+        },
         "smokeCheck": {
             "schema": "humble.studio.workspace-smoke.index.v1",
             "controlUrl": os.environ.get("HUMBLECONTROL_LOCAL_URL", DEFAULT_HUMBLECONTROL_URL),
@@ -677,6 +821,13 @@ def build_humble_control_connection_manifest(
             "recovery-wizard",
             "session-evidence",
             "authoring-session-restore",
+            "structured-edit-draft",
+            "patch-preview",
+            "manifest-trust-levels",
+            "safe-apply-boundary",
+            "connection-registry",
+            "native-parity-contract",
+            "authoring-e2e-smoke",
             "apply-preview",
             "edit-boundary-contract",
             "workspace-smoke",

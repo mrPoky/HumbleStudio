@@ -29,6 +29,17 @@ Each export descriptor may also include Control-owned routes:
 - `editBoundary` for the future real-edit rules that must be satisfied first
 - `authoringSession` for browser-local restoration of selected app, export,
   proposal draft, recovery confirmation, and locked apply state
+- `structuredDraft` for typed token, text, navigation, and asset edit
+  boundaries
+- `patchPreview` for dry-run target review with `writes:false` and
+  `applied:false`
+- `trustLevel` for the selected export trust posture
+- `safeApplyBoundary` for explicit allowlisted preview artifacts and rejected
+  source targets
+- `nativeParity` for the native Studio catalog rows that should mirror the web
+  workspace contract
+- `endToEndSmoke` for manifest, workspace, draft, preview, and apply-lock smoke
+  verification
 - `smokeCheck` for end-to-end workspace route verification
 
 Apply remains locked until a later reviewed flow exists with:
@@ -56,7 +67,10 @@ The first allowed bridge is therefore:
 6. HumbleControl may persist an authoring session snapshot in browser-local
    storage so refresh can restore the working draft and recovery confirmation.
    This snapshot is convenience state, not durable source truth.
-7. Any repository source write is rejected by default.
+7. HumbleControl may combine authoring session, structured draft, patch preview,
+   native parity, trust, registry, recovery, proposal review, and smoke evidence
+   into one authoring control plane.
+8. Any repository source write is rejected by default.
 
 The first real edit boundary should remain narrow:
 
