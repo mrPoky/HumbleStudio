@@ -1,0 +1,137 @@
+{
+  "id": "HS-0095",
+  "title": "Expose Control prepare-edit boundary and native source truth",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-20",
+  "updated_at": "2026-08-20",
+  "source": "agent",
+  "summary": "Extend the HumbleStudio localhost connection manifest with a no-write prepare-edit contract, missing-export recovery metadata, native supported-app source truth, and a documented edit boundary for future HumbleControl convergence.",
+  "acceptance_criteria": [
+    "The HumbleControl connection manifest exposes an editBoundary object that keeps writes disabled and apply locked.",
+    "A read-only `/api/connections/humble-control/prepare-edit` endpoint returns proposal/session source truth without mutating repositories.",
+    "Export descriptors include missing-export state and a prepare-edit URL.",
+    "The native supported-app catalog carries source kind, local export path, read-only mode, prepare-edit mode, write lock, and stable session id metadata.",
+    "New native user-facing text is routed through StudioStrings and Localizable.xcstrings.",
+    "A docs decision records that prepare-edit is allowed only as no-write planning while apply remains locked.",
+    "Local helper tests, web fallback checks, workflow checks, and practical native verification pass or blocked commands are documented honestly."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/serve_local_preview.py",
+      "note": "Added editBoundary metadata to the HumbleControl manifest and a no-write prepare-edit contract endpoint."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+      "note": "Added native supported-app source truth for source kind, local export path, read-only mode, prepare-edit mode, write lock, and session id."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "docs/control-edit-boundary.md",
+      "note": "Recorded the first Control/Studio edit-boundary decision: prepare-edit may plan, apply remains locked."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/test_serve_local_preview.py",
+      "note": "Local preview helper tests passed for 10 tests."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "note": "Static web fallback verification passed and now guards the prepare-edit schema and capabilities."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only",
+      "note": "Workflow-only local checks passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+      "note": "Native macOS build succeeded after adding catalog source truth and localized lock text."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "curl -sS http://127.0.0.1:8766/api/connections/humble-control",
+      "note": "Lane preview manifest returned editBoundary, prepare-edit capability, session-source-truth capability, and missingExport metadata."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "curl -sS http://127.0.0.1:8766/api/connections/humble-control/prepare-edit",
+      "note": "Lane preview prepare-edit endpoint returned schema humble.studio.prepare-edit.v1 with writes:false and locked apply boundary."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings >/dev/null",
+      "note": "String catalog JSON remained valid."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "if rg -n \"L10n\\.\" .; then exit 1; else exit 0; fi",
+      "note": "No legacy L10n namespace usage found."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "if rg --files -g '*.strings' -g '*.stringsdict'; then exit 1; else exit 0; fi",
+      "note": "No legacy .strings or .stringsdict files were introduced."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0095.json",
+    "README.md",
+    "Scripts/check_web_fallback.py",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    "docs/control-edit-boundary.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan asked to do all ten follow-up steps toward merging HumbleControl and HumbleStudio."
+  },
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 -m py_compile Scripts/*.py",
+    "git diff --check",
+    "if rg -n \"L10n\\.\" .; then exit 1; else exit 0; fi",
+    "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings >/dev/null",
+    "if rg --files -g '*.strings' -g '*.stringsdict'; then exit 1; else exit 0; fi",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+    "curl -sS http://127.0.0.1:8766/api/connections/humble-control",
+    "curl -sS http://127.0.0.1:8766/api/connections/humble-control/prepare-edit"
+  ],
+  "agent_notes": [
+    "This slice intentionally exposes prepare-edit as planning only. Apply stays locked and no endpoint writes to app repositories."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0094",
+      "HC-0295"
+    ]
+  }
+}

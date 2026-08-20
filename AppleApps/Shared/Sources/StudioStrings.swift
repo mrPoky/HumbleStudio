@@ -34,6 +34,8 @@ enum StudioStrings {
     static let supportedAppsTitle = String(localized: "studio.remote_source.supported_apps_title", defaultValue: "Supported apps")
     static let supportedAppsPrompt = String(localized: "studio.remote_source.supported_apps_prompt", defaultValue: "Pick a known Humble app to prefill its exported raw URL or load it directly.")
     static let supportedAppSource = String(localized: "studio.remote_source.supported_app_source", defaultValue: "Supported app")
+    static let supportedAppWritesLocked = String(localized: "studio.remote_source.supported_app_writes_locked", defaultValue: "Writes locked")
+    static let supportedAppWritesEnabled = String(localized: "studio.remote_source.supported_app_writes_enabled", defaultValue: "Writes enabled")
     static let useURL = String(localized: "studio.remote_source.use_url", defaultValue: "Use URL")
     static let loadNow = String(localized: "studio.remote_source.load_now", defaultValue: "Load Now")
     static let cancel = String(localized: "common.cancel", defaultValue: "Cancel")

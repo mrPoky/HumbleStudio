@@ -11,6 +11,7 @@ from pathlib import Path
 from serve_local_preview import (
     LocalPreviewError,
     SupportedAppExport,
+    build_prepare_edit_contract,
     build_humble_control_connection_manifest,
     ensure_supported_app_export,
     parse_connection_path,
@@ -154,6 +155,10 @@ class LocalPreviewHelperTests(unittest.TestCase):
     def test_connection_path_parses_humble_control_manifest(self) -> None:
         self.assertEqual(parse_connection_path("/api/connections"), "all")
         self.assertEqual(parse_connection_path("/api/connections/humble-control"), "humble-control")
+        self.assertEqual(
+            parse_connection_path("/api/connections/humble-control/prepare-edit?app=humble-sudoku"),
+            "humble-control-prepare-edit",
+        )
         self.assertIsNone(parse_connection_path("/api/connections/unknown"))
 
     def test_humble_control_manifest_lists_local_exports(self) -> None:
@@ -177,8 +182,13 @@ class LocalPreviewHelperTests(unittest.TestCase):
         export = manifest["exports"][0]
         self.assertEqual(manifest["schema"], "humble.studio.connections.v1")
         self.assertEqual(manifest["consumer"]["app"], "HumbleControl")
+        self.assertEqual(manifest["editBoundary"]["mode"], "prepare-edit")
+        self.assertFalse(manifest["editBoundary"]["writes"])
+        self.assertIn("prepare-edit-contract", manifest["capabilities"])
         self.assertEqual(export["id"], "humble-control")
         self.assertEqual(export["state"], "available")
+        self.assertEqual(export["missingExport"]["state"], "available")
+        self.assertFalse(export["missingExport"]["writes"])
         self.assertEqual(
             export["endpoint"],
             "http://127.0.0.1:8765/api/supported-apps/humble-control/export",
@@ -187,6 +197,30 @@ class LocalPreviewHelperTests(unittest.TestCase):
             export["studioLoadUrl"],
             "http://127.0.0.1:8765/?config=http%3A%2F%2F127.0.0.1%3A8765%2Fapi%2Fsupported-apps%2Fhumble-control%2Fexport",
         )
+        self.assertEqual(
+            export["prepareEditUrl"],
+            "http://127.0.0.1:8765/api/connections/humble-control/prepare-edit?app=humble-control",
+        )
+
+    def test_prepare_edit_contract_is_locked_and_read_only(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_root:
+            repo_root = Path(raw_root)
+            export_path = repo_root / ".humble" / "HumbleSudoku.humblebundle"
+            export_path.parent.mkdir()
+            export_path.write_bytes(b"bundle")
+            catalog = catalog_for(repo_root, ("python3", "generate.py"))
+
+            contract = build_prepare_edit_contract("http://127.0.0.1:8765", catalog)
+
+        export = contract["exports"][0]
+        self.assertEqual(contract["schema"], "humble.studio.prepare-edit.v1")
+        self.assertEqual(contract["mode"], "prepare-edit")
+        self.assertFalse(contract["writes"])
+        self.assertEqual(contract["applyBoundary"]["status"], "locked")
+        self.assertIn("session-source-truth", contract["capabilities"])
+        self.assertEqual(export["id"], "humble-sudoku")
+        self.assertEqual(export["state"], "available")
+        self.assertFalse(export["operations"][0]["writes"])
 
 
 if __name__ == "__main__":
