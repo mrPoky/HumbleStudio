@@ -11,6 +11,10 @@ const SUPPORTED_APP_SOURCES = [
       type: 'url',
       value: 'https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle',
     },
+    localSource: {
+      type: 'localhost-api',
+      value: '/api/supported-apps/humble-sudoku/export',
+    },
     hasDemo: true,
   },
   {
@@ -37,6 +41,10 @@ const SUPPORTED_APP_SOURCES = [
     source: {
       type: 'url',
       value: 'https://raw.githubusercontent.com/mrPoky/HumbleControl/main/.humble/design.json',
+    },
+    localSource: {
+      type: 'localhost-api',
+      value: '/api/supported-apps/humble-control/export',
     },
   },
 ];

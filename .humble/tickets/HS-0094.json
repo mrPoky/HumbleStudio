@@ -8,13 +8,17 @@
   "created_at": "2026-08-20",
   "updated_at": "2026-08-20",
   "source": "agent",
-  "summary": "Add a read-only HumbleControl iframe handshake responder to the static HumbleStudio web viewer so embedded Studio previews can confirm the selected app and session back to Control.",
+  "summary": "Add a read-only HumbleControl iframe handshake responder to the static HumbleStudio web viewer and keep the runnable localhost preview bridge in the same lane so embedded Studio previews can confirm the selected app and session back to Control.",
   "acceptance_criteria": [
+    "HumbleStudio can serve the localhost preview from this lane on `127.0.0.1:8765` with `/api/connections/humble-control` and supported-app export endpoints.",
+    "The web Supported apps catalog prefers the safe localhost export helper for HumbleSudoku and HumbleControl when the viewer runs on localhost.",
     "HumbleStudio reads the HumbleControl embed context from `hc*` URL parameters.",
     "HumbleStudio listens for `humble-control:studio-handshake-request` postMessage events.",
     "Handshake requests are accepted only when schema, direction, mode, `writes:false`, app id, session id, and Control origin match the URL context.",
     "HumbleStudio replies with `humble-studio:embed-ready` using schema `humble.control.studio-handshake.v1`, read-only mode, matching app id/session id, and `writes:false`.",
     "The responder does not mutate loaded configs, generate exports, write files, or unlock any apply flow.",
+    "A live HumbleControl page on `127.0.0.1:3022` can load HumbleStudio on `127.0.0.1:8765` in an iframe and display a `Handshake ready` result.",
+    "A direct click on HumbleSudoku in the localhost HumbleStudio Supported apps catalog loads HumbleSudoku from the local export helper.",
     "Local static checks cover JavaScript syntax and deterministic handshake helper behavior.",
     "Workflow checks confirm the web fallback and ticket metadata remain valid."
   ],
@@ -30,6 +34,24 @@
       "status": "passed",
       "path": "js/app.js",
       "note": "Handshake responder accepts only matching HumbleControl embed context messages and replies with humble-studio:embed-ready without mutating config, exports, files, or apply state."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/serve_local_preview.py",
+      "note": "Added the lane-local preview server that serves supported-app export endpoints and the read-only HumbleControl connection manifest."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "js/app.js",
+      "note": "Supported apps now prefer the localhost export helper on localhost and remember local supported-app loads without falling back to a remote URL."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/test_serve_local_preview.py",
+      "note": "Local preview helper unit tests passed, including export generation, missing export errors, connection manifest routing, and studioLoadUrl generation."
     },
     {
       "kind": "command",
@@ -59,7 +81,25 @@
       "kind": "command",
       "status": "passed",
       "path": "python3 Scripts/check_web_fallback.py",
-      "note": "Static web fallback verification passed."
+      "note": "Static web fallback verification passed and now guards the localhost preview helper, supported-app endpoints, and manifest schema."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "curl -s http://127.0.0.1:8765/api/connections/humble-control",
+      "note": "Live HumbleStudio preview returned the read-only connection manifest from lane-3 with available HumbleControl and HumbleSudoku exports."
+    },
+    {
+      "kind": "snapshot",
+      "status": "passed",
+      "path": "http://127.0.0.1:3022/studio/?app=humble-sudoku",
+      "note": "In-app browser DOM snapshot showed Handshake ready, the HumbleStudio ready detail, writes:false/read-only context, Control origin 127.0.0.1:3022, target origin 127.0.0.1:8765, and iframe content for HumbleSudoku v1.0 loaded from the local bundle endpoint."
+    },
+    {
+      "kind": "snapshot",
+      "status": "passed",
+      "path": "http://127.0.0.1:8765/#/tokens",
+      "note": "In-app browser direct click on the HumbleSudoku Supported apps card loaded HumbleSudoku v1.0, showed Supported app local export, loaded bundle HumbleSudoku.humblebundle, and displayed token content."
     },
     {
       "kind": "command",
@@ -88,7 +128,12 @@
   ],
   "related_files": [
     ".humble/tickets/HS-0094.json",
-    "js/app.js"
+    "README.md",
+    "Scripts/check_web_fallback.py",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "js/app.js",
+    "js/demo.js"
   ],
   "blocked_by": null,
   "trigger": {
@@ -98,6 +143,7 @@
     "source_ref": "Jan asked to continue after HumbleControl gained the iframe handshake listener."
   },
   "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
     "node --check js/app.js",
     "node vm responder smoke",
     "python3 Scripts/validate_humble_tickets.py",
@@ -106,10 +152,13 @@
     "bash Scripts/run_local_checks.sh --workflow-only",
     "python3 -m py_compile Scripts/*.py",
     "git diff --check",
+    "curl -s http://127.0.0.1:8765/api/connections/humble-control",
+    "in-app browser DOM snapshot http://127.0.0.1:3022/studio/?app=humble-sudoku",
+    "in-app browser direct click http://127.0.0.1:8765/#/tokens",
     "python3 Scripts/humble_doctor.py --repo-root . --strict"
   ],
   "agent_notes": [
-    "This slice intentionally implements only the static web viewer responder. Native macOS WebView parity can follow separately if needed."
+    "This slice intentionally keeps apply locked and read-only. Native macOS WebView parity can follow separately if needed."
   ],
   "relationships": {
     "follows": [
