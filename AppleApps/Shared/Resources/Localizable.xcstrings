@@ -4418,6 +4418,20 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Approximation only" } }
       }
     },
+    "studio.remote_source.supported_app_writes_enabled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zápisy povolené" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Writes enabled" } }
+      }
+    },
+    "studio.remote_source.supported_app_writes_locked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zápisy zamčené" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Writes locked" } }
+      }
+    },
     "studio.sources.title" : {
       "extractionState" : "manual",
       "localizations" : {

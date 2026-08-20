@@ -5,10 +5,31 @@ struct StudioSupportedAppSource: Identifiable, Equatable {
     let name: String
     let repo: String
     let sourceSummary: String
+    let sourceKind: String
+    let localExportPath: String
     let remoteURL: String
+    let connectionMode: String
+    let prepareEditMode: String
+    let writesEnabled: Bool
 
     var sourceLabel: String {
         "\(name) · \(repo)"
+    }
+
+    var connectionSummary: String {
+        "\(sourceKind) · \(connectionMode) · \(prepareEditMode)"
+    }
+
+    var sessionID: String {
+        let normalized = id
+            .lowercased()
+            .map { character -> Character in
+                character.isLetter || character.isNumber || character == "-" ? character : "-"
+            }
+        let value = String(normalized)
+            .split(separator: "-")
+            .joined(separator: "-")
+        return "hs-\(value.isEmpty ? "app" : value)-read-only"
     }
 }
 
@@ -19,21 +40,36 @@ enum StudioSupportedAppCatalog {
             name: "HumbleSudoku",
             repo: "mrPoky/HumbleSudoku",
             sourceSummary: ".humble/HumbleSudoku.humblebundle",
-            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle"
+            sourceKind: "humblebundle",
+            localExportPath: ".humble/HumbleSudoku.humblebundle",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            writesEnabled: false
         ),
         StudioSupportedAppSource(
             id: "my-vltava-run",
             name: "MyVltavaRun",
             repo: "mrPoky/MyVltavaRun",
             sourceSummary: ".humble/design.json",
-            remoteURL: "https://raw.githubusercontent.com/mrPoky/MyVltavaRun/main/.humble/design.json"
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/MyVltavaRun/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            writesEnabled: false
         ),
         StudioSupportedAppSource(
             id: "humble-control",
             name: "HumbleControl",
             repo: "mrPoky/HumbleControl",
             sourceSummary: ".humble/design.json",
-            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleControl/main/.humble/design.json"
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleControl/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            writesEnabled: false
         ),
     ]
 
@@ -132,6 +168,9 @@ private struct StudioSupportedAppRow: View {
                 Text(app.sourceSummary)
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
+                Text(app.connectionSummary)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
 
             Spacer(minLength: 12)
@@ -157,6 +196,14 @@ private struct StudioSupportedAppRow: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
                 }
+
+                Label(
+                    app.writesEnabled ? StudioStrings.supportedAppWritesEnabled : StudioStrings.supportedAppWritesLocked,
+                    systemImage: app.writesEnabled ? "pencil.and.outline" : "lock.fill"
+                )
+                    .font(.caption2.weight(.semibold))
+                    .labelStyle(.titleAndIcon)
+                    .foregroundStyle(app.writesEnabled ? .primary : .secondary)
             }
         }
         .padding(14)

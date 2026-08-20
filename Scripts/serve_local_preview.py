@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -22,6 +23,8 @@ DEFAULT_HUMBLESUDOKU_REPO = Path("/Users/janpokorny/Coding/personal/apps/HumbleS
 DEFAULT_HUMBLECONTROL_REPO = Path("/Users/janpokorny/Coding/personal/apps/HumbleControl")
 DEFAULT_HUMBLECONTROL_URL = "http://127.0.0.1:3000"
 LOCAL_EXPORT_HEADER = "X-HumbleStudio-Local-Export"
+CONNECTION_MANIFEST_SCHEMA = "humble.studio.connections.v1"
+PREPARE_EDIT_SCHEMA = "humble.studio.prepare-edit.v1"
 
 
 @dataclass(frozen=True)
@@ -203,6 +206,8 @@ def parse_connection_path(request_path: str) -> str | None:
         return "all"
     if parts == ["api", "connections", "humble-control"]:
         return "humble-control"
+    if parts == ["api", "connections", "humble-control", "prepare-edit"]:
+        return "humble-control-prepare-edit"
     return None
 
 
@@ -230,9 +235,98 @@ def build_export_descriptor(app: SupportedAppExport, base_url: str) -> dict[str,
         "canGenerate": bool(app.generator_command),
         "endpoint": endpoint,
         "studioLoadUrl": f"{base_url}/?{bootstrap_key}={quote(endpoint, safe='')}",
+        "prepareEditUrl": f"{base_url}/api/connections/humble-control/prepare-edit?app={quote(app.app_id)}",
         "repoPath": str(app.repo_path.expanduser()),
         "exportPath": str(export_path),
         "contentType": app.content_type,
+        "missingExport": {
+            "state": state,
+            "canGenerate": bool(app.generator_command),
+            "trigger": "GET supported-app export endpoint",
+            "writes": False,
+        },
+    }
+
+
+def utc_now_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def build_prepare_edit_contract(
+    base_url: str,
+    catalog: Mapping[str, SupportedAppExport] | None = None,
+) -> dict[str, object]:
+    active_catalog = catalog or SUPPORTED_APP_EXPORTS
+    exports = [
+        build_export_descriptor(app, base_url)
+        for app in sorted(active_catalog.values(), key=lambda item: item.app_id)
+    ]
+    return {
+        "schema": PREPARE_EDIT_SCHEMA,
+        "generatedAt": utc_now_iso(),
+        "producer": {
+            "app": "HumbleStudio",
+            "kind": "localhost-preview",
+            "url": base_url,
+            "repoPath": str(ROOT),
+        },
+        "consumer": {
+            "app": "HumbleControl",
+            "kind": "local-dashboard",
+            "url": os.environ.get("HUMBLECONTROL_LOCAL_URL", DEFAULT_HUMBLECONTROL_URL),
+        },
+        "mode": "prepare-edit",
+        "writes": False,
+        "applyBoundary": {
+            "status": "locked",
+            "requires": [
+                "explicit-user-confirmation",
+                "human-review",
+                "clean-worktree-or-backup",
+                "ticket-scoped-change",
+            ],
+            "guarantees": [
+                "no implicit writes",
+                "no background apply",
+                "no mutation from localhost manifest",
+            ],
+        },
+        "capabilities": [
+            "proposal-read",
+            "session-source-truth",
+            "dry-run-contract",
+            "missing-export-request",
+            "locked-apply-boundary",
+        ],
+        "exports": [
+            {
+                "id": item["id"],
+                "appName": item["appName"],
+                "sourceKind": item["sourceKind"],
+                "state": item["state"],
+                "canGenerate": item["canGenerate"],
+                "endpoint": item["endpoint"],
+                "studioLoadUrl": item["studioLoadUrl"],
+                "repoPath": item["repoPath"],
+                "exportPath": item["exportPath"],
+                "missingExport": item["missingExport"],
+                "operations": [
+                    {
+                        "id": "inspect-export",
+                        "mode": "preview-only",
+                        "writes": False,
+                        "target": item["exportPath"],
+                    },
+                    {
+                        "id": "compose-proposal",
+                        "mode": "preview-only",
+                        "writes": False,
+                        "target": item["id"],
+                    },
+                ],
+            }
+            for item in exports
+        ],
     }
 
 
@@ -246,7 +340,7 @@ def build_humble_control_connection_manifest(
         for app in sorted(active_catalog.values(), key=lambda item: item.app_id)
     ]
     return {
-        "schema": "humble.studio.connections.v1",
+        "schema": CONNECTION_MANIFEST_SCHEMA,
         "producer": {
             "app": "HumbleStudio",
             "kind": "localhost-preview",
@@ -260,10 +354,19 @@ def build_humble_control_connection_manifest(
             "url": os.environ.get("HUMBLECONTROL_LOCAL_URL", DEFAULT_HUMBLECONTROL_URL),
         },
         "mode": "read-only",
+        "editBoundary": {
+            "mode": "prepare-edit",
+            "writes": False,
+            "apply": "locked",
+            "contractEndpoint": f"{base_url}/api/connections/humble-control/prepare-edit",
+        },
         "capabilities": [
             "supported-app-export",
             "design-contract-read",
             "localhost-manifest",
+            "prepare-edit-contract",
+            "session-source-truth",
+            "missing-export-request",
         ],
         "exports": exports,
     }
@@ -329,6 +432,12 @@ class HumbleStudioLocalPreviewHandler(SimpleHTTPRequestHandler):
 
     def handle_connections(self, connection_id: str, send_body: bool) -> None:
         manifest = build_humble_control_connection_manifest(self.local_base_url())
+        if connection_id == "humble-control-prepare-edit":
+            self.send_json_response(
+                build_prepare_edit_contract(self.local_base_url()),
+                send_body=send_body,
+            )
+            return
         if connection_id == "humble-control":
             self.send_json_response(manifest, send_body=send_body)
             return
@@ -340,6 +449,7 @@ class HumbleStudioLocalPreviewHandler(SimpleHTTPRequestHandler):
                         "id": "humble-control",
                         "appName": "HumbleControl",
                         "endpoint": f"{self.local_base_url()}/api/connections/humble-control",
+                        "prepareEditEndpoint": f"{self.local_base_url()}/api/connections/humble-control/prepare-edit",
                         "mode": manifest["mode"],
                         "capabilities": manifest["capabilities"],
                     }

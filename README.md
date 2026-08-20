@@ -37,6 +37,7 @@ Hosted niceties included:
 - serves `http://127.0.0.1:8765/api/supported-apps/humble-sudoku/export` as a safe localhost-only bridge to the local HumbleSudoku export
 - serves `http://127.0.0.1:8765/api/supported-apps/humble-control/export` as a read-only bridge to the local HumbleControl design contract
 - exposes `http://127.0.0.1:8765/api/connections/humble-control` as a read-only connection manifest for HumbleControl
+- exposes `http://127.0.0.1:8765/api/connections/humble-control/prepare-edit` as a no-write prepare-edit contract for HumbleControl proposal/session surfaces
 - supports URL bootstrap via `?bundle=https://...` or `?config=https://...`
 
 ### HumbleControl connection
@@ -51,6 +52,11 @@ The manifest is intentionally read-only. It identifies HumbleStudio as the produ
 HumbleControl as the intended local dashboard consumer, and lists the available
 supported-app exports with stable endpoint URLs and `studioLoadUrl` links that can
 open the same source back in HumbleStudio.
+
+The prepare-edit contract is intentionally no-write as well. It lets HumbleControl
+build proposal inboxes, per-app sessions, preview health, and dry-run surfaces from
+Studio source truth while keeping apply locked until a reviewed confirmation flow
+exists.
 
 ### Native macOS app
 
