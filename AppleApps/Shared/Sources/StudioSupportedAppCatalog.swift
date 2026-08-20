@@ -29,6 +29,10 @@ struct StudioSupportedAppSource: Identifiable, Equatable {
         "\(scopedPrepareEditPath) · \(controlSessionPath)"
     }
 
+    var controlWorkspacePath: String {
+        "/studio/\(id)"
+    }
+
     var reviewSummary: String {
         "\(reviewArtifactPath) · \(applyGateStatus)"
     }
@@ -61,7 +65,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/humble-sudoku/prepare-edit",
             controlSessionPath: "/studio/humble-sudoku/session",
             controlRecoveryPath: "/api/studio/humble-sudoku/recovery",
-            reviewArtifactPath: "/studio/humble-sudoku/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/humble-sudoku/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -78,7 +82,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/my-vltava-run/prepare-edit",
             controlSessionPath: "/studio/my-vltava-run/session",
             controlRecoveryPath: "/api/studio/my-vltava-run/recovery",
-            reviewArtifactPath: "/studio/my-vltava-run/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/my-vltava-run/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -95,7 +99,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/humble-control/prepare-edit",
             controlSessionPath: "/studio/humble-control/session",
             controlRecoveryPath: "/api/studio/humble-control/recovery",
-            reviewArtifactPath: "/studio/humble-control/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/humble-control/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -112,7 +116,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/humble-workout/prepare-edit",
             controlSessionPath: "/studio/humble-workout/session",
             controlRecoveryPath: "/api/studio/humble-workout/recovery",
-            reviewArtifactPath: "/studio/humble-workout/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/humble-workout/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -129,7 +133,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/humble-kakuro/prepare-edit",
             controlSessionPath: "/studio/humble-kakuro/session",
             controlRecoveryPath: "/api/studio/humble-kakuro/recovery",
-            reviewArtifactPath: "/studio/humble-kakuro/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/humble-kakuro/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -146,7 +150,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/humble-cycling/prepare-edit",
             controlSessionPath: "/studio/humble-cycling/session",
             controlRecoveryPath: "/api/studio/humble-cycling/recovery",
-            reviewArtifactPath: "/studio/humble-cycling/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/humble-cycling/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -163,7 +167,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/humble-home/prepare-edit",
             controlSessionPath: "/studio/humble-home/session",
             controlRecoveryPath: "/api/studio/humble-home/recovery",
-            reviewArtifactPath: "/studio/humble-home/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/humble-home/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -180,7 +184,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/humble-cook/prepare-edit",
             controlSessionPath: "/studio/humble-cook/session",
             controlRecoveryPath: "/api/studio/humble-cook/recovery",
-            reviewArtifactPath: "/studio/humble-cook/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/humble-cook/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -197,7 +201,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/humble-architect/prepare-edit",
             controlSessionPath: "/studio/humble-architect/session",
             controlRecoveryPath: "/api/studio/humble-architect/recovery",
-            reviewArtifactPath: "/studio/humble-architect/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/humble-architect/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -214,7 +218,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/humble-nas/prepare-edit",
             controlSessionPath: "/studio/humble-nas/session",
             controlRecoveryPath: "/api/studio/humble-nas/recovery",
-            reviewArtifactPath: "/studio/humble-nas/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/humble-nas/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -231,7 +235,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/humble-subscription/prepare-edit",
             controlSessionPath: "/studio/humble-subscription/session",
             controlRecoveryPath: "/api/studio/humble-subscription/recovery",
-            reviewArtifactPath: "/studio/humble-subscription/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/humble-subscription/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -248,7 +252,7 @@ enum StudioSupportedAppCatalog {
             scopedPrepareEditPath: "/studio/my-family/prepare-edit",
             controlSessionPath: "/studio/my-family/session",
             controlRecoveryPath: "/api/studio/my-family/recovery",
-            reviewArtifactPath: "/studio/my-family/prepare-edit#review-artifact",
+            reviewArtifactPath: "/studio/my-family/review",
             applyGateStatus: "locked",
             writesEnabled: false
         ),
@@ -350,6 +354,9 @@ private struct StudioSupportedAppRow: View {
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Text(app.connectionSummary)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppWorkspace): \(app.controlWorkspacePath)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppScopedPrepareEdit): \(app.scopedPrepareEditPath)")

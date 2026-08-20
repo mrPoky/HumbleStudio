@@ -288,6 +288,13 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Review artifact" } }
       }
     },
+    "studio.remote_source.supported_app_workspace" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Workspace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Workspace" } }
+      }
+    },
     "studio.remote_source.supported_app_scoped_prepare_edit" : {
       "extractionState" : "manual",
       "localizations" : {
