@@ -274,6 +274,41 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Supported app" } }
       }
     },
+    "studio.remote_source.supported_app_apply_gate_locked" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Apply gate zamčený" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apply gate locked" } }
+      }
+    },
+    "studio.remote_source.supported_app_review_artifact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Review artefakt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review artifact" } }
+      }
+    },
+    "studio.remote_source.supported_app_scoped_prepare_edit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Prepare-edit" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Prepare-edit" } }
+      }
+    },
+    "studio.remote_source.supported_app_session_path" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Session" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Session" } }
+      }
+    },
+    "studio.remote_source.supported_app_session_id" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Session ID" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Session ID" } }
+      }
+    },
     "studio.remote_source.supported_apps_title" : {
       "extractionState" : "manual",
       "localizations" : {

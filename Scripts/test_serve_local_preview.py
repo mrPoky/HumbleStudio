@@ -11,6 +11,7 @@ from pathlib import Path
 from serve_local_preview import (
     LocalPreviewError,
     SupportedAppExport,
+    build_supported_app_catalog,
     build_prepare_edit_contract,
     build_humble_control_connection_manifest,
     ensure_supported_app_export,
@@ -44,6 +45,16 @@ def catalog_for(
 
 
 class LocalPreviewHelperTests(unittest.TestCase):
+    def test_default_catalog_includes_broader_humble_app_registry(self) -> None:
+        catalog = build_supported_app_catalog()
+
+        self.assertGreaterEqual(len(catalog), 10)
+        self.assertIn("humble-sudoku", catalog)
+        self.assertIn("humble-control", catalog)
+        self.assertIn("my-vltava-run", catalog)
+        self.assertIn("humble-workout", catalog)
+        self.assertIn("humble-kakuro", catalog)
+
     def test_existing_export_is_returned_without_generation(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:
             repo_root = Path(raw_root)
@@ -194,10 +205,22 @@ class LocalPreviewHelperTests(unittest.TestCase):
         self.assertEqual(manifest["editBoundary"]["mode"], "prepare-edit")
         self.assertFalse(manifest["editBoundary"]["writes"])
         self.assertIn("prepare-edit-contract", manifest["capabilities"])
+        self.assertIn("review-artifact-ref", manifest["capabilities"])
+        self.assertIn("manifest-diff-preview", manifest["capabilities"])
         self.assertEqual(export["id"], "humble-control")
         self.assertEqual(export["state"], "available")
         self.assertEqual(export["missingExport"]["state"], "available")
         self.assertFalse(export["missingExport"]["writes"])
+        self.assertEqual(export["controlSessionUrl"], "/studio/humble-control/session")
+        self.assertEqual(export["controlPrepareEditUrl"], "/studio/humble-control/prepare-edit")
+        self.assertEqual(export["controlRecoveryUrl"], "/api/studio/humble-control/recovery")
+        self.assertEqual(export["reviewArtifact"]["schema"], "humble.control.studio-review-artifact.v1")
+        self.assertEqual(export["reviewArtifact"]["controlUrl"], "/studio/humble-control/prepare-edit#review-artifact")
+        self.assertFalse(export["reviewArtifact"]["writes"])
+        self.assertEqual(export["manifestDiff"]["status"], "ready")
+        self.assertFalse(export["manifestDiff"]["writes"])
+        self.assertEqual(export["applyGate"]["status"], "locked")
+        self.assertFalse(export["applyGate"]["writes"])
         self.assertEqual(
             export["endpoint"],
             "http://127.0.0.1:8765/api/supported-apps/humble-control/export",
@@ -230,8 +253,14 @@ class LocalPreviewHelperTests(unittest.TestCase):
         self.assertFalse(contract["writes"])
         self.assertEqual(contract["applyBoundary"]["status"], "locked")
         self.assertIn("session-source-truth", contract["capabilities"])
+        self.assertIn("review-artifact-ref", contract["capabilities"])
+        self.assertIn("manifest-diff-preview", contract["capabilities"])
         self.assertEqual(export["id"], "humble-sudoku")
         self.assertEqual(export["state"], "available")
+        self.assertEqual(export["controlPrepareEditUrl"], "/studio/humble-sudoku/prepare-edit")
+        self.assertEqual(export["reviewArtifact"]["suggestedFilename"], "humble-sudoku-studio-review-artifact.json")
+        self.assertEqual(export["manifestDiff"]["fields"][0], "selectedAppId")
+        self.assertEqual(export["applyGate"]["status"], "locked")
         self.assertFalse(export["operations"][0]["writes"])
 
     def test_prepare_edit_contract_can_scope_to_one_supported_app(self) -> None:
@@ -274,6 +303,8 @@ class LocalPreviewHelperTests(unittest.TestCase):
         self.assertEqual(contract["selectedAppId"], "humble-sudoku")
         self.assertEqual(contract["exportCount"], 1)
         self.assertEqual([item["id"] for item in contract["exports"]], ["humble-sudoku"])
+        self.assertEqual(contract["exports"][0]["controlSessionUrl"], "/studio/humble-sudoku/session")
+        self.assertEqual(contract["exports"][0]["controlRecoveryUrl"], "/api/studio/humble-sudoku/recovery")
         self.assertFalse(contract["writes"])
 
     def test_prepare_edit_contract_rejects_unknown_supported_app(self) -> None:

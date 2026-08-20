@@ -1,0 +1,104 @@
+{
+  "id": "HS-0097",
+  "title": "Expose prepare-edit registry and native scoped contract parity",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-20",
+  "updated_at": "2026-08-20",
+  "source": "agent",
+  "summary": "Implement the accepted Top 10 Studio-side convergence queue: broaden the supported-app registry, expose prepare-edit review artifact metadata, and show scoped contract truth in the native supported-app catalog while keeping writes locked.",
+  "acceptance_criteria": [
+    "The localhost supported-app catalog includes more Humble apps beyond HumbleControl and HumbleSudoku.",
+    "Prepare-edit export descriptors include session, review artifact, diff, recovery, and locked apply metadata for Control consumers.",
+    "Scoped prepare-edit contracts expose the same metadata for a selected app and continue to reject unknown ids.",
+    "The native supported-app catalog shows scoped prepare-edit path, session id, review artifact path, and locked apply state.",
+    "New native text uses StudioStrings and Localizable.xcstrings; no legacy .strings or L10n namespace is introduced.",
+    "Docs record the broader registry and review artifact boundary.",
+    "Helper tests, fallback checks, ticket validation, workflow checks, and native build pass or blocked commands are documented honestly."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/serve_local_preview.py",
+      "note": "Expanded the localhost supported-app registry to ten additional Humble-family apps while preserving app-scoped prepare-edit contracts."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/serve_local_preview.py",
+      "note": "Export descriptors and scoped prepare-edit payloads now include Control session, prepare-edit, recovery, review artifact, manifest diff, and locked apply-gate metadata."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+      "note": "Native supported-app catalog now displays scoped prepare-edit path, session id, review artifact path, and locked apply state with StudioStrings and String Catalog localization."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/test_serve_local_preview.py",
+      "note": "Helper coverage passed for default catalog breadth, manifest metadata, scoped metadata, and unknown-id rejection: 14 tests."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/check_web_fallback.py && python3 -m py_compile Scripts/*.py && python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings",
+      "note": "Web fallback, Python compilation, and string-catalog JSON parsing passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build && ./script/build_and_run.sh --native-ci",
+      "note": "Native macOS build and native-ci passed; generated Xcode project ID churn was discarded from the slice."
+    },
+    {
+      "kind": "command",
+      "status": "failed",
+      "path": "python3 Scripts/humble_doctor.py --repo-root . --strict",
+      "note": "Strict repo doctor reported expected branch-freshness and dirty-worktree issues for the active topic lane before commit; no production or repository write path was enabled."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0097.json",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    "docs/control-edit-boundary.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan accepted all ten next slices for HumbleControl/HumbleStudio convergence."
+  },
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 -m py_compile Scripts/*.py",
+    "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict",
+    "./script/build_and_run.sh --native-ci",
+    "git diff --check"
+  ],
+  "agent_notes": [
+    "The native and helper surfaces must describe prepare-edit/review artifacts only; they must not introduce repository mutation."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0096",
+      "HC-0298"
+    ]
+  }
+}
