@@ -27,6 +27,8 @@ Each export descriptor may also include Control-owned routes:
 - `recoveryWizard` for confirmable missing-export generation requests
 - `applyPreview` for read-only impact checks before any apply discussion
 - `editBoundary` for the future real-edit rules that must be satisfied first
+- `authoringSession` for browser-local restoration of selected app, export,
+  proposal draft, recovery confirmation, and locked apply state
 - `smokeCheck` for end-to-end workspace route verification
 
 Apply remains locked until a later reviewed flow exists with:
@@ -51,7 +53,10 @@ The first allowed bridge is therefore:
    source edit/apply path.
 5. HumbleControl may persist session evidence in browser-local storage for
    continuity. Browser-local evidence is useful context, not repository truth.
-6. Any repository source write is rejected by default.
+6. HumbleControl may persist an authoring session snapshot in browser-local
+   storage so refresh can restore the working draft and recovery confirmation.
+   This snapshot is convenience state, not durable source truth.
+7. Any repository source write is rejected by default.
 
 The first real edit boundary should remain narrow:
 

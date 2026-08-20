@@ -391,6 +391,22 @@ def build_edit_boundary_descriptor(encoded_app_id: str) -> dict[str, object]:
     }
 
 
+def build_authoring_session_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.authoring-session.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#authoring-session",
+        "storage": "browser-local",
+        "restores": [
+            "selected-app",
+            "export-identity",
+            "proposal-draft",
+            "recovery-confirmation",
+            "locked-apply-state",
+        ],
+        "writes": False,
+    }
+
+
 def build_smoke_check_descriptor(encoded_app_id: str) -> dict[str, object]:
     return {
         "schema": "humble.studio.workspace-smoke.v1",
@@ -461,6 +477,7 @@ def build_export_descriptor(app: SupportedAppExport, base_url: str) -> dict[str,
         "recoveryWizard": build_recovery_wizard_descriptor(app, endpoint, encoded_app_id, state),
         "applyPreview": build_apply_preview_descriptor(encoded_app_id),
         "editBoundary": build_edit_boundary_descriptor(encoded_app_id),
+        "authoringSession": build_authoring_session_descriptor(encoded_app_id),
         "smokeCheck": build_smoke_check_descriptor(encoded_app_id),
     }
 
@@ -537,6 +554,7 @@ def build_prepare_edit_contract(
             "workspace-launch",
             "recovery-wizard",
             "session-evidence",
+            "authoring-session-restore",
             "apply-preview",
             "edit-boundary-contract",
             "workspace-smoke",
@@ -565,6 +583,7 @@ def build_prepare_edit_contract(
                 "recoveryWizard": item["recoveryWizard"],
                 "applyPreview": item["applyPreview"],
                 "editBoundary": item["editBoundary"],
+                "authoringSession": item["authoringSession"],
                 "smokeCheck": item["smokeCheck"],
                 "operations": [
                     {
@@ -628,6 +647,13 @@ def build_humble_control_connection_manifest(
             "logPath": HELPER_LOG_PATH,
             "writes": False,
         },
+        "authoringSession": {
+            "schema": "humble.studio.authoring-session.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#authoring-session",
+            "storage": "browser-local",
+            "writes": False,
+        },
         "smokeCheck": {
             "schema": "humble.studio.workspace-smoke.index.v1",
             "controlUrl": os.environ.get("HUMBLECONTROL_LOCAL_URL", DEFAULT_HUMBLECONTROL_URL),
@@ -650,6 +676,7 @@ def build_humble_control_connection_manifest(
             "workspace-launch",
             "recovery-wizard",
             "session-evidence",
+            "authoring-session-restore",
             "apply-preview",
             "edit-boundary-contract",
             "workspace-smoke",

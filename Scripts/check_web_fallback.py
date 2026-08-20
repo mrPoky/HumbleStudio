@@ -106,6 +106,8 @@ def validate_local_preview_helper() -> list[str]:
         (helper_content, "workspaceLaunch", "HumbleControl workspace launch contract"),
         (helper_content, "recoveryWizard", "HumbleControl recovery wizard contract"),
         (helper_content, "session-evidence", "HumbleControl session evidence capability"),
+        (helper_content, "authoringSession", "HumbleControl authoring session restore contract"),
+        (helper_content, "authoring-session-restore", "HumbleControl authoring session restore capability"),
         (helper_content, "applyPreview", "HumbleControl apply preview contract"),
         (helper_content, "editBoundary", "HumbleControl edit boundary contract"),
         (helper_content, "smokeCheck", "HumbleControl workspace smoke check contract"),

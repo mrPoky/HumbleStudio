@@ -1,0 +1,88 @@
+{
+  "id": "HS-0100",
+  "title": "Publish authoring session restore metadata",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-21",
+  "updated_at": "2026-08-21",
+  "source": "agent",
+  "summary": "Extend the HumbleStudio localhost manifests with explicit authoring session restore metadata so HumbleControl can treat browser-local workspace snapshots as a supported no-write capability.",
+  "acceptance_criteria": [
+    "Connection and prepare-edit manifests advertise an authoring-session restore capability.",
+    "Every supported app export includes an authoringSession descriptor with Control workspace URL, browser-local storage posture, restored state fields, and writes:false.",
+    "Fallback guards and local preview tests assert the authoring session contract.",
+    "Documentation keeps the restore flow separate from any future apply/write path.",
+    "Verification and promotion evidence are recorded before closing the ticket."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Studio connection and prepare-edit manifests now advertise authoring-session-restore and include per-export authoringSession descriptors."
+    },
+    {
+      "kind": "report",
+      "status": "passed",
+      "note": "control-edit-boundary.md now states that browser-local authoring snapshots restore working state but do not permit repository mutation."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/test_serve_local_preview.py",
+      "note": "Local preview manifest tests passed: 14 tests."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "note": "Web fallback contract guard passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 -m py_compile Scripts/*.py",
+      "note": "Workflow scripts compiled successfully."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py && python3 Scripts/validate_repo_contract.py && bash Scripts/run_local_checks.sh --workflow-only && git diff --check",
+      "note": "Repo ticket, contract, workflow-only, and whitespace checks passed after implementation."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0100.json",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    "docs/control-edit-boundary.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan accepted the next Top 10 item: Authoring session backbone."
+  },
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py # passed: 14 tests",
+    "python3 Scripts/check_web_fallback.py # passed",
+    "python3 -m py_compile Scripts/*.py # passed",
+    "python3 Scripts/validate_humble_tickets.py # passed: 94 tickets",
+    "python3 Scripts/validate_repo_contract.py # passed",
+    "bash Scripts/run_local_checks.sh --workflow-only # passed",
+    "git diff --check # passed"
+  ],
+  "agent_notes": [
+    "Studio is only publishing metadata here; no real edit/apply endpoint is introduced.",
+    "Authoring session restore remains browser-local Control state and must not become source truth."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0099",
+      "HC-0309"
+    ]
+  }
+}
