@@ -86,6 +86,8 @@ def validate_local_preview_helper() -> list[str]:
         (helper_content, "/api/connections", "localhost helper connection index"),
         (helper_content, "humble.studio.connections.v1", "HumbleControl connection manifest schema"),
         (helper_content, "humble.studio.prepare-edit.v1", "HumbleControl prepare-edit contract schema"),
+        (helper_content, "selectedAppId", "HumbleControl scoped prepare-edit app marker"),
+        (helper_content, "exportCount", "HumbleControl scoped prepare-edit export count"),
         (helper_content, "prepare-edit-contract", "HumbleControl prepare-edit manifest capability"),
         (helper_content, "session-source-truth", "HumbleControl session source truth capability"),
         (demo_content, "/api/supported-apps/humble-sudoku/export", "web catalog localhost API path"),

@@ -15,6 +15,7 @@ from serve_local_preview import (
     build_humble_control_connection_manifest,
     ensure_supported_app_export,
     parse_connection_path,
+    parse_prepare_edit_app_id,
     parse_supported_app_export_path,
 )
 
@@ -161,6 +162,14 @@ class LocalPreviewHelperTests(unittest.TestCase):
         )
         self.assertIsNone(parse_connection_path("/api/connections/unknown"))
 
+    def test_prepare_edit_app_id_parses_query_scope(self) -> None:
+        self.assertEqual(
+            parse_prepare_edit_app_id("/api/connections/humble-control/prepare-edit?app=humble-sudoku"),
+            "humble-sudoku",
+        )
+        self.assertIsNone(parse_prepare_edit_app_id("/api/connections/humble-control/prepare-edit"))
+        self.assertIsNone(parse_prepare_edit_app_id("/api/connections/humble-control/prepare-edit?app="))
+
     def test_humble_control_manifest_lists_local_exports(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:
             repo_root = Path(raw_root)
@@ -214,6 +223,9 @@ class LocalPreviewHelperTests(unittest.TestCase):
 
         export = contract["exports"][0]
         self.assertEqual(contract["schema"], "humble.studio.prepare-edit.v1")
+        self.assertEqual(contract["scope"], "all")
+        self.assertIsNone(contract["selectedAppId"])
+        self.assertEqual(contract["exportCount"], 1)
         self.assertEqual(contract["mode"], "prepare-edit")
         self.assertFalse(contract["writes"])
         self.assertEqual(contract["applyBoundary"]["status"], "locked")
@@ -221,6 +233,60 @@ class LocalPreviewHelperTests(unittest.TestCase):
         self.assertEqual(export["id"], "humble-sudoku")
         self.assertEqual(export["state"], "available")
         self.assertFalse(export["operations"][0]["writes"])
+
+    def test_prepare_edit_contract_can_scope_to_one_supported_app(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_root:
+            repo_root = Path(raw_root)
+            sudoku_export = repo_root / "sudoku" / ".humble" / "HumbleSudoku.humblebundle"
+            sudoku_export.parent.mkdir(parents=True)
+            sudoku_export.write_bytes(b"bundle")
+            control_export = repo_root / "control" / ".humble" / "design.json"
+            control_export.parent.mkdir(parents=True)
+            control_export.write_text('{"meta":{"name":"HumbleControl"}}', encoding="utf-8")
+            catalog = {
+                "humble-sudoku": SupportedAppExport(
+                    app_id="humble-sudoku",
+                    app_name="HumbleSudoku",
+                    repo_path=repo_root / "sudoku",
+                    export_relative_path=Path(".humble/HumbleSudoku.humblebundle"),
+                    generator_command=("python3", "generate.py"),
+                    content_type="application/zip",
+                    source_kind="humblebundle",
+                ),
+                "humble-control": SupportedAppExport(
+                    app_id="humble-control",
+                    app_name="HumbleControl",
+                    repo_path=repo_root / "control",
+                    export_relative_path=Path(".humble/design.json"),
+                    generator_command=(),
+                    content_type="application/json; charset=utf-8",
+                    source_kind="design.json",
+                ),
+            }
+
+            contract = build_prepare_edit_contract(
+                "http://127.0.0.1:8765",
+                catalog,
+                app_id="humble-sudoku",
+            )
+
+        self.assertEqual(contract["scope"], "app")
+        self.assertEqual(contract["selectedAppId"], "humble-sudoku")
+        self.assertEqual(contract["exportCount"], 1)
+        self.assertEqual([item["id"] for item in contract["exports"]], ["humble-sudoku"])
+        self.assertFalse(contract["writes"])
+
+    def test_prepare_edit_contract_rejects_unknown_supported_app(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_root:
+            with self.assertRaises(LocalPreviewError) as context:
+                build_prepare_edit_contract(
+                    "http://127.0.0.1:8765",
+                    catalog_for(Path(raw_root), ("python3", "generate.py")),
+                    app_id="unknown-app",
+                )
+
+        self.assertEqual(context.exception.status, HTTPStatus.NOT_FOUND)
+        self.assertEqual(context.exception.code, "unknown_supported_app")
 
 
 if __name__ == "__main__":

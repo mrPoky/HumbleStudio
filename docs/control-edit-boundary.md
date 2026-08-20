@@ -4,10 +4,14 @@ HumbleStudio exposes HumbleControl connection data in two layers:
 
 - `read-only` manifest discovery at `/api/connections/humble-control`
 - `prepare-edit` proposal/session planning at `/api/connections/humble-control/prepare-edit`
+- scoped `prepare-edit` planning at `/api/connections/humble-control/prepare-edit?app=<id>`
 
 Both layers are intentionally no-write. They can describe source truth, export
 state, missing-export recovery, proposal operations, and dry-run intent, but they
 must not mutate HumbleStudio, HumbleControl, or a supported app repository.
+When `app=<id>` is present, HumbleStudio returns a contract scoped to that
+supported app only. Unknown app ids return a JSON error instead of falling back
+to an aggregate contract.
 
 Apply remains locked until a later reviewed flow exists with:
 
