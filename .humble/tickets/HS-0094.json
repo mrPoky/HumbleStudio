@@ -1,0 +1,120 @@
+{
+  "id": "HS-0094",
+  "title": "Add HumbleControl embed handshake responder",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-20",
+  "updated_at": "2026-08-20",
+  "source": "agent",
+  "summary": "Add a read-only HumbleControl iframe handshake responder to the static HumbleStudio web viewer so embedded Studio previews can confirm the selected app and session back to Control.",
+  "acceptance_criteria": [
+    "HumbleStudio reads the HumbleControl embed context from `hc*` URL parameters.",
+    "HumbleStudio listens for `humble-control:studio-handshake-request` postMessage events.",
+    "Handshake requests are accepted only when schema, direction, mode, `writes:false`, app id, session id, and Control origin match the URL context.",
+    "HumbleStudio replies with `humble-studio:embed-ready` using schema `humble.control.studio-handshake.v1`, read-only mode, matching app id/session id, and `writes:false`.",
+    "The responder does not mutate loaded configs, generate exports, write files, or unlock any apply flow.",
+    "Local static checks cover JavaScript syntax and deterministic handshake helper behavior.",
+    "Workflow checks confirm the web fallback and ticket metadata remain valid."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "js/app.js",
+      "note": "Added the static web viewer embed bridge constants, URL context parser, read-only handshake request parser, context/origin matcher, ready response builder, and message listener bootstrap."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "js/app.js",
+      "note": "Handshake responder accepts only matching HumbleControl embed context messages and replies with humble-studio:embed-ready without mutating config, exports, files, or apply state."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "node --check js/app.js",
+      "note": "JavaScript syntax check passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "node vm responder smoke",
+      "note": "Mocked browser runtime confirmed a valid HumbleControl request receives a humble-studio:embed-ready reply and a wrong-origin request is ignored."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py",
+      "note": "Ticket metadata validation passed for 88 tickets."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "Repo contract validation passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/check_web_fallback.py",
+      "note": "Static web fallback verification passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only",
+      "note": "Workflow-only local checks passed, including tickets, repo contract, script compile, web fallback, and whitespace."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 -m py_compile Scripts/*.py",
+      "note": "Python workflow script compilation passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "Whitespace diff check passed."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "python3 Scripts/humble_doctor.py --repo-root . --strict",
+      "note": "Strict doctor is blocked by active topic-branch freshness expectations for this lane; implementation-specific checks above passed."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0094.json",
+    "js/app.js"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan asked to continue after HumbleControl gained the iframe handshake listener."
+  },
+  "commands": [
+    "node --check js/app.js",
+    "node vm responder smoke",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/check_web_fallback.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 -m py_compile Scripts/*.py",
+    "git diff --check",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict"
+  ],
+  "agent_notes": [
+    "This slice intentionally implements only the static web viewer responder. Native macOS WebView parity can follow separately if needed."
+  ],
+  "relationships": {
+    "follows": [
+      "HC-0292",
+      "HC-0293"
+    ]
+  }
+}

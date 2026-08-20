@@ -32,6 +32,11 @@ window.__humbleAssetMap = new Map();
 const NAVIGATION_TYPES = new Set(['push', 'sheet', 'replace', 'pop']);
 const BUNDLE_EXTENSIONS = ['.humblebundle', '.zip'];
 const LAST_SOURCE_STORAGE_KEY = 'humbleStudio:lastSource';
+const STUDIO_EMBED_CONTEXT_SCHEMA = 'humble.control.studio-embed-context.v1';
+const STUDIO_EMBED_HANDSHAKE_SCHEMA = 'humble.control.studio-handshake.v1';
+const STUDIO_EMBED_HANDSHAKE_REQUEST_TYPE = 'humble-control:studio-handshake-request';
+const STUDIO_EMBED_HANDSHAKE_READY_TYPE = 'humble-studio:embed-ready';
+let currentEmbedContext = null;
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -45,6 +50,101 @@ function normalizeSearchValue(value = '') {
     .replace(/[_./-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function parseStudioEmbedContextFromSearch(search = window.location.search) {
+  const params = new URLSearchParams(search || '');
+  const schema = params.get('hcSchema');
+  const consumer = params.get('hcConsumer');
+  const surface = params.get('hcSurface');
+  const mode = params.get('hcMode');
+  const appId = params.get('hcAppId');
+  const sessionId = params.get('hcSession');
+  const controlOrigin = params.get('hcOrigin');
+
+  if (schema !== STUDIO_EMBED_CONTEXT_SCHEMA) return null;
+  if (consumer !== 'humble-control') return null;
+  if (surface !== 'studio-mode') return null;
+  if (mode !== 'read-only') return null;
+  if (!appId || !sessionId) return null;
+
+  return {
+    schema,
+    consumer,
+    surface,
+    mode,
+    appId,
+    sessionId,
+    controlOrigin: controlOrigin || '',
+    writes: false,
+  };
+}
+
+function parseStudioHandshakeRequest(value) {
+  if (!isPlainObject(value)) return null;
+  if (value.type !== STUDIO_EMBED_HANDSHAKE_REQUEST_TYPE) return null;
+  if (value.schema !== STUDIO_EMBED_HANDSHAKE_SCHEMA) return null;
+  if (value.direction !== 'control-to-studio') return null;
+  if (value.mode !== 'read-only') return null;
+  if (value.writes !== false) return null;
+  if (typeof value.appId !== 'string' || !value.appId) return null;
+  if (typeof value.sessionId !== 'string' || !value.sessionId) return null;
+  if (value.controlOrigin !== undefined && typeof value.controlOrigin !== 'string') return null;
+  if (value.sentAt !== undefined && typeof value.sentAt !== 'string') return null;
+
+  return {
+    type: STUDIO_EMBED_HANDSHAKE_REQUEST_TYPE,
+    schema: STUDIO_EMBED_HANDSHAKE_SCHEMA,
+    direction: 'control-to-studio',
+    appId: value.appId,
+    sessionId: value.sessionId,
+    mode: 'read-only',
+    writes: false,
+    controlOrigin: value.controlOrigin || '',
+    sentAt: value.sentAt || '',
+  };
+}
+
+function studioHandshakeMatchesContext(request, eventOrigin, context = currentEmbedContext) {
+  if (!context) return false;
+  if (request.appId !== context.appId) return false;
+  if (request.sessionId !== context.sessionId) return false;
+  if (context.controlOrigin && eventOrigin !== context.controlOrigin) return false;
+  if (request.controlOrigin && request.controlOrigin !== eventOrigin) return false;
+  return true;
+}
+
+function buildStudioHandshakeReady(request, detail = 'HumbleStudio web viewer potvrdil read-only embed session.') {
+  return {
+    type: STUDIO_EMBED_HANDSHAKE_READY_TYPE,
+    schema: STUDIO_EMBED_HANDSHAKE_SCHEMA,
+    direction: 'studio-to-control',
+    appId: request.appId,
+    sessionId: request.sessionId,
+    mode: 'read-only',
+    writes: false,
+    readyAt: new Date().toISOString(),
+    detail,
+  };
+}
+
+function handleStudioEmbedHandshake(event) {
+  const request = parseStudioHandshakeRequest(event.data);
+  if (!request || !event.source?.postMessage) return;
+  if (!studioHandshakeMatchesContext(request, event.origin)) return;
+  event.source.postMessage(buildStudioHandshakeReady(request), event.origin);
+}
+
+function bootstrapStudioEmbedHandshake() {
+  currentEmbedContext = parseStudioEmbedContextFromSearch();
+  window.__humbleStudioEmbedBridge = {
+    context: currentEmbedContext,
+    parseStudioEmbedContextFromSearch,
+    parseStudioHandshakeRequest,
+    studioHandshakeMatchesContext,
+    buildStudioHandshakeReady,
+  };
+  window.addEventListener('message', handleStudioEmbedHandshake);
 }
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
@@ -2269,6 +2369,7 @@ function resetNavMapZoom() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  bootstrapStudioEmbedHandshake();
   bootstrapRouteHistory();
   bootstrapLoaderExperience();
   syncCommandPaletteTriggerUi();
