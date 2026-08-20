@@ -15,8 +15,11 @@ Load a single `.humblebundle` or a plain `.humble/design.json` from any HumblePl
 ### Web viewer
 
 ```
-open index.html
+python3 Scripts/serve_local_preview.py --port 8765
+open http://127.0.0.1:8765
 ```
+
+For the simple static fallback, `open index.html` still works.
 
 Then pick one of four ways to load a config:
 
@@ -24,14 +27,30 @@ Then pick one of four ways to load a config:
 |--------|-------------|
 | **URL** | Paste a raw GitHub URL to `.humble/HumbleSudoku.humblebundle` or `.humble/design.json` on any branch |
 | **File** | Upload a local `.humblebundle`, `.zip`, or `design.json` for offline work |
-| **Supported apps** | Click a known app such as HumbleSudoku, MyVltavaRun, or HumbleControl and load its current exported source directly |
+| **Supported apps** | Click a known app such as HumbleSudoku, MyVltavaRun, or HumbleControl. On localhost, HumbleSudoku loads the adjacent local bundle and can generate it when missing; HumbleControl loads its local `.humble/design.json`; URL loading remains available as a fallback |
 | **Demo** | Click "Load HumbleSudoku demo config" to explore a real example |
 
 Hosted niceties included:
 - drag & drop onto the upload card
 - remembers the last URL or demo source in `localStorage`
 - offers repo-aware one-click loading for a small catalog of known supported apps
+- serves `http://127.0.0.1:8765/api/supported-apps/humble-sudoku/export` as a safe localhost-only bridge to the local HumbleSudoku export
+- serves `http://127.0.0.1:8765/api/supported-apps/humble-control/export` as a read-only bridge to the local HumbleControl design contract
+- exposes `http://127.0.0.1:8765/api/connections/humble-control` as a read-only connection manifest for HumbleControl
 - supports URL bootstrap via `?bundle=https://...` or `?config=https://...`
+
+### HumbleControl connection
+
+When the localhost preview is running, HumbleControl can discover HumbleStudio through:
+
+```
+http://127.0.0.1:8765/api/connections/humble-control
+```
+
+The manifest is intentionally read-only. It identifies HumbleStudio as the producer,
+HumbleControl as the intended local dashboard consumer, and lists the available
+supported-app exports with stable endpoint URLs and `studioLoadUrl` links that can
+open the same source back in HumbleStudio.
 
 ### Native macOS app
 

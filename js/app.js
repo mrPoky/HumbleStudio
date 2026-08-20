@@ -32,6 +32,13 @@ window.__humbleAssetMap = new Map();
 const NAVIGATION_TYPES = new Set(['push', 'sheet', 'replace', 'pop']);
 const BUNDLE_EXTENSIONS = ['.humblebundle', '.zip'];
 const LAST_SOURCE_STORAGE_KEY = 'humbleStudio:lastSource';
+const LOCALHOST_PREVIEW_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+const LOCAL_SUPPORTED_APP_EXPORT_HEADER = 'X-HumbleStudio-Local-Export';
+const STUDIO_EMBED_CONTEXT_SCHEMA = 'humble.control.studio-embed-context.v1';
+const STUDIO_EMBED_HANDSHAKE_SCHEMA = 'humble.control.studio-handshake.v1';
+const STUDIO_EMBED_HANDSHAKE_REQUEST_TYPE = 'humble-control:studio-handshake-request';
+const STUDIO_EMBED_HANDSHAKE_READY_TYPE = 'humble-studio:embed-ready';
+let currentEmbedContext = null;
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -45,6 +52,101 @@ function normalizeSearchValue(value = '') {
     .replace(/[_./-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function parseStudioEmbedContextFromSearch(search = window.location.search) {
+  const params = new URLSearchParams(search || '');
+  const schema = params.get('hcSchema');
+  const consumer = params.get('hcConsumer');
+  const surface = params.get('hcSurface');
+  const mode = params.get('hcMode');
+  const appId = params.get('hcAppId');
+  const sessionId = params.get('hcSession');
+  const controlOrigin = params.get('hcOrigin');
+
+  if (schema !== STUDIO_EMBED_CONTEXT_SCHEMA) return null;
+  if (consumer !== 'humble-control') return null;
+  if (surface !== 'studio-mode') return null;
+  if (mode !== 'read-only') return null;
+  if (!appId || !sessionId) return null;
+
+  return {
+    schema,
+    consumer,
+    surface,
+    mode,
+    appId,
+    sessionId,
+    controlOrigin: controlOrigin || '',
+    writes: false,
+  };
+}
+
+function parseStudioHandshakeRequest(value) {
+  if (!isPlainObject(value)) return null;
+  if (value.type !== STUDIO_EMBED_HANDSHAKE_REQUEST_TYPE) return null;
+  if (value.schema !== STUDIO_EMBED_HANDSHAKE_SCHEMA) return null;
+  if (value.direction !== 'control-to-studio') return null;
+  if (value.mode !== 'read-only') return null;
+  if (value.writes !== false) return null;
+  if (typeof value.appId !== 'string' || !value.appId) return null;
+  if (typeof value.sessionId !== 'string' || !value.sessionId) return null;
+  if (value.controlOrigin !== undefined && typeof value.controlOrigin !== 'string') return null;
+  if (value.sentAt !== undefined && typeof value.sentAt !== 'string') return null;
+
+  return {
+    type: STUDIO_EMBED_HANDSHAKE_REQUEST_TYPE,
+    schema: STUDIO_EMBED_HANDSHAKE_SCHEMA,
+    direction: 'control-to-studio',
+    appId: value.appId,
+    sessionId: value.sessionId,
+    mode: 'read-only',
+    writes: false,
+    controlOrigin: value.controlOrigin || '',
+    sentAt: value.sentAt || '',
+  };
+}
+
+function studioHandshakeMatchesContext(request, eventOrigin, context = currentEmbedContext) {
+  if (!context) return false;
+  if (request.appId !== context.appId) return false;
+  if (request.sessionId !== context.sessionId) return false;
+  if (context.controlOrigin && eventOrigin !== context.controlOrigin) return false;
+  if (request.controlOrigin && request.controlOrigin !== eventOrigin) return false;
+  return true;
+}
+
+function buildStudioHandshakeReady(request, detail = 'HumbleStudio web viewer potvrdil read-only embed session.') {
+  return {
+    type: STUDIO_EMBED_HANDSHAKE_READY_TYPE,
+    schema: STUDIO_EMBED_HANDSHAKE_SCHEMA,
+    direction: 'studio-to-control',
+    appId: request.appId,
+    sessionId: request.sessionId,
+    mode: 'read-only',
+    writes: false,
+    readyAt: new Date().toISOString(),
+    detail,
+  };
+}
+
+function handleStudioEmbedHandshake(event) {
+  const request = parseStudioHandshakeRequest(event.data);
+  if (!request || !event.source?.postMessage) return;
+  if (!studioHandshakeMatchesContext(request, event.origin)) return;
+  event.source.postMessage(buildStudioHandshakeReady(request), event.origin);
+}
+
+function bootstrapStudioEmbedHandshake() {
+  currentEmbedContext = parseStudioEmbedContextFromSearch();
+  window.__humbleStudioEmbedBridge = {
+    context: currentEmbedContext,
+    parseStudioEmbedContextFromSearch,
+    parseStudioHandshakeRequest,
+    studioHandshakeMatchesContext,
+    buildStudioHandshakeReady,
+  };
+  window.addEventListener('message', handleStudioEmbedHandshake);
 }
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
@@ -240,6 +342,19 @@ function getSupportedAppSource(appId) {
   return (SUPPORTED_APP_SOURCES || []).find(app => app.id === appId) || null;
 }
 
+function isLocalhostPreview() {
+  return window.location.protocol === 'http:' && LOCALHOST_PREVIEW_HOSTS.has(window.location.hostname);
+}
+
+function getLocalSupportedAppHelperPath(app) {
+  if (app?.localSource?.type !== 'localhost-api') return '';
+  return app.localSource.value || '';
+}
+
+function canUseLocalSupportedAppHelper(app) {
+  return Boolean(isLocalhostPreview() && getLocalSupportedAppHelperPath(app));
+}
+
 function buildSupportedAppSourceState(app, mode = 'url') {
   if (!app) return null;
   if (mode === 'demo' && app.hasDemo) {
@@ -260,6 +375,69 @@ function buildSupportedAppSourceState(app, mode = 'url') {
   };
 }
 
+function buildLocalSupportedAppSourceState(app, helperPath) {
+  return {
+    type: 'supported-app',
+    value: helperPath,
+    appId: app.id,
+    appName: app.name,
+    mode: 'local',
+  };
+}
+
+async function readLocalHelperError(response) {
+  try {
+    const payload = await response.json();
+    return payload.message || payload.error || `HTTP ${response.status}`;
+  } catch {
+    return `HTTP ${response.status}`;
+  }
+}
+
+async function loadSupportedAppFromLocalHelper(app) {
+  const helperPath = getLocalSupportedAppHelperPath(app);
+  if (!canUseLocalSupportedAppHelper(app)) return false;
+
+  setStatus('loading', `Loading ${app.name} from localhost...`);
+  try {
+    const response = await fetch(helperPath, {
+      headers: { Accept: 'application/zip, application/json, application/octet-stream' },
+    });
+
+    if (response.status === 404 || response.status === 405) {
+      return false;
+    }
+    if (!response.ok) {
+      throw new Error(await readLocalHelperError(response));
+    }
+    if (response.headers.get(LOCAL_SUPPORTED_APP_EXPORT_HEADER) !== '1') {
+      return false;
+    }
+
+    const source = buildLocalSupportedAppSourceState(app, helperPath);
+    rememberLastSource(source);
+    setCurrentLoadSource(source);
+    updateLoaderSourceUi();
+
+    const buffer = await response.arrayBuffer();
+    const sourceName = app.sourceKind === 'bundle'
+      ? `${app.name}.humblebundle`
+      : `${app.name}.design.json`;
+    if (isBundlePayload(buffer, sourceName) || isBundleResponse(response)) {
+      loadBundleFromArrayBuffer(buffer, sourceName);
+      return true;
+    }
+
+    clearBundleAssets();
+    applyConfig(JSON.parse(new TextDecoder().decode(buffer)));
+    return true;
+  } catch (error) {
+    if (error instanceof TypeError) return false;
+    setStatus('err', `${app.name} localhost load failed: ${error.message}`);
+    return true;
+  }
+}
+
 async function loadSupportedApp(appId, mode = 'url') {
   const app = getSupportedAppSource(appId);
   if (!app) {
@@ -270,6 +448,10 @@ async function loadSupportedApp(appId, mode = 'url') {
   const source = buildSupportedAppSourceState(app, mode);
   if (!source?.value) {
     setStatus('err', 'Supported app source is missing.');
+    return;
+  }
+
+  if (source.mode !== 'demo' && await loadSupportedAppFromLocalHelper(app)) {
     return;
   }
 
@@ -399,6 +581,7 @@ function renderSupportedApps() {
   }
   container.innerHTML = apps.map(app => {
     const sourceKind = app.sourceKind || 'config';
+    const helperKind = app.localSource?.type === 'localhost-api' ? 'localhost' : sourceKind;
     const demoAction = app.hasDemo
       ? `<button class="btn-sm loader-supported-btn" onclick="loadSupportedApp('${app.id}', 'demo')">Demo</button>`
       : '';
@@ -414,7 +597,7 @@ function renderSupportedApps() {
         <div class="loader-supported-desc">${escapeHtml(app.description || '')}</div>
         <div class="loader-supported-foot">
           <span>${escapeHtml(app.platform || 'App')}</span>
-          <span>${escapeHtml(sourceKind)}</span>
+          <span>${escapeHtml(helperKind)}</span>
         </div>
         <div class="loader-supported-actions">
           <button class="btn-full loader-supported-btn" onclick="loadSupportedApp('${app.id}')">Load</button>
@@ -1543,6 +1726,7 @@ function getSourceLabel(source) {
 function getSourceValueLabel(source) {
   if (!source?.value) return '';
   if (source.type === 'supported-app' && source.appName) {
+    if (source.mode === 'local') return `${source.appName} local export`;
     return source.mode === 'demo' ? `${source.appName} demo` : source.appName;
   }
   if (source.type === 'url') {
@@ -1632,6 +1816,12 @@ async function reloadLastSource() {
   const source = getRememberedSource();
   if (!source) return;
   if (source.type === 'supported-app' && source.appId) {
+    if (source.mode === 'local') {
+      const app = getSupportedAppSource(source.appId);
+      if (app && await loadSupportedAppFromLocalHelper(app)) return;
+      setStatus('warn', 'Local supported-app exports reload from the localhost helper or native Sources menu.');
+      return;
+    }
     await loadSupportedApp(source.appId, source.mode || 'url');
     return;
   }
@@ -1655,7 +1845,7 @@ function updateLoaderSourceUi() {
   if (source?.type === 'url' && urlInput && !urlInput.value) {
     urlInput.value = source.value || '';
   }
-  if (source?.type === 'supported-app' && source.mode !== 'demo' && urlInput && !urlInput.value) {
+  if (source?.type === 'supported-app' && source.mode !== 'demo' && source.mode !== 'local' && urlInput && !urlInput.value) {
     urlInput.value = source.value || '';
   }
   if (!currentLoadSource && source?.value) {
@@ -1672,9 +1862,13 @@ function updateLoaderSourceUi() {
   if (source.type === 'url') {
     reloadBtn.textContent = `Reload ${source.value}`;
   } else if (source.type === 'supported-app') {
-    reloadBtn.textContent = source.mode === 'demo'
-      ? `Reload ${source.appName || 'supported app'} demo`
-      : `Reload ${source.appName || 'supported app'}`;
+    if (source.mode === 'demo') {
+      reloadBtn.textContent = `Reload ${source.appName || 'supported app'} demo`;
+    } else if (source.mode === 'local') {
+      reloadBtn.textContent = `Reload ${source.appName || 'supported app'} from localhost`;
+    } else {
+      reloadBtn.textContent = `Reload ${source.appName || 'supported app'}`;
+    }
   } else if (source.type === 'demo') {
     reloadBtn.textContent = 'Reload HumbleSudoku demo';
   } else {
@@ -2269,6 +2463,7 @@ function resetNavMapZoom() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  bootstrapStudioEmbedHandshake();
   bootstrapRouteHistory();
   bootstrapLoaderExperience();
   syncCommandPaletteTriggerUi();

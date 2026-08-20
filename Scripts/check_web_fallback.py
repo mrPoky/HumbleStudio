@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INDEX_PATH = ROOT / "index.html"
 CONFIG_PATHS = [ROOT / "design.template.json", ROOT / "configs" / "humble-sudoku.json"]
+LOCAL_PREVIEW_HELPER_PATH = ROOT / "Scripts" / "serve_local_preview.py"
 REFERENCE_PATTERN = re.compile(r"""(?:src|href)=["']([^"']+)["']""")
 
 
@@ -62,6 +63,39 @@ def validate_markup(index_path: Path) -> list[str]:
     return failures
 
 
+def validate_local_preview_helper() -> list[str]:
+    if not LOCAL_PREVIEW_HELPER_PATH.exists():
+        return ["Missing localhost preview helper: Scripts/serve_local_preview.py"]
+
+    helper_content = LOCAL_PREVIEW_HELPER_PATH.read_text(encoding="utf-8")
+    demo_content = (ROOT / "js" / "demo.js").read_text(encoding="utf-8")
+    app_content = (ROOT / "js" / "app.js").read_text(encoding="utf-8")
+    required_fragments = [
+        (helper_content, "humble-sudoku", "localhost helper HumbleSudoku resolver"),
+        (helper_content, "humble-control", "localhost helper HumbleControl resolver"),
+        (
+            helper_content,
+            "Scripts/generate_humble_studio_config.py",
+            "localhost helper allowlisted HumbleSudoku export command",
+        ),
+        (
+            helper_content,
+            "X-HumbleStudio-Local-Export",
+            "localhost helper response identity header",
+        ),
+        (helper_content, "/api/connections", "localhost helper connection index"),
+        (helper_content, "humble.studio.connections.v1", "HumbleControl connection manifest schema"),
+        (demo_content, "/api/supported-apps/humble-sudoku/export", "web catalog localhost API path"),
+        (demo_content, "/api/supported-apps/humble-control/export", "web catalog HumbleControl API path"),
+        (app_content, "loadSupportedAppFromLocalHelper", "web catalog localhost loader"),
+    ]
+    failures: list[str] = []
+    for content, fragment, label in required_fragments:
+        if fragment not in content:
+            failures.append(f"Missing {label}: {fragment}")
+    return failures
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -74,6 +108,7 @@ def main() -> int:
             failures.append(f"Missing referenced asset: {path.relative_to(ROOT)}")
 
     failures.extend(validate_markup(INDEX_PATH))
+    failures.extend(validate_local_preview_helper())
     failures.extend(validate_json_files(CONFIG_PATHS))
 
     if failures:
