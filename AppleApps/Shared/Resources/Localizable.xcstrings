@@ -281,6 +281,34 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Apply gate locked" } }
       }
     },
+    "studio.remote_source.supported_app_apply_preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Apply preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apply preview" } }
+      }
+    },
+    "studio.remote_source.supported_app_edit_boundary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Hranice editace" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit boundary" } }
+      }
+    },
+    "studio.remote_source.supported_app_launch_intent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Launch" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch" } }
+      }
+    },
+    "studio.remote_source.supported_app_recovery_wizard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Recovery wizard" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recovery wizard" } }
+      }
+    },
     "studio.remote_source.supported_app_review_artifact" : {
       "extractionState" : "manual",
       "localizations" : {

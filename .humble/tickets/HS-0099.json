@@ -1,0 +1,91 @@
+{
+  "id": "HS-0099",
+  "title": "Publish workspace launch and edit-boundary contract metadata",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-20",
+  "updated_at": "2026-08-20",
+  "source": "agent",
+  "summary": "Support the accepted ten-item Control/Studio launch-flow queue from the Studio side by publishing launch intent, recovery wizard, helper diagnostics, apply preview, smoke metadata, and the first explicit edit-boundary contract metadata.",
+  "acceptance_criteria": [
+    "Studio manifests expose Control workspace launch metadata for helper, export, recovery, review, and smoke readiness.",
+    "Export descriptors include missing-export wizard metadata without enabling writes.",
+    "Prepare-edit contracts include an explicit edit-boundary model and apply preview reference while keeping apply locked.",
+    "Native supported-app rows expose workspace launch, recovery, apply preview, and edit-boundary path metadata.",
+    "Native strings use StudioStrings and Localizable.xcstrings.",
+    "Fallback guardrails and helper tests assert launch-flow metadata, smoke metadata, and no-write semantics.",
+    "Documentation describes the workspace launch flow and future edit boundary honestly.",
+    "Verification and promotion evidence are recorded before closing the ticket."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Studio connection and prepare-edit manifests now publish workspaceLaunch, recoveryWizard, applyPreview, editBoundary, smokeCheck, helperDiagnostics, and the related capabilities."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Native supported-app rows expose launch intent, recovery wizard, apply preview, and edit-boundary paths through StudioStrings and Localizable.xcstrings."
+    },
+    {
+      "kind": "report",
+      "status": "passed",
+      "note": "control-edit-boundary.md documents missing-export generation as an explicit Studio export request, not an apply path, and defines the first real-edit boundary."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/test_serve_local_preview.py && python3 Scripts/check_web_fallback.py",
+      "note": "Local preview manifest tests and web fallback contract guard passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "bash Scripts/run_local_checks.sh --workflow-only && ./script/build_and_run.sh --native-ci",
+      "note": "Workflow-only checks and HumbleStudioMac native build passed."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0099.json",
+    ".humble/coordination/lanes.json",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    "docs/control-edit-boundary.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan accepted all ten next-step items after the HC-0300/HS-0098 unified workspace merge."
+  },
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py # passed: 14 tests",
+    "python3 Scripts/check_web_fallback.py # passed",
+    "python3 -m py_compile Scripts/*.py # passed",
+    "git diff --check # passed",
+    "python3 Scripts/validate_humble_tickets.py # passed: 93 tickets",
+    "python3 Scripts/validate_repo_contract.py # passed",
+    "bash Scripts/run_local_checks.sh --workflow-only # passed",
+    "./script/build_and_run.sh --native-ci # passed: HumbleStudioMac build succeeded",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict # expected branch-freshness failure from topic lane before commit"
+  ],
+  "agent_notes": [
+    "Studio remains a localhost contract producer in this slice. Do not add a real write/apply route.",
+    "The edit-boundary model is a contract and review surface, not permission to mutate app repositories.",
+    "Claimed lane-3 on branch `feat/hs-0099-workspace-launch-contract`."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0098",
+      "HC-0301"
+    ]
+  }
+}

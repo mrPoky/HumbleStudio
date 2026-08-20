@@ -33,6 +33,22 @@ struct StudioSupportedAppSource: Identifiable, Equatable {
         "/studio/\(id)"
     }
 
+    var launchIntentPath: String {
+        controlWorkspacePath
+    }
+
+    var recoveryWizardPath: String {
+        "\(controlWorkspacePath)#recovery"
+    }
+
+    var applyPreviewPath: String {
+        "\(controlWorkspacePath)#apply-preview"
+    }
+
+    var editBoundaryPath: String {
+        "\(controlWorkspacePath)#edit-boundary"
+    }
+
     var reviewSummary: String {
         "\(reviewArtifactPath) · \(applyGateStatus)"
     }
@@ -359,16 +375,28 @@ private struct StudioSupportedAppRow: View {
                 Text("\(StudioStrings.supportedAppWorkspace): \(app.controlWorkspacePath)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppLaunchIntent): \(app.launchIntentPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppScopedPrepareEdit): \(app.scopedPrepareEditPath)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppSessionPath): \(app.controlSessionPath)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppRecoveryWizard): \(app.recoveryWizardPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppSessionID): \(app.sessionID)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppReviewArtifact): \(app.reviewArtifactPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppApplyPreview): \(app.applyPreviewPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppEditBoundary): \(app.editBoundaryPath)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }

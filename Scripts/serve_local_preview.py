@@ -26,6 +26,7 @@ DEFAULT_HUMBLECONTROL_URL = "http://127.0.0.1:3000"
 LOCAL_EXPORT_HEADER = "X-HumbleStudio-Local-Export"
 CONNECTION_MANIFEST_SCHEMA = "humble.studio.connections.v1"
 PREPARE_EDIT_SCHEMA = "humble.studio.prepare-edit.v1"
+HELPER_LOG_PATH = "/tmp/humblecontrol-humblestudio-helper.log"
 
 
 @dataclass(frozen=True)
@@ -323,6 +324,83 @@ def export_state(app: SupportedAppExport) -> tuple[str, Path]:
     return "missing", export_path
 
 
+def build_workspace_launch_descriptor(app: SupportedAppExport, endpoint: str, encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.workspace-launch.v1",
+        "controlUrl": f"/studio/{encoded_app_id}",
+        "loadUrl": f"/api/connections/humblestudio/load/{encoded_app_id}",
+        "exportEndpoint": endpoint,
+        "helperRequired": True,
+        "writes": False,
+        "steps": [
+            "helper-listener",
+            "connection-manifest",
+            "app-export",
+            "workspace-route",
+            "session-evidence",
+        ],
+    }
+
+
+def build_recovery_wizard_descriptor(
+    app: SupportedAppExport,
+    endpoint: str,
+    encoded_app_id: str,
+    state: str,
+) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.recovery-wizard.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#recovery",
+        "exportEndpoint": endpoint,
+        "canGenerate": bool(app.generator_command),
+        "state": state,
+        "confirmationRequired": True,
+        "effect": "studio-export-generator" if app.generator_command else "inspect-only",
+        "writes": False,
+    }
+
+
+def build_apply_preview_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.apply-preview.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#apply-preview",
+        "status": "locked",
+        "writes": False,
+        "requires": [
+            "explicit-user-confirmation",
+            "human-review",
+            "clean-worktree-or-backup",
+            "ticket-scoped-change",
+        ],
+    }
+
+
+def build_edit_boundary_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.edit-boundary.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#edit-boundary",
+        "status": "draft",
+        "apply": "locked",
+        "writes": False,
+        "requires": [
+            "repo-native-ticket",
+            "review-artifact",
+            "session-evidence",
+            "explicit-user-confirmation",
+        ],
+    }
+
+
+def build_smoke_check_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.workspace-smoke.v1",
+        "controlWorkspaceUrl": f"/studio/{encoded_app_id}",
+        "reviewUrl": f"/studio/{encoded_app_id}/review",
+        "prepareEditUrl": f"/studio/{encoded_app_id}/prepare-edit",
+        "writes": False,
+    }
+
+
 def build_export_descriptor(app: SupportedAppExport, base_url: str) -> dict[str, object]:
     state, export_path = export_state(app)
     endpoint = f"{base_url}/api/supported-apps/{quote(app.app_id)}/export"
@@ -379,6 +457,11 @@ def build_export_descriptor(app: SupportedAppExport, base_url: str) -> dict[str,
             "trigger": "GET supported-app export endpoint",
             "writes": False,
         },
+        "workspaceLaunch": build_workspace_launch_descriptor(app, endpoint, encoded_app_id),
+        "recoveryWizard": build_recovery_wizard_descriptor(app, endpoint, encoded_app_id, state),
+        "applyPreview": build_apply_preview_descriptor(encoded_app_id),
+        "editBoundary": build_edit_boundary_descriptor(encoded_app_id),
+        "smokeCheck": build_smoke_check_descriptor(encoded_app_id),
     }
 
 
@@ -451,6 +534,12 @@ def build_prepare_edit_contract(
             "readable-review-artifact",
             "local-proposal-draft",
             "missing-export-request",
+            "workspace-launch",
+            "recovery-wizard",
+            "session-evidence",
+            "apply-preview",
+            "edit-boundary-contract",
+            "workspace-smoke",
             "locked-apply-boundary",
         ],
         "exports": [
@@ -472,6 +561,11 @@ def build_prepare_edit_contract(
                 "manifestDiff": item["manifestDiff"],
                 "applyGate": item["applyGate"],
                 "missingExport": item["missingExport"],
+                "workspaceLaunch": item["workspaceLaunch"],
+                "recoveryWizard": item["recoveryWizard"],
+                "applyPreview": item["applyPreview"],
+                "editBoundary": item["editBoundary"],
+                "smokeCheck": item["smokeCheck"],
                 "operations": [
                     {
                         "id": "inspect-export",
@@ -522,6 +616,24 @@ def build_humble_control_connection_manifest(
             "apply": "locked",
             "contractEndpoint": f"{base_url}/api/connections/humble-control/prepare-edit",
         },
+        "workspaceLaunch": {
+            "schema": "humble.studio.workspace-launch.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku",
+            "writes": False,
+        },
+        "helperDiagnostics": {
+            "schema": "humble.studio.helper-diagnostics.v1",
+            "endpoint": f"{base_url}/api/connections/humble-control",
+            "logPath": HELPER_LOG_PATH,
+            "writes": False,
+        },
+        "smokeCheck": {
+            "schema": "humble.studio.workspace-smoke.index.v1",
+            "controlUrl": os.environ.get("HUMBLECONTROL_LOCAL_URL", DEFAULT_HUMBLECONTROL_URL),
+            "expectedExportCount": len(exports),
+            "writes": False,
+        },
         "capabilities": [
             "supported-app-export",
             "design-contract-read",
@@ -535,6 +647,12 @@ def build_humble_control_connection_manifest(
             "local-proposal-draft",
             "helper-control-surface",
             "missing-export-request",
+            "workspace-launch",
+            "recovery-wizard",
+            "session-evidence",
+            "apply-preview",
+            "edit-boundary-contract",
+            "workspace-smoke",
             "locked-apply-gate",
         ],
         "exports": exports,
