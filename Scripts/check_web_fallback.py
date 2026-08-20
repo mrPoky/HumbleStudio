@@ -73,6 +73,8 @@ def validate_local_preview_helper() -> list[str]:
     required_fragments = [
         (helper_content, "humble-sudoku", "localhost helper HumbleSudoku resolver"),
         (helper_content, "humble-control", "localhost helper HumbleControl resolver"),
+        (helper_content, "humble-workout", "localhost helper broader Humble app registry"),
+        (helper_content, "my-vltava-run", "localhost helper MyVltavaRun resolver"),
         (
             helper_content,
             "Scripts/generate_humble_studio_config.py",
@@ -90,8 +92,16 @@ def validate_local_preview_helper() -> list[str]:
         (helper_content, "exportCount", "HumbleControl scoped prepare-edit export count"),
         (helper_content, "prepare-edit-contract", "HumbleControl prepare-edit manifest capability"),
         (helper_content, "session-source-truth", "HumbleControl session source truth capability"),
+        (helper_content, "controlPrepareEditUrl", "HumbleControl prepare-edit workbench route"),
+        (helper_content, "controlSessionUrl", "HumbleControl session workbench route"),
+        (helper_content, "controlRecoveryUrl", "HumbleControl recovery route"),
+        (helper_content, "reviewArtifact", "HumbleControl review artifact reference"),
+        (helper_content, "manifestDiff", "HumbleControl manifest diff reference"),
+        (helper_content, "applyGate", "HumbleControl locked apply gate reference"),
         (demo_content, "/api/supported-apps/humble-sudoku/export", "web catalog localhost API path"),
         (demo_content, "/api/supported-apps/humble-control/export", "web catalog HumbleControl API path"),
+        (demo_content, "/api/supported-apps/humble-workout/export", "web catalog HumbleWorkout API path"),
+        (demo_content, "/api/supported-apps/my-vltava-run/export", "web catalog MyVltavaRun API path"),
         (app_content, "loadSupportedAppFromLocalHelper", "web catalog localhost loader"),
     ]
     failures: list[str] = []

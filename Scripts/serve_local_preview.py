@@ -19,6 +19,7 @@ from urllib.parse import parse_qs, quote, unquote, urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_PERSONAL_APPS_ROOT = Path("/Users/janpokorny/Coding/personal/apps")
 DEFAULT_HUMBLESUDOKU_REPO = Path("/Users/janpokorny/Coding/personal/apps/HumbleSudoku")
 DEFAULT_HUMBLECONTROL_REPO = Path("/Users/janpokorny/Coding/personal/apps/HumbleControl")
 DEFAULT_HUMBLECONTROL_URL = "http://127.0.0.1:3000"
@@ -61,6 +62,22 @@ def env_path(*names: str) -> Path | None:
     return None
 
 
+def personal_app_repo(app_name: str, *env_names: str) -> Path:
+    return env_path(*env_names) or DEFAULT_PERSONAL_APPS_ROOT / app_name
+
+
+def design_json_export(app_id: str, app_name: str, repo_name: str, *env_names: str) -> SupportedAppExport:
+    return SupportedAppExport(
+        app_id=app_id,
+        app_name=app_name,
+        repo_path=personal_app_repo(repo_name, *env_names),
+        export_relative_path=Path(".humble/design.json"),
+        generator_command=(),
+        content_type="application/json; charset=utf-8",
+        source_kind="design.json",
+    )
+
+
 def build_supported_app_catalog() -> dict[str, SupportedAppExport]:
     sudoku_repo = (
         env_path("HUMBLESTUDIO_HUMBLESUDOKU_REPO", "HUMBLE_SUDOKU_REPO_ROOT")
@@ -70,7 +87,7 @@ def build_supported_app_catalog() -> dict[str, SupportedAppExport]:
         env_path("HUMBLESTUDIO_HUMBLECONTROL_REPO", "HUMBLECONTROL_REPO_ROOT")
         or DEFAULT_HUMBLECONTROL_REPO
     )
-    return {
+    catalog = {
         "humble-sudoku": SupportedAppExport(
             app_id="humble-sudoku",
             app_name="HumbleSudoku",
@@ -94,6 +111,81 @@ def build_supported_app_catalog() -> dict[str, SupportedAppExport]:
             source_kind="design.json",
         ),
     }
+    catalog.update(
+        {
+            "my-vltava-run": design_json_export(
+                "my-vltava-run",
+                "MyVltavaRun",
+                "MyVltavaRun",
+                "HUMBLESTUDIO_MYVLTAVARUN_REPO",
+                "MYVLTAVARUN_REPO_ROOT",
+            ),
+            "humble-workout": design_json_export(
+                "humble-workout",
+                "HumbleWorkout",
+                "HumbleWorkout",
+                "HUMBLESTUDIO_HUMBLEWORKOUT_REPO",
+                "HUMBLEWORKOUT_REPO_ROOT",
+            ),
+            "humble-kakuro": design_json_export(
+                "humble-kakuro",
+                "HumbleKakuro",
+                "HumbleKakuro",
+                "HUMBLESTUDIO_HUMBLEKAKURO_REPO",
+                "HUMBLEKAKURO_REPO_ROOT",
+            ),
+            "humble-cycling": design_json_export(
+                "humble-cycling",
+                "HumbleCycling",
+                "HumbleCycling",
+                "HUMBLESTUDIO_HUMBLECYCLING_REPO",
+                "HUMBLECYCLING_REPO_ROOT",
+            ),
+            "humble-home": design_json_export(
+                "humble-home",
+                "HumbleHome",
+                "HumbleHome",
+                "HUMBLESTUDIO_HUMBLEHOME_REPO",
+                "HUMBLEHOME_REPO_ROOT",
+            ),
+            "humble-cook": design_json_export(
+                "humble-cook",
+                "HumbleCook",
+                "HumbleCook",
+                "HUMBLESTUDIO_HUMBLECOOK_REPO",
+                "HUMBLECOOK_REPO_ROOT",
+            ),
+            "humble-architect": design_json_export(
+                "humble-architect",
+                "HumbleArchitect",
+                "HumbleArchitect",
+                "HUMBLESTUDIO_HUMBLEARCHITECT_REPO",
+                "HUMBLEARCHITECT_REPO_ROOT",
+            ),
+            "humble-nas": design_json_export(
+                "humble-nas",
+                "HumbleNAS",
+                "HumbleNAS",
+                "HUMBLESTUDIO_HUMBLENAS_REPO",
+                "HUMBLENAS_REPO_ROOT",
+            ),
+            "humble-subscription": design_json_export(
+                "humble-subscription",
+                "HumbleSubscription",
+                "HumbleSubscription",
+                "HUMBLESTUDIO_HUMBLESUBSCRIPTION_REPO",
+                "HUMBLESUBSCRIPTION_REPO_ROOT",
+            ),
+            "my-family": design_json_export(
+                "my-family",
+                "MyFamily",
+                "MyFamily",
+                "HUMBLESTUDIO_MYFAMILY_REPO",
+                "MYFAMILY_REPO_ROOT",
+            ),
+        }
+    )
+    return catalog
 
 
 SUPPORTED_APP_EXPORTS = build_supported_app_catalog()
@@ -235,6 +327,7 @@ def build_export_descriptor(app: SupportedAppExport, base_url: str) -> dict[str,
     state, export_path = export_state(app)
     endpoint = f"{base_url}/api/supported-apps/{quote(app.app_id)}/export"
     bootstrap_key = "bundle" if app.source_kind == "humblebundle" else "config"
+    encoded_app_id = quote(app.app_id)
     return {
         "id": app.app_id,
         "appName": app.app_name,
@@ -244,6 +337,38 @@ def build_export_descriptor(app: SupportedAppExport, base_url: str) -> dict[str,
         "endpoint": endpoint,
         "studioLoadUrl": f"{base_url}/?{bootstrap_key}={quote(endpoint, safe='')}",
         "prepareEditUrl": f"{base_url}/api/connections/humble-control/prepare-edit?app={quote(app.app_id)}",
+        "controlSessionUrl": f"/studio/{encoded_app_id}/session",
+        "controlPrepareEditUrl": f"/studio/{encoded_app_id}/prepare-edit",
+        "controlRecoveryUrl": f"/api/studio/{encoded_app_id}/recovery",
+        "reviewArtifact": {
+            "schema": "humble.control.studio-review-artifact.v1",
+            "controlUrl": f"/studio/{encoded_app_id}/prepare-edit#review-artifact",
+            "suggestedFilename": f"{app.app_id}-studio-review-artifact.json",
+            "writes": False,
+        },
+        "manifestDiff": {
+            "status": "ready" if state == "available" else "attention",
+            "fields": [
+                "selectedAppId",
+                "sourceKind",
+                "repoPath",
+                "exportPath",
+                "operationCount",
+                "applyBoundary",
+                "writes",
+            ],
+            "writes": False,
+        },
+        "applyGate": {
+            "status": "locked",
+            "writes": False,
+            "requires": [
+                "explicit-user-confirmation",
+                "human-review",
+                "clean-worktree-or-backup",
+                "ticket-scoped-change",
+            ],
+        },
         "repoPath": str(app.repo_path.expanduser()),
         "exportPath": str(export_path),
         "contentType": app.content_type,
@@ -319,6 +444,8 @@ def build_prepare_edit_contract(
             "proposal-read",
             "session-source-truth",
             "dry-run-contract",
+            "manifest-diff-preview",
+            "review-artifact-ref",
             "missing-export-request",
             "locked-apply-boundary",
         ],
@@ -333,6 +460,12 @@ def build_prepare_edit_contract(
                 "studioLoadUrl": item["studioLoadUrl"],
                 "repoPath": item["repoPath"],
                 "exportPath": item["exportPath"],
+                "controlSessionUrl": item["controlSessionUrl"],
+                "controlPrepareEditUrl": item["controlPrepareEditUrl"],
+                "controlRecoveryUrl": item["controlRecoveryUrl"],
+                "reviewArtifact": item["reviewArtifact"],
+                "manifestDiff": item["manifestDiff"],
+                "applyGate": item["applyGate"],
                 "missingExport": item["missingExport"],
                 "operations": [
                     {
@@ -390,7 +523,10 @@ def build_humble_control_connection_manifest(
             "localhost-manifest",
             "prepare-edit-contract",
             "session-source-truth",
+            "manifest-diff-preview",
+            "review-artifact-ref",
             "missing-export-request",
+            "locked-apply-gate",
         ],
         "exports": exports,
     }

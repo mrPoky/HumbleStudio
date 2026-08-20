@@ -10,6 +10,11 @@ struct StudioSupportedAppSource: Identifiable, Equatable {
     let remoteURL: String
     let connectionMode: String
     let prepareEditMode: String
+    let scopedPrepareEditPath: String
+    let controlSessionPath: String
+    let controlRecoveryPath: String
+    let reviewArtifactPath: String
+    let applyGateStatus: String
     let writesEnabled: Bool
 
     var sourceLabel: String {
@@ -18,6 +23,14 @@ struct StudioSupportedAppSource: Identifiable, Equatable {
 
     var connectionSummary: String {
         "\(sourceKind) · \(connectionMode) · \(prepareEditMode)"
+    }
+
+    var scopedContractSummary: String {
+        "\(scopedPrepareEditPath) · \(controlSessionPath)"
+    }
+
+    var reviewSummary: String {
+        "\(reviewArtifactPath) · \(applyGateStatus)"
     }
 
     var sessionID: String {
@@ -45,6 +58,11 @@ enum StudioSupportedAppCatalog {
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleSudoku/main/.humble/HumbleSudoku.humblebundle",
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/humble-sudoku/prepare-edit",
+            controlSessionPath: "/studio/humble-sudoku/session",
+            controlRecoveryPath: "/api/studio/humble-sudoku/recovery",
+            reviewArtifactPath: "/studio/humble-sudoku/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
             writesEnabled: false
         ),
         StudioSupportedAppSource(
@@ -57,6 +75,11 @@ enum StudioSupportedAppCatalog {
             remoteURL: "https://raw.githubusercontent.com/mrPoky/MyVltavaRun/main/.humble/design.json",
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/my-vltava-run/prepare-edit",
+            controlSessionPath: "/studio/my-vltava-run/session",
+            controlRecoveryPath: "/api/studio/my-vltava-run/recovery",
+            reviewArtifactPath: "/studio/my-vltava-run/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
             writesEnabled: false
         ),
         StudioSupportedAppSource(
@@ -69,6 +92,164 @@ enum StudioSupportedAppCatalog {
             remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleControl/main/.humble/design.json",
             connectionMode: "read-only",
             prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/humble-control/prepare-edit",
+            controlSessionPath: "/studio/humble-control/session",
+            controlRecoveryPath: "/api/studio/humble-control/recovery",
+            reviewArtifactPath: "/studio/humble-control/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
+            writesEnabled: false
+        ),
+        StudioSupportedAppSource(
+            id: "humble-workout",
+            name: "HumbleWorkout",
+            repo: "mrPoky/HumbleWorkout",
+            sourceSummary: ".humble/design.json",
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleWorkout/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/humble-workout/prepare-edit",
+            controlSessionPath: "/studio/humble-workout/session",
+            controlRecoveryPath: "/api/studio/humble-workout/recovery",
+            reviewArtifactPath: "/studio/humble-workout/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
+            writesEnabled: false
+        ),
+        StudioSupportedAppSource(
+            id: "humble-kakuro",
+            name: "HumbleKakuro",
+            repo: "mrPoky/HumbleKakuro",
+            sourceSummary: ".humble/design.json",
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleKakuro/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/humble-kakuro/prepare-edit",
+            controlSessionPath: "/studio/humble-kakuro/session",
+            controlRecoveryPath: "/api/studio/humble-kakuro/recovery",
+            reviewArtifactPath: "/studio/humble-kakuro/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
+            writesEnabled: false
+        ),
+        StudioSupportedAppSource(
+            id: "humble-cycling",
+            name: "HumbleCycling",
+            repo: "mrPoky/HumbleCycling",
+            sourceSummary: ".humble/design.json",
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleCycling/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/humble-cycling/prepare-edit",
+            controlSessionPath: "/studio/humble-cycling/session",
+            controlRecoveryPath: "/api/studio/humble-cycling/recovery",
+            reviewArtifactPath: "/studio/humble-cycling/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
+            writesEnabled: false
+        ),
+        StudioSupportedAppSource(
+            id: "humble-home",
+            name: "HumbleHome",
+            repo: "mrPoky/HumbleHome",
+            sourceSummary: ".humble/design.json",
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleHome/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/humble-home/prepare-edit",
+            controlSessionPath: "/studio/humble-home/session",
+            controlRecoveryPath: "/api/studio/humble-home/recovery",
+            reviewArtifactPath: "/studio/humble-home/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
+            writesEnabled: false
+        ),
+        StudioSupportedAppSource(
+            id: "humble-cook",
+            name: "HumbleCook",
+            repo: "mrPoky/HumbleCook",
+            sourceSummary: ".humble/design.json",
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleCook/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/humble-cook/prepare-edit",
+            controlSessionPath: "/studio/humble-cook/session",
+            controlRecoveryPath: "/api/studio/humble-cook/recovery",
+            reviewArtifactPath: "/studio/humble-cook/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
+            writesEnabled: false
+        ),
+        StudioSupportedAppSource(
+            id: "humble-architect",
+            name: "HumbleArchitect",
+            repo: "mrPoky/HumbleArchitect",
+            sourceSummary: ".humble/design.json",
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleArchitect/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/humble-architect/prepare-edit",
+            controlSessionPath: "/studio/humble-architect/session",
+            controlRecoveryPath: "/api/studio/humble-architect/recovery",
+            reviewArtifactPath: "/studio/humble-architect/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
+            writesEnabled: false
+        ),
+        StudioSupportedAppSource(
+            id: "humble-nas",
+            name: "HumbleNAS",
+            repo: "mrPoky/HumbleNAS",
+            sourceSummary: ".humble/design.json",
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleNAS/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/humble-nas/prepare-edit",
+            controlSessionPath: "/studio/humble-nas/session",
+            controlRecoveryPath: "/api/studio/humble-nas/recovery",
+            reviewArtifactPath: "/studio/humble-nas/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
+            writesEnabled: false
+        ),
+        StudioSupportedAppSource(
+            id: "humble-subscription",
+            name: "HumbleSubscription",
+            repo: "mrPoky/HumbleSubscription",
+            sourceSummary: ".humble/design.json",
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/HumbleSubscription/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/humble-subscription/prepare-edit",
+            controlSessionPath: "/studio/humble-subscription/session",
+            controlRecoveryPath: "/api/studio/humble-subscription/recovery",
+            reviewArtifactPath: "/studio/humble-subscription/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
+            writesEnabled: false
+        ),
+        StudioSupportedAppSource(
+            id: "my-family",
+            name: "MyFamily",
+            repo: "mrPoky/MyFamily",
+            sourceSummary: ".humble/design.json",
+            sourceKind: "design.json",
+            localExportPath: ".humble/design.json",
+            remoteURL: "https://raw.githubusercontent.com/mrPoky/MyFamily/main/.humble/design.json",
+            connectionMode: "read-only",
+            prepareEditMode: "prepare-edit",
+            scopedPrepareEditPath: "/studio/my-family/prepare-edit",
+            controlSessionPath: "/studio/my-family/session",
+            controlRecoveryPath: "/api/studio/my-family/recovery",
+            reviewArtifactPath: "/studio/my-family/prepare-edit#review-artifact",
+            applyGateStatus: "locked",
             writesEnabled: false
         ),
     ]
@@ -171,6 +352,18 @@ private struct StudioSupportedAppRow: View {
                 Text(app.connectionSummary)
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppScopedPrepareEdit): \(app.scopedPrepareEditPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppSessionPath): \(app.controlSessionPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppSessionID): \(app.sessionID)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppReviewArtifact): \(app.reviewArtifactPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
 
             Spacer(minLength: 12)
@@ -204,6 +397,11 @@ private struct StudioSupportedAppRow: View {
                     .font(.caption2.weight(.semibold))
                     .labelStyle(.titleAndIcon)
                     .foregroundStyle(app.writesEnabled ? .primary : .secondary)
+
+                Label(StudioStrings.supportedAppApplyGateLocked, systemImage: "checkmark.shield.fill")
+                    .font(.caption2.weight(.semibold))
+                    .labelStyle(.titleAndIcon)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(14)
