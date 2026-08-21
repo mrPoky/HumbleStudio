@@ -1,0 +1,177 @@
+{
+  "id": "HS-0106",
+  "title": "Add native Control operations pack",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-22",
+  "updated_at": "2026-08-22",
+  "source": "agent",
+  "summary": "Extend the native HumbleStudio Control readiness bridge with the ten accepted operations slices: launcher health, server discovery, app workspace switching, file recovery for app lanes, preview diff artifacts, structured edit drafts, real .humble ticket/lane preflight, safe apply wizard, visual smoke checklist, and smaller native bridge modules.",
+  "acceptance_criteria": [
+    "The native Control readiness workspace exposes launcher health and can prefer a local HumbleControl.app launch before falling back to the Control URL.",
+    "Server discovery shows live runtime state, manifest candidates, and localhost endpoint attempts.",
+    "The workspace includes a native switcher for the accepted ten app lanes and keeps HumbleSudoku local-first loading available.",
+    "All ten app lanes expose file recovery state with local export, generator, remote, or missing-source status.",
+    "Preview diff artifacts, structured draft inbox, ticket/lane preflight, safe apply wizard, and visual smoke status are visible without enabling source writes.",
+    "Ticket/lane preflight reads the real .humble ticket store, lane registry, and status snapshot.",
+    "The large Control readiness implementation is split into smaller native bridge support and view modules.",
+    "Native build and repository checks prove the operations pack compiles and preserves the locked no-write contract."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "The native Control readiness grid now mounts nine new operations sections before the previous readiness details."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlBridgeSupport.swift",
+      "note": "Bridge runtime, snapshot, file recovery, manifest discovery, .humble repo preflight, and launcher actions are split into a support module."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlBridgeViews.swift",
+      "note": "Launcher health, server discovery, app switcher, file recovery, diff artifacts, structured draft inbox, preflight, safe apply, and visual smoke views are native SwiftUI sections."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlBridgeSupport.swift",
+      "note": "Launcher action prefers a local HumbleControl.app when available and falls back to the selected Control workspace URL."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlBridgeSupport.swift",
+      "note": "Server discovery reports live runtime state, local manifest candidates, and all configured localhost origins."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlBridgeSupport.swift",
+      "note": "The .humble preflight reads the real ticket store, HS-0106 ticket, lane registry, and status snapshot instead of placeholder state."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlBridgeSupport.swift",
+      "note": "Preview diff, structured drafts, safe apply, and visual smoke keep writes:false, sourceWrites:false, and source apply locked."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources",
+      "note": "Non-ASCII scan returned no matches for the updated Swift sources."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources",
+      "note": "git diff --check passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": ".humble/tickets/HS-0106.json",
+      "note": "python3 Scripts/validate_humble_tickets.py passed: valid 104 tickets."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Config/repo-contract.json",
+      "note": "python3 Scripts/validate_repo_contract.py passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/check_web_fallback.py",
+      "note": "python3 Scripts/check_web_fallback.py passed: web fallback ok."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/run_local_checks.sh",
+      "note": "bash Scripts/run_local_checks.sh --workflow-only passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts",
+      "note": "python3 -m py_compile Scripts/*.py passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps",
+      "note": "./script/build_and_run.sh --native-ci passed: BUILD SUCCEEDED."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "HumbleStudio.xcodeproj/project.pbxproj",
+      "note": "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build passed: BUILD SUCCEEDED."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "/Users/janpokorny/Coding/personal/apps/HumbleSudoku/.humble/HumbleSudoku.humblebundle",
+      "note": "Read-only file probe found the HumbleSudoku local export present."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "AppleApps/macOS/Sources/StudioMacControlBridgeSupport.swift",
+      "note": "Local curl probes to ports 3035, 3022, and 3000 found no running Control server, so fallback discovery is the truthful runtime state."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "Scripts/humble_doctor.py",
+      "note": "python3 Scripts/humble_doctor.py --repo-root . --strict reported the expected branch-freshness failure for the active HS-0106 topic lane before promotion."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0106.json",
+    "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacControlBridgeSupport.swift",
+    "AppleApps/macOS/Sources/StudioMacControlBridgeViews.swift"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan asked to implement all ten next HumbleStudio and HumbleControl bridge steps.",
+    "note": "This remains a native review/control surface. Source apply stays locked until a separate accepted write contract exists."
+  },
+  "commands": [
+    "perl -ne 'print \"$.:$_\" if /[^\\x00-\\x7F]/' AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift AppleApps/macOS/Sources/StudioMacControlBridgeSupport.swift AppleApps/macOS/Sources/StudioMacControlBridgeViews.swift",
+    "git diff --check",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/check_web_fallback.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 -m py_compile Scripts/*.py",
+    "./script/build_and_run.sh --native-ci",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict",
+    "curl --silent --show-error --max-time 3 http://127.0.0.1:3035/api/studio/humble-sudoku/safe-edit/readiness",
+    "curl --silent --show-error --max-time 3 http://127.0.0.1:3022/api/studio/humble-sudoku/safe-edit/readiness",
+    "curl --silent --show-error --max-time 3 http://127.0.0.1:3000/api/studio/humble-sudoku/safe-edit/readiness",
+    "test -d /Users/janpokorny/Coding/personal/apps/HumbleSudoku && test -f /Users/janpokorny/Coding/personal/apps/HumbleSudoku/.humble/HumbleSudoku.humblebundle",
+    "xcodebuild -project HumbleStudio.xcodeproj -scheme HumbleStudioMac -configuration Debug build"
+  ],
+  "agent_notes": [
+    "This follows HS-0105 and moves the bridge toward a merged HumbleStudio/HumbleControl control surface.",
+    "Keep writes:false, sourceWrites:false, and apply locked throughout this slice."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0105"
+    ]
+  }
+}
