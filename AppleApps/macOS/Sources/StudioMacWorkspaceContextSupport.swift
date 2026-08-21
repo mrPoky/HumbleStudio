@@ -46,7 +46,7 @@ enum StudioMacParityResolver {
             return .exact
         case .components, .views, .review, .navigation:
             return nativePreviewCoverageSummary(for: document).fallbackNeeded > 0 ? .degraded : .exact
-        case .proposals:
+        case .proposals, .controlReadiness:
             return .exact
         case .typography:
             return document.typography.contains(where: { nativeTypographyPreviewCoverage(for: $0) != .exact }) ? .degraded : .exact
@@ -124,7 +124,7 @@ enum StudioMacWorkspaceContextResolver {
     static func label(for route: StudioNativeRoute, document: StudioNativeDocument?) -> String {
         guard let document else { return route.destination.title }
         switch route {
-        case .overview, .review, .proposals, .legacyWeb:
+        case .overview, .review, .proposals, .controlReadiness, .legacyWeb:
             return route.destination.title
         case let .tokens(tokenSelection):
             switch tokenSelection {
@@ -197,7 +197,7 @@ enum StudioMacWorkspaceContextResolver {
             }
         case .navigation:
             return document.views.first(where: { $0.id == selectionState.navigationViewID })?.name
-        case .overview, .review, .proposals, .legacyWeb:
+        case .overview, .review, .proposals, .controlReadiness, .legacyWeb:
             return nil
         }
     }
@@ -248,7 +248,7 @@ enum StudioMacWorkspaceContextResolver {
         case .navigation:
             guard let view = document.views.first(where: { $0.id == selectionState.navigationViewID }) else { return nil }
             return StudioStrings.navigationFlowSummary(outgoingCount: view.navigatesTo.count)
-        case .overview, .review, .proposals, .legacyWeb:
+        case .overview, .review, .proposals, .controlReadiness, .legacyWeb:
             return nil
         }
     }

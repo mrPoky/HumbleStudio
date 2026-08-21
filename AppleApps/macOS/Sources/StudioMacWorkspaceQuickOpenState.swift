@@ -26,6 +26,8 @@ enum StudioMacWorkspaceQuickOpenState {
             return "page:navigation"
         case .proposals:
             return "page:proposals"
+        case .controlReadiness:
+            return "page:controlReadiness"
         case .icons:
             guard let selectedIconID = selectionState.iconID else { return "page:icons" }
             return "icon:\(selectedIconID)"

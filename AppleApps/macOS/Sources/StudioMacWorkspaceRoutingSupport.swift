@@ -8,6 +8,7 @@ enum StudioNativeDestination: String, Hashable, CaseIterable {
     case review
     case navigation
     case proposals
+    case controlReadiness
     case icons
     case typography
     case spacing
@@ -30,6 +31,7 @@ enum StudioNativeDestination: String, Hashable, CaseIterable {
         case .review: return "exclamationmark.circle"
         case .navigation: return "arrow.triangle.branch"
         case .proposals: return "doc.text.magnifyingglass"
+        case .controlReadiness: return "checklist.checked"
         case .icons: return "app.gift"
         case .typography: return "textformat"
         case .spacing: return "square.on.square"
@@ -46,6 +48,7 @@ enum StudioNativeRoute: Equatable {
     case review
     case navigation(String?)
     case proposals
+    case controlReadiness
     case icons(String?)
     case typography(String?)
     case spacing(StudioNativeMetricSelection?)
@@ -60,6 +63,7 @@ enum StudioNativeRoute: Equatable {
         case .review: return .review
         case .navigation: return .navigation
         case .proposals: return .proposals
+        case .controlReadiness: return .controlReadiness
         case .icons: return .icons
         case .typography: return .typography
         case .spacing: return .spacing
@@ -291,6 +295,8 @@ enum StudioNativeRouteController {
             selection = .navigation
         case .proposals:
             selection = .proposals
+        case .controlReadiness:
+            selection = .controlReadiness
         case let .icons(iconID):
             selectionState.iconID =
                 iconID
@@ -354,6 +360,8 @@ enum StudioNativeRouteResolver {
             return .navigation(resolvedNavigationViewID(state: state, document: document))
         case .proposals:
             return .proposals
+        case .controlReadiness:
+            return .controlReadiness
         case .icons:
             return .icons(resolvedIconID(state: state, document: document))
         case .typography:

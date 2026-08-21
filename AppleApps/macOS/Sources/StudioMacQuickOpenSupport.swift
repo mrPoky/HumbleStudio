@@ -77,6 +77,7 @@ enum StudioMacQuickOpenFactory {
             pageItem(.review, subtitle: StudioStrings.destinationSubtitle(.review), context: context),
             pageItem(.navigation, subtitle: StudioStrings.destinationSubtitle(.navigation), context: context),
             pageItem(.proposals, subtitle: StudioStrings.destinationSubtitle(.proposals), context: context),
+            pageItem(.controlReadiness, subtitle: StudioStrings.destinationSubtitle(.controlReadiness), context: context),
             pageItem(.icons, subtitle: StudioStrings.destinationSubtitle(.icons), context: context),
             pageItem(.typography, subtitle: StudioStrings.destinationSubtitle(.typography), context: context),
             pageItem(.spacing, subtitle: StudioStrings.destinationSubtitle(.spacing), context: context),

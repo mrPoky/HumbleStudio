@@ -15,6 +15,7 @@
 		195566F1067AB02DAB2CC384 /* StudioStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F9A4B07E7ED4171D0D81C6 /* StudioStrings.swift */; };
 		1D0342D6B520DA32E6D75CD5 /* StudioSupportedAppCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C645A47418AB6C962A601470 /* StudioSupportedAppCatalog.swift */; };
 		2F3ED791D9E2E3C27BBF0428 /* StudioMacReviewNavigationProposalArtifactDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B688F29754C81CE00D6FAF2 /* StudioMacReviewNavigationProposalArtifactDetail.swift */; };
+		30239D2C4632399588781C80 /* StudioMacControlReadinessWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9165184D96C60382D08752DD /* StudioMacControlReadinessWorkspace.swift */; };
 		36741C0B293FEE13E3A183C6 /* StudioWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9FE54CB456E1DF95AC4403 /* StudioWebView.swift */; };
 		4458CB1A5F16E5D6080FDD3B /* StudioMacWorkspaceShellSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3683DF4303AF2F5E91C5039C /* StudioMacWorkspaceShellSupport.swift */; };
 		4EA566BDF92E5731366A17F2 /* StudioMacReviewNavigationProposalWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D619C66814FF4EB6D218C90 /* StudioMacReviewNavigationProposalWorkspace.swift */; };
@@ -58,6 +59,7 @@
 		87907AE1843232106A2FEB0C /* StudioMacContentWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacContentWorkspace.swift; sourceTree = "<group>"; };
 		88AAC605FD7F7C78BEF12324 /* StudioMacWorkspaceChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacWorkspaceChrome.swift; sourceTree = "<group>"; };
 		8D5FCB881D9DB6CEC75A47E2 /* StudioMacReviewNavigationWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacReviewNavigationWorkspace.swift; sourceTree = "<group>"; };
+		9165184D96C60382D08752DD /* StudioMacControlReadinessWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacControlReadinessWorkspace.swift; sourceTree = "<group>"; };
 		9B688F29754C81CE00D6FAF2 /* StudioMacReviewNavigationProposalArtifactDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacReviewNavigationProposalArtifactDetail.swift; sourceTree = "<group>"; };
 		9D619C66814FF4EB6D218C90 /* StudioMacReviewNavigationProposalWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacReviewNavigationProposalWorkspace.swift; sourceTree = "<group>"; };
 		AD7E6E9EDD4D4F2F399A8299 /* StudioMacFoundationWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioMacFoundationWorkspace.swift; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 			children = (
 				4750EAFF90869AE84E110EF2 /* HumbleStudioMacApp.swift */,
 				87907AE1843232106A2FEB0C /* StudioMacContentWorkspace.swift */,
+				9165184D96C60382D08752DD /* StudioMacControlReadinessWorkspace.swift */,
 				AD7E6E9EDD4D4F2F399A8299 /* StudioMacFoundationWorkspace.swift */,
 				676AC0ADE7216ACD24C594C6 /* StudioMacInspectorSupport.swift */,
 				5DFAED34B7F05CBCFDFDA23D /* StudioMacPreviewSupport.swift */,
@@ -286,6 +289,7 @@
 				A817540636AC3DBCF3267431 /* HumbleStudioMacApp.swift in Sources */,
 				E14F6A8D9730E2E181F2231D /* StudioBundleLocator.swift in Sources */,
 				15B721987348ED2EF06949AE /* StudioMacContentWorkspace.swift in Sources */,
+				30239D2C4632399588781C80 /* StudioMacControlReadinessWorkspace.swift in Sources */,
 				62813E07B96E427BDCBDBC98 /* StudioMacFoundationWorkspace.swift in Sources */,
 				D0D11E40F9C37988F17FD5DF /* StudioMacInspectorSupport.swift in Sources */,
 				76B02EC9E2CE1CB98F5119AE /* StudioMacPreviewSupport.swift in Sources */,

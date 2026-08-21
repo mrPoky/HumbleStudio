@@ -1,0 +1,142 @@
+{
+  "id": "HS-0104",
+  "title": "Add native Control readiness workspace",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-22",
+  "updated_at": "2026-08-22",
+  "source": "agent",
+  "summary": "Bring the accepted Studio/Control Top 10 readiness work into the native macOS HumbleStudio inspector as a read-only surface for safe-edit parity, JSON recovery, edit intents, connection health, ticket/lane preflight, navigation, apply design, HumbleSudoku fidelity, density/readability, and write-contract preview.",
+  "acceptance_criteria": [
+    "The macOS sidebar exposes a native Control readiness workspace instead of relying on the legacy web fallback.",
+    "The native readiness page presents exactly the ten requested readiness slices with writes:false, sourceWrites:false, and apply locked.",
+    "The page can consume the HumbleControl readiness endpoint when available and falls back to a local read-only contract when Control is offline.",
+    "The page includes native sections for safe-edit detail, JSON recovery, edit intents, connection diagnostics, ticket/lane preflight, unified navigation, locked apply design, HumbleSudoku preview fidelity, workspace readability, and write-contract preview.",
+    "Native build and repository checks prove the new macOS source compiles without enabling repository writes."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+      "note": "The macOS sidebar and detail switch now expose a native Control readiness workspace."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "The native page renders the ten requested readiness slices with writes:false, sourceWrites:false, and apply locked in the fallback contract."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "The view tries HUMBLECONTROL_URL, HUMBLESTUDIO_CONTROL_URL, and local Control ports before falling back to a read-only local pack when Control is offline."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "perl non-ASCII scan returned no matches for the new Swift source."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": ".humble/tickets/HS-0104.json",
+      "note": "python3 Scripts/validate_humble_tickets.py passed: valid 102 tickets."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Config/repo-contract.json",
+      "note": "python3 Scripts/validate_repo_contract.py passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/check_web_fallback.py",
+      "note": "python3 Scripts/check_web_fallback.py passed: web fallback ok."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/run_local_checks.sh",
+      "note": "bash Scripts/run_local_checks.sh --workflow-only passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts",
+      "note": "python3 -m py_compile Scripts/*.py passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps",
+      "note": "./script/build_and_run.sh --native-ci passed after the final edit: BUILD SUCCEEDED."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "HumbleStudio.xcodeproj/project.pbxproj",
+      "note": "git diff --check passed."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "Scripts/humble_doctor.py",
+      "note": "python3 Scripts/humble_doctor.py --repo-root . --strict reported only the expected branch-freshness failure for the active topic lane before promotion."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "Local curl probes to 127.0.0.1 ports 3022, 3035, and 3000 found no running Control web server; this validates the offline path expectation for the fallback contract."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0104.json",
+    "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceRoutingSupport.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceContextSupport.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceQuickOpenState.swift",
+    "AppleApps/macOS/Sources/StudioMacQuickOpenSupport.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "HumbleStudio.xcodeproj/project.pbxproj"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan asked to implement all ten next native Studio/Control steps.",
+    "note": "Implement native read-only readiness parity only; do not add a source apply path."
+  },
+  "commands": [
+    "perl -ne 'print \"$.:$_\" if /[^\\x00-\\x7F]/' AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/check_web_fallback.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 -m py_compile Scripts/*.py",
+    "./script/build_and_run.sh --native-ci",
+    "git diff --check",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict",
+    "curl --silent --show-error --max-time 3 http://127.0.0.1:3022/api/studio/humble-sudoku/safe-edit/readiness",
+    "curl --silent --show-error --max-time 3 http://127.0.0.1:3035/api/studio/humble-sudoku/safe-edit/readiness",
+    "curl --silent --show-error --max-time 3 http://127.0.0.1:3000/api/studio/humble-sudoku/safe-edit/readiness"
+  ],
+  "agent_notes": [
+    "This is the native HumbleStudio companion to HumbleControl HC-0331.",
+    "The surface may fetch and display readiness JSON, but repository source writes remain locked."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0103",
+      "HC-0331"
+    ]
+  }
+}

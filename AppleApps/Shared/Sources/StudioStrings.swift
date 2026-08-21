@@ -1372,6 +1372,7 @@ enum StudioStrings {
         case .review: return reviewQueueTitle
         case .navigation: return navigationMap
         case .proposals: return proposalWorkspaceTitle
+        case .controlReadiness: return String(localized: "studio.destination.control_readiness", defaultValue: "Control Readiness")
         case .icons: return String(localized: "studio.destination.icons", defaultValue: "Icons")
         case .typography: return String(localized: "studio.destination.typography", defaultValue: "Typography")
         case .spacing: return String(localized: "studio.destination.spacing", defaultValue: "Spacing & Radius")
@@ -1395,6 +1396,8 @@ enum StudioStrings {
             return String(localized: "studio.destination.navigation_subtitle", defaultValue: "Native flow map over exported navigation edges, root routing, and behavior coverage.")
         case .proposals:
             return String(localized: "studio.destination.proposals_subtitle", defaultValue: "Repository-aware proposal workspace with native filters, recovery, and scope linkage.")
+        case .controlReadiness:
+            return String(localized: "studio.destination.control_readiness_subtitle", defaultValue: "Native read-only safe-edit readiness, recovery, diagnostics, preflight, and locked write-contract preview.")
         case .icons:
             return String(localized: "studio.destination.icons_subtitle", defaultValue: "Native icon catalog sourced from the imported bundle.")
         case .typography:

@@ -16,6 +16,7 @@ struct StudioMacWorkspaceSidebar: View {
                 sidebarRow(.review, count: reviewQueueCount)
                 sidebarRow(.navigation, count: navigationEdgeCount)
                 sidebarRow(.proposals)
+                sidebarRow(.controlReadiness)
                 sidebarRow(.icons, count: document?.icons.count)
                 sidebarRow(.typography, count: document?.typography.count)
                 sidebarRow(.spacing, count: document.map { $0.spacing.count + $0.radius.count })
@@ -276,6 +277,8 @@ struct StudioMacWorkspaceDetailContent: View {
                 openComponentReviewFocus: openComponentReviewFocus,
                 openViewNavigationFocus: openViewNavigationFocus
             )
+        case .controlReadiness:
+            StudioMacControlReadinessPage(document: model.nativeDocument)
         case .icons:
             StudioMacIconsPage(
                 document: model.nativeDocument,
@@ -835,7 +838,7 @@ private struct StudioMacNativeParityCard: View {
     let document: StudioNativeDocument
 
     private let nativeDestinations: [StudioNativeDestination] = [
-        .tokens, .components, .views, .review, .navigation, .proposals, .icons, .typography, .spacing
+        .tokens, .components, .views, .review, .navigation, .proposals, .controlReadiness, .icons, .typography, .spacing
     ]
 
     private var rows: [StudioMacParityEntry] {
@@ -894,6 +897,8 @@ private struct StudioMacNativeParityCard: View {
             return StudioStrings.parityNavigationSubtitle
         case .proposals:
             return StudioStrings.parityProposalSubtitle
+        case .controlReadiness:
+            return destination.subtitle
         case .typography:
             return tone == .exact ? StudioStrings.parityTypographyExactSubtitle : StudioStrings.parityTypographyDegradedSubtitle
         case .spacing:
