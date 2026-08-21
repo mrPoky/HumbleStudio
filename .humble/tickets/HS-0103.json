@@ -1,0 +1,154 @@
+{
+  "id": "HS-0103",
+  "title": "Publish convergence workflow anchors",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-21",
+  "updated_at": "2026-08-21",
+  "source": "agent",
+  "summary": "Publish Studio-side convergence workflow anchors for the accepted Top 10 Control/Studio queue, including connection center, app switcher, proposal inbox v2, patch artifact viewer, sandbox apply, edit boundary, safe edit planning, shell merge, native/web parity, and repo orchestration.",
+  "acceptance_criteria": [
+    "Connection and prepare-edit manifests advertise a convergence-workflow capability.",
+    "Every supported app export includes a no-write convergenceWorkflow descriptor with the accepted ten workflow anchors.",
+    "Native supported-app catalog exposes the same convergence workflow anchor.",
+    "Fallback guards, local preview tests, and documentation assert the no-write convergence workflow contract.",
+    "Verification and promotion evidence are recorded before closing the ticket."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/serve_local_preview.py",
+      "note": "Connection and prepare-edit manifests now advertise convergence-workflow, and every supported app export includes a no-write convergenceWorkflow descriptor with exactly ten anchors."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+      "note": "Native supported-app catalog exposes the same convergence workflow anchor and Localizable.xcstrings contains the shared label."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "docs/control-edit-boundary.md",
+      "note": "Documented the ten-stage no-write Control/Studio convergence contract."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/test_serve_local_preview.py",
+      "note": "python3 Scripts/test_serve_local_preview.py passed: 14 tests."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/check_web_fallback.py",
+      "note": "python3 Scripts/check_web_fallback.py passed: web fallback ok."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps/Shared/Resources/Localizable.xcstrings",
+      "note": "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings >/dev/null passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts",
+      "note": "python3 -m py_compile Scripts/*.py passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": ".humble/tickets/HS-0103.json",
+      "note": "python3 Scripts/validate_humble_tickets.py passed: valid 97 tickets."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Config/repo-contract.json",
+      "note": "python3 Scripts/validate_repo_contract.py passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/run_local_checks.sh",
+      "note": "bash Scripts/run_local_checks.sh --workflow-only passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps",
+      "note": "./script/build_and_run.sh --native-ci passed: BUILD SUCCEEDED."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps",
+      "note": "rg -n \"L10n\\.\" . returned no matches, and rg --files -g '*.strings' -g '*.stringsdict' returned no matches."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "docs/control-edit-boundary.md",
+      "note": "git diff --check passed."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "Scripts/humble_doctor.py",
+      "note": "python3 Scripts/humble_doctor.py --repo-root . --strict reported only the expected branch-freshness failure for the active topic lane before promotion."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/serve_local_preview.py",
+      "note": "Lane live smoke with HumbleControl passed via HUMBLESTUDIO_URL=http://127.0.0.1:8773 and Control port 3033."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0103.json",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    "docs/control-edit-boundary.md",
+    "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan accepted the full Top 10 next queue and asked to implement all ten.",
+    "note": "Publish workflow anchors only; do not add a repository write/apply endpoint."
+  },
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings >/dev/null",
+    "python3 -m py_compile Scripts/*.py",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "./script/build_and_run.sh --native-ci",
+    "rg -n \"L10n\\.\" .",
+    "rg --files -g '*.strings' -g '*.stringsdict'",
+    "git diff --check",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict",
+    "HUMBLECONTROL_URL=http://127.0.0.1:3033 HUMBLESTUDIO_URL=http://127.0.0.1:8773 npm exec tsx scripts/smoke-studio-workspace.ts"
+  ],
+  "agent_notes": [
+    "This is the Studio-side companion to HumbleControl HC-0321.",
+    "The convergence workflow is a navigation and readiness contract, not an apply permission."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0102",
+      "HC-0320"
+    ]
+  }
+}

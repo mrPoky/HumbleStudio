@@ -44,6 +44,9 @@ Each export descriptor may also include Control-owned routes:
 - `trustLevel` for the selected export trust posture
 - `safeApplyBoundary` for explicit allowlisted preview artifacts and rejected
   source targets
+- `convergenceWorkflow` for the shared ten-step Control/Studio workflow anchors
+  that keep connection, proposal, patch, sandbox, edit-boundary, parity, and
+  repo orchestration in one no-write contract
 - `nativeParity` for the native Studio catalog rows that should mirror the web
   workspace contract
 - `endToEndSmoke` for manifest, workspace, draft, preview, and apply-lock smoke
@@ -81,7 +84,12 @@ The first allowed bridge is therefore:
 8. HumbleControl may export a patch artifact and inspect a sandbox apply
    descriptor as scratch-only evidence. This remains `writes:false` from
    Studio and `sourceWrites:false` for supported app repositories.
-9. Any repository source write is rejected by default.
+9. HumbleControl may render the accepted ten-step convergence workflow:
+   Connection Center, app switcher, Proposal Inbox v2, Patch Artifact Viewer,
+   Sandbox Apply v1, Edit Boundary UI, first safe edit flow, shell convergence,
+   native/web parity, and repo orchestration. Every stage remains
+   `writes:false`.
+10. Any repository source write is rejected by default.
 
 The first real edit boundary should remain narrow:
 

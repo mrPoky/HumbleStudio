@@ -56,6 +56,7 @@ enum StudioStrings {
     static let supportedAppApplyPreview = String(localized: "studio.remote_source.supported_app_apply_preview", defaultValue: "Apply preview")
     static let supportedAppEditBoundary = String(localized: "studio.remote_source.supported_app_edit_boundary", defaultValue: "Edit boundary")
     static let supportedAppSafeApplyBoundary = String(localized: "studio.remote_source.supported_app_safe_apply_boundary", defaultValue: "Safe apply")
+    static let supportedAppConvergenceWorkflow = String(localized: "studio.remote_source.supported_app_convergence_workflow", defaultValue: "Convergence workflow")
     static let supportedAppAuthoringSmoke = String(localized: "studio.remote_source.supported_app_authoring_smoke", defaultValue: "Authoring smoke")
     static let supportedAppApplyGateLocked = String(localized: "studio.remote_source.supported_app_apply_gate_locked", defaultValue: "Apply gate locked")
     static let useURL = String(localized: "studio.remote_source.use_url", defaultValue: "Use URL")

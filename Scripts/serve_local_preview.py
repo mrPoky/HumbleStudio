@@ -36,6 +36,68 @@ RUNTIME_AUTHORING_CAPABILITIES = [
     "proposal-center",
     "source-apply-locked",
 ]
+CONVERGENCE_WORKFLOW_STAGES = [
+    {
+        "id": "connection-center",
+        "rank": 1,
+        "title": "Connection Center",
+        "intent": "Connect HumbleControl to the active HumbleStudio helper, manifest, and selected app export.",
+    },
+    {
+        "id": "app-switcher",
+        "rank": 2,
+        "title": "App Switcher",
+        "intent": "Open supported Humble apps from one workspace without losing authoring context.",
+    },
+    {
+        "id": "proposal-inbox-v2",
+        "rank": 3,
+        "title": "Proposal Inbox v2",
+        "intent": "Keep app-scoped proposal review close to runtime readiness and edit planning.",
+    },
+    {
+        "id": "patch-artifact-viewer",
+        "rank": 4,
+        "title": "Patch Artifact Viewer",
+        "intent": "Review portable patch artifacts before any apply-oriented workflow is discussed.",
+    },
+    {
+        "id": "sandbox-apply-v1",
+        "rank": 5,
+        "title": "Sandbox Apply v1",
+        "intent": "Preview apply effects in a scratch-only lane while source writes remain disabled.",
+    },
+    {
+        "id": "edit-boundary-ui",
+        "rank": 6,
+        "title": "Edit Boundary UI",
+        "intent": "Make locked write requirements visible before a user can request a real edit flow.",
+    },
+    {
+        "id": "first-safe-edit-flow",
+        "rank": 7,
+        "title": "First Safe Edit Flow",
+        "intent": "Prepare the first explicit-confirmation edit journey while keeping current exports no-write.",
+    },
+    {
+        "id": "shell-convergence",
+        "rank": 8,
+        "title": "HumbleStudio/HumbleControl Shell Convergence",
+        "intent": "Move Studio authoring and Control orchestration into one connected workspace shell.",
+    },
+    {
+        "id": "native-web-parity",
+        "rank": 9,
+        "title": "Native/Web Parity",
+        "intent": "Expose the same workflow anchors to native Studio and the local Control web surface.",
+    },
+    {
+        "id": "repo-orchestration",
+        "rank": 10,
+        "title": "Repo Orchestration",
+        "intent": "Coordinate tickets, lanes, smoke checks, and promotion gates before source writes are unlocked.",
+    },
+]
 
 
 @dataclass(frozen=True)
@@ -511,6 +573,28 @@ def build_safe_apply_boundary_descriptor(encoded_app_id: str) -> dict[str, objec
     }
 
 
+def build_convergence_workflow_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.convergence-workflow.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#convergence-workflow",
+        "stageCount": len(CONVERGENCE_WORKFLOW_STAGES),
+        "activeStageId": "connection-center",
+        "nextStageId": "app-switcher",
+        "apply": "locked",
+        "sourceWrites": False,
+        "writes": False,
+        "stages": [
+            {
+                **stage,
+                "status": "anchored",
+                "writes": False,
+                "sourceWrites": False,
+            }
+            for stage in CONVERGENCE_WORKFLOW_STAGES
+        ],
+    }
+
+
 def build_native_parity_descriptor(encoded_app_id: str) -> dict[str, object]:
     return {
         "schema": "humble.studio.native-parity.v1",
@@ -526,6 +610,7 @@ def build_native_parity_descriptor(encoded_app_id: str) -> dict[str, object]:
             "patch-artifact",
             "sandbox-apply",
             "source-apply-lock",
+            "convergence-workflow",
         ],
         "writes": False,
     }
@@ -546,6 +631,7 @@ def build_end_to_end_smoke_descriptor(encoded_app_id: str) -> dict[str, object]:
             "sandbox-apply",
             "source-apply-lock",
             "safe-apply-lock",
+            "convergence-workflow",
         ],
         "writes": False,
     }
@@ -631,6 +717,7 @@ def build_export_descriptor(app: SupportedAppExport, base_url: str) -> dict[str,
         "sourceApplyLock": build_source_apply_lock_descriptor(encoded_app_id),
         "trustLevel": build_trust_level_descriptor(encoded_app_id, state),
         "safeApplyBoundary": build_safe_apply_boundary_descriptor(encoded_app_id),
+        "convergenceWorkflow": build_convergence_workflow_descriptor(encoded_app_id),
         "nativeParity": build_native_parity_descriptor(encoded_app_id),
         "endToEndSmoke": build_end_to_end_smoke_descriptor(encoded_app_id),
         "smokeCheck": build_smoke_check_descriptor(encoded_app_id),
@@ -725,6 +812,7 @@ def build_prepare_edit_contract(
             "apply-preview",
             "edit-boundary-contract",
             "workspace-smoke",
+            "convergence-workflow",
             "locked-apply-boundary",
         ],
         "exports": [
@@ -760,6 +848,7 @@ def build_prepare_edit_contract(
                 "sourceApplyLock": item["sourceApplyLock"],
                 "trustLevel": item["trustLevel"],
                 "safeApplyBoundary": item["safeApplyBoundary"],
+                "convergenceWorkflow": item["convergenceWorkflow"],
                 "nativeParity": item["nativeParity"],
                 "endToEndSmoke": item["endToEndSmoke"],
                 "smokeCheck": item["smokeCheck"],
@@ -897,6 +986,26 @@ def build_humble_control_connection_manifest(
             "status": "locked",
             "writes": False,
         },
+        "convergenceWorkflow": {
+            "schema": "humble.studio.convergence-workflow.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#convergence-workflow",
+            "stageCount": len(CONVERGENCE_WORKFLOW_STAGES),
+            "activeStageId": "connection-center",
+            "nextStageId": "app-switcher",
+            "apply": "locked",
+            "sourceWrites": False,
+            "writes": False,
+            "stages": [
+                {
+                    **stage,
+                    "status": "anchored",
+                    "writes": False,
+                    "sourceWrites": False,
+                }
+                for stage in CONVERGENCE_WORKFLOW_STAGES
+            ],
+        },
         "connectionRegistry": {
             "schema": "humble.studio.connection-registry.index.v1",
             "controlUrl": "/studio/humble-sudoku#registry",
@@ -952,6 +1061,7 @@ def build_humble_control_connection_manifest(
             "apply-preview",
             "edit-boundary-contract",
             "workspace-smoke",
+            "convergence-workflow",
             "locked-apply-gate",
         ],
         "exports": exports,

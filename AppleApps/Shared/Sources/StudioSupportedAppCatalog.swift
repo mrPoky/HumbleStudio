@@ -93,6 +93,10 @@ struct StudioSupportedAppSource: Identifiable, Equatable {
         "\(controlWorkspacePath)#safe-apply"
     }
 
+    var convergenceWorkflowPath: String {
+        "\(controlWorkspacePath)#convergence-workflow"
+    }
+
     var authoringSmokePath: String {
         "\(controlWorkspacePath)#smoke"
     }
@@ -478,6 +482,9 @@ private struct StudioSupportedAppRow: View {
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppSafeApplyBoundary): \(app.safeApplyBoundaryPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppConvergenceWorkflow): \(app.convergenceWorkflowPath)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppAuthoringSmoke): \(app.authoringSmokePath)")

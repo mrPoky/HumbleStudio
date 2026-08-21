@@ -133,6 +133,8 @@ def validate_local_preview_helper() -> list[str]:
         (helper_content, "sourceApplyLock", "HumbleControl source apply lock contract"),
         (helper_content, "source-apply-locked", "HumbleControl source apply lock capability"),
         (helper_content, "applyPreview", "HumbleControl apply preview contract"),
+        (helper_content, "convergenceWorkflow", "HumbleControl convergence workflow contract"),
+        (helper_content, "convergence-workflow", "HumbleControl convergence workflow capability"),
         (helper_content, "editBoundary", "HumbleControl edit boundary contract"),
         (helper_content, "smokeCheck", "HumbleControl workspace smoke check contract"),
         (demo_content, "/api/supported-apps/humble-sudoku/export", "web catalog localhost API path"),
