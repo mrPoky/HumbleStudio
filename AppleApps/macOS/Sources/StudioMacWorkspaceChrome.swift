@@ -278,7 +278,7 @@ struct StudioMacWorkspaceDetailContent: View {
                 openViewNavigationFocus: openViewNavigationFocus
             )
         case .controlReadiness:
-            StudioMacControlReadinessPage(document: model.nativeDocument)
+            StudioMacControlReadinessPage(document: model.nativeDocument, loadSupportedApp: loadSupportedApp)
         case .icons:
             StudioMacIconsPage(
                 document: model.nativeDocument,

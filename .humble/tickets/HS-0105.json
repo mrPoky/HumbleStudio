@@ -1,0 +1,161 @@
+{
+  "id": "HS-0105",
+  "title": "Add native live Control bridge center",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-22",
+  "updated_at": "2026-08-22",
+  "source": "agent",
+  "summary": "Turn the native Control readiness page into a live bridge center for Studio, Control, and app workspaces: endpoint discovery, live/fallback status, HumbleSudoku loading, missing-export recovery, connection center, deep-link map, no-write edit preview, locked apply contract, status checks, and first end-to-end safe-edit flow.",
+  "acceptance_criteria": [
+    "The native Control readiness page shows whether HumbleControl is live or the native fallback is active.",
+    "The page exposes an app connection center for the accepted ten app lanes and lets HumbleSudoku load through the existing supported-app loader.",
+    "Missing local repository/export state is visible before loading, and load uses the existing generator-backed supported-app path when available.",
+    "The page includes native deep links, status checks, edit preview, locked apply contract, and end-to-end safe-edit flow without enabling source writes.",
+    "Native build and repository checks prove the new bridge center compiles and preserves the no-write contract."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "Runtime discovery now tracks HumbleControl candidate origins, live/fallback mode, origin, attempts, and checked-at time."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "The hero and status checks show whether the page is using a live Control endpoint or native fallback."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+      "note": "Control Readiness receives the existing supported-app loader so HumbleSudoku can be loaded from the bridge center."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/Shared/Sources/StudioShellModel.swift",
+      "note": "The bridge uses the existing StudioShellModel.loadSupportedApp path, which resolves local HumbleSudoku export and runs the existing generator when the export is missing."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "Connection center renders the first ten app lanes from the supported app catalog with native Load and Control-open actions."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "Deep-link map, no-write edit preview, status checks, locked apply gate, and ten-step end-to-end safe-edit flow are now native sections."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "perl non-ASCII scan returned no matches for the updated Swift source."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": ".humble/tickets/HS-0105.json",
+      "note": "python3 Scripts/validate_humble_tickets.py passed: valid 103 tickets."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Config/repo-contract.json",
+      "note": "python3 Scripts/validate_repo_contract.py passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/check_web_fallback.py",
+      "note": "python3 Scripts/check_web_fallback.py passed: web fallback ok."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/run_local_checks.sh",
+      "note": "bash Scripts/run_local_checks.sh --workflow-only passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts",
+      "note": "python3 -m py_compile Scripts/*.py passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "AppleApps",
+      "note": "./script/build_and_run.sh --native-ci passed after the final bridge layout edit: BUILD SUCCEEDED."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "HumbleStudio.xcodeproj/project.pbxproj",
+      "note": "git diff --check passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "/Users/janpokorny/Coding/personal/apps/HumbleSudoku/.humble/HumbleSudoku.humblebundle",
+      "note": "Read-only file probe found HumbleSudoku repo and local humblebundle export present."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+      "note": "Local curl probes to Control readiness endpoints on ports 3035, 3022, and 3000 found no running server; fallback mode is therefore the truthful runtime state."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "Scripts/humble_doctor.py",
+      "note": "python3 Scripts/humble_doctor.py --repo-root . --strict reported the expected branch-freshness failure for the active topic lane before commit."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0105.json",
+    "AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+    "AppleApps/macOS/Sources/StudioMacWorkspaceChrome.swift",
+    "AppleApps/Shared/Sources/StudioShellModel.swift"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan accepted the next Top 10 bridge steps and asked to implement all ten.",
+    "note": "Bridge center remains review-only; source apply stays locked until a separate accepted write contract exists."
+  },
+  "commands": [
+    "perl -ne 'print \"$.:$_\" if /[^\\x00-\\x7F]/' AppleApps/macOS/Sources/StudioMacControlReadinessWorkspace.swift",
+    "git diff --check",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/check_web_fallback.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "python3 -m py_compile Scripts/*.py",
+    "./script/build_and_run.sh --native-ci",
+    "python3 Scripts/humble_doctor.py --repo-root . --strict",
+    "curl --silent --show-error --max-time 3 http://127.0.0.1:3035/api/studio/humble-sudoku/safe-edit/readiness",
+    "curl --silent --show-error --max-time 3 http://127.0.0.1:3022/api/studio/humble-sudoku/safe-edit/readiness",
+    "curl --silent --show-error --max-time 3 http://127.0.0.1:3000/api/studio/humble-sudoku/safe-edit/readiness",
+    "test -d /Users/janpokorny/Coding/personal/apps/HumbleSudoku && test -f /Users/janpokorny/Coding/personal/apps/HumbleSudoku/.humble/HumbleSudoku.humblebundle"
+  ],
+  "agent_notes": [
+    "This follows HS-0104 and keeps Control/Studio convergence in native HumbleStudio.",
+    "Use the existing StudioShellModel.loadSupportedApp path for HumbleSudoku so missing local exports can be generated by the existing app resolver."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0104"
+    ]
+  }
+}

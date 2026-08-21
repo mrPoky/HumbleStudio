@@ -1,7 +1,9 @@
+import AppKit
 import SwiftUI
 
 struct StudioMacControlReadinessPage: View {
     let document: StudioNativeDocument?
+    let loadSupportedApp: (StudioSupportedAppSource) -> Void
     @StateObject private var viewModel = StudioControlReadinessViewModel()
 
     private var app: StudioSupportedAppSource {
@@ -26,6 +28,10 @@ struct StudioMacControlReadinessPage: View {
 
     private var pack: StudioControlReadinessPack {
         viewModel.pack ?? StudioControlReadinessPack.fallback(app: app)
+    }
+
+    private var bridgeSnapshot: StudioControlBridgeSnapshot {
+        StudioControlBridgeSnapshot(app: app, document: document, runtime: viewModel.runtime, pack: pack)
     }
 
     private var hero: some View {
@@ -54,10 +60,14 @@ struct StudioMacControlReadinessPage: View {
                 StudioInspectorSummaryItem(label: "App", value: pack.appName, tone: .accent),
                 StudioInspectorSummaryItem(label: "Items", value: "\(pack.itemCount)", tone: pack.itemCount == 10 ? .success : .warning),
                 StudioInspectorSummaryItem(label: "Status", value: pack.status, tone: StudioControlReadinessTone.summaryTone(for: pack.status)),
+                StudioInspectorSummaryItem(label: "Control", value: viewModel.runtime.modeLabel, tone: viewModel.runtime.summaryTone),
+                StudioInspectorSummaryItem(label: "Origin", value: viewModel.runtime.originLabel, tone: viewModel.runtime.summaryTone),
                 StudioInspectorSummaryItem(label: "Apply", value: pack.apply, tone: pack.apply == "locked" ? .success : .warning),
                 StudioInspectorSummaryItem(label: "Writes", value: pack.writes ? "true" : "false", tone: pack.writes ? .warning : .success),
                 StudioInspectorSummaryItem(label: "Source writes", value: pack.sourceWrites ? "true" : "false", tone: pack.sourceWrites ? .warning : .success)
             ])
+
+            StudioControlBridgeActionBar(snapshot: bridgeSnapshot, loadSupportedApp: loadSupportedApp)
 
             if let errorMessage = viewModel.errorMessage {
                 Label(errorMessage, systemImage: "wifi.exclamationmark")
@@ -83,6 +93,11 @@ struct StudioMacControlReadinessPage: View {
 
     private var detailGrid: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 360), spacing: 16)], spacing: 16) {
+            StudioControlBridgeConnectionCenterView(snapshot: bridgeSnapshot, loadSupportedApp: loadSupportedApp)
+            StudioControlBridgeDeepLinkMapView(snapshot: bridgeSnapshot)
+            StudioControlBridgeStatusChecksView(snapshot: bridgeSnapshot)
+            StudioControlBridgeEditPreviewView(snapshot: bridgeSnapshot)
+            StudioControlBridgeEndToEndFlowView(snapshot: bridgeSnapshot, loadSupportedApp: loadSupportedApp)
             StudioControlReadinessNativeParityView(parity: pack.nativeParity)
             StudioControlReadinessRecoveryView(recovery: pack.recoveryWorkbench)
             StudioControlReadinessIntentView(inbox: pack.editIntentInbox)
@@ -100,44 +115,181 @@ struct StudioMacControlReadinessPage: View {
 @MainActor
 private final class StudioControlReadinessViewModel: ObservableObject {
     @Published var pack: StudioControlReadinessPack?
+    @Published var runtime = StudioControlBridgeRuntime.fallback(message: "Control endpoint has not been checked yet.", attempts: [])
     @Published var isLoading = false
     @Published var errorMessage: String?
 
     func refresh(app: StudioSupportedAppSource) async {
         isLoading = true
+        let candidates = StudioControlReadinessEndpoint.candidates(for: app)
+        runtime = .checking(candidates: candidates)
         defer { isLoading = false }
 
-        for url in StudioControlReadinessEndpoint.candidates(for: app) {
+        var attempts: [StudioControlBridgeRuntime.Attempt] = []
+
+        for candidate in candidates {
             do {
-                let (data, response) = try await URLSession.shared.data(from: url)
+                let (data, response) = try await URLSession.shared.data(from: candidate.url)
                 guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+                    let statusCode = (response as? HTTPURLResponse)?.statusCode
+                    attempts.append(.init(origin: candidate.origin, status: "failed", detail: "HTTP \(statusCode.map(String.init) ?? "unknown")"))
                     continue
                 }
                 let decoded = try JSONDecoder().decode(StudioControlReadinessPack.self, from: data)
                 pack = decoded
+                runtime = .live(origin: candidate.origin, endpointPath: candidate.path, attempts: attempts + [
+                    .init(origin: candidate.origin, status: "passed", detail: "Readiness endpoint responded.")
+                ])
                 errorMessage = nil
                 return
             } catch {
-                errorMessage = "Control readiness is using the local fallback: \(error.localizedDescription)"
+                attempts.append(.init(origin: candidate.origin, status: "failed", detail: error.localizedDescription))
             }
         }
 
         pack = StudioControlReadinessPack.fallback(app: app)
+        runtime = .fallback(message: "Control readiness is using the native fallback.", attempts: attempts)
+        errorMessage = attempts.last.map { "Control readiness is using the native fallback: \($0.detail)" }
     }
 }
 
 private enum StudioControlReadinessEndpoint {
-    static func candidates(for app: StudioSupportedAppSource) -> [URL] {
+    struct Candidate: Identifiable, Equatable {
+        let origin: String
+        let path: String
+        let url: URL
+
+        var id: String {
+            url.absoluteString
+        }
+    }
+
+    static var defaultOrigin: String {
+        "http://127.0.0.1:3035"
+    }
+
+    static func origins() -> [String] {
         let configured = ProcessInfo.processInfo.environment["HUMBLECONTROL_URL"]
             ?? ProcessInfo.processInfo.environment["HUMBLESTUDIO_CONTROL_URL"]
         let origins = ([configured].compactMap { $0 } + [
-            "http://127.0.0.1:3035",
+            defaultOrigin,
             "http://127.0.0.1:3022",
             "http://127.0.0.1:3000"
         ])
-        return origins.compactMap { origin in
-            URL(string: "\(origin)/api/studio/\(app.id)/safe-edit/readiness")
+        var seen = Set<String>()
+        return origins
+            .map { $0.trimmingCharacters(in: CharacterSet(charactersIn: "/")) }
+            .filter { !$0.isEmpty && seen.insert($0).inserted }
+    }
+
+    static func candidates(for app: StudioSupportedAppSource) -> [Candidate] {
+        let path = readinessPath(for: app)
+        return origins().compactMap { origin in
+            guard let url = url(origin: origin, path: path) else { return nil }
+            return Candidate(origin: origin, path: path, url: url)
         }
+    }
+
+    static func readinessPath(for app: StudioSupportedAppSource) -> String {
+        "/api/studio/\(app.id)/safe-edit/readiness"
+    }
+
+    static func workspacePath(for app: StudioSupportedAppSource) -> String {
+        app.controlWorkspacePath
+    }
+
+    static func url(origin: String, path: String) -> URL? {
+        let normalizedPath = path.hasPrefix("/") ? path : "/\(path)"
+        return URL(string: "\(origin)\(normalizedPath)")
+    }
+}
+
+private struct StudioControlBridgeRuntime: Equatable {
+    enum Mode: Equatable {
+        case checking
+        case live
+        case fallback
+    }
+
+    struct Attempt: Identifiable, Equatable {
+        let id = UUID()
+        let origin: String
+        let status: String
+        let detail: String
+    }
+
+    let mode: Mode
+    let origin: String?
+    let endpointPath: String?
+    let message: String
+    let checkedAt: String
+    let attempts: [Attempt]
+
+    var isLive: Bool {
+        mode == .live
+    }
+
+    var modeLabel: String {
+        switch mode {
+        case .checking:
+            return "checking"
+        case .live:
+            return "live"
+        case .fallback:
+            return "fallback"
+        }
+    }
+
+    var originLabel: String {
+        origin ?? StudioControlReadinessEndpoint.defaultOrigin
+    }
+
+    var summaryTone: StudioInspectorSummaryTone {
+        switch mode {
+        case .live:
+            return .success
+        case .checking:
+            return .accent
+        case .fallback:
+            return .warning
+        }
+    }
+
+    static func checking(candidates: [StudioControlReadinessEndpoint.Candidate]) -> Self {
+        Self(
+            mode: .checking,
+            origin: candidates.first?.origin,
+            endpointPath: candidates.first?.path,
+            message: "Checking HumbleControl localhost candidates.",
+            checkedAt: timestamp(),
+            attempts: candidates.map { Attempt(origin: $0.origin, status: "checking", detail: $0.path) }
+        )
+    }
+
+    static func live(origin: String, endpointPath: String, attempts: [Attempt]) -> Self {
+        Self(
+            mode: .live,
+            origin: origin,
+            endpointPath: endpointPath,
+            message: "HumbleControl readiness endpoint is live.",
+            checkedAt: timestamp(),
+            attempts: attempts
+        )
+    }
+
+    static func fallback(message: String, attempts: [Attempt]) -> Self {
+        Self(
+            mode: .fallback,
+            origin: attempts.first?.origin ?? StudioControlReadinessEndpoint.defaultOrigin,
+            endpointPath: nil,
+            message: message,
+            checkedAt: timestamp(),
+            attempts: attempts
+        )
+    }
+
+    private static func timestamp() -> String {
+        Date().formatted(.dateTime.hour().minute().second())
     }
 }
 
@@ -629,6 +781,373 @@ private extension StudioControlReadinessPack {
             workspaceReadability: .fallback,
             writeContractPreview: .fallback(appId: app.id)
         )
+    }
+}
+
+private struct StudioControlBridgeSnapshot {
+    let app: StudioSupportedAppSource
+    let document: StudioNativeDocument?
+    let runtime: StudioControlBridgeRuntime
+    let pack: StudioControlReadinessPack
+
+    var appLanes: [StudioSupportedAppSource] {
+        Array(StudioSupportedAppCatalog.all.prefix(10))
+    }
+
+    var origin: String {
+        runtime.originLabel
+    }
+
+    var workspaceURL: URL? {
+        StudioControlReadinessEndpoint.url(origin: origin, path: app.controlWorkspacePath)
+    }
+
+    var readinessURL: URL? {
+        StudioControlReadinessEndpoint.url(origin: origin, path: StudioControlReadinessEndpoint.readinessPath(for: app))
+    }
+
+    var appWorkspaceLoaded: Bool {
+        guard let document else { return false }
+        return document.appName.caseInsensitiveCompare(app.name) == .orderedSame
+            || document.appName.localizedCaseInsensitiveContains(app.name)
+    }
+
+    var fileState: StudioControlBridgeFileState {
+        StudioControlBridgeFileState(app: app)
+    }
+
+    var statusChecks: [StudioControlBridgeStatusCheck] {
+        [
+            StudioControlBridgeStatusCheck(id: "server", label: "Control server", status: runtime.isLive ? "passed" : "attention", detail: runtime.message),
+            StudioControlBridgeStatusCheck(id: "manifest", label: "Readiness manifest", status: pack.schema.isEmpty ? "missing" : "passed", detail: pack.schema),
+            StudioControlBridgeStatusCheck(id: "workspace", label: "Control workspace", status: workspaceURL == nil ? "missing" : "available", detail: app.controlWorkspacePath),
+            StudioControlBridgeStatusCheck(id: "repository", label: "Local repository", status: fileState.repositoryStatus, detail: fileState.repositoryPath),
+            StudioControlBridgeStatusCheck(id: "export", label: "Local export", status: fileState.exportStatus, detail: fileState.exportPath),
+            StudioControlBridgeStatusCheck(id: "generator", label: "Export generator", status: fileState.generatorStatus, detail: fileState.generatorDetail),
+            StudioControlBridgeStatusCheck(id: "ticket", label: "Ticket preflight", status: "required", detail: "Source apply requires an accepted HS ticket."),
+            StudioControlBridgeStatusCheck(id: "lane", label: "Lane preflight", status: "required", detail: "Source apply requires a claimed clean lane."),
+            StudioControlBridgeStatusCheck(id: "preview", label: "Edit preview", status: "ready", detail: "Token, text, navigation and asset intents are preview-only."),
+            StudioControlBridgeStatusCheck(id: "apply", label: "Apply gate", status: "locked", detail: "writes:false / sourceWrites:false")
+        ]
+    }
+
+    var deepLinks: [StudioControlBridgeDeepLink] {
+        [
+            link("studio", "Studio workspace", app.controlWorkspacePath, "native"),
+            link("control", "Control workspace", app.controlWorkspacePath, runtime.isLive ? "live" : "fallback"),
+            link("readiness", "Readiness API", StudioControlReadinessEndpoint.readinessPath(for: app), runtime.isLive ? "live" : "fallback"),
+            link("prepare", "Prepare edit", app.scopedPrepareEditPath, "locked"),
+            link("session", "Session", app.controlSessionPath, "ready"),
+            link("recovery", "Recovery", app.controlRecoveryPath, "ready"),
+            link("proposals", "Proposal center", app.proposalCenterPath, "ready"),
+            link("patch", "Patch preview", app.patchPreviewPath, "ready"),
+            link("apply", "Apply preview", app.applyPreviewPath, "locked"),
+            link("smoke", "End-to-end smoke", app.authoringSmokePath, "ready")
+        ]
+    }
+
+    var editPreviewItems: [StudioControlBridgeStatusCheck] {
+        [
+            StudioControlBridgeStatusCheck(id: "token", label: "Token change", status: "preview", detail: "Would show affected colors, gradients, typography or metrics."),
+            StudioControlBridgeStatusCheck(id: "text", label: "Text change", status: "preview", detail: "Would show selected strings and owner surface."),
+            StudioControlBridgeStatusCheck(id: "navigation", label: "Navigation change", status: "preview", detail: "Would show route, source view and target view."),
+            StudioControlBridgeStatusCheck(id: "asset", label: "Asset change", status: "preview", detail: "Would show asset id, local path and fallback status."),
+            StudioControlBridgeStatusCheck(id: "diff", label: "Patch artifact", status: "locked", detail: "No patch can apply until the write contract is accepted.")
+        ]
+    }
+
+    var endToEndFlow: [StudioControlBridgeFlowStep] {
+        [
+            StudioControlBridgeFlowStep(rank: 1, label: "Select app", status: "passed", detail: app.name),
+            StudioControlBridgeFlowStep(rank: 2, label: "Resolve files", status: fileState.exportStatus == "present" ? "passed" : fileState.exportStatus, detail: fileState.exportPath),
+            StudioControlBridgeFlowStep(rank: 3, label: "Load native workspace", status: appWorkspaceLoaded ? "passed" : "attention", detail: appWorkspaceLoaded ? document?.appName ?? app.name : "Use Load to open or generate the supported export."),
+            StudioControlBridgeFlowStep(rank: 4, label: "Check Control", status: runtime.isLive ? "passed" : "fallback", detail: runtime.originLabel),
+            StudioControlBridgeFlowStep(rank: 5, label: "Prepare edit", status: "locked", detail: app.scopedPrepareEditPath),
+            StudioControlBridgeFlowStep(rank: 6, label: "Review preview", status: "ready", detail: app.patchPreviewPath),
+            StudioControlBridgeFlowStep(rank: 7, label: "Ticket/lane preflight", status: "required", detail: "HS ticket, clean lane, native verification."),
+            StudioControlBridgeFlowStep(rank: 8, label: "Apply gate", status: "locked", detail: "No source write can run from this panel."),
+            StudioControlBridgeFlowStep(rank: 9, label: "Verification", status: "required", detail: "./script/build_and_run.sh --native-ci"),
+            StudioControlBridgeFlowStep(rank: 10, label: "Promotion", status: "locked", detail: "Only after accepted write contract and evidence.")
+        ]
+    }
+
+    private func link(_ id: String, _ label: String, _ path: String, _ status: String) -> StudioControlBridgeDeepLink {
+        StudioControlBridgeDeepLink(
+            id: id,
+            label: label,
+            path: path,
+            url: StudioControlReadinessEndpoint.url(origin: origin, path: path),
+            status: status
+        )
+    }
+}
+
+private struct StudioControlBridgeFileState {
+    let repositoryPath: String
+    let repositoryStatus: String
+    let exportPath: String
+    let exportStatus: String
+    let generatorStatus: String
+    let generatorDetail: String
+    let exportURL: URL?
+
+    init(app: StudioSupportedAppSource) {
+        guard app.hasLocalExportResolver, let repositoryURL = app.localRepositoryURL, let exportURL = app.localExportURL else {
+            repositoryPath = app.remoteURL
+            repositoryStatus = "remote"
+            exportPath = app.remoteURL
+            exportStatus = "remote"
+            generatorStatus = "remote"
+            generatorDetail = "Remote source is used for this app."
+            self.exportURL = nil
+            return
+        }
+
+        let fileManager = FileManager.default
+        var isDirectory: ObjCBool = false
+        let repositoryExists = fileManager.fileExists(atPath: repositoryURL.path, isDirectory: &isDirectory) && isDirectory.boolValue
+        let exportExists = fileManager.fileExists(atPath: exportURL.path)
+
+        repositoryPath = repositoryURL.path
+        repositoryStatus = repositoryExists ? "present" : "missing"
+        exportPath = exportURL.path
+        exportStatus = exportExists ? "present" : "missing"
+        generatorStatus = app.localExportCommand.isEmpty ? "missing" : "available"
+        generatorDetail = app.localExportCommand.joined(separator: " ")
+        self.exportURL = exportURL
+    }
+}
+
+private struct StudioControlBridgeDeepLink: Identifiable {
+    let id: String
+    let label: String
+    let path: String
+    let url: URL?
+    let status: String
+}
+
+private struct StudioControlBridgeStatusCheck: Identifiable {
+    let id: String
+    let label: String
+    let status: String
+    let detail: String
+}
+
+private struct StudioControlBridgeFlowStep: Identifiable {
+    let rank: Int
+    let label: String
+    let status: String
+    let detail: String
+
+    var id: Int {
+        rank
+    }
+}
+
+private enum StudioControlBridgeActions {
+    static func openControl(snapshot: StudioControlBridgeSnapshot) {
+        if !snapshot.runtime.isLive, let appURL = firstExistingControlAppURL() {
+            NSWorkspace.shared.open(appURL)
+            return
+        }
+        open(snapshot.workspaceURL)
+    }
+
+    static func open(_ url: URL?) {
+        guard let url else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    static func reveal(_ url: URL?) {
+        guard let url else { return }
+        NSWorkspace.shared.activateFileViewerSelecting([url])
+    }
+
+    private static func firstExistingControlAppURL() -> URL? {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        let candidates = [
+            "/Applications/HumbleControl.app",
+            "\(home)/Applications/HumbleControl.app",
+            "\(home)/Coding/personal/apps/HumbleControl/.build/XcodeDerivedData/Build/Products/Debug/HumbleControl.app"
+        ]
+        return candidates
+            .map { URL(fileURLWithPath: $0) }
+            .first { FileManager.default.fileExists(atPath: $0.path) }
+    }
+}
+
+private struct StudioControlBridgeActionBar: View {
+    let snapshot: StudioControlBridgeSnapshot
+    let loadSupportedApp: (StudioSupportedAppSource) -> Void
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 10)], spacing: 10) {
+            Button {
+                loadSupportedApp(snapshot.app)
+            } label: {
+                Label("Load \(snapshot.app.name)", systemImage: "square.and.arrow.down")
+            }
+
+            Button {
+                StudioControlBridgeActions.openControl(snapshot: snapshot)
+            } label: {
+                Label("Open Control", systemImage: snapshot.runtime.isLive ? "bolt.horizontal.circle.fill" : "play.circle")
+            }
+
+            Button {
+                StudioControlBridgeActions.open(snapshot.readinessURL)
+            } label: {
+                Label("Open API", systemImage: "curlybraces")
+            }
+            .disabled(snapshot.readinessURL == nil)
+
+            Button {
+                StudioControlBridgeActions.reveal(snapshot.fileState.exportURL)
+            } label: {
+                Label("Reveal export", systemImage: "finder")
+            }
+            .disabled(snapshot.fileState.exportURL == nil)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+    }
+}
+
+private struct StudioControlBridgeConnectionCenterView: View {
+    let snapshot: StudioControlBridgeSnapshot
+    let loadSupportedApp: (StudioSupportedAppSource) -> Void
+
+    var body: some View {
+        StudioInspectorSection(title: "Connection center") {
+            VStack(alignment: .leading, spacing: 12) {
+                StudioControlReadinessRow(title: "Bridge mode", subtitle: "\(snapshot.runtime.modeLabel) / \(snapshot.runtime.originLabel)", status: snapshot.runtime.isLive ? "ready" : "attention")
+                ForEach(snapshot.appLanes) { app in
+                    StudioControlBridgeAppRow(app: app, isSelected: app.id == snapshot.app.id, origin: snapshot.origin, loadSupportedApp: loadSupportedApp)
+                }
+            }
+        }
+    }
+}
+
+private struct StudioControlBridgeAppRow: View {
+    let app: StudioSupportedAppSource
+    let isSelected: Bool
+    let origin: String
+    let loadSupportedApp: (StudioSupportedAppSource) -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            StudioControlStatusBadge(status: isSelected ? "selected" : "ready")
+            VStack(alignment: .leading, spacing: 4) {
+                Text(app.name)
+                    .font(.subheadline.weight(.semibold))
+                Text(app.connectionSummary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(app.controlWorkspacePath)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+
+            Spacer(minLength: 10)
+
+            Button {
+                loadSupportedApp(app)
+            } label: {
+                Image(systemName: "square.and.arrow.down")
+            }
+            .buttonStyle(.borderless)
+            .help("Load \(app.name)")
+
+            Button {
+                StudioControlBridgeActions.open(StudioControlReadinessEndpoint.url(origin: origin, path: app.controlWorkspacePath))
+            } label: {
+                Image(systemName: "arrow.up.forward.square")
+            }
+            .buttonStyle(.borderless)
+            .help(app.controlWorkspacePath)
+        }
+        .padding(10)
+        .background(.quaternary.opacity(isSelected ? 0.34 : 0.16), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+}
+
+private struct StudioControlBridgeDeepLinkMapView: View {
+    let snapshot: StudioControlBridgeSnapshot
+
+    var body: some View {
+        StudioInspectorSection(title: "Deep-link map") {
+            VStack(alignment: .leading, spacing: 12) {
+                ForEach(snapshot.deepLinks) { link in
+                    HStack(alignment: .top, spacing: 10) {
+                        StudioControlReadinessRow(title: link.label, subtitle: link.path, status: link.status)
+                        Button {
+                            StudioControlBridgeActions.open(link.url)
+                        } label: {
+                            Image(systemName: "arrow.up.forward.square")
+                        }
+                        .buttonStyle(.borderless)
+                        .disabled(link.url == nil)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct StudioControlBridgeStatusChecksView: View {
+    let snapshot: StudioControlBridgeSnapshot
+
+    var body: some View {
+        StudioInspectorSection(title: "Status checks") {
+            VStack(alignment: .leading, spacing: 12) {
+                StudioKeyValueRow(label: "Checked", value: snapshot.runtime.checkedAt)
+                ForEach(snapshot.statusChecks) { check in
+                    StudioControlReadinessRow(title: check.label, subtitle: check.detail, status: check.status)
+                }
+                ForEach(snapshot.runtime.attempts) { attempt in
+                    StudioControlReadinessRow(title: attempt.origin, subtitle: attempt.detail, status: attempt.status)
+                }
+            }
+        }
+    }
+}
+
+private struct StudioControlBridgeEditPreviewView: View {
+    let snapshot: StudioControlBridgeSnapshot
+
+    var body: some View {
+        StudioInspectorSection(title: "No-write edit preview") {
+            VStack(alignment: .leading, spacing: 12) {
+                StudioControlReadinessRow(title: "Preview contract", subtitle: "writes:false / sourceWrites:false / apply:\(snapshot.pack.apply)", status: snapshot.pack.apply == "locked" ? "locked" : "attention")
+                ForEach(snapshot.editPreviewItems) { item in
+                    StudioControlReadinessRow(title: item.label, subtitle: item.detail, status: item.status)
+                }
+            }
+        }
+    }
+}
+
+private struct StudioControlBridgeEndToEndFlowView: View {
+    let snapshot: StudioControlBridgeSnapshot
+    let loadSupportedApp: (StudioSupportedAppSource) -> Void
+
+    var body: some View {
+        StudioInspectorSection(title: "End-to-end safe-edit flow") {
+            VStack(alignment: .leading, spacing: 12) {
+                Button {
+                    loadSupportedApp(snapshot.app)
+                } label: {
+                    Label("Start with \(snapshot.app.name)", systemImage: "play.fill")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+
+                ForEach(snapshot.endToEndFlow) { step in
+                    StudioControlReadinessRow(title: "\(step.rank). \(step.label)", subtitle: step.detail, status: step.status)
+                }
+            }
+        }
     }
 }
 
