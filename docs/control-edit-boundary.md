@@ -33,6 +33,14 @@ Each export descriptor may also include Control-owned routes:
   boundaries
 - `patchPreview` for dry-run target review with `writes:false` and
   `applied:false`
+- `runtimeReadiness` for helper/manifest freshness before authoring continues
+- `proposalCenter` for the Control proposal inbox and selected-app proposal
+  detail
+- `patchArtifact` for an exportable JSON package that can be reviewed before
+  sandbox apply
+- `sandboxApply` for scratch-only apply preview descriptors with
+  `sourceWrites:false`
+- `sourceApplyLock` for the explicit locked source-write boundary
 - `trustLevel` for the selected export trust posture
 - `safeApplyBoundary` for explicit allowlisted preview artifacts and rejected
   source targets
@@ -70,7 +78,10 @@ The first allowed bridge is therefore:
 7. HumbleControl may combine authoring session, structured draft, patch preview,
    native parity, trust, registry, recovery, proposal review, and smoke evidence
    into one authoring control plane.
-8. Any repository source write is rejected by default.
+8. HumbleControl may export a patch artifact and inspect a sandbox apply
+   descriptor as scratch-only evidence. This remains `writes:false` from
+   Studio and `sourceWrites:false` for supported app repositories.
+9. Any repository source write is rejected by default.
 
 The first real edit boundary should remain narrow:
 

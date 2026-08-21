@@ -27,6 +27,15 @@ LOCAL_EXPORT_HEADER = "X-HumbleStudio-Local-Export"
 CONNECTION_MANIFEST_SCHEMA = "humble.studio.connections.v1"
 PREPARE_EDIT_SCHEMA = "humble.studio.prepare-edit.v1"
 HELPER_LOG_PATH = "/tmp/humblecontrol-humblestudio-helper.log"
+RUNTIME_AUTHORING_CAPABILITIES = [
+    "workspace-launch",
+    "structured-edit-draft",
+    "patch-preview",
+    "patch-artifact",
+    "sandbox-apply",
+    "proposal-center",
+    "source-apply-locked",
+]
 
 
 @dataclass(frozen=True)
@@ -430,6 +439,53 @@ def build_patch_preview_descriptor(encoded_app_id: str) -> dict[str, object]:
     }
 
 
+def build_runtime_readiness_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.runtime-readiness.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#runtime-readiness",
+        "expectedCapabilities": RUNTIME_AUTHORING_CAPABILITIES,
+        "restartAction": "reconnect",
+        "writes": False,
+    }
+
+
+def build_proposal_center_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.proposal-center.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#proposal-center",
+        "inboxUrl": "/studio/proposals",
+        "writes": False,
+    }
+
+
+def build_patch_artifact_descriptor(app_id: str, encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.patch-artifact.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#patch-artifact",
+        "suggestedFilename": f"{app_id}-studio-patch-artifact.json",
+        "writes": False,
+    }
+
+
+def build_sandbox_apply_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.sandbox-apply.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#sandbox-apply",
+        "mode": "scratch-only",
+        "sourceWrites": False,
+        "writes": False,
+    }
+
+
+def build_source_apply_lock_descriptor(encoded_app_id: str) -> dict[str, object]:
+    return {
+        "schema": "humble.studio.source-apply-lock.v1",
+        "controlUrl": f"/studio/{encoded_app_id}#source-apply-lock",
+        "status": "locked",
+        "writes": False,
+    }
+
+
 def build_trust_level_descriptor(encoded_app_id: str, state: str) -> dict[str, object]:
     return {
         "schema": "humble.studio.trust-level.v1",
@@ -465,6 +521,11 @@ def build_native_parity_descriptor(encoded_app_id: str) -> dict[str, object]:
             "trust-level",
             "safe-apply-boundary",
             "authoring-smoke",
+            "runtime-readiness",
+            "proposal-center",
+            "patch-artifact",
+            "sandbox-apply",
+            "source-apply-lock",
         ],
         "writes": False,
     }
@@ -477,8 +538,13 @@ def build_end_to_end_smoke_descriptor(encoded_app_id: str) -> dict[str, object]:
         "steps": [
             "connection-manifest",
             "workspace-route",
+            "runtime-readiness",
             "structured-edit-draft",
             "patch-preview",
+            "proposal-center",
+            "patch-artifact",
+            "sandbox-apply",
+            "source-apply-lock",
             "safe-apply-lock",
         ],
         "writes": False,
@@ -558,6 +624,11 @@ def build_export_descriptor(app: SupportedAppExport, base_url: str) -> dict[str,
         "authoringSession": build_authoring_session_descriptor(encoded_app_id),
         "structuredDraft": build_structured_draft_descriptor(encoded_app_id),
         "patchPreview": build_patch_preview_descriptor(encoded_app_id),
+        "runtimeReadiness": build_runtime_readiness_descriptor(encoded_app_id),
+        "proposalCenter": build_proposal_center_descriptor(encoded_app_id),
+        "patchArtifact": build_patch_artifact_descriptor(app.app_id, encoded_app_id),
+        "sandboxApply": build_sandbox_apply_descriptor(encoded_app_id),
+        "sourceApplyLock": build_source_apply_lock_descriptor(encoded_app_id),
         "trustLevel": build_trust_level_descriptor(encoded_app_id, state),
         "safeApplyBoundary": build_safe_apply_boundary_descriptor(encoded_app_id),
         "nativeParity": build_native_parity_descriptor(encoded_app_id),
@@ -646,6 +717,11 @@ def build_prepare_edit_contract(
             "connection-registry",
             "native-parity-contract",
             "authoring-e2e-smoke",
+            "runtime-freshness",
+            "proposal-center",
+            "patch-artifact",
+            "sandbox-apply",
+            "source-apply-locked",
             "apply-preview",
             "edit-boundary-contract",
             "workspace-smoke",
@@ -677,6 +753,11 @@ def build_prepare_edit_contract(
                 "authoringSession": item["authoringSession"],
                 "structuredDraft": item["structuredDraft"],
                 "patchPreview": item["patchPreview"],
+                "runtimeReadiness": item["runtimeReadiness"],
+                "proposalCenter": item["proposalCenter"],
+                "patchArtifact": item["patchArtifact"],
+                "sandboxApply": item["sandboxApply"],
+                "sourceApplyLock": item["sourceApplyLock"],
                 "trustLevel": item["trustLevel"],
                 "safeApplyBoundary": item["safeApplyBoundary"],
                 "nativeParity": item["nativeParity"],
@@ -769,6 +850,41 @@ def build_humble_control_connection_manifest(
             "controlUrl": "/studio/humble-sudoku#patch-preview",
             "writes": False,
         },
+        "runtimeReadiness": {
+            "schema": "humble.studio.runtime-readiness.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#runtime-readiness",
+            "expectedCapabilities": RUNTIME_AUTHORING_CAPABILITIES,
+            "writes": False,
+        },
+        "proposalCenter": {
+            "schema": "humble.studio.proposal-center.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#proposal-center",
+            "inboxUrl": "/studio/proposals",
+            "writes": False,
+        },
+        "patchArtifact": {
+            "schema": "humble.studio.patch-artifact.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#patch-artifact",
+            "writes": False,
+        },
+        "sandboxApply": {
+            "schema": "humble.studio.sandbox-apply.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#sandbox-apply",
+            "mode": "scratch-only",
+            "sourceWrites": False,
+            "writes": False,
+        },
+        "sourceApplyLock": {
+            "schema": "humble.studio.source-apply-lock.index.v1",
+            "defaultAppId": "humble-sudoku",
+            "controlUrl": "/studio/humble-sudoku#source-apply-lock",
+            "status": "locked",
+            "writes": False,
+        },
         "trustLevels": {
             "schema": "humble.studio.trust-levels.index.v1",
             "controlUrl": "/studio/humble-sudoku#trust",
@@ -828,6 +944,11 @@ def build_humble_control_connection_manifest(
             "connection-registry",
             "native-parity-contract",
             "authoring-e2e-smoke",
+            "runtime-freshness",
+            "proposal-center",
+            "patch-artifact",
+            "sandbox-apply",
+            "source-apply-locked",
             "apply-preview",
             "edit-boundary-contract",
             "workspace-smoke",

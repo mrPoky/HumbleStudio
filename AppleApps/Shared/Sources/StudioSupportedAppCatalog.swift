@@ -49,6 +49,26 @@ struct StudioSupportedAppSource: Identifiable, Equatable {
         "\(controlWorkspacePath)#patch-preview"
     }
 
+    var runtimeReadinessPath: String {
+        "\(controlWorkspacePath)#runtime-readiness"
+    }
+
+    var proposalCenterPath: String {
+        "\(controlWorkspacePath)#proposal-center"
+    }
+
+    var patchArtifactPath: String {
+        "\(controlWorkspacePath)#patch-artifact"
+    }
+
+    var sandboxApplyPath: String {
+        "\(controlWorkspacePath)#sandbox-apply"
+    }
+
+    var sourceApplyLockPath: String {
+        "\(controlWorkspacePath)#source-apply-lock"
+    }
+
     var trustLevelPath: String {
         "\(controlWorkspacePath)#trust"
     }
@@ -425,6 +445,21 @@ private struct StudioSupportedAppRow: View {
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppPatchPreview): \(app.patchPreviewPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppRuntimeReadiness): \(app.runtimeReadinessPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppProposalCenter): \(app.proposalCenterPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppPatchArtifact): \(app.patchArtifactPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppSandboxApply): \(app.sandboxApplyPath)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("\(StudioStrings.supportedAppSourceApplyLock): \(app.sourceApplyLockPath)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Text("\(StudioStrings.supportedAppTrustLevel): \(app.trustLevelPath)")

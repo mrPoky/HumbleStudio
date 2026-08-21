@@ -1,0 +1,114 @@
+{
+  "id": "HS-0102",
+  "title": "Publish runtime authoring sandbox contracts",
+  "status": "solved",
+  "type": "feature",
+  "priority": "critical",
+  "owner": "Codex",
+  "created_at": "2026-08-21",
+  "updated_at": "2026-08-21",
+  "source": "agent",
+  "summary": "Publish the Studio-side contracts needed by HumbleControl's runtime proposal sandbox, including helper freshness expectations, patch artifact metadata, sandbox apply posture, proposal center anchors, and native catalog parity.",
+  "acceptance_criteria": [
+    "Connection and prepare-edit manifests advertise runtime-freshness, proposal-center, patch-artifact, sandbox-apply, and source-apply-locked capabilities.",
+    "Every supported app export includes no-write descriptors for runtime readiness, proposal center, patch artifact, sandbox apply, and source apply lock.",
+    "The native supported-app catalog exposes the same Control anchors for the new runtime authoring sandbox descriptors.",
+    "Fallback guards, local preview tests, and documentation assert that sandbox apply is isolated from repository source truth.",
+    "Verification and promotion evidence are recorded before closing the ticket."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Connection and prepare-edit manifests now advertise runtime-freshness, proposal-center, patch-artifact, sandbox-apply, and source-apply-locked capabilities."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Every supported app export now includes runtimeReadiness, proposalCenter, patchArtifact, sandboxApply, and sourceApplyLock descriptors with writes:false."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Native supported-app catalog rows expose matching runtime readiness, proposal center, patch artifact, sandbox apply, and source apply lock anchors."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/test_serve_local_preview.py",
+      "note": "Local preview helper tests passed: 14 tests."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/check_web_fallback.py && python3 -m py_compile Scripts/*.py",
+      "note": "Web fallback guard passed and workflow scripts compiled successfully."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings >/dev/null",
+      "note": "String catalog JSON remained valid after adding runtime sandbox labels."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py && python3 Scripts/validate_repo_contract.py && bash Scripts/run_local_checks.sh --workflow-only && git diff --check",
+      "note": "Ticket, contract, workflow-only, and whitespace checks passed after implementation."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "./script/build_and_run.sh --native-ci",
+      "note": "Native macOS CI build passed through the repo-native xcodegen plus xcodebuild path."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "note": "Localization guard searches for L10n usage and legacy .strings/.stringsdict resources returned no matches."
+    }
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0102.json",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    "docs/control-edit-boundary.md",
+    "AppleApps/Shared/Sources/StudioSupportedAppCatalog.swift",
+    "AppleApps/Shared/Sources/StudioStrings.swift",
+    "AppleApps/Shared/Resources/Localizable.xcstrings",
+    "HumbleStudio.xcodeproj/project.pbxproj"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan approved doing the next full Studio/Control convergence package.",
+    "note": "Publish runtime authoring sandbox contracts only; do not add a repository write/apply endpoint."
+  },
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 -m py_compile Scripts/*.py",
+    "python3 -m json.tool AppleApps/Shared/Resources/Localizable.xcstrings >/dev/null",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "git diff --check",
+    "./script/build_and_run.sh --native-ci",
+    "rg -n \"L10n\\.\" . # expected no matches",
+    "rg --files -g '*.strings' -g '*.stringsdict' # expected no matches"
+  ],
+  "agent_notes": [
+    "This is the Studio-side companion to HumbleControl HC-0320.",
+    "Sandbox apply descriptors must remain isolated preview metadata with writes:false.",
+    "XcodeBuildMCP session defaults were empty and only discovery/default tools were available, so native verification used the repo-native native-ci script."
+  ],
+  "relationships": {
+    "follows": [
+      "HS-0101",
+      "HC-0319"
+    ]
+  }
+}

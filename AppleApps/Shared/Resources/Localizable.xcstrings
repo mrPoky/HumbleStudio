@@ -344,6 +344,41 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Patch preview" } }
       }
     },
+    "studio.remote_source.supported_app_runtime_readiness" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Runtime readiness" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Runtime readiness" } }
+      }
+    },
+    "studio.remote_source.supported_app_proposal_center" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Centrum návrhů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proposal center" } }
+      }
+    },
+    "studio.remote_source.supported_app_patch_artifact" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Patch artefakt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Patch artifact" } }
+      }
+    },
+    "studio.remote_source.supported_app_sandbox_apply" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Sandbox apply" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sandbox apply" } }
+      }
+    },
+    "studio.remote_source.supported_app_source_apply_lock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zámek source apply" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source apply lock" } }
+      }
+    },
     "studio.remote_source.supported_app_trust_level" : {
       "extractionState" : "manual",
       "localizations" : {
