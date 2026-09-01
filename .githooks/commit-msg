@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Managed by HumbleControl Scripts/portfolio_hook_rollout.py.
+
+message_file="${1:?commit message file is required}"
+message="$(head -n 1 "$message_file" | tr -d '\r')"
+branch="$(git branch --show-current 2>/dev/null || true)"
+repo_root="$(git rev-parse --show-toplevel)"
+
+conventional_pattern='^(feat|fix|refactor|chore|docs|hotfix|release|test|qa)(\([A-Za-z0-9][A-Za-z0-9,._/-]*\))?: .+'
+
+if [[ ! "$message" =~ $conventional_pattern ]]; then
+  cat >&2 <<'EOF'
+Invalid commit message.
+Expected format:
+  <type>(<scope>): <imperative summary>
+EOF
+  exit 1
+fi
+
+policy_tool="$repo_root/Scripts/workflow_policy.py"
+if [[ ! -x "$policy_tool" || -z "$branch" ]]; then
+  exit 0
+fi
+
+required_ticket_ids=""
+if python3 "$policy_tool" is-protected-branch "$branch" >/dev/null 2>&1; then
+  required_ticket_ids="$(python3 "$policy_tool" staged-ticket-ids 2>/dev/null || true)"
+else
+  required_ticket_ids="$(python3 "$policy_tool" required-ticket-ids "$branch" 2>/dev/null || true)"
+fi
+
+if [[ -z "$required_ticket_ids" ]]; then
+  exit 0
+fi
+
+message_ticket_ids="$(python3 "$policy_tool" message-ticket-ids "$message" 2>/dev/null || true)"
+if [[ "$message_ticket_ids" != "$required_ticket_ids" ]]; then
+  cat >&2 <<EOF
+Commit scope ticket ids do not match this branch or staged coordination change.
+Expected ticket ids:
+$required_ticket_ids
+Commit message:
+  $message
+EOF
+  exit 1
+fi

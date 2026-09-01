@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Managed by HumbleControl Scripts/portfolio_hook_rollout.py.
+
+repo_root="$(git rev-parse --show-toplevel)"
+
+git diff --cached --check
+
+ticket_validator="$repo_root/Scripts/validate_humble_tickets.py"
+if [[ -f "$ticket_validator" ]]; then
+  staged_tickets=()
+  while IFS= read -r staged_ticket; do
+    if [[ -n "$staged_ticket" ]]; then
+      staged_tickets+=("$staged_ticket")
+    fi
+  done < <(git diff --cached --name-only -- '.humble/tickets/*.json')
+  if (( ${#staged_tickets[@]} > 0 )); then
+    python3 "$ticket_validator" "${staged_tickets[@]}"
+  fi
+fi
+
+root_guard="$repo_root/Scripts/root_checkout_guard.py"
+if [[ -f "$root_guard" ]]; then
+  python3 "$root_guard" pre-commit
+fi
+
+hc_guardrails="$repo_root/Scripts/hc_guardrails.py"
+if [[ -f "$hc_guardrails" ]]; then
+  python3 "$hc_guardrails" pre-commit
+fi
