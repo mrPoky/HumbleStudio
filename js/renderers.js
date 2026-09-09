@@ -1217,7 +1217,7 @@ function getReviewQueueData() {
       if (severity) return severity;
       const usageDiff = getComponentUsageViews(right).length - getComponentUsageViews(left).length;
       if (usageDiff) return usageDiff;
-      return left.name.localeCompare(right.name);
+      return String(left.name || '').localeCompare(String(right.name || ''));
     });
 
   const views = (config?.views || [])
@@ -1225,7 +1225,7 @@ function getReviewQueueData() {
     .sort((left, right) => {
       const navDiff = (right.navigatesTo || []).length - (left.navigatesTo || []).length;
       if (navDiff) return navDiff;
-      return left.name.localeCompare(right.name);
+      return String(left.name || '').localeCompare(String(right.name || ''));
     });
 
   return { components, views };
@@ -2885,7 +2885,7 @@ function renderNavMap() {
       if (sectionDiff !== 0) return sectionDiff;
       const metricDiff = metricFn(a) - metricFn(b);
       if (Math.abs(metricDiff) > 0.001) return metricDiff;
-      return a.name.localeCompare(b.name);
+      return String(a.name || '').localeCompare(String(b.name || ''));
     });
   };
   Object.values(levels).forEach(bucket => stableSortBucket(bucket, view => 0));

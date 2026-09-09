@@ -54,6 +54,63 @@ function normalizeSearchValue(value = '') {
     .trim();
 }
 
+function humanizeEntityIdentifier(value, fallback = 'Item') {
+  const normalized = String(value || '').trim();
+  if (!normalized) return fallback;
+  const leafName = normalized.split(/[/.]/).filter(Boolean).pop() || normalized;
+  return leafName
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, letter => letter.toUpperCase()) || fallback;
+}
+
+function getEntityDisplayName(entity, fallback = 'Item') {
+  if (!isPlainObject(entity)) return fallback;
+  const explicit = [
+    entity.name,
+    entity.title,
+    entity.displayName,
+    entity.label,
+  ].find(value => typeof value === 'string' && value.trim());
+  if (explicit) return explicit.trim();
+
+  const idFallback = entity.id || entity.route || entity.path || entity.swiftui || entity.renderer || entity.type;
+  return humanizeEntityIdentifier(idFallback, fallback);
+}
+
+function normalizeComponentEntity(component) {
+  if (!isPlainObject(component)) return component;
+  return {
+    ...component,
+    name: getEntityDisplayName(component, 'Component'),
+  };
+}
+
+function normalizeNavigationTransition(transition) {
+  if (typeof transition === 'string' && transition.trim()) {
+    return { viewId: transition.trim(), type: 'push' };
+  }
+  if (!isPlainObject(transition)) return transition;
+  const viewId = transition.viewId || transition.targetViewId || transition.target || transition.destination || transition.id || '';
+  return {
+    ...transition,
+    viewId,
+    type: transition.type || 'push',
+  };
+}
+
+function normalizeViewEntity(view) {
+  if (!isPlainObject(view)) return view;
+  return {
+    ...view,
+    name: getEntityDisplayName(view, 'View'),
+    components: Array.isArray(view.components) ? view.components : [],
+    navigatesTo: Array.isArray(view.navigatesTo) ? view.navigatesTo.map(normalizeNavigationTransition) : [],
+  };
+}
+
 function parseStudioEmbedContextFromSearch(search = window.location.search) {
   const params = new URLSearchParams(search || '');
   const schema = params.get('hcSchema');
@@ -941,6 +998,8 @@ function validateConfig(data) {
   const errors = [];
   const warnings = [];
   const normalized = isPlainObject(data) ? { ...data } : {};
+  const rawComponents = Array.isArray(data?.components) ? data.components : [];
+  const rawViews = Array.isArray(data?.views) ? data.views : [];
 
   normalized.meta = isPlainObject(data?.meta) ? data.meta : {};
   normalized.tokens = isPlainObject(data?.tokens) ? data.tokens : {};
@@ -950,8 +1009,8 @@ function validateConfig(data) {
   normalized.tokens.spacing = isPlainObject(normalized.tokens.spacing) ? normalized.tokens.spacing : {};
   normalized.tokens.radius = isPlainObject(normalized.tokens.radius) ? normalized.tokens.radius : {};
   normalized.tokens.typography = Array.isArray(normalized.tokens.typography) ? normalized.tokens.typography : [];
-  normalized.components = Array.isArray(data?.components) ? data.components : [];
-  normalized.views = Array.isArray(data?.views) ? data.views : [];
+  normalized.components = rawComponents.map(normalizeComponentEntity);
+  normalized.views = rawViews.map(normalizeViewEntity);
   normalized.navigation = isPlainObject(data?.navigation) ? data.navigation : {};
 
   if (!isPlainObject(data)) {
@@ -1006,6 +1065,13 @@ function validateConfig(data) {
   });
 
   normalized.views.forEach((view, index) => {
+    const rawView = rawViews[index];
+    if (isPlainObject(rawView) && rawView.components && !Array.isArray(rawView.components)) {
+      warnings.push({ path: `views[${index}].components`, message: '`components` should be an array.' });
+    }
+    if (isPlainObject(rawView) && rawView.navigatesTo && !Array.isArray(rawView.navigatesTo)) {
+      warnings.push({ path: `views[${index}].navigatesTo`, message: '`navigatesTo` should be an array.' });
+    }
     (view.components || []).forEach((componentId, componentIndex) => {
       if (!componentIds.has(componentId)) {
         warnings.push({
@@ -1018,7 +1084,7 @@ function validateConfig(data) {
       if (!isPlainObject(transition)) {
         errors.push({
           path: `views[${index}].navigatesTo[${transitionIndex}]`,
-          message: 'Navigation entries must be objects.',
+          message: 'Navigation entries must be objects or non-empty string view ids.',
         });
         return;
       }
@@ -1453,7 +1519,7 @@ function getCommandPaletteResults(query = '') {
       if (left.score !== right.score) return left.score - right.score;
       const typeDiff = getPaletteTypeMeta(left.type).order - getPaletteTypeMeta(right.type).order;
       if (typeDiff) return typeDiff;
-      return left.title.localeCompare(right.title);
+      return String(left.title || '').localeCompare(String(right.title || ''));
     })
     .slice(0, 40);
 }
