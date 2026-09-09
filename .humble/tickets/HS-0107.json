@@ -1,10 +1,10 @@
 {
   "id": "HS-0107",
   "title": "Harden web viewer entity display names",
-  "status": "accepted",
+  "status": "in_progress",
   "type": "bug",
   "priority": "high",
-  "owner": null,
+  "owner": "Codex",
   "created_at": "2026-09-09",
   "updated_at": "2026-09-09",
   "source": "agent",
@@ -30,6 +30,7 @@
     "note": "Keep this as a viewer robustness fix; do not mutate the HumbleControl export only to satisfy one field assumption."
   },
   "agent_notes": [
-    "Observed in the embedded HumbleStudio iframe at /apps/humble-control/studio/?studio=design while loading the HumbleControl supported-app export."
+    "Observed in the embedded HumbleStudio iframe at /apps/humble-control/studio/?studio=design while loading the HumbleControl supported-app export.",
+    "Claimed lane-1 on branch `fix/hs-0107-viewer-display-name-fallback`."
   ]
 }
