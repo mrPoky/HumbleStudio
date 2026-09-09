@@ -5,19 +5,15 @@
     {
       "id": "lane-1",
       "worktree_path": "../../worktrees/HumbleStudio/lane-1",
-      "state": "active",
-      "ticket": "HS-0107",
-      "branch": "fix/hs-0107-viewer-display-name-fallback",
-      "owner": "Codex",
-      "scope_paths": [
-        ".humble/tickets/HS-0107.json",
-        "js/app.js",
-        "js/renderers.js"
-      ],
-      "claimed_at": "2026-09-09T08:49:55Z",
-      "heartbeat_at": "2026-09-09T08:49:55Z",
-      "released_at": null,
-      "note": "Harden web fallback viewer labels for HumbleControl supported-app exports."
+      "state": "free",
+      "ticket": null,
+      "branch": null,
+      "owner": null,
+      "scope_paths": [],
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "released_at": "2026-09-09T09:03:41Z",
+      "note": "HS-0107 merged; lane returned to parking."
     },
     {
       "id": "lane-2",
