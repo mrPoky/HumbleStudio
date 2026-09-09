@@ -1,7 +1,7 @@
 {
   "id": "HS-0107",
   "title": "Harden web viewer entity display names",
-  "status": "in_progress",
+  "status": "solved",
   "type": "bug",
   "priority": "high",
   "owner": "Codex",
@@ -15,7 +15,86 @@
     "A HumbleControl supported-app export loads in the web viewer without the Load failed localeCompare error.",
     "Repository ticket, fallback, and workflow checks record the fixed viewer behavior."
   ],
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "js/app.js",
+      "note": "Config normalization now assigns stable component/view display names from name, title, displayName, label, id, route, path, swiftui, renderer, or type."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "js/app.js",
+      "note": "Navigation shorthand strings now normalize to object transitions with viewId and push type before validation and render."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "js/renderers.js",
+      "note": "Review queue and navigation map sorting now use string-safe localeCompare fallbacks."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "/tmp/hs0107-humble-control-export.json",
+      "note": "Node VM validation against the live HumbleControl export returned 9 components, 14 views, 13 root transitions, and no validation errors or warnings."
+    },
+    {
+      "kind": "report",
+      "status": "passed",
+      "path": "http://127.0.0.1:8776/?config=http%3A%2F%2F127.0.0.1%3A8776%2Fapi%2Fsupported-apps%2Fhumble-control%2Fexport",
+      "note": "Chrome DevTools verified the lane-local viewer loaded HumbleControl without Load failed, rendered component names, kept validation clean, and showed nav map labels."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "js/app.js",
+      "note": "node --check js/app.js passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "js/renderers.js",
+      "note": "node --check js/renderers.js passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/check_web_fallback.py",
+      "note": "python3 Scripts/check_web_fallback.py passed: web fallback ok."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Config/repo-contract.json",
+      "note": "python3 Scripts/validate_repo_contract.py passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": ".humble/tickets/HS-0107.json",
+      "note": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0107.json passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "Scripts/run_local_checks.sh",
+      "note": "bash Scripts/run_local_checks.sh --workflow-only passed."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "js/app.js",
+      "note": "git diff --check passed."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "Scripts/humble_doctor.py",
+      "note": "python3 Scripts/humble_doctor.py --repo-root /Users/janpokorny/Coding/personal/apps/HumbleStudio --strict reported the pre-existing root dirty state, not a failure in the HS-0107 fix."
+    }
+  ],
   "related_files": [
     ".humble/tickets/HS-0107.json",
     "js/app.js",
@@ -32,5 +111,17 @@
   "agent_notes": [
     "Observed in the embedded HumbleStudio iframe at /apps/humble-control/studio/?studio=design while loading the HumbleControl supported-app export.",
     "Claimed lane-1 on branch `fix/hs-0107-viewer-display-name-fallback`."
+  ],
+  "commands": [
+    "node --check js/app.js",
+    "node --check js/renderers.js",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0107.json",
+    "git diff --check",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "node - <<'NODE' ... validateConfig(/tmp/hs0107-humble-control-export.json) ... NODE",
+    "Chrome DevTools: load lane-local HumbleControl export, verify no Load failed, clean validation, component labels, and nav map label rendering",
+    "python3 Scripts/humble_doctor.py --repo-root /Users/janpokorny/Coding/personal/apps/HumbleStudio --strict"
   ]
 }
