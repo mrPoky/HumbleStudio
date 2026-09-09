@@ -1,0 +1,35 @@
+{
+  "id": "HS-0107",
+  "title": "Harden web viewer entity display names",
+  "status": "accepted",
+  "type": "bug",
+  "priority": "high",
+  "owner": null,
+  "created_at": "2026-09-09",
+  "updated_at": "2026-09-09",
+  "source": "agent",
+  "summary": "Fix the web fallback viewer so supported-app exports whose components or views omit a name field still render, sort, search, and inspect through stable fallback labels instead of failing with a localeCompare error.",
+  "acceptance_criteria": [
+    "The web viewer builds one shared display label for components and views from name, title, label, route, id, or another stable source.",
+    "Review queues, component cards, view cards, inspector titles, search, and graph labels use the shared fallback instead of directly assuming name is present.",
+    "A HumbleControl supported-app export loads in the web viewer without the Load failed localeCompare error.",
+    "Repository ticket, fallback, and workflow checks record the fixed viewer behavior."
+  ],
+  "evidence": [],
+  "related_files": [
+    ".humble/tickets/HS-0107.json",
+    "js/app.js",
+    "js/renderers.js"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "allowed",
+    "source_ref": "Jan asked to continue and fix the component design display after the HumbleControl embedded Studio viewer showed a localeCompare load failure.",
+    "note": "Keep this as a viewer robustness fix; do not mutate the HumbleControl export only to satisfy one field assumption."
+  },
+  "agent_notes": [
+    "Observed in the embedded HumbleStudio iframe at /apps/humble-control/studio/?studio=design while loading the HumbleControl supported-app export."
+  ]
+}
