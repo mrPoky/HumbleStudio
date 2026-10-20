@@ -119,8 +119,8 @@ def validate_metadata(config: dict[str, Any]) -> list[CheckResult]:
         ),
         CheckResult(
             "workflow.worktree_fixed_lanes",
-            "passed" if worktree_lanes.get("lanes") == ["lane-1", "lane-2", "lane-3", "lane-4"] else "failed",
-            "four fixed lanes declared" if worktree_lanes.get("lanes") == ["lane-1", "lane-2", "lane-3", "lane-4"] else "set workflow.worktree_lanes.lanes to lane-1 through lane-4",
+            "passed" if worktree_lanes.get("lanes") == ["lane-0", "lane-1", "lane-2"] else "failed",
+            "three fixed lanes declared" if worktree_lanes.get("lanes") == ["lane-0", "lane-1", "lane-2"] else "set workflow.worktree_lanes.lanes to lane-0 through lane-2",
         ),
         CheckResult(
             "workflow.worktree_lanes_root",

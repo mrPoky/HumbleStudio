@@ -1,0 +1,70 @@
+{
+  "id": "HS-0108",
+  "title": "Adopt three reusable worktree lanes",
+  "status": "solved",
+  "type": "workflow",
+  "priority": "medium",
+  "owner": "codex",
+  "created_at": "2026-10-20",
+  "updated_at": "2026-10-20",
+  "source": "user",
+  "summary": "Align HumbleStudio with the portfolio lane-0 through lane-2 pool and matching local parking branches.",
+  "acceptance_criteria": [
+    "The repository contract declares exactly lane-0 through lane-2 and matching parking branches.",
+    "Three clean, parked worktrees exist after promotion.",
+    "Relevant repository validation passes and changes land through a squash PR."
+  ],
+  "evidence": [
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_repo_contract.py",
+      "note": "The three-lane policy passed the repository contract validator."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0108.json",
+      "note": "The owning ticket passed its repository validator."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "git diff --check",
+      "note": "The coherent workflow patch has no whitespace errors."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/shared_repo_contract.py",
+      "note": "The repository-owned lane tooling was updated to use lane-0 through lane-2."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "bash Scripts/run_local_checks.sh",
+      "note": "Repository-specific workflow verification passed."
+    }
+  ],
+  "commands": [
+    "python3 Scripts/validate_repo_contract.py",
+    "python3 Scripts/validate_humble_tickets.py .humble/tickets/HS-0108.json",
+    "git diff --check",
+    "bash Scripts/run_local_checks.sh"
+  ],
+  "related_files": [
+    ".humble/coordination/lanes.json",
+    ".humble/tickets/HS-0108.json",
+    "AGENTS.md",
+    "Config/repo-contract.json",
+    "Scripts/shared_repo_contract.py",
+    "docs/workflow-contract.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "only_blocking",
+    "source_ref": "Jan requested the three-lane system across all managed repositories."
+  }
+}
