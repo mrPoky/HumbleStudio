@@ -67,7 +67,7 @@ Before editing files:
   `/Users/janpokorny/Coding/personal/worktrees/HumbleStudio`.
 - The reserved root checkout in `/Users/janpokorny/Coding/personal/apps/HumbleStudio`
   should stay a clean catalog-style checkout on `main` whenever practical.
-- Active implementation slices should prefer `lane-1` through `lane-4` when the
+- Active implementation slices should prefer `lane-0` through `lane-2` when the
   lane workflow is available and prepared for the task.
 - Lane state lives in `.humble/coordination/lanes.json`.
 - Use `python3 Scripts/start_ticket_lane.py --path <scope>` when preparing the next explicit lane-backed slice.

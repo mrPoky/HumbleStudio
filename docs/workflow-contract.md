@@ -49,7 +49,7 @@ enough to deserve enforcement, not just memory.
 - The canonical HumbleStudio lane root is
   `/Users/janpokorny/Coding/personal/worktrees/HumbleStudio`.
 - Lane inventory and claims live in `.humble/coordination/lanes.json`.
-- `lane-1` through `lane-4` are the fixed implementation lanes.
+- `lane-0` through `lane-2` are the fixed implementation lanes.
 - `python3 Scripts/start_ticket_lane.py --path <scope>` is the supported repo-local
   entrypoint for claiming the next ready ticket into a lane.
 - `python3 Scripts/manage_humble_lanes.py list` exposes the underlying lane registry,
