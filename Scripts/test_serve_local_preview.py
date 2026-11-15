@@ -3,12 +3,18 @@
 
 from __future__ import annotations
 
+import json
 import tempfile
+import threading
 import unittest
 from http import HTTPStatus
+from http.server import ThreadingHTTPServer
 from pathlib import Path
+from unittest.mock import patch
+from urllib.request import Request, urlopen
 
 from serve_local_preview import (
+    HumbleStudioLocalPreviewHandler,
     LocalPreviewError,
     SupportedAppExport,
     build_supported_app_catalog,
@@ -126,6 +132,52 @@ class LocalPreviewHelperTests(unittest.TestCase):
                     }
                 )
         self.assertEqual(context.exception.code, "invalid_catalog_path")
+
+    def test_catalog_http_get_and_head_do_not_generate_exports(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_root:
+            repo_root = Path(raw_root) / "app"
+            repo_root.mkdir()
+            export_path = repo_root / ".humble" / "design.json"
+            catalog = catalog_for(
+                repo_root,
+                ("python3", "generator-must-not-run.py"),
+                app_id="test-app",
+                app_name="TestApp",
+                export_relative_path=Path(".humble/design.json"),
+                content_type="application/json; charset=utf-8",
+                source_kind="design.json",
+            )
+
+            class QuietHandler(HumbleStudioLocalPreviewHandler):
+                def log_message(self, format: str, *args: object) -> None:
+                    pass
+
+            with patch("serve_local_preview.SUPPORTED_APP_EXPORTS", catalog):
+                with ThreadingHTTPServer(("127.0.0.1", 0), QuietHandler) as server:
+                    thread = threading.Thread(target=server.serve_forever, daemon=True)
+                    thread.start()
+                    try:
+                        url = f"http://127.0.0.1:{server.server_port}/api/supported-apps/catalog"
+                        with urlopen(url, timeout=5) as response:
+                            self.assertEqual(response.status, HTTPStatus.OK)
+                            self.assertEqual(response.headers["Cache-Control"], "no-store")
+                            body = response.read()
+                        payload = json.loads(body)
+                        self.assertEqual(payload["schema"], "humble.studio.supported-app-catalog.v1")
+                        self.assertFalse(payload["writes"])
+                        self.assertEqual(payload["apps"][0]["localStatus"], "generatable")
+                        self.assertNotIn(str(repo_root), body.decode("utf-8"))
+
+                        request = Request(url, method="HEAD")
+                        with urlopen(request, timeout=5) as response:
+                            self.assertEqual(response.status, HTTPStatus.OK)
+                            self.assertEqual(int(response.headers["Content-Length"]), len(body))
+                            self.assertEqual(response.read(), b"")
+                    finally:
+                        server.shutdown()
+                        thread.join(timeout=5)
+
+            self.assertFalse(export_path.exists())
 
     def test_existing_export_is_returned_without_generation(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:

@@ -1,6 +1,7 @@
 name: Repo Contract
 
 on:
+  pull_request:
   workflow_dispatch:
     inputs:
       ref:
@@ -18,7 +19,52 @@ permissions:
   contents: read
 
 jobs:
+  web-and-repo-contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate tickets and repo contract
+        run: |
+          python3 Scripts/validate_humble_tickets.py
+          python3 Scripts/validate_repo_contract.py
+
+      - name: Compile Python and check web fallback
+        run: |
+          python3 -m py_compile Scripts/*.py
+          python3 Scripts/check_web_fallback.py
+
+      - name: Test localhost export and catalog endpoints
+        run: python3 Scripts/test_serve_local_preview.py
+
+      - name: Test supported-app catalog search and fallback
+        run: |
+          node --check js/app.js
+          node Scripts/test_supported_app_catalog.cjs
+
+      - name: Check whitespace in the PR diff
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: git diff --check "origin/$BASE_REF...HEAD"
+
   contract-and-native-sanity:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: macos-15
 
     steps:

@@ -36,6 +36,8 @@ The web viewer lets you search supported apps by name, repository, platform, or 
 
 The helper exposes a read-only `GET /api/supported-apps/catalog` endpoint (also supports `HEAD`) with schema `humble.studio.supported-app-catalog.v1`. It never runs export generators, writes files, or returns private local filesystem paths; requesting a real export still uses the separate `/api/supported-apps/{app-id}/export` route.
 
+The `Repo Contract` GitHub workflow now runs focused Python endpoint tests, Node catalog/loader regressions, static fallback and ticket/contract checks on pull requests using Ubuntu. Its existing native macOS build remains available only through explicit workflow dispatch, so routine PR checks do not launch expensive native builds.
+
 Hosted niceties included:
 - drag & drop onto the upload card
 - remembers the last URL or demo source in `localStorage`

@@ -15,7 +15,8 @@
     "Cards distinguish existing, generatable, missing export, missing repo, unavailable helper and URL-only states.",
     "Clicking Load skips an unavailable local resolver and uses the known raw URL while still surfacing real generator errors.",
     "Static hosting, demo loading, URL prefill, native bridge, and exports remain intact.",
-    "Focused tests and repository verification are executed before ticket closure."
+    "Focused tests and repository verification are executed before ticket closure.",
+    "A pull-request CI job runs both source-catalog regressions and repo checks without automatically launching the native macOS build."
   ],
   "evidence": [
     {
@@ -59,6 +60,24 @@
       "status": "passed",
       "path": "Scripts/test_supported_app_catalog.cjs",
       "note": "Persisted Node VM harness parsed successfully in V8 and can verify catalog filtering, static-only mode, local statuses, endpoint ID trust and 12-source parity in a local checkout."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/test_serve_local_preview.py",
+      "note": "Added GET/HEAD handler-level contract test with an ephemeral loopback HTTP server; validates response body and headers, and asserts no generator is run."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": ".github/workflows/repo-contract.yml",
+      "note": "Added pull_request-only Ubuntu Python/Node test job; preserved manual-dispatch macOS build job."
+    },
+    {
+      "kind": "command",
+      "status": "pending",
+      "path": ".github/workflows/repo-contract.yml",
+      "note": "GitHub Actions PR job will validate the committed branch; no CI run result claimed in this ticket before observing it."
     }
   ],
   "commands": [
@@ -69,7 +88,8 @@
     "python3 Scripts/validate_repo_contract.py",
     "bash Scripts/run_local_checks.sh --workflow-only",
     "node --check js/app.js",
-    "git diff --check"
+    "git diff --check",
+    "GitHub Actions: Repo Contract / web-and-repo-contract"
   ],
   "related_files": [
     ".humble/tickets/HS-0109.json",
@@ -80,7 +100,8 @@
     "index.html",
     "studio.css",
     "README.md",
-    "Scripts/test_supported_app_catalog.cjs"
+    "Scripts/test_supported_app_catalog.cjs",
+    ".github/workflows/repo-contract.yml"
   ],
   "blocked_by": null,
   "trigger": {
