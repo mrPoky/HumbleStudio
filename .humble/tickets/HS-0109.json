@@ -146,6 +146,12 @@
       "status": "pending",
       "path": "manual screenshot inspection",
       "note": "Optional human visual sign-off can inspect uploaded browser artifacts; PR remains reviewable without claiming this happened."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AGENTS.md; docs/workflow-contract.md",
+      "note": "Aligned repository verification and workflow guidance with actual PR Python/Node/Chromium CI and dispatch-only native build. Removed outdated no-CI/no-browser statements."
     }
   ],
   "commands": [
@@ -171,7 +177,9 @@
     "README.md",
     "Scripts/test_supported_app_catalog.cjs",
     ".github/workflows/repo-contract.yml",
-    "Scripts/smoke_supported_app_browser.cjs"
+    "Scripts/smoke_supported_app_browser.cjs",
+    "AGENTS.md",
+    "docs/workflow-contract.md"
   ],
   "blocked_by": null,
   "trigger": {
