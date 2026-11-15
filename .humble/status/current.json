@@ -1,7 +1,7 @@
 {
   "app": "HumbleStudio",
   "status_version": 1,
-  "last_refreshed": "2026-08-20",
+  "last_refreshed": "2026-11-15",
   "summary": {
     "overall_percent": 87,
     "confidence": "medium",
@@ -17,7 +17,8 @@
       "Read-only workflow surfaces should stay truthful and avoid mutating repo state implicitly.",
       "Review queue and navigation audit cards now reuse shared proposal scope truth instead of each inferring proposal linkage independently.",
       "Native preview chrome now models selected-device safe-area geometry instead of only displaying raw inset metadata.",
-      "Proposal workspace now exposes an authoring-readiness rail for source inspection, proposal capture, validation, and the blocked future edit/apply gate."
+      "Proposal workspace now exposes an authoring-readiness rail for source inspection, proposal capture, validation, and the blocked future edit/apply gate.",
+      "HS-0109 source-picker slice (PR #18) adds a searchable 12-app web catalog, local source-readiness refresh, read-only status endpoint and legacy-compatible URL fallback, with automated PR Python/Node checks. Actual merge and browser visual QA remain separate."
     ]
   },
   "refresh_cadence": {
@@ -115,6 +116,11 @@
       "command": "./script/build_and_run.sh --native-ci",
       "status": "passed",
       "summary": "The repo-documented native CI path completed a build-only macOS sanity pass for HS-0091."
+    },
+    {
+      "command": "GitHub Actions: Repo Contract / web-and-repo-contract — run 43714117466",
+      "status": "passed",
+      "summary": "PR head faaeccb7 passed ticket/repo validation, Python compilation, web fallback integrity, localhost catalog GET/HEAD Python suite, Node source-picker regression suite and diff whitespace."
     }
   ],
   "operating_layers": [

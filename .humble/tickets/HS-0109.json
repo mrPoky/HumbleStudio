@@ -1,14 +1,14 @@
 {
   "id": "HS-0109",
   "title": "Make supported-app catalog searchable and show local source readiness",
-  "status": "testing",
+  "status": "solved",
   "type": "feature",
   "priority": "medium",
   "owner": "Ivan 8",
   "created_at": "2026-11-15",
   "updated_at": "2026-11-15",
   "source": "agent",
-  "summary": "Give the 12-app static viewer a searchable source picker and a read-only localhost readiness API so missing local repos or exports fall back directly to configured remote sources.",
+  "summary": "Implemented a searchable 12-app viewer source picker, local readiness discovery and manual refresh, with legacy-helper-compatible local-first loading and missing-source URL fallback. Focused Python/Node contract tests and the new PR workflow passed; delivery is staged in PR #18, not yet merged.",
   "acceptance_criteria": [
     "Supported app cards filter by name, repository, platform, description, and badge with a live result count and useful no-results state.",
     "The local helper exposes a GET/HEAD catalog response with read-only source readiness and without revealing local repo paths or invoking generators.",
@@ -40,15 +40,15 @@
     },
     {
       "kind": "command",
-      "status": "blocked",
+      "status": "passed",
       "path": "python3 Scripts/test_serve_local_preview.py",
-      "note": "Connector-only repository access; cannot run the repo script or its Python environment in this chat."
+      "note": "Executed successfully by GitHub Actions / Repo Contract / web-and-repo-contract, run 43714117466; no claim of local checkout execution."
     },
     {
       "kind": "command",
-      "status": "blocked",
+      "status": "passed",
       "path": "node --check js/app.js",
-      "note": "Full node/browser/runtime checks remain pending on a checkout with dependencies and localhost access."
+      "note": "Executed successfully by GitHub Actions / Repo Contract / web-and-repo-contract, run 43714117466; no claim of local checkout execution."
     },
     {
       "kind": "pr",
@@ -76,9 +76,9 @@
     },
     {
       "kind": "command",
-      "status": "pending",
+      "status": "passed",
       "path": ".github/workflows/repo-contract.yml",
-      "note": "GitHub Actions PR job will validate the committed branch; no CI run result claimed in this ticket before observing it."
+      "note": "Executed successfully by GitHub Actions / Repo Contract / web-and-repo-contract, run 43714117466; no claim of local checkout execution."
     },
     {
       "kind": "note",
@@ -91,6 +91,24 @@
       "status": "passed",
       "path": "Scripts/test_supported_app_catalog.cjs",
       "note": "Added VM assertions for static-host hiding, pending refresh disabling, and re-enabling after refreshed readiness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "https://github.com/mrPoky/HumbleStudio/actions/runs/43714117466",
+      "note": "All PR workflow steps passed on source-refresh commit faaeccb7: repo/ticket checks, Python compile, web fallback, Python HTTP endpoint suite, Node catalog regression suite, JS syntax and diff whitespace."
+    },
+    {
+      "kind": "note",
+      "status": "not_applicable",
+      "path": "AppleApps",
+      "note": "Native macOS build not run automatically because this slice changes only the static web viewer and Python helper; previous dispatch-only native build workflow remains unchanged."
+    },
+    {
+      "kind": "note",
+      "status": "pending",
+      "path": "Browser smoke of localhost UI",
+      "note": "A direct visual browser smoke with a real local export remains a useful independent QA follow-up; no browser result is claimed from automation tests."
     }
   ],
   "commands": [
