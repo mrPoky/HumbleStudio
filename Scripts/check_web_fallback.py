@@ -52,6 +52,7 @@ def validate_markup(index_path: Path) -> list[str]:
         'id="loaderSupportedApps"',
         'id="supportedAppSearch"',
         'id="supportedAppsCount"',
+        'id="supportedAppsRefresh"',
         'id="page-review"',
         'id="page-navmap"',
         'src="js/app.js"',

@@ -450,6 +450,9 @@ function getSupportedAppLocalReadiness(app) {
 
 async function refreshSupportedAppSourceCatalog() {
   if (!isLocalhostPreview()) return;
+  supportedAppStatusById = null;
+  supportedAppStatusChecked = false;
+  renderSupportedApps();
   try {
     const response = await fetch(LOCAL_SUPPORTED_APP_CATALOG_PATH, {
       headers: { Accept: 'application/json' },
@@ -709,6 +712,11 @@ function renderSupportedApps() {
     count.textContent = supportedAppFilterQuery
       ? apps.length + ' of ' + allApps.length + ' apps'
       : allApps.length + ' supported apps';
+  }
+  const refreshButton = document.getElementById('supportedAppsRefresh');
+  if (refreshButton) {
+    refreshButton.style.display = isLocalhostPreview() ? '' : 'none';
+    refreshButton.disabled = !supportedAppStatusChecked;
   }
   if (!apps.length) {
     container.innerHTML = '<p class="loader-supported-empty">No apps match this search.</p>';

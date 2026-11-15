@@ -106,6 +106,7 @@
             <input class="loader-supported-search" id="supportedAppSearch" type="search" aria-controls="loaderSupportedApps" placeholder="Name, platform, repository…" oninput="filterSupportedApps(this.value)" />
           </label>
           <span class="loader-supported-count" id="supportedAppsCount" role="status" aria-live="polite"></span>
+          <button class="btn-sm loader-supported-refresh" type="button" id="supportedAppsRefresh" onclick="refreshSupportedAppSourceCatalog()" style="display:none">Refresh local sources</button>
         </div>
         <div class="loader-supported-grid" id="loaderSupportedApps"></div>
         <div class="loader-or">— or —</div>

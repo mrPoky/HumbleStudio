@@ -40,6 +40,7 @@ function harness(hostname, fetchImpl) {
   const nodes = {
     loaderSupportedApps: { innerHTML: '' },
     supportedAppsCount: { textContent: '' },
+    supportedAppsRefresh: { style: { display: 'none' }, disabled: true },
   };
   const trace = { status: [], remoteLoads: [], localConfigs: [], remembered: [] };
   const context = {
@@ -75,6 +76,7 @@ async function main() {
   remote.api.renderSupportedApps();
   assert.equal(remote.nodes.supportedAppsCount.textContent, '12 supported apps');
   assert.ok(remote.nodes.loaderSupportedApps.innerHTML.includes('URL source'));
+  assert.equal(remote.nodes.supportedAppsRefresh.style.display, 'none');
   remote.api.filterSupportedApps('KAKURO');
   assert.equal(remote.nodes.supportedAppsCount.textContent, '1 of 12 apps');
   assert.ok(!remote.nodes.loaderSupportedApps.innerHTML.includes('HumbleSudoku'));
@@ -94,6 +96,8 @@ async function main() {
     json: async () => ({ schema: 'humble.studio.supported-app-catalog.v1', apps: states }),
   }));
   await local.api.refreshSupportedAppSourceCatalog();
+  assert.equal(local.nodes.supportedAppsRefresh.style.display, '');
+  assert.equal(local.nodes.supportedAppsRefresh.disabled, false);
   const find = id => apps.find(app => app.id === id);
   assert.equal(local.api.canUseLocalSupportedAppHelper(find('humble-sudoku')), true);
   assert.equal(local.api.canUseLocalSupportedAppHelper(find('humble-control')), true);
@@ -145,6 +149,17 @@ async function main() {
   assert.equal(generatorFailure.trace.remoteLoads.length, 0);
   assert.ok(generatorFailure.trace.status.some(item => item.level === 'err'
     && item.message.includes('Generation failed')));
+
+  let completeRefresh;
+  const refreshing = harness('localhost', () => new Promise(resolve => { completeRefresh = resolve; }));
+  const refreshPromise = refreshing.api.refreshSupportedAppSourceCatalog();
+  assert.equal(refreshing.nodes.supportedAppsRefresh.disabled, true);
+  assert.ok(refreshing.nodes.loaderSupportedApps.innerHTML.includes('Checking local source'));
+  completeRefresh({ ok: true, json: async () => ({
+    schema: 'humble.studio.supported-app-catalog.v1', apps: states,
+  }) });
+  await refreshPromise;
+  assert.equal(refreshing.nodes.supportedAppsRefresh.disabled, false);
 
   const mismatched = harness('localhost', async () => ({
     ok: true,
