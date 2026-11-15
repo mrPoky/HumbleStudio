@@ -1,14 +1,14 @@
 {
   "id": "HS-0109",
   "title": "Make supported-app catalog searchable and show local source readiness",
-  "status": "testing",
+  "status": "solved",
   "type": "feature",
   "priority": "medium",
   "owner": "Ivan 8",
   "created_at": "2026-11-15",
   "updated_at": "2026-11-15",
   "source": "agent",
-  "summary": "Implemented a searchable 12-app viewer source picker, local readiness discovery and manual refresh, with legacy-helper-compatible local-first loading and missing-source URL fallback. Focused Python/Node contract tests and the new PR workflow passed; delivery is staged in PR #18, not yet merged.",
+  "summary": "Complete search/readiness/refresh flow for 12 HumbleStudio web supported apps, with legacy helper compatible URL fallback. Verified through live Python endpoints, Node VM contracts, actual headless Chromium journeys and CI screenshots; PR #18 remains unmerged for normal review.",
   "acceptance_criteria": [
     "Supported app cards filter by name, repository, platform, description, and badge with a live result count and useful no-results state.",
     "The local helper exposes a GET/HEAD catalog response with read-only source readiness and without revealing local repo paths or invoking generators.",
@@ -107,15 +107,15 @@
     },
     {
       "kind": "note",
-      "status": "pending",
-      "path": "Browser smoke of localhost UI",
-      "note": "A direct visual browser smoke with a real local export remains a useful independent QA follow-up; no browser result is claimed from automation tests."
+      "status": "passed",
+      "path": "Automated Chromium localhost browser journeys",
+      "note": "GitHub Actions run 43752388794 loaded a real ephemeral localhost helper in Chromium; verified local design.json, missing-repo URL fallback, manual refresh recovery, mobile empty state, file viewer and no uncaught page errors. Not a claim of manual developer visual approval."
     },
     {
       "kind": "note",
-      "status": "pending",
+      "status": "passed",
       "path": "Scripts/smoke_supported_app_browser.cjs",
-      "note": "End-to-end Chromium test added, awaiting Actions run."
+      "note": "Completed Playwright Chromium smoke: run 43752388794, supported-app-browser-smoke job PASS with 3 saved screenshots."
     },
     {
       "kind": "command",
@@ -128,6 +128,24 @@
       "status": "passed",
       "path": "Scripts/smoke_supported_app_browser.cjs",
       "note": "Replaced ambiguous repeated-title wait with a concrete awaited local export HTTP response and source-mode transition."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "https://github.com/mrPoky/HumbleStudio/actions/runs/43752388794",
+      "note": "Latest pre-evidence browser implementation head 79b247cf passed both Ubuntu jobs: web-and-repo-contract and supported-app-browser-smoke. Native dispatch-only job deliberately skipped."
+    },
+    {
+      "kind": "snapshot",
+      "status": "passed",
+      "path": "https://github.com/mrPoky/HumbleStudio/actions/runs/43752388794/artifacts/14176598892",
+      "note": "GitHub Actions uploaded browser snapshots: desktop-loaded.png, mobile-empty.png and static-viewer.png; artifact id 14176598892. Automated screenshots not yet manually evaluated."
+    },
+    {
+      "kind": "note",
+      "status": "pending",
+      "path": "manual screenshot inspection",
+      "note": "Optional human visual sign-off can inspect uploaded browser artifacts; PR remains reviewable without claiming this happened."
     }
   ],
   "commands": [

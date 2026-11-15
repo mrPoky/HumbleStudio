@@ -18,7 +18,7 @@
       "Review queue and navigation audit cards now reuse shared proposal scope truth instead of each inferring proposal linkage independently.",
       "Native preview chrome now models selected-device safe-area geometry instead of only displaying raw inset metadata.",
       "Proposal workspace now exposes an authoring-readiness rail for source inspection, proposal capture, validation, and the blocked future edit/apply gate.",
-      "HS-0109 source-picker slice (PR #18) adds a searchable 12-app web catalog, local source-readiness refresh, read-only status endpoint and legacy-compatible URL fallback, with automated PR Python/Node checks. Actual merge and browser visual QA remain separate."
+      "HS-0109 source-picker slice (PR #18) adds a searchable 12-app web catalog, local source-readiness refresh, read-only status endpoint and legacy-compatible URL fallback. Python/Node and real headless Chromium browser smoke passed in PR CI with screenshot artifacts. PR is still unmerged; manual screenshot review and native-only QA are separate."
     ]
   },
   "refresh_cadence": {
@@ -121,6 +121,11 @@
       "command": "GitHub Actions: Repo Contract / web-and-repo-contract — run 43714117466",
       "status": "passed",
       "summary": "PR head faaeccb7 passed ticket/repo validation, Python compilation, web fallback integrity, localhost catalog GET/HEAD Python suite, Node source-picker regression suite and diff whitespace."
+    },
+    {
+      "command": "GitHub Actions: Repo Contract / supported-app-browser-smoke — run 43752388794",
+      "status": "passed",
+      "summary": "Headless Chromium exercised real localhost file loading, network fallback, source-refresh recovery, mobile empty state and static file viewer with 3 screenshots saved to artifact 14176598892."
     }
   ],
   "operating_layers": [

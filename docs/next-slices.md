@@ -17,7 +17,7 @@ This is the repository-native runway for autonomous HumbleStudio iterations. Wor
 
 ## Current Status
 
-- 2026-11-15 — HS-0109 implemented on Ivan 8's isolated topic branch (PR #18): the 12-app web source picker now supports search, local readiness polling and manual refresh, 404/legacy-helper-safe URL fallback, and PR-triggered Python/Node checks. GitHub Actions passed for the implementation, while the PR is still unmerged. This does **not** complete item #2 (the shared native/web source contract); it remains on the runway.
+- 2026-11-15 — HS-0109 verified in PR #18: searchable 12-app web source catalog, local readiness/refresh and legacy-helper-safe URL fallback all pass Python/Node checks and real headless Chromium browser journeys (CI run 43752388794; screenshots attached). The PR is not merged, native/macOS QA is not claimed, and item #2 (shared native/web source contract) remains open.
 
 - 2026-07-16 — completed: active safe-area inset values are shown in Preview Contract and localized through the string catalog.
 - 2026-07-21 — completed: HS-0038 ties review queue and navigation audit surfaces to shared proposal scope, linked ticket, source-audit, and read-only apply readiness truth.
