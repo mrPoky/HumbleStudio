@@ -95,8 +95,16 @@ async function main() {
     await page.getByRole('button', { name: /Load config/ }).click();
     await page.locator('#supportedAppsRefresh').click();
     await page.locator('.loader-supported-source-state.available').waitFor();
+    // The previous remote load has the same app name, so waiting for the
+    // visible title alone would pass before this new local request finishes.
+    const localResponse = page.waitForResponse(response =>
+      response.url().endsWith('/api/supported-apps/humble-workout/export') && response.ok(),
+    );
     await page.locator('#loaderSupportedApps .btn-full').click();
-    await contains(page, '#sbAppName', 'HumbleWorkout v1.0');
+    await localResponse;
+    await page.waitForFunction(() =>
+      JSON.parse(localStorage.getItem('humbleStudio:lastSource'))?.mode === 'local',
+    );
     assert.equal(remoteRequests, 1);
     assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('humbleStudio:lastSource')).mode), 'local');
     await page.screenshot({ path: path.join(output, 'desktop-loaded.png'), fullPage: true });

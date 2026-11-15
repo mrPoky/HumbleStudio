@@ -116,6 +116,18 @@
       "status": "pending",
       "path": "Scripts/smoke_supported_app_browser.cjs",
       "note": "End-to-end Chromium test added, awaiting Actions run."
+    },
+    {
+      "kind": "command",
+      "status": "failed",
+      "path": "https://github.com/mrPoky/HumbleStudio/actions/runs/43752187949",
+      "note": "First browser smoke attempt found a test synchronization issue: same-app remote/local reload retained the previous title and title-based wait completed before local load. CI failure was not classified as a product bug."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/smoke_supported_app_browser.cjs",
+      "note": "Replaced ambiguous repeated-title wait with a concrete awaited local export HTTP response and source-mode transition."
     }
   ],
   "commands": [
