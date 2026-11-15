@@ -63,6 +63,45 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
         run: git diff --check "origin/$BASE_REF...HEAD"
 
+  supported-app-browser-smoke:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install isolated Playwright and Chromium
+        run: |
+          mkdir -p "$RUNNER_TEMP/humble-studio-playwright"
+          npm --prefix "$RUNNER_TEMP/humble-studio-playwright" install --no-save --no-package-lock --no-audit --no-fund playwright@1.65.1
+          "$RUNNER_TEMP/humble-studio-playwright/node_modules/.bin/playwright" install --with-deps chromium
+
+      - name: Run real Chromium browser smoke
+        env:
+          NODE_PATH: ${{ runner.temp }}/humble-studio-playwright/node_modules
+          HUMBLESTUDIO_SMOKE_OUTPUT_DIR: ${{ runner.temp }}/humble-studio-browser-evidence
+        run: node Scripts/smoke_supported_app_browser.cjs
+
+      - name: Upload browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: humble-studio-browser-smoke
+          path: ${{ runner.temp }}/humble-studio-browser-evidence/
+          if-no-files-found: ignore
+
   contract-and-native-sanity:
     if: github.event_name == 'workflow_dispatch'
     runs-on: macos-15

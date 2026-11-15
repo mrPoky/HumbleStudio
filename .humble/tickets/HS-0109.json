@@ -1,7 +1,7 @@
 {
   "id": "HS-0109",
   "title": "Make supported-app catalog searchable and show local source readiness",
-  "status": "solved",
+  "status": "testing",
   "type": "feature",
   "priority": "medium",
   "owner": "Ivan 8",
@@ -17,7 +17,8 @@
     "Static hosting, demo loading, URL prefill, native bridge, and exports remain intact.",
     "Focused tests and repository verification are executed before ticket closure.",
     "A pull-request CI job runs both source-catalog regressions and repo checks without automatically launching the native macOS build.",
-    "The localhost source list has an accessible, disabled-while-loading manual refresh action that does not appear on static hosts."
+    "The localhost source list has an accessible, disabled-while-loading manual refresh action that does not appear on static hosts.",
+    "Chromium browser smoke covers real local load, remote fallback, refreshed local export, mobile empty state, file static mode and JavaScript errors."
   ],
   "evidence": [
     {
@@ -109,6 +110,12 @@
       "status": "pending",
       "path": "Browser smoke of localhost UI",
       "note": "A direct visual browser smoke with a real local export remains a useful independent QA follow-up; no browser result is claimed from automation tests."
+    },
+    {
+      "kind": "note",
+      "status": "pending",
+      "path": "Scripts/smoke_supported_app_browser.cjs",
+      "note": "End-to-end Chromium test added, awaiting Actions run."
     }
   ],
   "commands": [
@@ -120,7 +127,8 @@
     "bash Scripts/run_local_checks.sh --workflow-only",
     "node --check js/app.js",
     "git diff --check",
-    "GitHub Actions: Repo Contract / web-and-repo-contract"
+    "GitHub Actions: Repo Contract / web-and-repo-contract",
+    "node Scripts/smoke_supported_app_browser.cjs (Playwright Chromium)"
   ],
   "related_files": [
     ".humble/tickets/HS-0109.json",
@@ -132,7 +140,8 @@
     "studio.css",
     "README.md",
     "Scripts/test_supported_app_catalog.cjs",
-    ".github/workflows/repo-contract.yml"
+    ".github/workflows/repo-contract.yml",
+    "Scripts/smoke_supported_app_browser.cjs"
   ],
   "blocked_by": null,
   "trigger": {
