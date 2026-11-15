@@ -20,6 +20,12 @@
   "evidence": [
     {
       "kind": "note",
+      "status": "passed",
+      "path": "js/app.js",
+      "note": "Isolated V8 harness parsed the web app and passed search/count/empty state, local ready/generatable/missing, helper-unavailable fallback, rejected endpoint mismatch and 12-app catalog ID parity. Node/Python checkout tests still pending."
+    },
+    {
+      "kind": "note",
       "status": "pending",
       "path": "Scripts/serve_local_preview.py",
       "note": "Implementation creates read-only local readiness responses separately from export generation."
@@ -45,6 +51,7 @@
   ],
   "commands": [
     "python3 Scripts/test_serve_local_preview.py",
+    "node Scripts/test_supported_app_catalog.cjs",
     "python3 Scripts/check_web_fallback.py",
     "python3 Scripts/validate_humble_tickets.py",
     "python3 Scripts/validate_repo_contract.py",
@@ -60,7 +67,8 @@
     "js/app.js",
     "index.html",
     "studio.css",
-    "README.md"
+    "README.md",
+    "Scripts/test_supported_app_catalog.cjs"
   ],
   "blocked_by": null,
   "trigger": {
