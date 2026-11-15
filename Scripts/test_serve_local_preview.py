@@ -12,10 +12,12 @@ from serve_local_preview import (
     LocalPreviewError,
     SupportedAppExport,
     build_supported_app_catalog,
+    build_supported_app_source_catalog,
     build_prepare_edit_contract,
     build_humble_control_connection_manifest,
     ensure_supported_app_export,
     parse_connection_path,
+    parse_supported_app_catalog_path,
     parse_prepare_edit_app_id,
     parse_supported_app_export_path,
 )
@@ -54,6 +56,76 @@ class LocalPreviewHelperTests(unittest.TestCase):
         self.assertIn("my-vltava-run", catalog)
         self.assertIn("humble-workout", catalog)
         self.assertIn("humble-kakuro", catalog)
+
+    def test_catalog_path_is_distinct_from_export_paths(self) -> None:
+        self.assertTrue(parse_supported_app_catalog_path("/api/supported-apps/catalog"))
+        self.assertTrue(parse_supported_app_catalog_path("/api/supported-apps/catalog?fresh=1"))
+        self.assertFalse(parse_supported_app_catalog_path("/api/supported-apps/catalog/export"))
+        self.assertFalse(parse_supported_app_catalog_path("/api/supported-apps/humble-sudoku/export"))
+
+    def test_source_catalog_reports_readiness_without_generation_or_path_leaks(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_root:
+            root = Path(raw_root)
+            ready = root / "ready"
+            (ready / ".humble").mkdir(parents=True)
+            (ready / ".humble" / "design.json").write_text("{}", encoding="utf-8")
+            generatable = root / "generatable"
+            generatable.mkdir()
+            missing = root / "missing"
+            missing.mkdir()
+
+            def app(app_id: str, repo_root: Path, command: tuple[str, ...] = ()) -> SupportedAppExport:
+                return SupportedAppExport(
+                    app_id=app_id,
+                    app_name=app_id,
+                    repo_path=repo_root,
+                    export_relative_path=Path(".humble/design.json"),
+                    generator_command=command,
+                )
+
+            snapshot = build_supported_app_source_catalog(
+                {
+                    "ready": app("ready", ready),
+                    "generatable": app("generatable", generatable, ("python3", "missing-generator.py")),
+                    "missing": app("missing", missing),
+                    "absent": app("absent", root / "absent"),
+                }
+            )
+            self.assertFalse((generatable / ".humble" / "design.json").exists())
+            self.assertNotIn(str(root), str(snapshot))
+
+        self.assertEqual(snapshot["schema"], "humble.studio.supported-app-catalog.v1")
+        self.assertFalse(snapshot["writes"])
+        self.assertEqual(
+            {entry["id"]: entry["localStatus"] for entry in snapshot["apps"]},
+            {
+                "ready": "available",
+                "generatable": "generatable",
+                "missing": "missing",
+                "absent": "repository_missing",
+            },
+        )
+        self.assertEqual(
+            snapshot["apps"][0]["localExportUrl"],
+            "/api/supported-apps/ready/export",
+        )
+
+    def test_source_catalog_rejects_escaping_export_path(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_root:
+            repo_root = Path(raw_root)
+            with self.assertRaises(LocalPreviewError) as context:
+                build_supported_app_source_catalog(
+                    {
+                        "unsafe": SupportedAppExport(
+                            app_id="unsafe",
+                            app_name="Unsafe",
+                            repo_path=repo_root,
+                            export_relative_path=Path("../outside/design.json"),
+                            generator_command=(),
+                        ),
+                    }
+                )
+        self.assertEqual(context.exception.code, "invalid_catalog_path")
 
     def test_existing_export_is_returned_without_generation(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:

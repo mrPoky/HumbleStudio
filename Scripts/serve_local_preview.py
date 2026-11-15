@@ -354,6 +354,10 @@ def ensure_supported_app_export(
         )
     return LocalExportResult(app=app, export_path=export_path, generated=True)
 
+def parse_supported_app_catalog_path(request_path: str) -> bool:
+    """Recognize the side-effect-free local readiness catalog endpoint."""
+    return urlparse(request_path).path == "/api/supported-apps/catalog"
+
 
 def parse_supported_app_export_path(request_path: str) -> str | None:
     parsed = urlparse(request_path)
@@ -393,6 +397,29 @@ def export_state(app: SupportedAppExport) -> tuple[str, Path]:
     if app.generator_command:
         return "generatable", export_path
     return "missing", export_path
+
+def build_supported_app_source_catalog(
+    catalog: Mapping[str, SupportedAppExport] | None = None,
+) -> dict[str, object]:
+    """Expose local source readiness without generating exports or leaking repo paths."""
+    active_catalog = SUPPORTED_APP_EXPORTS if catalog is None else catalog
+    apps: list[dict[str, object]] = []
+    for app in active_catalog.values():
+        local_status, _ = export_state(app)
+        apps.append(
+            {
+                "id": app.app_id,
+                "name": app.app_name,
+                "sourceKind": app.source_kind,
+                "localStatus": local_status,
+                "localExportUrl": f"/api/supported-apps/{quote(app.app_id)}/export",
+            }
+        )
+    return {
+        "schema": "humble.studio.supported-app-catalog.v1",
+        "writes": False,
+        "apps": apps,
+    }
 
 
 def build_workspace_launch_descriptor(app: SupportedAppExport, endpoint: str, encoded_app_id: str) -> dict[str, object]:
@@ -1075,6 +1102,9 @@ class HumbleStudioLocalPreviewHandler(SimpleHTTPRequestHandler):
         super().__init__(*args, directory=directory or str(ROOT), **kwargs)
 
     def do_GET(self) -> None:
+        if parse_supported_app_catalog_path(self.path):
+            self.send_json_response(build_supported_app_source_catalog(), send_body=True)
+            return
         app_id = parse_supported_app_export_path(self.path)
         if app_id:
             self.handle_supported_app_export(app_id, send_body=True)
@@ -1086,6 +1116,9 @@ class HumbleStudioLocalPreviewHandler(SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_HEAD(self) -> None:
+        if parse_supported_app_catalog_path(self.path):
+            self.send_json_response(build_supported_app_source_catalog(), send_body=False)
+            return
         app_id = parse_supported_app_export_path(self.path)
         if app_id:
             self.handle_supported_app_export(app_id, send_body=False)

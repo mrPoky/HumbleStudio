@@ -22,6 +22,9 @@ const DEFAULT_PREVIEW_APPEARANCE = Object.freeze({
 });
 let previewAppearanceState = { ...DEFAULT_PREVIEW_APPEARANCE };
 let currentLoadSource = null;
+let supportedAppFilterQuery = '';
+let supportedAppStatusById = null;
+let supportedAppStatusChecked = false;
 let currentStatus = { type: 'loading', text: 'Booting studio…' };
 let pendingInitialRoute = null;
 let routeHistoryIndex = 0;
@@ -34,6 +37,8 @@ const BUNDLE_EXTENSIONS = ['.humblebundle', '.zip'];
 const LAST_SOURCE_STORAGE_KEY = 'humbleStudio:lastSource';
 const LOCALHOST_PREVIEW_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 const LOCAL_SUPPORTED_APP_EXPORT_HEADER = 'X-HumbleStudio-Local-Export';
+const LOCAL_SUPPORTED_APP_CATALOG_PATH = '/api/supported-apps/catalog';
+const LOCAL_SUPPORTED_APP_CATALOG_SCHEMA = 'humble.studio.supported-app-catalog.v1';
 const STUDIO_EMBED_CONTEXT_SCHEMA = 'humble.control.studio-embed-context.v1';
 const STUDIO_EMBED_HANDSHAKE_SCHEMA = 'humble.control.studio-handshake.v1';
 const STUDIO_EMBED_HANDSHAKE_REQUEST_TYPE = 'humble-control:studio-handshake-request';
@@ -399,6 +404,11 @@ function getSupportedAppSource(appId) {
   return (SUPPORTED_APP_SOURCES || []).find(app => app.id === appId) || null;
 }
 
+function filterSupportedApps(value) {
+  supportedAppFilterQuery = normalizeSearchValue(value);
+  renderSupportedApps();
+}
+
 function isLocalhostPreview() {
   return window.location.protocol === 'http:' && LOCALHOST_PREVIEW_HOSTS.has(window.location.hostname);
 }
@@ -409,7 +419,58 @@ function getLocalSupportedAppHelperPath(app) {
 }
 
 function canUseLocalSupportedAppHelper(app) {
-  return Boolean(isLocalhostPreview() && getLocalSupportedAppHelperPath(app));
+  if (!isLocalhostPreview() || !getLocalSupportedAppHelperPath(app)) return false;
+  if (!supportedAppStatusChecked) return true;
+  return supportedAppStatusById !== null
+    && ['available', 'generatable'].includes(supportedAppStatusById.get(app.id));
+}
+
+function getSupportedAppLocalReadiness(app) {
+  if (!isLocalhostPreview() || !getLocalSupportedAppHelperPath(app)) {
+    return { label: 'URL source', className: 'url', useRemote: true };
+  }
+  if (!supportedAppStatusChecked) {
+    return { label: 'Checking local source…', className: 'checking', useRemote: false };
+  }
+  if (!supportedAppStatusById) {
+    return { label: 'Helper unavailable · URL', className: 'warning', useRemote: true };
+  }
+  switch (supportedAppStatusById.get(app.id)) {
+    case 'available':
+      return { label: 'Local export ready', className: 'available', useRemote: false };
+    case 'generatable':
+      return { label: 'Local export can be generated', className: 'generatable', useRemote: false };
+    case 'missing':
+      return { label: 'Local export missing · URL', className: 'warning', useRemote: true };
+    case 'repository_missing':
+      return { label: 'Local repository missing · URL', className: 'warning', useRemote: true };
+    default:
+      return { label: 'URL fallback', className: 'url', useRemote: true };
+  }
+}
+
+async function refreshSupportedAppSourceCatalog() {
+  if (!isLocalhostPreview()) return;
+  try {
+    const response = await fetch(LOCAL_SUPPORTED_APP_CATALOG_PATH, {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+    });
+    if (!response.ok) return;
+    const payload = await response.json();
+    if (payload?.schema !== LOCAL_SUPPORTED_APP_CATALOG_SCHEMA || !Array.isArray(payload.apps)) return;
+    const acceptedStates = new Set(['available', 'generatable', 'missing', 'repository_missing']);
+    supportedAppStatusById = new Map(payload.apps
+      .filter(entry => typeof entry?.id === 'string'
+        && acceptedStates.has(entry.localStatus)
+        && entry.localExportUrl === getLocalSupportedAppHelperPath(getSupportedAppSource(entry.id)))
+      .map(entry => [entry.id, entry.localStatus]));
+  } catch {
+    // The static web fallback must also work without the optional localhost helper.
+  } finally {
+    supportedAppStatusChecked = true;
+    renderSupportedApps();
+  }
 }
 
 function buildSupportedAppSourceState(app, mode = 'url') {
@@ -631,14 +692,24 @@ function loadDemo() {
 function renderSupportedApps() {
   const container = document.getElementById('loaderSupportedApps');
   if (!container) return;
-  const apps = SUPPORTED_APP_SOURCES || [];
+  const allApps = SUPPORTED_APP_SOURCES || [];
+  const apps = allApps.filter(app => !supportedAppFilterQuery
+    || normalizeSearchValue([app.name, app.repo, app.platform, app.badge, app.description].join(' '))
+      .includes(supportedAppFilterQuery));
+  const count = document.getElementById('supportedAppsCount');
+  if (count) {
+    count.textContent = supportedAppFilterQuery
+      ? apps.length + ' of ' + allApps.length + ' apps'
+      : allApps.length + ' supported apps';
+  }
   if (!apps.length) {
-    container.innerHTML = '';
+    container.innerHTML = '<p class="loader-supported-empty">No apps match this search.</p>';
     return;
   }
   container.innerHTML = apps.map(app => {
     const sourceKind = app.sourceKind || 'config';
-    const helperKind = app.localSource?.type === 'localhost-api' ? 'localhost' : sourceKind;
+    const helperKind = sourceKind;
+    const localReadiness = getSupportedAppLocalReadiness(app);
     const demoAction = app.hasDemo
       ? `<button class="btn-sm loader-supported-btn" onclick="loadSupportedApp('${app.id}', 'demo')">Demo</button>`
       : '';
@@ -656,8 +727,9 @@ function renderSupportedApps() {
           <span>${escapeHtml(app.platform || 'App')}</span>
           <span>${escapeHtml(helperKind)}</span>
         </div>
+        <div class="loader-supported-source-state ${localReadiness.className}">${escapeHtml(localReadiness.label)}</div>
         <div class="loader-supported-actions">
-          <button class="btn-full loader-supported-btn" onclick="loadSupportedApp('${app.id}')">Load</button>
+          <button class="btn-full loader-supported-btn" onclick="loadSupportedApp('${app.id}')">${localReadiness.useRemote ? 'Load URL' : 'Load'}</button>
           <button class="btn-sm loader-supported-btn" onclick="useSupportedAppUrl('${app.id}')">Use URL</button>
           ${demoAction}
         </div>
@@ -1963,6 +2035,7 @@ async function handleDroppedFiles(event) {
 
 async function bootstrapLoaderExperience() {
   renderSupportedApps();
+  refreshSupportedAppSourceCatalog();
   updateLoaderSourceUi();
   syncNavMapZoomLabel();
 

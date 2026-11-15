@@ -30,6 +30,12 @@ Then pick one of four ways to load a config:
 | **Supported apps** | Click a known app such as HumbleSudoku, MyVltavaRun, or HumbleControl. On localhost, HumbleSudoku loads the adjacent local bundle and can generate it when missing; HumbleControl loads its local `.humble/design.json`; URL loading remains available as a fallback |
 | **Demo** | Click "Load HumbleSudoku demo config" to explore a real example |
 
+### Searchable supported-app catalog
+
+The web viewer lets you search supported apps by name, repository, platform, or description. On the localhost preview helper, each card reports whether its local export is **ready**, **generatable**, or **missing**. When a local repository/export is missing, **Load URL** uses the configured remote source instead of failing through the local helper. On a static host or when the helper is unavailable, source loading remains URL-first.
+
+The helper exposes a read-only `GET /api/supported-apps/catalog` endpoint (also supports `HEAD`) with schema `humble.studio.supported-app-catalog.v1`. It never runs export generators, writes files, or returns private local filesystem paths; requesting a real export still uses the separate `/api/supported-apps/{app-id}/export` route.
+
 Hosted niceties included:
 - drag & drop onto the upload card
 - remembers the last URL or demo source in `localStorage`

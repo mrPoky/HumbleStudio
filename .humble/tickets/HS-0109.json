@@ -1,0 +1,72 @@
+{
+  "id": "HS-0109",
+  "title": "Make supported-app catalog searchable and show local source readiness",
+  "status": "testing",
+  "type": "feature",
+  "priority": "medium",
+  "owner": "Ivan 8",
+  "created_at": "2026-11-15",
+  "updated_at": "2026-11-15",
+  "source": "agent",
+  "summary": "Give the 12-app static viewer a searchable source picker and a read-only localhost readiness API so missing local repos or exports fall back directly to configured remote sources.",
+  "acceptance_criteria": [
+    "Supported app cards filter by name, repository, platform, description, and badge with a live result count and useful no-results state.",
+    "The local helper exposes a GET/HEAD catalog response with read-only source readiness and without revealing local repo paths or invoking generators.",
+    "Cards distinguish existing, generatable, missing export, missing repo, unavailable helper and URL-only states.",
+    "Clicking Load skips an unavailable local resolver and uses the known raw URL while still surfacing real generator errors.",
+    "Static hosting, demo loading, URL prefill, native bridge, and exports remain intact.",
+    "Focused tests and repository verification are executed before ticket closure."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "pending",
+      "path": "Scripts/serve_local_preview.py",
+      "note": "Implementation creates read-only local readiness responses separately from export generation."
+    },
+    {
+      "kind": "note",
+      "status": "pending",
+      "path": "js/app.js",
+      "note": "Catalog filtering, local readiness labels and URL fallback are implemented on the Ivan 8 topic branch."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "python3 Scripts/test_serve_local_preview.py",
+      "note": "Connector-only repository access; cannot run the repo script or its Python environment in this chat."
+    },
+    {
+      "kind": "command",
+      "status": "blocked",
+      "path": "node --check js/app.js",
+      "note": "Full node/browser/runtime checks remain pending on a checkout with dependencies and localhost access."
+    }
+  ],
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "node --check js/app.js",
+    "git diff --check"
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0109.json",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    "js/app.js",
+    "index.html",
+    "studio.css",
+    "README.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "only_blocking",
+    "source_ref": "Ivan 8 autonomous Humbleplatform project iteration, 2026-11-15"
+  }
+}
