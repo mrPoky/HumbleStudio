@@ -14,6 +14,8 @@ const functionNames = [
   'isLocalhostPreview', 'getLocalSupportedAppHelperPath',
   'canUseLocalSupportedAppHelper', 'getSupportedAppLocalReadiness',
   'refreshSupportedAppSourceCatalog', 'renderSupportedApps',
+  'buildSupportedAppSourceState', 'buildLocalSupportedAppSourceState',
+  'readLocalHelperError', 'loadSupportedAppFromLocalHelper', 'loadSupportedApp',
 ];
 
 function extract(name) {
@@ -29,8 +31,9 @@ const harnessCode = [
   "const LOCALHOST_PREVIEW_HOSTS = new Set(['localhost','127.0.0.1','::1']);",
   "const LOCAL_SUPPORTED_APP_CATALOG_PATH = '/api/supported-apps/catalog';",
   "const LOCAL_SUPPORTED_APP_CATALOG_SCHEMA = 'humble.studio.supported-app-catalog.v1';",
+  "const LOCAL_SUPPORTED_APP_EXPORT_HEADER = 'X-HumbleStudio-Local-Export';",
   ...functionNames.map(extract),
-  '({filterSupportedApps,refreshSupportedAppSourceCatalog,renderSupportedApps,canUseLocalSupportedAppHelper})',
+  '({filterSupportedApps,refreshSupportedAppSourceCatalog,renderSupportedApps,canUseLocalSupportedAppHelper,loadSupportedApp})',
 ].join('\n');
 
 function harness(hostname, fetchImpl) {
@@ -38,14 +41,26 @@ function harness(hostname, fetchImpl) {
     loaderSupportedApps: { innerHTML: '' },
     supportedAppsCount: { textContent: '' },
   };
+  const trace = { status: [], remoteLoads: [], localConfigs: [], remembered: [] };
   const context = {
     window: { location: { protocol: 'http:', hostname } },
     document: { getElementById: id => nodes[id] || null },
     fetch: fetchImpl,
     SUPPORTED_APP_SOURCES: apps,
     escapeHtml: value => String(value),
+    TextDecoder,
+    setStatus: (level, message) => trace.status.push({ level, message }),
+    rememberLastSource: source => trace.remembered.push(source),
+    setCurrentLoadSource: () => {},
+    updateLoaderSourceUi: () => {},
+    clearBundleAssets: () => {},
+    applyConfig: config => trace.localConfigs.push(config),
+    isBundlePayload: () => false,
+    isBundleResponse: () => false,
+    loadBundleFromArrayBuffer: () => {},
+    loadConfigFromUrl: async url => trace.remoteLoads.push(url),
   };
-  return { api: vm.runInNewContext(harnessCode, context), nodes };
+  return { api: vm.runInNewContext(harnessCode, context), nodes, trace };
 }
 
 async function main() {
@@ -87,10 +102,49 @@ async function main() {
   assert.ok(local.nodes.loaderSupportedApps.innerHTML.includes('Local export can be generated'));
   assert.ok(local.nodes.loaderSupportedApps.innerHTML.includes('Load URL'));
 
-  const absent = harness('127.0.0.1', async () => ({ ok: false, status: 404 }));
+  // Old localhost helpers have no catalog route: retain local-first loading.
+  const requests = [];
+  const absent = harness('127.0.0.1', async url => {
+    requests.push(url);
+    return { ok: false, status: 404 };
+  });
   await absent.api.refreshSupportedAppSourceCatalog();
-  assert.equal(absent.api.canUseLocalSupportedAppHelper(find('humble-sudoku')), false);
-  assert.ok(absent.nodes.loaderSupportedApps.innerHTML.includes('Helper unavailable · URL'));
+  assert.equal(absent.api.canUseLocalSupportedAppHelper(find('humble-sudoku')), true);
+  assert.ok(absent.nodes.loaderSupportedApps.innerHTML.includes('Local status unknown · try local'));
+  await absent.api.loadSupportedApp('humble-sudoku');
+  assert.equal(requests.length, 2);
+  assert.equal(absent.trace.remoteLoads[0], find('humble-sudoku').source.value);
+
+  for (const code of ['repository_missing', 'export_missing']) {
+    const legacyMissing = harness('localhost', async url => url.endsWith('/catalog')
+      ? { ok: false, status: 404 }
+      : { ok: false, status: 500, json: async () => ({ error: code, message: 'Local source missing' }) });
+    await legacyMissing.api.refreshSupportedAppSourceCatalog();
+    await legacyMissing.api.loadSupportedApp('humble-control');
+    assert.equal(legacyMissing.trace.remoteLoads[0], find('humble-control').source.value);
+  }
+
+  const legacyReady = harness('localhost', async url => url.endsWith('/catalog')
+    ? { ok: false, status: 404 }
+    : {
+      ok: true,
+      status: 200,
+      headers: { get: name => name === 'X-HumbleStudio-Local-Export' ? '1' : null },
+      arrayBuffer: async () => new TextEncoder().encode('{"meta":{"name":"HumbleControl"}}').buffer,
+    });
+  await legacyReady.api.refreshSupportedAppSourceCatalog();
+  await legacyReady.api.loadSupportedApp('humble-control');
+  assert.equal(legacyReady.trace.localConfigs[0].meta.name, 'HumbleControl');
+  assert.equal(legacyReady.trace.remoteLoads.length, 0);
+
+  const generatorFailure = harness('localhost', async url => url.endsWith('/catalog')
+    ? { ok: false, status: 404 }
+    : { ok: false, status: 500, json: async () => ({ error: 'generator_failed', message: 'Generation failed' }) });
+  await generatorFailure.api.refreshSupportedAppSourceCatalog();
+  await generatorFailure.api.loadSupportedApp('humble-sudoku');
+  assert.equal(generatorFailure.trace.remoteLoads.length, 0);
+  assert.ok(generatorFailure.trace.status.some(item => item.level === 'err'
+    && item.message.includes('Generation failed')));
 
   const mismatched = harness('localhost', async () => ({
     ok: true,
@@ -102,7 +156,7 @@ async function main() {
   await mismatched.api.refreshSupportedAppSourceCatalog();
   assert.equal(mismatched.api.canUseLocalSupportedAppHelper(find('humble-sudoku')), false);
 
-  console.log('Supported app catalog: search, readiness, URL fallback, 12-source parity PASS');
+  console.log('Supported app catalog: search, readiness, legacy helper fallback, errors and 12-source parity PASS');
 }
 
 main().catch(error => { console.error(error); process.exitCode = 1; });

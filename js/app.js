@@ -420,9 +420,8 @@ function getLocalSupportedAppHelperPath(app) {
 
 function canUseLocalSupportedAppHelper(app) {
   if (!isLocalhostPreview() || !getLocalSupportedAppHelperPath(app)) return false;
-  if (!supportedAppStatusChecked) return true;
-  return supportedAppStatusById !== null
-    && ['available', 'generatable'].includes(supportedAppStatusById.get(app.id));
+  if (!supportedAppStatusChecked || supportedAppStatusById === null) return true;
+  return ['available', 'generatable'].includes(supportedAppStatusById.get(app.id));
 }
 
 function getSupportedAppLocalReadiness(app) {
@@ -433,7 +432,7 @@ function getSupportedAppLocalReadiness(app) {
     return { label: 'Checking local source…', className: 'checking', useRemote: false };
   }
   if (!supportedAppStatusById) {
-    return { label: 'Helper unavailable · URL', className: 'warning', useRemote: true };
+    return { label: 'Local status unknown · try local', className: 'checking', useRemote: false };
   }
   switch (supportedAppStatusById.get(app.id)) {
     case 'available':
@@ -506,9 +505,12 @@ function buildLocalSupportedAppSourceState(app, helperPath) {
 async function readLocalHelperError(response) {
   try {
     const payload = await response.json();
-    return payload.message || payload.error || `HTTP ${response.status}`;
+    return {
+      code: typeof payload?.error === 'string' ? payload.error : '',
+      message: payload?.message || payload?.error || `HTTP ${response.status}`,
+    };
   } catch {
-    return `HTTP ${response.status}`;
+    return { code: '', message: `HTTP ${response.status}` };
   }
 }
 
@@ -526,7 +528,13 @@ async function loadSupportedAppFromLocalHelper(app) {
       return false;
     }
     if (!response.ok) {
-      throw new Error(await readLocalHelperError(response));
+      const helperError = await readLocalHelperError(response);
+      // Legacy helpers predate the readiness endpoint. Missing local sources
+      // are recoverable via URL; generator and integrity errors stay visible.
+      if (['repository_missing', 'export_missing'].includes(helperError.code)) {
+        return false;
+      }
+      throw new Error(helperError.message);
     }
     if (response.headers.get(LOCAL_SUPPORTED_APP_EXPORT_HEADER) !== '1') {
       return false;
