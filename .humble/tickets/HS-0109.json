@@ -26,15 +26,15 @@
     },
     {
       "kind": "note",
-      "status": "pending",
+      "status": "passed",
       "path": "Scripts/serve_local_preview.py",
-      "note": "Implementation creates read-only local readiness responses separately from export generation."
+      "note": "Reviewed the committed Scripts/serve_local_preview.py changes and linked acceptance behavior on branch; runtime verification remains pending."
     },
     {
       "kind": "note",
-      "status": "pending",
+      "status": "passed",
       "path": "js/app.js",
-      "note": "Catalog filtering, local readiness labels and URL fallback are implemented on the Ivan 8 topic branch."
+      "note": "Reviewed the committed js/app.js changes and linked acceptance behavior on branch; runtime verification remains pending."
     },
     {
       "kind": "command",
@@ -47,6 +47,18 @@
       "status": "blocked",
       "path": "node --check js/app.js",
       "note": "Full node/browser/runtime checks remain pending on a checkout with dependencies and localhost access."
+    },
+    {
+      "kind": "pr",
+      "status": "passed",
+      "path": "https://github.com/mrPoky/HumbleStudio/pull/18",
+      "note": "Opened draft PR #18 from isolated Ivan 8 feature branch; GitHub reports mergeable and main remains untouched. Ticket stays in testing until repo workflow checks are run."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/test_supported_app_catalog.cjs",
+      "note": "Persisted Node VM harness parsed successfully in V8 and can verify catalog filtering, static-only mode, local statuses, endpoint ID trust and 12-source parity in a local checkout."
     }
   ],
   "commands": [
