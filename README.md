@@ -30,6 +30,16 @@ Then pick one of four ways to load a config:
 | **Supported apps** | Click a known app such as HumbleSudoku, MyVltavaRun, or HumbleControl. On localhost, HumbleSudoku loads the adjacent local bundle and can generate it when missing; HumbleControl loads its local `.humble/design.json`; URL loading remains available as a fallback |
 | **Demo** | Click "Load HumbleSudoku demo config" to explore a real example |
 
+### Searchable supported-app catalog
+
+The web viewer lets you search supported apps by name, repository, platform, or description. On the localhost preview helper, each card reports whether its local export is **ready**, **generatable**, or **missing**. A **Refresh local sources** button lets you re-check readiness after generating or changing an export, without reloading Studio. When a local repository/export is missing, **Load URL** uses the configured remote source instead of failing through the local helper. On a static host, loading remains URL-first. When the readiness endpoint is missing (for example with an older localhost helper), Studio tries the existing local export endpoint first, then falls back to the URL if the export is unavailable; real generator errors stay visible.
+
+The helper exposes a read-only `GET /api/supported-apps/catalog` endpoint (also supports `HEAD`) with schema `humble.studio.supported-app-catalog.v1`. It never runs export generators, writes files, or returns private local filesystem paths; requesting a real export still uses the separate `/api/supported-apps/{app-id}/export` route.
+
+The `Repo Contract` GitHub workflow now runs focused Python endpoint tests, Node catalog/loader regressions, static fallback and ticket/contract checks on pull requests using Ubuntu.
+
+A separate headless Chromium CI job runs `node Scripts/smoke_supported_app_browser.cjs` with disposable app exports to exercise real search UI, localhost source, missing-repository URL fallback, refresh, mobile empty state, and `file://` static mode. Browser screenshots are retained as workflow artifacts; pinned Playwright is installed outside the repository. Its existing native macOS build remains available only through explicit workflow dispatch, so routine PR checks do not launch expensive native builds.
+
 Hosted niceties included:
 - drag & drop onto the upload card
 - remembers the last URL or demo source in `localStorage`

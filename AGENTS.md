@@ -109,9 +109,17 @@ Default workflow checks for this repo:
 - `python3 Scripts/validate_repo_contract.py`
 - `python3 Scripts/humble_doctor.py --repo-root . --strict`
 - `python3 Scripts/check_web_fallback.py`
+- `python3 Scripts/test_serve_local_preview.py`
+- `node --check js/app.js`
+- `node Scripts/test_supported_app_catalog.cjs`
 - `bash Scripts/run_local_checks.sh --workflow-only`
 - `python3 -m py_compile Scripts/*.py`
 - `git diff --check`
+
+Web browser smoke when source-picker or localhost loader behavior changes:
+
+- `node Scripts/smoke_supported_app_browser.cjs` (requires Playwright and
+  Chromium, which the GitHub PR browser job installs separately).
 
 Product checks when native app files or app workflow files are involved:
 
@@ -150,9 +158,13 @@ After file edits, report:
 
 ## Repo-Specific Overrides
 
-- HumbleStudio currently has no repo-local CI pipeline or release automation
-  checked into the repository. The strongest practical local verification is the
-  shared contract tooling plus the native macOS build commands documented above.
+- HumbleStudio has a `.github/workflows/repo-contract.yml` workflow. On pull
+  requests, its Ubuntu jobs validate repo contracts, tickets, web exports, and
+  real Chromium source-picker journeys with screenshot artifacts. The native
+  macOS build remains explicitly dispatch-only. This workflow is not a deploy
+  or automated release pipeline.
+- Keep screenshot-backed CI smoke distinct from manual exploratory UI approval.
+  Do not claim that native macOS QA ran when only the PR web jobs passed.
 - HumbleStudio is a hybrid repository with a static web viewer and native Apple
   app workspace. Repo contract docs and checks should describe both surfaces
   explicitly instead of assuming a single-platform Swift package layout.

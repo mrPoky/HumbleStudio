@@ -94,6 +94,9 @@ Shared workflow checks:
 - `python3 Scripts/validate_repo_contract.py`
 - `python3 Scripts/humble_doctor.py --repo-root . --strict`
 - `python3 Scripts/check_web_fallback.py`
+- `python3 Scripts/test_serve_local_preview.py`
+- `node --check js/app.js`
+- `node Scripts/test_supported_app_catalog.cjs`
 - `bash Scripts/run_local_checks.sh --workflow-only`
 - `python3 -m py_compile Scripts/*.py`
 - `git diff --check`
@@ -107,14 +110,18 @@ Web/product checks when relevant:
 
 - `python3 Scripts/check_web_fallback.py` for static asset and markup consistency
 - open or sanity-check `index.html` and the static viewer assets that changed
-- run any focused command added by the slice; the web fallback now has a script-based
-  integrity check, but still does not have a browser-level automated test harness
+- `node Scripts/smoke_supported_app_browser.cjs` runs a headless Chromium
+  end-to-end test with ephemeral local export fixtures and screenshot evidence.
+  The PR workflow installs its Playwright runtime and browser separately.
+- Web smoke results verify representative source-picker journeys, but do not
+  replace manual visual approval or native macOS builds.
 
 ## Repo-Specific Overrides
 
-- HumbleStudio does not yet have a committed CI pipeline, deploy workflow, or
-  automated release notes surface. That is a tooling gap to document honestly,
-  not a reason to weaken the canonical contract.
+- `.github/workflows/repo-contract.yml` provides PR-triggered Ubuntu Python,
+  Node, and headless Chromium checks. Its native macOS build is dispatch-only.
+  This is a verification pipeline, not a deployment or release workflow.
+  Automated release notes and deploy automation remain unavailable.
 - Strict repo doctor branch-freshness checks are promotion or clean-main gates.
   When run from an active topic branch, branch-hygiene failures should be
   recorded as workflow debt separately from the onboarding slice itself.

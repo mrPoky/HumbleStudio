@@ -50,6 +50,9 @@ def validate_markup(index_path: Path) -> list[str]:
     required_fragments = [
         'id="page-loader"',
         'id="loaderSupportedApps"',
+        'id="supportedAppSearch"',
+        'id="supportedAppsCount"',
+        'id="supportedAppsRefresh"',
         'id="page-review"',
         'id="page-navmap"',
         'src="js/app.js"',
@@ -73,6 +76,8 @@ def validate_local_preview_helper() -> list[str]:
     required_fragments = [
         (helper_content, "humble-sudoku", "localhost helper HumbleSudoku resolver"),
         (helper_content, "humble-control", "localhost helper HumbleControl resolver"),
+        (helper_content, "/api/supported-apps/catalog", "read-only local readiness endpoint"),
+        (helper_content, "humble.studio.supported-app-catalog.v1", "local readiness catalog schema"),
         (helper_content, "humble-workout", "localhost helper broader Humble app registry"),
         (helper_content, "my-vltava-run", "localhost helper MyVltavaRun resolver"),
         (
@@ -142,6 +147,8 @@ def validate_local_preview_helper() -> list[str]:
         (demo_content, "/api/supported-apps/humble-workout/export", "web catalog HumbleWorkout API path"),
         (demo_content, "/api/supported-apps/my-vltava-run/export", "web catalog MyVltavaRun API path"),
         (app_content, "loadSupportedAppFromLocalHelper", "web catalog localhost loader"),
+        (app_content, "refreshSupportedAppSourceCatalog", "web catalog readiness discovery"),
+        (app_content, "filterSupportedApps", "web catalog search"),
     ]
     failures: list[str] = []
     for content, fragment, label in required_fragments:

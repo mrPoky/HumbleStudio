@@ -1,0 +1,191 @@
+{
+  "id": "HS-0109",
+  "title": "Make supported-app catalog searchable and show local source readiness",
+  "status": "solved",
+  "type": "feature",
+  "priority": "medium",
+  "owner": "Ivan 8",
+  "created_at": "2026-11-15",
+  "updated_at": "2026-11-15",
+  "source": "agent",
+  "summary": "Complete search/readiness/refresh flow for 12 HumbleStudio web supported apps, with legacy helper compatible URL fallback. Verified through live Python endpoints, Node VM contracts, actual headless Chromium journeys and CI screenshots; PR #18 remains unmerged for normal review.",
+  "acceptance_criteria": [
+    "Supported app cards filter by name, repository, platform, description, and badge with a live result count and useful no-results state.",
+    "The local helper exposes a GET/HEAD catalog response with read-only source readiness and without revealing local repo paths or invoking generators.",
+    "Cards distinguish existing, generatable, missing export, missing repo, unavailable helper and URL-only states.",
+    "Clicking Load skips an unavailable local resolver and uses the known raw URL while still surfacing real generator errors.",
+    "Static hosting, demo loading, URL prefill, native bridge, and exports remain intact.",
+    "Focused tests and repository verification are executed before ticket closure.",
+    "A pull-request CI job runs both source-catalog regressions and repo checks without automatically launching the native macOS build.",
+    "The localhost source list has an accessible, disabled-while-loading manual refresh action that does not appear on static hosts.",
+    "Chromium browser smoke covers real local load, remote fallback, refreshed local export, mobile empty state, file static mode and JavaScript errors."
+  ],
+  "evidence": [
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "js/app.js",
+      "note": "Isolated V8 harness parsed the web app and passed search/count/empty state, local ready/generatable/missing, helper-unavailable fallback, rejected endpoint mismatch and 12-app catalog ID parity. Node/Python checkout tests still pending."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/serve_local_preview.py",
+      "note": "Reviewed the committed Scripts/serve_local_preview.py changes and linked acceptance behavior on branch; runtime verification remains pending."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "js/app.js",
+      "note": "Reviewed the committed js/app.js changes and linked acceptance behavior on branch; runtime verification remains pending."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "python3 Scripts/test_serve_local_preview.py",
+      "note": "Executed successfully by GitHub Actions / Repo Contract / web-and-repo-contract, run 43714117466; no claim of local checkout execution."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "node --check js/app.js",
+      "note": "Executed successfully by GitHub Actions / Repo Contract / web-and-repo-contract, run 43714117466; no claim of local checkout execution."
+    },
+    {
+      "kind": "pr",
+      "status": "passed",
+      "path": "https://github.com/mrPoky/HumbleStudio/pull/18",
+      "note": "Opened draft PR #18 from isolated Ivan 8 feature branch; GitHub reports mergeable and main remains untouched. Ticket stays in testing until repo workflow checks are run."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/test_supported_app_catalog.cjs",
+      "note": "Persisted Node VM harness parsed successfully in V8 and can verify catalog filtering, static-only mode, local statuses, endpoint ID trust and 12-source parity in a local checkout."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/test_serve_local_preview.py",
+      "note": "Added GET/HEAD handler-level contract test with an ephemeral loopback HTTP server; validates response body and headers, and asserts no generator is run."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": ".github/workflows/repo-contract.yml",
+      "note": "Added pull_request-only Ubuntu Python/Node test job; preserved manual-dispatch macOS build job."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": ".github/workflows/repo-contract.yml",
+      "note": "Executed successfully by GitHub Actions / Repo Contract / web-and-repo-contract, run 43714117466; no claim of local checkout execution."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "index.html",
+      "note": "Added explicit Refresh local sources button beside accessible source count; visible only on localhost."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/test_supported_app_catalog.cjs",
+      "note": "Added VM assertions for static-host hiding, pending refresh disabling, and re-enabling after refreshed readiness."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "https://github.com/mrPoky/HumbleStudio/actions/runs/43714117466",
+      "note": "All PR workflow steps passed on source-refresh commit faaeccb7: repo/ticket checks, Python compile, web fallback, Python HTTP endpoint suite, Node catalog regression suite, JS syntax and diff whitespace."
+    },
+    {
+      "kind": "note",
+      "status": "not_applicable",
+      "path": "AppleApps",
+      "note": "Native macOS build not run automatically because this slice changes only the static web viewer and Python helper; previous dispatch-only native build workflow remains unchanged."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Automated Chromium localhost browser journeys",
+      "note": "GitHub Actions run 43752388794 loaded a real ephemeral localhost helper in Chromium; verified local design.json, missing-repo URL fallback, manual refresh recovery, mobile empty state, file viewer and no uncaught page errors. Not a claim of manual developer visual approval."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/smoke_supported_app_browser.cjs",
+      "note": "Completed Playwright Chromium smoke: run 43752388794, supported-app-browser-smoke job PASS with 3 saved screenshots."
+    },
+    {
+      "kind": "command",
+      "status": "failed",
+      "path": "https://github.com/mrPoky/HumbleStudio/actions/runs/43752187949",
+      "note": "First browser smoke attempt found a test synchronization issue: same-app remote/local reload retained the previous title and title-based wait completed before local load. CI failure was not classified as a product bug."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "Scripts/smoke_supported_app_browser.cjs",
+      "note": "Replaced ambiguous repeated-title wait with a concrete awaited local export HTTP response and source-mode transition."
+    },
+    {
+      "kind": "command",
+      "status": "passed",
+      "path": "https://github.com/mrPoky/HumbleStudio/actions/runs/43752388794",
+      "note": "Latest pre-evidence browser implementation head 79b247cf passed both Ubuntu jobs: web-and-repo-contract and supported-app-browser-smoke. Native dispatch-only job deliberately skipped."
+    },
+    {
+      "kind": "snapshot",
+      "status": "passed",
+      "path": "https://github.com/mrPoky/HumbleStudio/actions/runs/43752388794/artifacts/14176598892",
+      "note": "GitHub Actions uploaded browser snapshots: desktop-loaded.png, mobile-empty.png and static-viewer.png; artifact id 14176598892. Automated screenshots not yet manually evaluated."
+    },
+    {
+      "kind": "note",
+      "status": "pending",
+      "path": "manual screenshot inspection",
+      "note": "Optional human visual sign-off can inspect uploaded browser artifacts; PR remains reviewable without claiming this happened."
+    },
+    {
+      "kind": "note",
+      "status": "passed",
+      "path": "AGENTS.md; docs/workflow-contract.md",
+      "note": "Aligned repository verification and workflow guidance with actual PR Python/Node/Chromium CI and dispatch-only native build. Removed outdated no-CI/no-browser statements."
+    }
+  ],
+  "commands": [
+    "python3 Scripts/test_serve_local_preview.py",
+    "node Scripts/test_supported_app_catalog.cjs",
+    "python3 Scripts/check_web_fallback.py",
+    "python3 Scripts/validate_humble_tickets.py",
+    "python3 Scripts/validate_repo_contract.py",
+    "bash Scripts/run_local_checks.sh --workflow-only",
+    "node --check js/app.js",
+    "git diff --check",
+    "GitHub Actions: Repo Contract / web-and-repo-contract",
+    "node Scripts/smoke_supported_app_browser.cjs (Playwright Chromium)"
+  ],
+  "related_files": [
+    ".humble/tickets/HS-0109.json",
+    "Scripts/serve_local_preview.py",
+    "Scripts/test_serve_local_preview.py",
+    "Scripts/check_web_fallback.py",
+    "js/app.js",
+    "index.html",
+    "studio.css",
+    "README.md",
+    "Scripts/test_supported_app_catalog.cjs",
+    ".github/workflows/repo-contract.yml",
+    "Scripts/smoke_supported_app_browser.cjs",
+    "AGENTS.md",
+    "docs/workflow-contract.md"
+  ],
+  "blocked_by": null,
+  "trigger": {
+    "kind": "manual_prompt",
+    "interaction_mode": "manual_autonomous",
+    "question_policy": "only_blocking",
+    "source_ref": "Ivan 8 autonomous Humbleplatform project iteration, 2026-11-15"
+  }
+}

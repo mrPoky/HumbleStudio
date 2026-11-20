@@ -99,7 +99,15 @@
         </label>
         <div class="loader-or">— or —</div>
         <div class="loader-label">Supported apps</div>
-        <div class="loader-supported-copy">Pick a repo HumbleStudio already knows how to load, then inspect it immediately or prefill its raw export URL.</div>
+        <div class="loader-supported-copy">Pick a repo HumbleStudio already knows how to load, then inspect it immediately or prefill its raw export URL. On localhost, see which local exports are ready before loading.</div>
+        <div class="loader-supported-toolbar">
+          <label class="loader-supported-search-wrap" for="supportedAppSearch">
+            <span class="loader-supported-search-label">Find an app</span>
+            <input class="loader-supported-search" id="supportedAppSearch" type="search" aria-controls="loaderSupportedApps" placeholder="Name, platform, repository…" oninput="filterSupportedApps(this.value)" />
+          </label>
+          <span class="loader-supported-count" id="supportedAppsCount" role="status" aria-live="polite"></span>
+          <button class="btn-sm loader-supported-refresh" type="button" id="supportedAppsRefresh" onclick="refreshSupportedAppSourceCatalog()" style="display:none">Refresh local sources</button>
+        </div>
         <div class="loader-supported-grid" id="loaderSupportedApps"></div>
         <div class="loader-or">— or —</div>
         <div style="text-align:center">
